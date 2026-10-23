@@ -1,42 +1,64 @@
 <!doctype html><html lang="nb"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="RepCam">
-<meta name="theme-color" content="#000000"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png">
-<title>RepCam – Knebøy</title>
-<style>
-:root{--g:#39ff6a}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:#000;color:#fff;font-family:-apple-system,system-ui,sans-serif;overflow:hidden}
-#stage{position:fixed;inset:0}video,canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.mirror{transform:scaleX(-1)}
-.chip{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:999px;background:rgba(20,20,20,.6);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-weight:600;border:1px solid rgba(255,255,255,.15)}
-.chip b{color:var(--g)}
-#flip{position:fixed;top:calc(env(safe-area-inset-top) + 8px);right:14px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(20,20,20,.6);color:#fff;font-size:20px;backdrop-filter:blur(14px)}
-#ringwrap{position:fixed;top:22%;left:50%;transform:translateX(-50%);width:190px;height:190px}
-#ringwrap svg{width:100%;height:100%;transform:rotate(-90deg)}
-#reps{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:96px;font-weight:800;text-shadow:0 2px 20px rgba(0,0,0,.7)}
-#hint{position:fixed;top:calc(22% + 205px);left:50%;transform:translateX(-50%);background:rgba(255,170,0,.85);color:#000;padding:6px 14px;border-radius:12px;font-weight:600;display:none;white-space:nowrap}
-.card{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);padding:16px;border-radius:24px;background:rgba(25,25,25,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12)}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.kg button{width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:24px}
-.kg span{font-size:22px;font-weight:700;min-width:90px;text-align:center;display:inline-block}
-.big{width:100%;margin-top:12px;padding:16px;border:0;border-radius:16px;background:var(--g);color:#000;font-size:18px;font-weight:800}
-#log{margin-top:10px;max-height:84px;overflow:auto;font-size:13px;color:#bbb}
-#start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#000;z-index:10;text-align:center;padding:24px}
-#start button{width:auto;padding:18px 36px}
-#status{color:#aaa;font-size:14px}
-</style></head><body>
-<div id="stage"><video id="v" playsinline muted autoplay></video><canvas id="c"></canvas></div>
-<div class="chip">✨ <b>Knebøy</b></div>
-<button id="flip" aria-label="Bytt kamera">⟲</button>
-<div id="ringwrap"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="7"/><circle id="ring" cx="50" cy="50" r="44" fill="none" stroke="#39ff6a" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"/></svg><div id="reps">0</div></div>
-<div id="hint">Få hele kroppen i bildet</div>
-<div class="card"><div class="row"><div><div style="font-size:13px;color:#aaa">Sett</div><div id="setno" style="font-size:22px;font-weight:700">Sett 1</div></div>
-<div class="kg"><button id="minus">−</button><span id="kg">20 kg</span><button id="plus">+</button></div></div>
-<button class="big" id="confirm">Bekreft sett</button><div id="log"></div></div>
-<div id="start"><div style="font-size:28px;font-weight:800">RepCam ✨</div><div>Teller knebøy med kameraet – alt skjer på telefonen.</div>
-<button class="big" id="go">Start kamera</button><div id="status"></div>
-<div id="help" style="display:none;max-width:420px;text-align:left;font-size:14px;line-height:1.5;background:#1a1a1a;border:1px solid #444;border-radius:14px;padding:14px"><div id="helptext"></div><button id="copy" style="margin-top:10px;padding:10px 16px;border-radius:10px;border:0;background:#fff;color:#000;font-weight:700">Kopier lenke</button></div></div>
-<script src="reps.js?v=2"></script>
-<script type="module" src="app.js?v=2"></script>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="RepCam">
+<meta name="theme-color" content="#f5f6fa" id="tc"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
+<title>RepCam</title>
+<script>(function(){var t=localStorage.getItem('repcam.theme')||'auto';var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';})()</script>
+<link rel="stylesheet" href="style.css?v=3">
+</head><body>
+<main id="app">
+<!-- HJEM -->
+<section class="view" id="view-home">
+  <header class="top"><div><div class="greet" id="greet">Hei, Rune</div><h1 id="title">Klar for en sterk dag?</h1></div><div class="avatar">R</div></header>
+  <button class="hero" id="startOkt"><span class="hero-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+    <span class="hero-tx"><b>Start økt</b><small>Logg øvelse med kamera</small></span><span class="hero-arrow">›</span></button>
+  <div class="sec"><h2>Dagens økt</h2><span class="muted" id="todayVol"></span></div>
+  <div id="todayList"></div>
+  <div class="sec"><h2>Ukentlig volum</h2></div>
+  <div class="card week"><div class="row"><div><div class="big-num" id="weekTotal">0 kg</div><div class="muted">denne uken</div></div><div class="pill" id="weekPct"></div></div>
+  <svg id="weekChart" viewBox="0 0 320 130" class="chart" aria-label="Volum per dag"></svg></div>
+</section>
+<!-- ØVELSER -->
+<section class="view" id="view-ovelser"><header class="top"><h1>Øvelser</h1></header><div id="exList"></div></section>
+<!-- HISTORIKK -->
+<section class="view" id="view-historikk"><header class="top"><h1>Historikk</h1></header><div id="histList"></div></section>
+<!-- PROFIL -->
+<section class="view" id="view-profil"><header class="top"><h1>Profil</h1></header>
+  <div class="card prof"><div class="avatar lg">R</div><div><b>Rune</b><div class="muted" id="profStats"></div></div></div>
+  <div class="sec"><h2>Utseende</h2></div>
+  <div class="card"><div class="seg" id="themeSeg" role="radiogroup"><button data-t="light">☀️ Lys</button><button data-t="dark">🌙 Mørk</button><button data-t="auto">⚙️ Auto</button></div>
+  <div class="muted small">Auto følger innstillingen på telefonen.</div></div>
+  <div class="sec"><h2>Data</h2></div>
+  <div class="card"><button class="btn" id="export">⬇️ Eksporter data (JSON)</button><div class="muted small">Alt lagres kun på denne enheten.</div></div>
+</section>
+<!-- ØKT (kamera) -->
+<section class="view" id="view-okt">
+  <div id="stage"><video id="v" playsinline muted autoplay></video><canvas id="c"></canvas></div>
+  <button id="close" class="glass circ" aria-label="Avslutt">✕</button>
+  <div class="chip glass">✨ <b>Knebøy</b> · <span id="elapsed">0:00</span></div>
+  <button id="flip" class="glass circ" aria-label="Bytt kamera">⟲</button>
+  <div id="ringwrap"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="7"/><circle id="ring" cx="50" cy="50" r="44" fill="none" stroke="url(#gr)" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"/><defs><linearGradient id="gr"><stop offset="0" stop-color="#ff8a00"/><stop offset="1" stop-color="#ff2d87"/></linearGradient></defs></svg><div id="reps">0</div></div>
+  <div id="hint">Få hele kroppen i bildet</div>
+  <div class="wcard glass"><div class="row"><div><div class="muted small">Sett</div><div id="setno" class="b22">Sett 1</div></div>
+    <div class="kg"><button id="minus" aria-label="Mindre vekt">−</button><span id="kg">20 kg</span><button id="plus" aria-label="Mer vekt">+</button></div></div>
+    <button class="grad" id="confirm">Bekreft sett</button>
+    <button class="ghost" id="finish">Avslutt økt</button><div id="log"></div></div>
+  <div id="start"><div class="b28">RepCam ✨</div><div>Teller knebøy med kameraet – alt skjer på telefonen.</div>
+    <button class="grad" id="go">Start kamera</button><div id="status"></div>
+    <div id="help"><div id="helptext"></div><button id="copy">Kopier lenke</button></div>
+    <button class="ghost" id="back">Tilbake</button></div>
+</section>
+</main>
+<nav id="tabs">
+  <a href="#/" data-v="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Hjem</a>
+  <a href="#/ovelser" data-v="ovelser"><svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>Øvelser</a>
+  <a href="#/historikk" data-v="historikk"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historikk</a>
+  <a href="#/profil" data-v="profil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Profil</a>
+</nav>
+<div id="sheetBg" class="sheet-bg"></div>
+<div id="sheet" class="sheet" role="dialog" aria-modal="true"></div>
+<script src="reps.js?v=3"></script>
+<script src="store.js?v=3"></script>
+<script type="module" src="app.js?v=3"></script>
 </body></html>
