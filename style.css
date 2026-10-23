@@ -88,3 +88,23 @@ body.workout #tabs{display:none}
 #help{display:none;max-width:420px;text-align:left;font-size:14px;line-height:1.5;background:#1a1a1a;border:1px solid #444;border-radius:14px;padding:14px}
 #copy{margin-top:10px;padding:10px 16px;border-radius:10px;border:0;background:#fff;color:#000;font-weight:700}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* v4 */
+.inp{width:100%;min-height:46px;border-radius:12px;border:1px solid var(--line);background:var(--chip);color:var(--tx);font:inherit;font-size:17px;padding:8px 12px;margin-top:6px}
+#pName{font-weight:800;margin:0 0 4px}
+a.avatar{text-decoration:none;flex:none}
+.tip{margin-top:8px;font-size:13px;color:var(--mu);border-top:1px solid var(--line);padding-top:8px}
+.setrow{cursor:pointer}.setrow:active{background:var(--chip)}
+.chip{border:1px solid rgba(255,255,255,.15);font-size:15px}
+.tight{margin-top:2px;max-width:170px;color:inherit;opacity:.75}
+.kg span{cursor:pointer}
+.toast{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 250px);max-width:540px;margin:0 auto;display:flex;gap:8px;align-items:center;background:rgba(20,20,24,.92);color:#fff;border-radius:16px;padding:10px 12px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s;z-index:6}
+.toast.on{opacity:1;transform:none;pointer-events:auto}
+.toast span{flex:1;font-weight:650}.toast button{border:0;border-radius:10px;padding:10px 12px;background:rgba(255,255,255,.16);color:#fff;font-weight:750;min-height:44px}
+.stepper{display:flex;align-items:center;justify-content:space-between;background:var(--chip);border-radius:16px;padding:6px;margin:8px 0}
+.stepper button{width:52px;height:52px;border-radius:14px;border:0;background:var(--card);font-size:26px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.1);touch-action:manipulation}
+.stepper .val{flex:1;text-align:center;font-size:26px;font-weight:800;cursor:text;border:0;background:transparent;color:var(--tx);width:100%}
+.exgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.exgrid button{min-height:48px;border-radius:14px;border:1px solid var(--line);background:var(--chip);font-weight:650;text-align:left;padding:8px 10px}
+.exgrid button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--card))}
+.exgrid button.wide{grid-column:1/-1}
+.sheet{max-height:92vh;overflow:auto}

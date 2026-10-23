@@ -28,4 +28,19 @@ st.deleteSet(st.sets().find(s=>s.reps===8&&s.kg===80).timestamp);st.deleteSet(st
 // corrupt storage
 const bad=mem();bad.setItem('repcam.sets','{oops');assert.deepEqual(S.createStore(bad).sets(),[]);
 assert(JSON.parse(st.exportJSON()).sets.length===2);
-console.log('store tests passed');
+// updateSet / lastKg / exercise list
+const u=S.createStore(mem());const a=u.addSet({exercise:'dips',reps:5,kg:0},new Date('2026-10-23T18:00:00Z'));const b=u.addSet({exercise:'dips',reps:6,kg:10},new Date('2026-10-23T18:05:00Z'));
+assert.equal(u.lastKg('dips'),10);assert.equal(u.lastKg('roing'),null);
+assert.equal(u.updateSet(a.timestamp,{reps:'7',kg:'12.5'}).reps,7);assert.equal(u.sets()[0].kg,12.5);
+u.updateSet(b.timestamp,{exercise:'pullups',kg:-5});assert.equal(u.sets()[1].exercise,'pullups');assert.equal(u.sets()[1].kg,0);assert.equal(u.lastKg('dips'),12.5);
+assert.equal(u.updateSet('nope',{reps:1}),null);
+assert.deepEqual(S.EX.map(e=>e.id),['knebøy','bulgarsk','pullups','dips','skråbenk','halvmark','roing']);assert(S.EX.every(e=>e.active&&e.icon));
+assert.equal(S.exInfo('benkpress').name,'Benkpress');
+// i18n
+const I=require('./i18n.js');
+assert.equal(I.detect(['nb-NO']),'nb');assert.equal(I.detect(['no']),'nb');assert.equal(I.detect(['nn']),'nb');assert.equal(I.detect(['de-AT','en']),'de');assert.equal(I.detect(['ja-JP']),'en');assert.equal(I.detect(['sv-SE']),'sv');assert.equal(I.detect(['da']),'da');
+const keys=Object.keys(I.DICT.nb);for(const l in I.LANGS){assert.deepEqual(Object.keys(I.DICT[l]).sort(),[...keys].sort(),'missing keys in '+l);}
+for(const l in I.LANGS){const x=I.create(l);assert.equal(x.weekdays().length,7);assert(x.exName('knebøy'));assert(x.t('w.saved',{ex:'A',r:3,kg:'5 kg'}).includes('3'));}
+assert.equal(I.create('de').nf(1234.5,1),'1.234,5');assert.equal(I.create('en').kgf(0),'Bodyweight');assert.equal(I.create('nb').kgf(62.5),'62,5 kg');
+assert.equal(I.create('de').t('n.knebøy'),'Kniebeuge');
+console.log('store + i18n tests passed');

@@ -5,60 +5,59 @@
 <meta name="theme-color" content="#f5f6fa" id="tc"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
 <title>RepCam</title>
 <script>(function(){var t=localStorage.getItem('repcam.theme')||'auto';var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';})()</script>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head><body>
 <main id="app">
-<!-- HJEM -->
 <section class="view" id="view-home">
-  <header class="top"><div><div class="greet" id="greet">Hei, Rune</div><h1 id="title">Klar for en sterk dag?</h1></div><div class="avatar">R</div></header>
+  <header class="top"><div><div class="greet" id="greet"></div><h1 id="title"></h1></div><a class="avatar" id="avatar" href="#/profil">R</a></header>
   <button class="hero" id="startOkt"><span class="hero-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
-    <span class="hero-tx"><b>Start økt</b><small>Logg øvelse med kamera</small></span><span class="hero-arrow">›</span></button>
-  <div class="sec"><h2>Dagens økt</h2><span class="muted" id="todayVol"></span></div>
+    <span class="hero-tx"><b data-i="home.start"></b><small data-i="home.startSub"></small></span><span class="hero-arrow">›</span></button>
+  <div class="sec"><h2 data-i="home.today"></h2><span class="muted" id="todayVol"></span></div>
   <div id="todayList"></div>
-  <div class="sec"><h2>Ukentlig volum</h2></div>
-  <div class="card week"><div class="row"><div><div class="big-num" id="weekTotal">0 kg</div><div class="muted">denne uken</div></div><div class="pill" id="weekPct"></div></div>
-  <svg id="weekChart" viewBox="0 0 320 130" class="chart" aria-label="Volum per dag"></svg></div>
+  <div class="sec"><h2 data-i="home.week"></h2></div>
+  <div class="card week"><div class="row"><div><div class="big-num" id="weekTotal">0 kg</div><div class="muted" data-i="home.thisWeek"></div></div><div class="pill" id="weekPct"></div></div>
+  <svg id="weekChart" viewBox="0 0 320 130" class="chart" role="img"></svg></div>
 </section>
-<!-- ØVELSER -->
-<section class="view" id="view-ovelser"><header class="top"><h1>Øvelser</h1></header><div id="exList"></div></section>
-<!-- HISTORIKK -->
-<section class="view" id="view-historikk"><header class="top"><h1>Historikk</h1></header><div id="histList"></div></section>
-<!-- PROFIL -->
-<section class="view" id="view-profil"><header class="top"><h1>Profil</h1></header>
-  <div class="card prof"><div class="avatar lg">R</div><div><b>Rune</b><div class="muted" id="profStats"></div></div></div>
-  <div class="sec"><h2>Utseende</h2></div>
-  <div class="card"><div class="seg" id="themeSeg" role="radiogroup"><button data-t="light">☀️ Lys</button><button data-t="dark">🌙 Mørk</button><button data-t="auto">⚙️ Auto</button></div>
-  <div class="muted small">Auto følger innstillingen på telefonen.</div></div>
-  <div class="sec"><h2>Data</h2></div>
-  <div class="card"><button class="btn" id="export">⬇️ Eksporter data (JSON)</button><div class="muted small">Alt lagres kun på denne enheten.</div></div>
+<section class="view" id="view-ovelser"><header class="top"><h1 data-i="ex.title"></h1></header><p class="muted" data-i="ex.auto"></p><div id="exList"></div></section>
+<section class="view" id="view-historikk"><header class="top"><h1 data-i="hist.title"></h1></header><div id="histList"></div></section>
+<section class="view" id="view-profil"><header class="top"><h1 data-i="prof.title"></h1></header>
+  <div class="card prof"><div class="avatar lg" id="avatar2">R</div><div style="flex:1"><input id="pName" class="inp" autocomplete="given-name"><div class="muted" id="profStats"></div></div></div>
+  <div class="card"><label class="muted" for="pBw" data-i="prof.bw"></label><input id="pBw" class="inp" inputmode="decimal" type="number" min="0" step="0.5"></div>
+  <div class="sec"><h2 data-i="prof.lang"></h2></div>
+  <div class="card"><select id="langSel" class="inp"></select></div>
+  <div class="sec"><h2 data-i="prof.look"></h2></div>
+  <div class="card"><div class="seg" id="themeSeg" role="radiogroup"><button data-t="light" data-i="prof.light"></button><button data-t="dark" data-i="prof.dark"></button><button data-t="auto" data-i="prof.auto"></button></div>
+  <div class="muted small" data-i="prof.autoNote"></div></div>
+  <div class="sec"><h2 data-i="prof.data"></h2></div>
+  <div class="card"><button class="btn" id="export" data-i="prof.export"></button><div class="muted small" data-i="prof.local"></div></div>
 </section>
-<!-- ØKT (kamera) -->
 <section class="view" id="view-okt">
   <div id="stage"><video id="v" playsinline muted autoplay></video><canvas id="c"></canvas></div>
-  <button id="close" class="glass circ" aria-label="Avslutt">✕</button>
-  <div class="chip glass">✨ <b>Knebøy</b> · <span id="elapsed">0:00</span></div>
-  <button id="flip" class="glass circ" aria-label="Bytt kamera">⟲</button>
+  <button id="close" class="glass circ" data-ia="a.close">✕</button>
+  <button class="chip glass" id="exChip"><span id="exIc">✨</span> <b id="exName"></b> · <span id="elapsed">0:00</span> ▾</button>
+  <button id="flip" class="glass circ" data-ia="a.flip">⟲</button>
   <div id="ringwrap"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="7"/><circle id="ring" cx="50" cy="50" r="44" fill="none" stroke="url(#gr)" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"/><defs><linearGradient id="gr"><stop offset="0" stop-color="#ff8a00"/><stop offset="1" stop-color="#ff2d87"/></linearGradient></defs></svg><div id="reps">0</div></div>
-  <div id="hint">Få hele kroppen i bildet</div>
-  <div class="wcard glass"><div class="row"><div><div class="muted small">Sett</div><div id="setno" class="b22">Sett 1</div></div>
-    <div class="kg"><button id="minus" aria-label="Mindre vekt">−</button><span id="kg">20 kg</span><button id="plus" aria-label="Mer vekt">+</button></div></div>
-    <button class="grad" id="confirm">Bekreft sett</button>
-    <button class="ghost" id="finish">Avslutt økt</button><div id="log"></div></div>
-  <div id="start"><div class="b28">RepCam ✨</div><div>Teller knebøy med kameraet – alt skjer på telefonen.</div>
-    <button class="grad" id="go">Start kamera</button><div id="status"></div>
-    <div id="help"><div id="helptext"></div><button id="copy">Kopier lenke</button></div>
-    <button class="ghost" id="back">Tilbake</button></div>
+  <div id="hint" data-i="w.hint"></div>
+  <div id="toast" class="toast" role="status"><span id="toastTx"></span><button id="tUndo" data-i="w.undo"></button><button id="tEdit" data-i="w.edit"></button></div>
+  <div class="wcard glass"><div class="row"><div><div id="setno" class="b22">Sett 1</div><div class="muted small tight" data-i="w.autosave"></div></div>
+    <div class="kg"><button id="minus" data-ia="a.less">−</button><span id="kg" role="button" tabindex="0">20 kg</span><button id="plus" data-ia="a.more">+</button></div></div>
+    <div class="btns"><button class="ghost" id="confirm" data-i="w.saveNow"></button><button class="ghost" id="finish" data-i="w.finish"></button></div><div id="log"></div></div>
+  <div id="start"><div class="b28" data-i="start.title"></div><div data-i="start.text"></div>
+    <button class="grad" id="go" data-i="start.go"></button><div id="status"></div>
+    <div id="help"><div id="helptext"></div><button id="copy" data-i="start.copy"></button></div>
+    <button class="ghost" id="back" data-i="start.back"></button></div>
 </section>
 </main>
 <nav id="tabs">
-  <a href="#/" data-v="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Hjem</a>
-  <a href="#/ovelser" data-v="ovelser"><svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>Øvelser</a>
-  <a href="#/historikk" data-v="historikk"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historikk</a>
-  <a href="#/profil" data-v="profil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Profil</a>
+  <a href="#/" data-v="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span data-i="tab.home"></span></a>
+  <a href="#/ovelser" data-v="ovelser"><svg viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg><span data-i="tab.ex"></span></a>
+  <a href="#/historikk" data-v="historikk"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-i="tab.hist"></span></a>
+  <a href="#/profil" data-v="profil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg><span data-i="tab.prof"></span></a>
 </nav>
 <div id="sheetBg" class="sheet-bg"></div>
 <div id="sheet" class="sheet" role="dialog" aria-modal="true"></div>
-<script src="reps.js?v=3"></script>
-<script src="store.js?v=3"></script>
-<script type="module" src="app.js?v=3"></script>
+<script src="i18n.js?v=4"></script>
+<script src="reps.js?v=4"></script>
+<script src="store.js?v=4"></script>
+<script type="module" src="app.js?v=4"></script>
 </body></html>

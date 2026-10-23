@@ -2,15 +2,21 @@
 (function (root) {
   const SETS = 'repcam.sets', SESS = 'repcam.sessions', ACTIVE = 'repcam.active';
   const GAP = 2 * 3600e3; // legacy sets more than 2h apart => new session
+  // Active exercises (camera-counted) first; legacy ids kept so old data still renders.
   const EX = [
     { id: 'knebøy', name: 'Knebøy', icon: '🏋️', active: true },
-    { id: 'benkpress', name: 'Benkpress', icon: '💪' },
-    { id: 'markløft', name: 'Markløft', icon: '🔥' },
-    { id: 'skulderpress', name: 'Skulderpress', icon: '🙌' },
-    { id: 'utfall', name: 'Utfall', icon: '🦵' },
-    { id: 'pushups', name: 'Push-ups', icon: '⚡' }
+    { id: 'bulgarsk', name: 'Bulgarsk utfall', icon: '🦵', active: true },
+    { id: 'pullups', name: 'Pull-ups', icon: '🧗', active: true },
+    { id: 'dips', name: 'Dips', icon: '🤸', active: true },
+    { id: 'skråbenk', name: 'Skråbenk', icon: '💪', active: true },
+    { id: 'halvmark', name: 'Rumensk markløft', icon: '🔥', active: true },
+    { id: 'roing', name: 'Stående roing', icon: '🚣', active: true }
   ];
-  const exInfo = id => EX.find(e => e.id === id) || { id, name: id ? id[0].toUpperCase() + id.slice(1) : 'Øvelse', icon: '🏋️' };
+  const LEGACY = [
+    { id: 'benkpress', name: 'Benkpress', icon: '💪' }, { id: 'markløft', name: 'Markløft', icon: '🔥' },
+    { id: 'skulderpress', name: 'Skulderpress', icon: '🙌' }, { id: 'utfall', name: 'Utfall', icon: '🦵' }, { id: 'pushups', name: 'Push-ups', icon: '⚡' }
+  ];
+  const exInfo = id => EX.find(e => e.id === id) || LEGACY.find(e => e.id === id) || { id, name: id ? id[0].toUpperCase() + id.slice(1) : 'Øvelse', icon: '🏋️' };
   const read = (ls, k, d) => { try { const v = JSON.parse(ls.getItem(k)); return v == null ? d : v; } catch { return d; } };
   const t = s => new Date(s.timestamp).getTime();
   const vol = arr => arr.reduce((a, s) => a + (+s.reps || 0) * (+s.kg || 0), 0);
@@ -99,11 +105,23 @@
         if (i < 0) return false; s.splice(i, 1); api.save(SETS, s);
         const ids = new Set(s.map(x => x.sessionId)); api.save(SESS, api.meta().filter(m => ids.has(m.id))); return true;
       },
+      // Patch a logged set (reps, kg, exercise). Returns the updated record or null.
+      updateSet(timestamp, patch) {
+        const s = api.sets(), i = s.findIndex(x => x.timestamp === timestamp);
+        if (i < 0) return null;
+        const p = {};
+        if (patch.reps != null) p.reps = Math.max(0, Math.round(+patch.reps || 0));
+        if (patch.kg != null) p.kg = Math.max(0, Math.round((+patch.kg || 0) * 100) / 100);
+        if (patch.exercise) p.exercise = patch.exercise;
+        s[i] = { ...s[i], ...p }; api.save(SETS, s); return s[i];
+      },
+      // Last weight used for an exercise (default for the next set); null if never logged.
+      lastKg(ex) { const s = api.sets(); for (let i = s.length - 1; i >= 0; i--) if ((s[i].exercise || 'knebøy') === ex) return +s[i].kg || 0; return null; },
       sessions: () => sessions(api.sets(), api.meta()),
       exportJSON: () => JSON.stringify({ app: 'RepCam', exported: new Date().toISOString(), sets: api.sets(), sessions: api.meta() }, null, 2)
     };
     return api;
   }
-  const lib = { EX, exInfo, normalize, sessions, groupByExercise, kgHistory, weekly, weekStart, todaySets, summary, createStore, volume: vol };
+  const lib = { EX, LEGACY, exInfo, normalize, sessions, groupByExercise, kgHistory, weekly, weekStart, todaySets, summary, createStore, volume: vol };
   if (typeof module !== 'undefined') module.exports = lib; else root.Store = lib;
 })(this);
