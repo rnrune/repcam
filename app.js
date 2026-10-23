@@ -1,8 +1,9 @@
-import { PoseLandmarker, FilesetResolver, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+const VISION = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+let PoseLandmarker, FilesetResolver, DrawingUtils;
 const $ = id => document.getElementById(id);
 const v = $('v'), c = $('c'), ctx = c.getContext('2d');
 const counter = Reps.createCounter();
-let landmarker, stream, facing = 'user', kg = +(localStorage.getItem('repcam.kg') || 20), lastTs = -1;
+let landmarker, modelP, stream, facing = 'user', kg = +(localStorage.getItem('repcam.kg') || 20), lastTs = -1;
 const KEY = 'repcam.sets';
 const sets = () => JSON.parse(localStorage.getItem(KEY) || '[]');
 function render() {
@@ -21,25 +22,56 @@ $('confirm').onclick = () => {
 };
 render();
 async function initModel() {
+  ({ PoseLandmarker, FilesetResolver, DrawingUtils } = await import(VISION));
   const fs = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
   const opts = d => ({ baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task", delegate: d }, runningMode: "VIDEO", numPoses: 1 });
   try { return await PoseLandmarker.createFromOptions(fs, opts("GPU")); }
   catch (e) { console.warn('GPU feilet, bruker CPU', e); return await PoseLandmarker.createFromOptions(fs, opts("CPU")); }
 }
-async function startCam() {
+const UA = navigator.userAgent;
+const inApp = /FBAN|FBAV|FB_IAB|Instagram|Messenger|Line\/|Snapchat|LinkedInApp|Twitter|TikTok|musical_ly|GSA\/|MicroMessenger|; wv\)/i.test(UA)
+  || (/iPhone|iPad|iPod/.test(UA) && /AppleWebKit/.test(UA) && !/Safari\//.test(UA));
+function getCam(f) {
+  const md = navigator.mediaDevices;
+  if (!md?.getUserMedia) return Promise.reject(Object.assign(new Error('getUserMedia mangler'), { name: 'NoMediaDevices' }));
+  return md.getUserMedia({ audio: false, video: { facingMode: { ideal: f }, width: { ideal: 1280 }, height: { ideal: 720 } } })
+    .catch(e => (e.name === 'OverconstrainedError' || e.name === 'NotFoundError') ? md.getUserMedia({ audio: false, video: true }) : Promise.reject(e));
+}
+async function attach(s) {
   stream?.getTracks().forEach(t => t.stop());
-  stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } } });
-  v.srcObject = stream; await v.play();
+  stream = s; v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('autoplay', '');
+  v.srcObject = s; await v.play();
   [v, c].forEach(el => el.classList.toggle('mirror', facing === 'user'));
 }
-$('go').onclick = async () => {
-  const st = $('status');
-  try { st.textContent = 'Starter kamera…'; await startCam();
-    st.textContent = 'Laster modell…'; landmarker = landmarker || await initModel();
-    $('start').style.display = 'none'; requestAnimationFrame(loop);
-  } catch (e) { st.textContent = 'Feil: ' + e.message; console.error(e); }
+function showHelp(e) {
+  const h = $('help'); h.style.display = 'block';
+  let msg;
+  if (e.name === 'NotAllowedError' || e.name === 'SecurityError' || e.name === 'NoMediaDevices') {
+    msg = `<b>Fikk ikke tilgang til kameraet.</b><br>
+1. Åpne lenken <b>direkte i Safari</b> – ikke inne i en annen app (Messenger, Snapchat, Instagram o.l.).<br>
+2. Safari: trykk <b>aA</b> i adressefeltet › <b>Nettstedinnstillinger</b> › <b>Kamera</b> › <b>Spør</b> eller <b>Tillat</b>, og last siden på nytt.<br>
+3. Innstillinger › <b>Safari</b> › <b>Kamera</b> › <b>Spør</b> eller <b>Tillat</b>.`;
+  } else if (e.name === 'NotFoundError') msg = 'Fant ikke noe kamera på enheten.';
+  else if (e.name === 'NotReadableError') msg = 'Kameraet er i bruk av en annen app. Lukk den og prøv igjen.';
+  else msg = 'Noe gikk galt: ' + e.message;
+  $('helptext').innerHTML = msg;
+}
+if (inApp) { $('help').style.display = 'block'; $('helptext').innerHTML = '<b>Du ser ut til å være i en app-nettleser.</b> Kameraet virker ofte ikke her. Trykk ⋯ / del-ikonet og velg <b>Åpne i Safari</b>, eller kopier lenken og lim den inn i Safari.'; }
+$('copy').onclick = async () => { try { await navigator.clipboard.writeText(location.href); $('copy').textContent = 'Lenke kopiert ✓'; } catch { prompt('Kopier lenken:', location.href); } };
+modelP = initModel().then(m => landmarker = m).catch(e => { modelP = null; throw e; });
+modelP.catch(e => console.warn('Modell feilet', e));
+$('go').onclick = () => {
+  const st = $('status'), go = $('go');
+  const camP = getCam(facing); // MUST be first, synchronous in the tap (iOS user activation)
+  go.disabled = true; st.textContent = 'Starter kamera…';
+  camP.then(attach).then(() => {
+    st.textContent = 'Laster modell…';
+    if (!modelP) modelP = initModel().then(m => landmarker = m);
+    return modelP;
+  }).then(() => { $('start').style.display = 'none'; requestAnimationFrame(loop); })
+  .catch(e => { console.error(e); st.textContent = 'Feil: ' + e.message; showHelp(e); go.disabled = false; go.textContent = 'Prøv igjen'; });
 };
-$('flip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startCam(); } catch (e) { alert('Kunne ikke bytte kamera: ' + e.message); } };
+$('flip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await attach(await getCam(facing)); } catch (e) { alert('Kunne ikke bytte kamera: ' + e.message); } };
 const vis = p => p ? (p.visibility ?? 1) : 0;
 function loop() {
   requestAnimationFrame(loop);
