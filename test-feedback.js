@@ -34,5 +34,23 @@ function memKV() { const m = new Map(), cl = x => x && JSON.parse(JSON.stringify
   await q2.add({ id: 'cccccc3', setTs: 'T3', blob: { size: 5 }, mime: 'video/mp4', meta: {}, label: {} });
   ok(await q2.clearPending() === 1 && (await q2.stats()).uploaded === 1, 'clear pending keeps uploaded');
   ok(await q2.labelLatest({ missed: true }) && (await kv2.get('bbbbbb2')).label.missed);
+  // v8.6 regression: clips enqueued while an upload loop runs must be uploaded by that loop, not skipped
+  const kv3 = memKV(), s3 = []; let q3, gate;
+  q3 = F.createQueue({ kv: kv3, send: async (k, id) => { if (k === 'clip' && id === 'd1') { await q3.add({ id: 'd2', setTs: 'D2', blob: { size: 1 }, mime: 'video/mp4', meta: {}, label: {} }); await new Promise(r => gate = r); } s3.push(k + ':' + id); } });
+  await q3.add({ id: 'd1', setTs: 'D1', blob: { size: 1 }, mime: 'video/mp4', meta: {}, label: {} });
+  const p1 = q3.process(); await new Promise(r => setTimeout(r, 5));
+  const p2 = q3.process(); ok(p2 === p1, 'concurrent process joins running loop');
+  await q3.add({ id: 'd3', setTs: 'D3', blob: { size: 1 }, mime: 'video/mp4', meta: {}, label: {} }); q3.process();
+  gate(); const r3 = await p1;
+  ok(r3.ok === 3 && (await q3.stats()).pending === 0, 'all clips enqueued mid-upload are uploaded: ' + JSON.stringify(r3) + ' ' + s3);
+  ok(['d1', 'd2', 'd3'].every(id => s3.includes('clip:' + id) && s3.includes('label:' + id)), 'clip+label for each');
+  // reload: a fresh queue over the same store drains what a killed/backgrounded page left behind (incl. backoff with force)
+  const kv4 = memKV(); let t4 = 0; const s4 = [];
+  const qa = F.createQueue({ kv: kv4, now: () => t4, send: async () => { throw Object.assign(new Error('x'), { status: 0 }); } });
+  await qa.add({ id: 'e1', setTs: 'E1', blob: { size: 1 }, mime: 'video/mp4', meta: {}, label: {} }); await qa.add({ id: 'e2', setTs: 'E2', blob: { size: 1 }, mime: 'video/mp4', meta: {}, label: {} });
+  ok((await qa.process()).fail === 2 && (await qa.nextDue()) > 0, 'nextDue reports backoff');
+  const qb = F.createQueue({ kv: kv4, now: () => t4, send: async (k, id) => { s4.push(k + id); } });
+  ok((await qb.process()).ok === 0, 'backoff respected after reload');
+  ok((await qb.process({ force: true })).ok === 2 && (await qb.stats()).pending === 0 && (await qb.nextDue()) === null, 'forced drain after reload uploads all');
   console.log('feedback tests OK', n);
 })().catch(e => { console.error(e); process.exit(1); });

@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.5';
+const APP_VERSION = '8.6';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -167,13 +167,19 @@ async function fbLabel(ts, action, val) {
   try { if (!(await fbQueue().label(ts, mk))) fb.early[ts] = mk({ exercise: s.exercise, reps: s.reps, kg: s.kg }); } catch (e) { console.warn('fb label', e); }
   fbUpload();
 }
-let fbBusy = false;
-async function fbUpload() {
-  if (fbBusy || !LS.getItem(Feedback.KEYS.inst) || !navigator.onLine) return; fbBusy = true;
-  try { await fbQueue().process(); } catch (e) { console.warn('fb up', e); } fbBusy = false;
+// The queue itself coalesces concurrent calls (feedback.js process), so every trigger is forwarded: a clip enqueued while
+// an upload runs is picked up by the same loop. Retries are timed to the earliest backoff, and the queue is drained on
+// start, on returning to the foreground and on pageshow (iOS resumes/reloads PWAs on its own schedule).
+let fbTimer = 0;
+async function fbUpload(force) {
+  if (!LS.getItem(Feedback.KEYS.inst) || !navigator.onLine) return;
+  try { await fbQueue().process({ force: force === true }); } catch (e) { console.warn('fb up', e); }
+  try { const t = await fbQueue().nextDue(); clearTimeout(fbTimer); if (t != null) fbTimer = setTimeout(fbUpload, Math.max(2e3, t - Date.now() + 50)); } catch {}
   if (cur === 'profil') renderFb();
 }
-addEventListener('online', fbUpload); setInterval(() => { if (document.visibilityState === 'visible') fbUpload(); }, 60e3);
+addEventListener('online', () => fbUpload(true)); setInterval(() => { if (document.visibilityState === 'visible') fbUpload(); }, 60e3);
+addEventListener('pageshow', () => fbUpload()); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fbUpload(true); });
+setTimeout(() => fbUpload(true), 1500);
 async function renderFb() {
   const el = $('fbCard'); if (!el) return;
   const on = LS.getItem(Feedback.KEYS.on) === '1';
@@ -183,7 +189,7 @@ async function renderFb() {
     <div class="muted small" id="fbStats">${L.t('fb.stats', { p: st.pending, u: st.uploaded, mb: L.nf(Math.round(st.bytes / 1e5) / 10, 1) })}</div>
     ${st.pending ? `<div class="btns"><button class="ghost" id="fbSend">${L.t('fb.send')}</button><button class="ghost" id="fbDel">${L.t('fb.del')}</button></div>` : ''}`;
   $('fbOn').onchange = () => { LS.setItem(Feedback.KEYS.on, $('fbOn').checked ? '1' : '0'); if ($('fbOn').checked) fbQueue(); renderFb(); };
-  if ($('fbSend')) $('fbSend').onclick = () => fbUpload();
+  if ($('fbSend')) $('fbSend').onclick = () => fbUpload(true);
   if ($('fbDel')) $('fbDel').onclick = async () => { if (await confirmDialog(L.t('fb.del'), L.t('fb.delText'), L.t('del.ok'))) { await fbQueue().clearPending(); } renderFb(); };
 }
 

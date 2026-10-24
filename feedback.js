@@ -17,7 +17,7 @@
   // Queue over an async kv store {all(), get(id), put(rec), del(id)} (IndexedDB in the browser, Map in tests).
   // rec: { id, setTs, blob, mime, meta, label, clipDone, metaDone, labelDirty, tries, next }
   function createQueue({ kv, send, now = () => Date.now() }) {
-    let busy = false;
+    let running = null, again = false, forceNext = false;
     const backoff = t => Math.min(30 * 60e3, 15e3 * 2 ** Math.min(t, 7));
     // Every read-modify-write runs under one lock: IndexedDB ops are separate transactions, so an upload's bookkeeping
     // must never interleave with a label change (that would resurrect the old label).
@@ -40,17 +40,31 @@
       labelLatest(label) { return mut(async () => { const a = (await kv.all()).sort((x, y) => (y.created || 0) - (x.created || 0)); if (!a[0]) return false; a[0].label = { ...a[0].label, ...label }; a[0].labelDirty = true; await kv.put(a[0]); return true; }); },
       async stats() { const a = await kv.all(); return { pending: a.filter(r => !r.clipDone || !r.metaDone || r.labelDirty).length, uploaded: a.filter(r => r.clipDone && r.metaDone && !r.labelDirty).length, bytes: a.reduce((s, r) => s + (r.blob ? r.blob.size || 0 : 0), 0) }; },
       clearPending() { return mut(async () => { let n = 0; for (const r of await kv.all()) if (!r.clipDone) { await kv.del(r.id); n++; } return n; }); },
-      async process({ force } = {}) {
-        if (busy) return { skipped: true }; busy = true; let ok = 0, fail = 0;
-        try {
-          for (const r of await kv.all()) {
-            if (r.clipDone && r.metaDone && !r.labelDirty) continue;
-            if (!force && r.next > now()) continue;
-            try { await step(r); ok++; } catch (e) { fail++; await patch(r.id, c => { c.tries = (c.tries || 0) + 1; c.next = now() + backoff(c.tries); }); if (e && e.status === 401) break; }
-          }
-        } finally { busy = false; }
-        return { ok, fail };
-      }
+      // One upload loop at a time. A call that arrives while the loop runs (a clip enqueued mid-upload, a label edit,
+      // the app coming back to the foreground) is never dropped: it marks the loop dirty, the loop re-reads the store
+      // and makes another pass, and the caller gets the result of that complete run.
+      process({ force } = {}) {
+        again = true; if (force) forceNext = true;
+        if (running) return running;
+        running = (async () => {
+          let ok = 0, fail = 0, auth = false;
+          try {
+            while (again && !auth) {
+              again = false; const f = forceNext; forceNext = false; const seen = new Set();
+              for (const r of await kv.all()) {
+                if (r.clipDone && r.metaDone && !r.labelDirty) continue;
+                if (!f && (r.next || 0) > now()) continue;
+                seen.add(r.id);
+                try { await step(r); ok++; } catch (e) { fail++; await patch(r.id, c => { c.tries = (c.tries || 0) + 1; c.next = now() + backoff(c.tries); }); if (e && e.status === 401) { auth = true; break; } }
+              }
+            }
+          } finally { running = null; }
+          return { ok, fail };
+        })();
+        return running;
+      },
+      // Earliest time a pending record becomes due again (for scheduling a retry timer), or null if nothing is pending.
+      async nextDue() { let t = null; for (const r of await kv.all()) if (!(r.clipDone && r.metaDone && !r.labelDirty)) t = t == null ? (r.next || 0) : Math.min(t, r.next || 0); return t; }
     };
   }
   // IndexedDB kv (browser only)

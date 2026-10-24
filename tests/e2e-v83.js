@@ -24,7 +24,7 @@ function seed(lang) {
     await p.goto(URL0 + '#/historikk'); await p.waitForSelector('#view-historikk.on'); await p.waitForTimeout(300); return p;
   }
   let p = await page('nb');
-  ok(await p.evaluate(() => window.__repcam.APP_VERSION === '8.5' && [...document.scripts].some(s => /\?v=8\.5/.test(s.src))), 'APP_VERSION 8.5 + ?v=8.5');
+  ok(await p.evaluate(() => window.__repcam.APP_VERSION === '8.6' && [...document.scripts].some(s => /\?v=8\.6/.test(s.src))), 'APP_VERSION 8.6 + ?v=8.6');
   ok(await p.locator('[data-sdel]').count() === 3, 'every session has a delete button');
   await p.screenshot({ path: SH + '01-historikk-nb.png' });
   await p.click('[data-sdel="s-del"]'); await p.waitForSelector('#sheet.on #dYes');

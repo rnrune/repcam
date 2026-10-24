@@ -43,6 +43,8 @@ const errors = [], fails = []; const ok = (c, m) => { console.log((c ? 'PASS ' :
   const st = await p.waitForFunction(async () => { await __repcam.fbUpload(); const s = await __repcam.fbQueue().stats(); return s.uploaded >= 3 && s.pending === 0 && s; }, null, { timeout: 180000, polling: 2000 }).then(h => h.jsonValue()).catch(() => null);
   if (!st) console.log('QUEUE', JSON.stringify(await p.evaluate(async () => (await Feedback.idbKV().all()).map(r => ({ id: r.id, c: r.clipDone, m: r.metaDone, d: r.labelDirty, t: r.tries, n: r.next - Date.now(), sz: r.blob && r.blob.size })))));
   ok(st, 'all clips + labels uploaded ' + JSON.stringify(st));
+  const recs = await p.evaluate(async () => (await Feedback.idbKV().all()).map(r => ({ id: r.id, done: r.clipDone && r.metaDone && !r.labelDirty, tries: r.tries })));
+  ok(recs.length >= 4 && recs.every(r => r.done && !r.tries), 'v8.6: every queued clip uploaded on first attempt, none left behind ' + JSON.stringify(recs));
   await p.waitForTimeout(500); ok(/0 venter · [3-9]\d* sendt/.test(await p.textContent('#fbStats')), 'profile counter: ' + await p.textContent('#fbStats'));
   await p.screenshot({ path: SH + '3-profile-uploaded.png' });
   const inst = await p.evaluate(() => localStorage.getItem('repcam.fb.install'));
@@ -52,6 +54,7 @@ const errors = [], fails = []; const ok = (c, m) => { console.log((c ? 'PASS ' :
   const man = JSON.parse(fs.readFileSync(path.join(__dirname, '../eval/feedback/manifest.json'))).filter(e => e.install === inst);
   const e1 = man.find(e => e.pred.reps === s1.reps && e.label === 'corrected'), e2 = man.find(e => e.negative), e3 = man.find(e => e.needsCount);
   ok(man.length >= 3, 'manifest has ' + man.length + ' clips for this install');
+  ok(recs.every(r => man.some(e => e.id === r.id || (e.file || '').includes(r.id))), 'v8.6: every queued clip id is in Dropbox pull (' + recs.length + ' queued, ' + man.length + ' pulled)');
   ok(e1 && e1.gt === s1.reps - 1 && e1.exercise === s1.exercise && fs.statSync(e1.file).size > 10000, 'corrected label: gt ' + (e1 && e1.gt) + ' (app said ' + s1.reps + '), video ' + (e1 && fs.statSync(e1.file).size) + ' B');
   ok(e2 && e2.gt === 0, 'undo → negative clip gt 0 ' + s2.timestamp + JSON.stringify(dbg));
   ok(e3 && e3.gt === null, 'missed set → needsCount');
