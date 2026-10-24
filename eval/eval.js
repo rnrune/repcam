@@ -9,7 +9,7 @@ const R = require(path.resolve(arg('--reps', path.join(__dirname, '..', 'reps.js
 const man = JSON.parse(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8'));
 const verbose = process.argv.includes('--verbose');
 function run(e) {
-  const f = path.join(LM, e.id + '.json'); if (!fs.existsSync(f)) return null;
+  const f = path.join(LM, (e.lm || e.id) + '.json'); if (!fs.existsSync(f)) return null;
   const d = JSON.parse(fs.readFileSync(f, 'utf8')), asp = d.w / d.h;
   const c = R.createCounter(e.exercise), rec = R.createRecognizer(), votes = {};
   d.frames.forEach((fr, i) => {

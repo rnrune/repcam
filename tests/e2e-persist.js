@@ -1,4 +1,4 @@
-// RepCam v6 regression: profile/onboarding and Strava connection must survive reloads and the OAuth redirect.
+// Newrun Lift (formerly RepCam) v6/v7 regression: profile/onboarding and Strava connection must survive reloads and the OAuth redirect.
 const { chromium, devices } = require('playwright-core');
 const URL0 = process.env.URL || 'http://localhost:8765/';
 const fails = [], errors = [];
@@ -20,7 +20,13 @@ const onb = p => p.evaluate(() => !!document.querySelector('#sheet.on #oName'));
   const live = !!process.env.LIVE;
   let p = await ctxPage(b, live);
   await p.goto(URL0); await p.waitForSelector('#sheet.on #oName');
-  ok(await p.evaluate(() => [...document.scripts].some(s => /\?v=6/.test(s.src))), 'page loads v6 scripts');
+  ok(await p.evaluate(() => [...document.scripts].some(s => /\?v=7/.test(s.src))), 'page loads v7 scripts');
+  ok(await p.title() === 'Newrun Lift', 'title is Newrun Lift');
+  ok((await p.textContent('#sheet')).includes('Newrun Lift') && !(await p.textContent('body')).includes('RepCam'), 'onboarding shows Newrun Lift, no RepCam text');
+  { const m = await p.evaluate(() => fetch('manifest.webmanifest').then(r => r.json()));
+    ok(m.name === 'Newrun Lift' && m.short_name === 'Lift', 'manifest name/short_name'); }
+  ok(await p.evaluate(() => ['nb', 'en', 'es', 'de', 'fr', 'sv', 'da'].every(l => { const L = I18n.create(l); return L.exName('benkpress') !== 'n.benkpress' && L.t('tip.benkpress') !== 'tip.benkpress' && L.t('onb.title').includes('Newrun Lift'); })), 'bench press + brand translated in all 7 languages');
+  ok(await p.evaluate(() => Promise.all(['icon-512.png', 'icon-192.png', 'icon-180.png', 'favicon-32.png'].map(f => new Promise(r => { const i = new Image(); i.onload = () => r(i.naturalWidth === +(f.match(/\d+/)[0])); i.onerror = () => r(false); i.src = f; }))).then(a => a.every(Boolean))), 'icons 512/192/180/32 load with right sizes');
   await p.fill('#oName', 'Rune'); await p.fill('#oBw', '82.5'); await p.click('#oGo');
   for (let i = 0; i < 2; i++) {
     await p.reload(); await p.waitForTimeout(1200);

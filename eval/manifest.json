@@ -573,21 +573,21 @@
  },
  {
   "id": "px4110677",
-  "exercise": "skråbenk",
+  "exercise": "benkpress",
   "gt": 3,
   "view": "front",
-  "notes": "flat bench proxy",
+  "notes": "",
   "source": "https://www.pexels.com/video/4110677/",
   "license": "Pexels License",
   "file": "https://videos.pexels.com/video-files/4110677/4110677-uhd_3840_2160_25fps.mp4",
-  "viewDetail": "front"
+  "viewDetail": "feet-end"
  },
  {
   "id": "wc295071",
-  "exercise": "skråbenk",
+  "exercise": "benkpress",
   "gt": 1,
   "view": "side",
-  "notes": "flat bench proxy; last press cut by clip end",
+  "notes": "last press cut by clip end",
   "source": "https://commons.wikimedia.org/wiki/File:Bench_press_-_exercise_demonstration_video.webm",
   "license": "CC BY 3.0",
   "file": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm",
@@ -595,21 +595,21 @@
  },
  {
   "id": "px5320007",
-  "exercise": "skråbenk",
+  "exercise": "benkpress",
   "gt": 3,
-  "view": "overhead",
-  "notes": "flat bench, head-end camera, dropouts",
+  "view": "head-end",
+  "notes": "head-end camera, dropouts",
   "source": "https://www.pexels.com/video/5320007/",
   "license": "Pexels License",
   "file": "https://videos.pexels.com/video-files/5320007/5320007-uhd_3840_2160_25fps.mp4",
-  "viewDetail": "overhead"
+  "viewDetail": "head-end (camera behind head, looking down)"
  },
  {
   "id": "px4945133",
-  "exercise": "skråbenk",
+  "exercise": "benkpress",
   "gt": 7,
   "view": "side",
-  "notes": "flat bench; evaluated from 8.0 s (pose not found before)",
+  "notes": "evaluated from 8.0 s (pose not found before)",
   "start": 8.0,
   "source": "https://www.pexels.com/video/4945133/",
   "license": "Pexels License",
@@ -618,10 +618,10 @@
  },
  {
   "id": "px6116240",
-  "exercise": "skråbenk",
+  "exercise": "benkpress",
   "gt": 1,
   "view": "side",
-  "notes": "dumbbell press",
+  "notes": "flat dumbbell bench press (variant)",
   "source": "https://www.pexels.com/video/6116240/",
   "license": "Pexels License",
   "file": "https://videos.pexels.com/video-files/6116240/6116240-hd_1920_1080_25fps.mp4",
@@ -769,5 +769,251 @@
   "source": "https://www.pexels.com/video/4859742/",
   "license": "Pexels License",
   "file": ""
+ },
+ {
+  "id": "ytz838WQVSBmk",
+  "exercise": "benkpress",
+  "gt": 4,
+  "view": "side",
+  "notes": "slow tempo, starts at lockout",
+  "source": "https://www.youtube.com/watch?v=z838WQVSBmk",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "side"
+ },
+ {
+  "id": "yteWIZk_S_Bi0",
+  "exercise": "benkpress",
+  "gt": 4,
+  "view": "side",
+  "notes": "first camera angle only (cut at 16.5 s)",
+  "source": "https://www.youtube.com/watch?v=eWIZk_S_Bi0",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "side",
+  "end": 16.5
+ },
+ {
+  "id": "yteWIZk_S_Bi0_b",
+  "exercise": "benkpress",
+  "gt": 2,
+  "view": "front",
+  "notes": "second camera angle of the same video (swinging camera cut 16.7-17.5 s); segment starts with the bar at the chest, so the first press does not count",
+  "source": "https://www.youtube.com/watch?v=eWIZk_S_Bi0",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "feet-end, elevated",
+  "lm": "yteWIZk_S_Bi0",
+  "start": 17.5
+ },
+ {
+  "id": "yta8mTttNgkgk",
+  "exercise": "benkpress",
+  "gt": 7,
+  "view": "oblique",
+  "notes": "long setup with hands on racked bar before unrack",
+  "source": "https://www.youtube.com/watch?v=a8mTttNgkgk",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "oblique from feet side"
+ },
+ {
+  "id": "yt5cS_nvR-Sf4",
+  "exercise": "benkpress",
+  "gt": 8,
+  "view": "oblique",
+  "notes": "sits down and lies back first; ends with re-rack",
+  "source": "https://www.youtube.com/watch?v=5cS_nvR-Sf4",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "front-oblique"
+ },
+ {
+  "id": "ytEPetH7lopsE",
+  "exercise": "benkpress",
+  "gt": 10,
+  "view": "orbiting",
+  "notes": "woman; evaluated from 9.5 s (deadlift/curl demo before); several camera cuts; final lowering at 46-48 s is the re-rack, not a rep",
+  "source": "https://www.youtube.com/watch?v=EPetH7lopsE",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "side → oblique → head-end (edited)",
+  "start": 9.5
+ },
+ {
+  "id": "ythGmx4eHhtus",
+  "exercise": "benkpress",
+  "gt": 1,
+  "view": "front",
+  "notes": "woman, single slow rep",
+  "source": "https://www.youtube.com/watch?v=hGmx4eHhtus",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "feet-end, high"
+ },
+ {
+  "id": "ytcVQNEP4-_kE",
+  "exercise": "benkpress",
+  "gt": 4,
+  "view": "oblique",
+  "notes": "",
+  "source": "https://www.youtube.com/watch?v=cVQNEP4-_kE",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "front-side oblique"
+ },
+ {
+  "id": "ythIuj1H1WOxM",
+  "exercise": "benkpress",
+  "gt": 1,
+  "view": "side",
+  "notes": "woman, single rep",
+  "source": "https://www.youtube.com/watch?v=hIuj1H1WOxM",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "side, far"
+ },
+ {
+  "id": "ytPjoND-PrWZ8",
+  "exercise": "benkpress",
+  "gt": 1,
+  "view": "front",
+  "notes": "3-count pause rep",
+  "source": "https://www.youtube.com/watch?v=PjoND-PrWZ8",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "feet-end, elevated"
+ },
+ {
+  "id": "ytG1-7DLG5UZs",
+  "exercise": "benkpress",
+  "gt": 10,
+  "view": "oblique",
+  "notes": "touch and go; title says 10 reps",
+  "source": "https://www.youtube.com/watch?v=G1-7DLG5UZs",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "low oblique"
+ },
+ {
+  "id": "ytXaXRHCj-bnk",
+  "exercise": "benkpress",
+  "gt": 8,
+  "view": "oblique",
+  "notes": "YouTube title says incline, but the bench is flat (feet up on bench); ends with re-rack and sitting up",
+  "source": "https://www.youtube.com/watch?v=XaXRHCj-bnk",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "oblique"
+ },
+ {
+  "id": "ytLgRZY6V2uGk",
+  "exercise": "skråbenk",
+  "gt": 8,
+  "view": "side",
+  "notes": "woman, dumbbell incline, slow",
+  "source": "https://www.youtube.com/watch?v=LgRZY6V2uGk",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "side-oblique"
+ },
+ {
+  "id": "ytlJ2o89kcnxY",
+  "exercise": "skråbenk",
+  "gt": 4,
+  "view": "oblique",
+  "notes": "",
+  "source": "https://www.youtube.com/watch?v=lJ2o89kcnxY",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "oblique"
+ },
+ {
+  "id": "yt37GYMNZOau4",
+  "exercise": "skråbenk",
+  "gt": 3,
+  "view": "side",
+  "notes": "",
+  "source": "https://www.youtube.com/watch?v=37GYMNZOau4",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "side, Smith-style rack"
+ },
+ {
+  "id": "yttjro8BbygH8",
+  "exercise": "benkpress",
+  "gt": 6,
+  "view": "front",
+  "notes": "title: 6 reps",
+  "source": "https://www.youtube.com/watch?v=tjro8BbygH8",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "feet-end, bench height"
+ },
+ {
+  "id": "ytu5ZUiDVwVCo",
+  "exercise": "benkpress",
+  "gt": 5,
+  "view": "head-end",
+  "notes": "title: 5 reps; ~10 s of setup with hands on the racked bar",
+  "source": "https://www.youtube.com/watch?v=u5ZUiDVwVCo",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "head-end oblique, elevated"
+ },
+ {
+  "id": "ytG68C2J9QPv0",
+  "exercise": "benkpress",
+  "gt": 5,
+  "view": "oblique",
+  "notes": "title: 5 reps; evaluated until 24.5 s (lifter then walks to the camera)",
+  "source": "https://www.youtube.com/watch?v=G68C2J9QPv0",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "oblique from head side, outdoors",
+  "end": 24.5
+ },
+ {
+  "id": "yt9fPaZLJcwQc",
+  "exercise": "benkpress",
+  "gt": 23,
+  "view": "oblique",
+  "notes": "title: 23 reps; fast partial reps, spotters/crowd in frame",
+  "source": "https://www.youtube.com/watch?v=9fPaZLJcwQc",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "oblique, competition"
+ },
+ {
+  "id": "ytxA_LbY4J1_M",
+  "exercise": "skråbenk",
+  "gt": 5,
+  "view": "front",
+  "notes": "title: 5 reps; evaluated until 39 s (lifter stands up and walks off)",
+  "source": "https://www.youtube.com/watch?v=xA_LbY4J1_M",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "front (feet end), incline",
+  "end": 39
+ },
+ {
+  "id": "yt0nZay-5yzkI",
+  "exercise": "skråbenk",
+  "gt": 3,
+  "view": "oblique",
+  "notes": "held-out (added after tuning)",
+  "source": "https://www.youtube.com/watch?v=0nZay-5yzkI",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "oblique, 45° incline"
+ },
+ {
+  "id": "yteA81J-16v1Y",
+  "exercise": "skråbenk",
+  "gt": 4,
+  "view": "side",
+  "notes": "held-out (added after tuning); landmark spikes",
+  "source": "https://www.youtube.com/watch?v=eA81J-16v1Y",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "side, 45° incline"
+ },
+ {
+  "id": "ytx0BUe-AgOYw",
+  "exercise": "benkpress",
+  "gt": 8,
+  "view": "head-end",
+  "notes": "held-out (added after tuning); title: 8 reps",
+  "source": "https://www.youtube.com/watch?v=x0BUe-AgOYw",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "head-end, elevated"
+ },
+ {
+  "id": "ytM2_te5uI7Tw",
+  "exercise": "benkpress",
+  "gt": 9,
+  "view": "front",
+  "notes": "held-out (added after tuning); title: 9 reps; MediaPipe loses the lifter for ~1/3 of frames",
+  "source": "https://www.youtube.com/watch?v=M2_te5uI7Tw",
+  "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+  "viewDetail": "feet-end, bench height"
  }
 ]

@@ -1,4 +1,4 @@
-// RepCam data layer (UMD: browser + node). Backward compatible with legacy repcam.sets entries {exercise,reps,kg,timestamp}.
+// Newrun Lift (formerly RepCam) data layer (UMD: browser + node). Backward compatible with legacy repcam.sets entries {exercise,reps,kg,timestamp}.
 (function (root) {
   const SETS = 'repcam.sets', SESS = 'repcam.sessions', ACTIVE = 'repcam.active';
   const GAP = 2 * 3600e3; // legacy sets more than 2h apart => new session
@@ -8,12 +8,13 @@
     { id: 'bulgarsk', name: 'Bulgarsk utfall', icon: '🦵', active: true },
     { id: 'pullups', name: 'Pull-ups', icon: '🧗', active: true },
     { id: 'dips', name: 'Dips', icon: '🤸', active: true },
+    { id: 'benkpress', name: 'Benkpress', icon: '🏋️‍♂️', active: true },
     { id: 'skråbenk', name: 'Skråbenk', icon: '💪', active: true },
     { id: 'halvmark', name: 'Rumensk markløft', icon: '🔥', active: true },
     { id: 'roing', name: 'Stående roing', icon: '🚣', active: true }
   ];
   const LEGACY = [
-    { id: 'benkpress', name: 'Benkpress', icon: '💪' }, { id: 'markløft', name: 'Markløft', icon: '🔥' },
+    { id: 'markløft', name: 'Markløft', icon: '🔥' },
     { id: 'skulderpress', name: 'Skulderpress', icon: '🙌' }, { id: 'utfall', name: 'Utfall', icon: '🦵' }, { id: 'pushups', name: 'Push-ups', icon: '⚡' }
   ];
   const exInfo = id => EX.find(e => e.id === id) || LEGACY.find(e => e.id === id) || { id, name: id ? id[0].toUpperCase() + id.slice(1) : 'Øvelse', icon: '🏋️' };
@@ -120,7 +121,7 @@
       // Last weight used for an exercise (default for the next set); null if never logged.
       lastKg(ex) { const s = api.sets(); for (let i = s.length - 1; i >= 0; i--) if ((s[i].exercise || 'knebøy') === ex) return +s[i].kg || 0; return null; },
       sessions: () => sessions(api.sets(), api.meta()),
-      exportJSON: () => JSON.stringify({ app: 'RepCam', exported: new Date().toISOString(), sets: api.sets(), sessions: api.meta() }, null, 2)
+      exportJSON: () => JSON.stringify({ app: 'Newrun Lift', exported: new Date().toISOString(), sets: api.sets(), sessions: api.meta() }, null, 2)
     };
     return api;
   }

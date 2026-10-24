@@ -67,7 +67,7 @@ function mock(acts) {
   list = [act(50, '2026-10-24T13:00:00Z', 40, 'Run'), act(51, '2026-10-24T15:59:00Z', 53)];
   r = await c.process({ name: x => 'Knebøy' }); assert.equal(r[0].status, 'synced'); assert.equal(r[0].activityId, 51);
   const put = M.calls.find(x => x.method === 'PUT');
-  assert(put.url.endsWith('/activities/51') && JSON.parse(put.body).description.startsWith('Old note\n\n— RepCam —') && put.auth === 'Bearer A1');
+  assert(put.url.endsWith('/activities/51') && JSON.parse(put.body).description.startsWith('Old note\n\n— Newrun Lift —') && put.auth === 'Bearer A1');
   assert(!M.calls.some(x => x.method === 'PUT' && x.url.endsWith('/50')));
   assert.equal((await c.process()).length, 0); // nothing waiting
   // token refresh when expired
@@ -95,3 +95,5 @@ function mock(acts) {
   assert.equal(await c3.handleRedirect('?state=abcdef&code=x&scope=activity:write,activity:read_all'), false); // own state mismatch
   console.log('strava tests passed');
 })().catch(e => { console.error(e); process.exit(1); });
+{ const S = require('./strava.js'); const m = S.mergeDescription || (S._t && S._t.mergeDescription);
+  if (m) { const assert = require('assert'); const r = m('Note\n\n— RepCam —\nKnebøy: 5 × 60 kg\nΣ 300 kg', '— Newrun Lift —\nX'); assert.strictEqual(r, 'Note\n\n— Newrun Lift —\nX'); console.log('legacy RepCam block replaced ok'); } else console.log('mergeDescription not exported; skipped legacy test'); }

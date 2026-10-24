@@ -34,8 +34,11 @@ assert.equal(u.lastKg('dips'),10);assert.equal(u.lastKg('roing'),null);
 assert.equal(u.updateSet(a.timestamp,{reps:'7',kg:'12.5'}).reps,7);assert.equal(u.sets()[0].kg,12.5);
 u.updateSet(b.timestamp,{exercise:'pullups',kg:-5});assert.equal(u.sets()[1].exercise,'pullups');assert.equal(u.sets()[1].kg,0);assert.equal(u.lastKg('dips'),12.5);
 assert.equal(u.updateSet('nope',{reps:1}),null);
-assert.deepEqual(S.EX.map(e=>e.id),['knebøy','bulgarsk','pullups','dips','skråbenk','halvmark','roing']);assert(S.EX.every(e=>e.active&&e.icon));
-assert.equal(S.exInfo('benkpress').name,'Benkpress');
+assert.deepEqual(S.EX.map(e=>e.id),['knebøy','bulgarsk','pullups','dips','benkpress','skråbenk','halvmark','roing']);assert(S.EX.every(e=>e.active&&e.icon));
+assert.equal(S.exInfo('benkpress').name,'Benkpress');assert(S.exInfo('benkpress').active);
+// bench press: last-weight memory is per exercise (bench vs incline kept apart)
+{const w=S.createStore(mem());w.addSet({exercise:'benkpress',reps:5,kg:80},new Date('2026-10-23T18:00:00Z'));w.addSet({exercise:'skråbenk',reps:8,kg:60},new Date('2026-10-23T18:10:00Z'));
+assert.equal(w.lastKg('benkpress'),80);assert.equal(w.lastKg('skråbenk'),60);}
 // i18n
 const I=require('./i18n.js');
 assert.equal(I.detect(['nb-NO']),'nb');assert.equal(I.detect(['no']),'nb');assert.equal(I.detect(['nn']),'nb');assert.equal(I.detect(['de-AT','en']),'de');assert.equal(I.detect(['ja-JP']),'en');assert.equal(I.detect(['sv-SE']),'sv');assert.equal(I.detect(['da']),'da');
@@ -43,4 +46,5 @@ const keys=Object.keys(I.DICT.nb);for(const l in I.LANGS){assert.deepEqual(Objec
 for(const l in I.LANGS){const x=I.create(l);assert.equal(x.weekdays().length,7);assert(x.exName('knebøy'));assert(x.t('w.saved',{ex:'A',r:3,kg:'5 kg'}).includes('3'));}
 assert.equal(I.create('de').nf(1234.5,1),'1.234,5');assert.equal(I.create('en').kgf(0),'Bodyweight');assert.equal(I.create('nb').kgf(62.5),'62,5 kg');
 assert.equal(I.create('de').t('n.knebøy'),'Kniebeuge');
+{const exp={nb:'Benkpress',en:'Bench press',es:'Press de banca',de:'Bankdrücken',fr:'Développé couché',sv:'Bänkpress',da:'Bænkpres'};for(const l in exp){assert.equal(I.create(l).exName('benkpress'),exp[l]);assert(I.create(l).t('onb.title').includes('Newrun Lift'));assert(!JSON.stringify(I.DICT[l]).includes('RepCam'));}}
 console.log('store + i18n tests passed');

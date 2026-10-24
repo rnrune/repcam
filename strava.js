@@ -1,4 +1,4 @@
-// RepCam ⇄ Strava (UMD: browser + node). Pure matching logic + a small client with token refresh and a retry queue.
+// Newrun Lift (formerly RepCam) ⇄ Strava (UMD: browser + node). Pure matching logic + a small client with token refresh and a retry queue.
 // Strava's OAuth has no PKCE, so the client_secret lives in a tiny Cloudflare Worker (worker/strava-worker.js) that only does
 // code→token exchange and token refresh. Everything else (reading activities, writing the description) goes browser → Strava directly.
 (function (root) {
@@ -8,7 +8,7 @@
   const PREFERRED = ['WeightTraining', 'Workout', 'Crossfit', 'HighIntensityIntervalTraining'];
   const K = { tok: 'repcam.strava.tok', q: 'repcam.strava.queue', state: 'repcam.strava.state' };
   const ms = d => new Date(d).getTime();
-  const MARK = '— RepCam —';
+  const MARK = '— Newrun Lift —', OLD_MARKS = ['— RepCam —'];
 
   // Activity window from start_date (UTC, ends in Z) + elapsed_time. Never start_date_local: it is local wall time mislabelled as Z.
   function window_(a) { const s = ms(a.start_date); return [s, s + (+a.elapsed_time || +a.moving_time || 0) * 1000]; }
@@ -34,14 +34,14 @@
   function queryWindow(session, tol = TOL) {
     return { after: Math.floor((ms(session.start) - 12 * 3600e3) / 1000), before: Math.ceil((ms(session.end) + tol) / 1000) };
   }
-  // Description block; replaces an earlier RepCam block so re-syncs don't duplicate.
+  // Description block; replaces an earlier Newrun Lift / RepCam block so re-syncs don't duplicate.
   function describe(sets, nameOf = x => x, kgf = k => (+k > 0 ? k + ' kg' : 'BW')) {
     const lines = sets.map(s => `${nameOf(s.exercise || 'knebøy')}: ${s.reps} × ${kgf(s.kg)}`);
     const vol = sets.reduce((a, s) => a + (+s.reps || 0) * (+s.kg || 0), 0);
     return `${MARK}\n${lines.join('\n')}\nΣ ${Math.round(vol)} kg`;
   }
   function mergeDescription(old, block) {
-    old = old || ''; const i = old.indexOf(MARK);
+    old = old || ''; const hits = [MARK, ...OLD_MARKS].map(m => old.indexOf(m)).filter(x => x >= 0); const i = hits.length ? Math.min(...hits) : -1;
     const base = (i >= 0 ? old.slice(0, i) : old).replace(/\s+$/, '');
     return base ? base + '\n\n' + block : block;
   }
@@ -125,7 +125,7 @@
       const it = queue().find(x => x.id === id); if (!it) return null;
       const d = new Date(it.start), pad = n => String(n).padStart(2, '0');
       const local = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-      const a = await api('/activities', { method: 'POST', body: JSON.stringify({ name: fmt.title || 'Styrke (RepCam)', sport_type: 'WeightTraining', start_date_local: local,
+      const a = await api('/activities', { method: 'POST', body: JSON.stringify({ name: fmt.title || 'Styrke (Newrun Lift)', sport_type: 'WeightTraining', start_date_local: local,
         elapsed_time: Math.max(60, Math.round((ms(it.end) - ms(it.start)) / 1000)), description: describe(it.sets, fmt.name, fmt.kgf) }) });
       setItem(id, { status: 'created', activityId: a.id, at: now() }); return a;
     }

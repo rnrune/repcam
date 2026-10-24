@@ -1,4 +1,4 @@
-// RepCam e2e (v4 features): iPhone 13 emulation, fake camera from real exercise videos, i18n, auto-save + undo/edit, history editing, no console errors.
+// Newrun Lift (formerly RepCam) e2e (v4 features): iPhone 13 emulation, fake camera from real exercise videos, i18n, auto-save + undo/edit, history editing, no console errors.
 const { chromium, devices } = require('playwright-core');
 const SH = '/workspace/repcam-shots/v4/', URL = process.env.URL || 'http://localhost:8765/';
 const errors = [], fails = [];
@@ -50,7 +50,7 @@ async function workout(p, tag, expectEx, minReps) {
   ok((await p.textContent('#todayList')).includes('Incline bench press'), 'en: exercise names translated');
   await p.screenshot({ path: SH + 'en-01-home.png' });
   await p.click('#tabs a[data-v=ovelser]'); await p.waitForTimeout(300);
-  ok(await p.locator('#exList .card').count() === 7 && (await p.textContent('#exList')).includes('Camera placement'), 'en: 7 active exercises with camera tips');
+  ok(await p.locator('#exList .card').count() === 8 && (await p.textContent('#exList')).includes('Camera placement') && (await p.textContent('#exList')).includes('Bench press'), 'en: 8 active exercises (incl. bench press) with camera tips');
   await p.screenshot({ path: SH + 'en-02-exercises.png', fullPage: true });
   await p.click('#tabs a[data-v=historikk]'); await p.waitForTimeout(300);
   await p.screenshot({ path: SH + 'en-03-history.png' });

@@ -1,4 +1,4 @@
-// RepCam i18n (UMD). Languages: nb (default for nb/nn/no), en, es, de, fr, sv, da.
+// Newrun Lift i18n (UMD). Languages: nb (default for nb/nn/no), en, es, de, fr, sv, da.
 (function (root) {
   const LANGS = { nb: 'Norsk', en: 'English', es: 'Español', de: 'Deutsch', fr: 'Français', sv: 'Svenska', da: 'Dansk' };
   const LOCALE = { nb: 'nb-NO', en: 'en-GB', es: 'es-ES', de: 'de-DE', fr: 'fr-FR', sv: 'sv-SE', da: 'da-DK' };
@@ -17,13 +17,13 @@
     'prof.title': 'Profil', 'prof.stats': '{s} økter · {n} sett · {v} kg løftet', 'prof.look': 'Utseende', 'prof.light': '☀️ Lys', 'prof.dark': '🌙 Mørk', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto følger innstillingen på telefonen.', 'prof.lang': 'Språk', 'prof.langAuto': 'Automatisk (telefonens språk)', 'prof.data': 'Data', 'prof.export': '⬇️ Eksporter data (JSON)',
     'prof.local': 'Alt lagres kun på denne enheten.', 'prof.name': 'Navn', 'prof.bw': 'Kroppsvekt (valgfritt)', 'prof.me': 'Meg', 'prof.about': 'Profil',
-    'onb.title': 'Velkommen til RepCam ✨', 'onb.text': 'Sett telefonen et sted der den ser deg, og tren. RepCam kjenner igjen øvelsen, teller reps og lagrer settet når du tar pause.',
+    'onb.title': 'Velkommen til Newrun Lift ✨', 'onb.text': 'Sett telefonen et sted der den ser deg, og tren. Newrun Lift kjenner igjen øvelsen, teller reps og lagrer settet når du tar pause.',
     'onb.go': 'Kom i gang', 'onb.namePh': 'Navnet ditt (valgfritt)', 'onb.bwPh': 'kg (valgfritt)',
     'w.auto': 'Auto', 'w.detecting': 'Gjenkjenner…', 'w.set': 'Sett {n}', 'w.saveNow': 'Lagre sett', 'w.finish': 'Avslutt økt', 'w.hint': 'Få hele kroppen i bildet',
     'w.autosave': 'Settet lagres automatisk når du tar pause', 'w.pick': 'Velg øvelse', 'w.autoPick': '✨ Automatisk', 'w.autoPickSub': 'Kameraet kjenner igjen øvelsen',
     'w.saved': 'Lagret: {ex} · {r} × {kg}', 'w.undo': 'Angre', 'w.edit': 'Endre', 'w.undone': 'Settet ble fjernet', 'w.weight': 'Vekt', 'w.repsL': 'Reps',
     'w.ended': 'Økta ble avsluttet etter inaktivitet',
-    'start.title': 'RepCam ✨', 'start.text': 'Teller reps med kameraet – alt skjer på telefonen.', 'start.go': 'Start kamera', 'start.back': 'Tilbake', 'start.cam': 'Starter kamera…', 'start.model': 'Laster modell…',
+    'start.title': 'Newrun Lift ✨', 'start.text': 'Teller reps med kameraet – alt skjer på telefonen.', 'start.go': 'Start kamera', 'start.back': 'Tilbake', 'start.cam': 'Starter kamera…', 'start.model': 'Laster modell…',
     'start.retry': 'Prøv igjen', 'start.err': 'Feil: {m}', 'start.copy': 'Kopier lenke', 'start.copied': 'Lenke kopiert ✓',
     'help.denied': '<b>Fikk ikke tilgang til kameraet.</b><br>1. Åpne lenken <b>direkte i Safari</b> – ikke inne i en annen app (Messenger, Snapchat, Instagram o.l.).<br>2. Safari: trykk <b>aA</b> i adressefeltet › <b>Nettstedinnstillinger</b> › <b>Kamera</b> › <b>Spør</b> eller <b>Tillat</b>, og last siden på nytt.<br>3. Innstillinger › <b>Safari</b> › <b>Kamera</b> › <b>Spør</b> eller <b>Tillat</b>.',
     'help.nocam': 'Fant ikke noe kamera på enheten.', 'help.busy': 'Kameraet er i bruk av en annen app. Lukk den og prøv igjen.', 'help.other': 'Noe gikk galt: {m}',
@@ -56,13 +56,13 @@
     'prof.title': 'Profile', 'prof.stats': '{s} workouts · {n} sets · {v} kg lifted', 'prof.look': 'Appearance', 'prof.light': '☀️ Light', 'prof.dark': '🌙 Dark', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto follows your phone setting.', 'prof.lang': 'Language', 'prof.langAuto': 'Automatic (phone language)', 'prof.data': 'Data', 'prof.export': '⬇️ Export data (JSON)',
     'prof.local': 'Everything is stored on this device only.', 'prof.name': 'Name', 'prof.bw': 'Bodyweight (optional)', 'prof.me': 'Me', 'prof.about': 'Profile',
-    'onb.title': 'Welcome to RepCam ✨', 'onb.text': 'Put your phone where it can see you and train. RepCam recognizes the exercise, counts reps and saves the set when you rest.',
+    'onb.title': 'Welcome to Newrun Lift ✨', 'onb.text': 'Put your phone where it can see you and train. Newrun Lift recognizes the exercise, counts reps and saves the set when you rest.',
     'onb.go': 'Get started', 'onb.namePh': 'Your name (optional)', 'onb.bwPh': 'kg (optional)',
     'w.auto': 'Auto', 'w.detecting': 'Detecting…', 'w.set': 'Set {n}', 'w.saveNow': 'Save set', 'w.finish': 'End workout', 'w.hint': 'Get your whole body in view',
     'w.autosave': 'The set is saved automatically when you rest', 'w.pick': 'Choose exercise', 'w.autoPick': '✨ Automatic', 'w.autoPickSub': 'The camera recognizes the exercise',
     'w.saved': 'Saved: {ex} · {r} × {kg}', 'w.undo': 'Undo', 'w.edit': 'Edit', 'w.undone': 'Set removed', 'w.weight': 'Weight', 'w.repsL': 'Reps',
     'w.ended': 'Workout ended after inactivity',
-    'start.title': 'RepCam ✨', 'start.text': 'Counts reps with the camera – everything stays on your phone.', 'start.go': 'Start camera', 'start.back': 'Back', 'start.cam': 'Starting camera…', 'start.model': 'Loading model…',
+    'start.title': 'Newrun Lift ✨', 'start.text': 'Counts reps with the camera – everything stays on your phone.', 'start.go': 'Start camera', 'start.back': 'Back', 'start.cam': 'Starting camera…', 'start.model': 'Loading model…',
     'start.retry': 'Try again', 'start.err': 'Error: {m}', 'start.copy': 'Copy link', 'start.copied': 'Link copied ✓',
     'help.denied': '<b>Could not access the camera.</b><br>1. Open the link <b>directly in Safari</b> – not inside another app (Messenger, Snapchat, Instagram etc.).<br>2. Safari: tap <b>aA</b> in the address bar › <b>Website Settings</b> › <b>Camera</b> › <b>Ask</b> or <b>Allow</b>, then reload.<br>3. Settings › <b>Safari</b> › <b>Camera</b> › <b>Ask</b> or <b>Allow</b>.',
     'help.nocam': 'No camera found on this device.', 'help.busy': 'The camera is used by another app. Close it and try again.', 'help.other': 'Something went wrong: {m}',
@@ -95,13 +95,13 @@
     'prof.title': 'Profil', 'prof.stats': '{s} Trainings · {n} Sätze · {v} kg gehoben', 'prof.look': 'Darstellung', 'prof.light': '☀️ Hell', 'prof.dark': '🌙 Dunkel', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto folgt der Einstellung deines Telefons.', 'prof.lang': 'Sprache', 'prof.langAuto': 'Automatisch (Telefonsprache)', 'prof.data': 'Daten', 'prof.export': '⬇️ Daten exportieren (JSON)',
     'prof.local': 'Alles wird nur auf diesem Gerät gespeichert.', 'prof.name': 'Name', 'prof.bw': 'Körpergewicht (optional)', 'prof.me': 'Ich', 'prof.about': 'Profil',
-    'onb.title': 'Willkommen bei RepCam ✨', 'onb.text': 'Stell dein Handy so hin, dass es dich sieht, und trainiere. RepCam erkennt die Übung, zählt Wiederholungen und speichert den Satz in der Pause.',
+    'onb.title': 'Willkommen bei Newrun Lift ✨', 'onb.text': 'Stell dein Handy so hin, dass es dich sieht, und trainiere. Newrun Lift erkennt die Übung, zählt Wiederholungen und speichert den Satz in der Pause.',
     'onb.go': 'Los geht’s', 'onb.namePh': 'Dein Name (optional)', 'onb.bwPh': 'kg (optional)',
     'w.auto': 'Auto', 'w.detecting': 'Erkenne…', 'w.set': 'Satz {n}', 'w.saveNow': 'Satz speichern', 'w.finish': 'Training beenden', 'w.hint': 'Ganzen Körper ins Bild bringen',
     'w.autosave': 'Der Satz wird in der Pause automatisch gespeichert', 'w.pick': 'Übung wählen', 'w.autoPick': '✨ Automatisch', 'w.autoPickSub': 'Die Kamera erkennt die Übung',
     'w.saved': 'Gespeichert: {ex} · {r} × {kg}', 'w.undo': 'Rückgängig', 'w.edit': 'Ändern', 'w.undone': 'Satz entfernt', 'w.weight': 'Gewicht', 'w.repsL': 'Wdh.',
     'w.ended': 'Training wegen Inaktivität beendet',
-    'start.title': 'RepCam ✨', 'start.text': 'Zählt Wiederholungen mit der Kamera – alles bleibt auf dem Handy.', 'start.go': 'Kamera starten', 'start.back': 'Zurück', 'start.cam': 'Kamera startet…', 'start.model': 'Modell wird geladen…',
+    'start.title': 'Newrun Lift ✨', 'start.text': 'Zählt Wiederholungen mit der Kamera – alles bleibt auf dem Handy.', 'start.go': 'Kamera starten', 'start.back': 'Zurück', 'start.cam': 'Kamera startet…', 'start.model': 'Modell wird geladen…',
     'start.retry': 'Erneut versuchen', 'start.err': 'Fehler: {m}', 'start.copy': 'Link kopieren', 'start.copied': 'Link kopiert ✓',
     'help.denied': '<b>Kein Zugriff auf die Kamera.</b><br>1. Öffne den Link <b>direkt in Safari</b> – nicht in einer anderen App (Messenger, Snapchat, Instagram usw.).<br>2. Safari: tippe auf <b>aA</b> in der Adressleiste › <b>Websiteeinstellungen</b> › <b>Kamera</b> › <b>Fragen</b> oder <b>Erlauben</b> und lade neu.<br>3. Einstellungen › <b>Safari</b> › <b>Kamera</b> › <b>Fragen</b> oder <b>Erlauben</b>.',
     'help.nocam': 'Keine Kamera gefunden.', 'help.busy': 'Die Kamera wird von einer anderen App benutzt. Schließe sie und versuche es erneut.', 'help.other': 'Etwas ist schiefgelaufen: {m}',
@@ -134,13 +134,13 @@
     'prof.title': 'Perfil', 'prof.stats': '{s} entrenos · {n} series · {v} kg levantados', 'prof.look': 'Apariencia', 'prof.light': '☀️ Claro', 'prof.dark': '🌙 Oscuro', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto sigue el ajuste del teléfono.', 'prof.lang': 'Idioma', 'prof.langAuto': 'Automático (idioma del teléfono)', 'prof.data': 'Datos', 'prof.export': '⬇️ Exportar datos (JSON)',
     'prof.local': 'Todo se guarda solo en este dispositivo.', 'prof.name': 'Nombre', 'prof.bw': 'Peso corporal (opcional)', 'prof.me': 'Yo', 'prof.about': 'Perfil',
-    'onb.title': 'Bienvenido a RepCam ✨', 'onb.text': 'Coloca el móvil donde te vea y entrena. RepCam reconoce el ejercicio, cuenta las repeticiones y guarda la serie cuando descansas.',
+    'onb.title': 'Bienvenido a Newrun Lift ✨', 'onb.text': 'Coloca el móvil donde te vea y entrena. Newrun Lift reconoce el ejercicio, cuenta las repeticiones y guarda la serie cuando descansas.',
     'onb.go': 'Empezar', 'onb.namePh': 'Tu nombre (opcional)', 'onb.bwPh': 'kg (opcional)',
     'w.auto': 'Auto', 'w.detecting': 'Detectando…', 'w.set': 'Serie {n}', 'w.saveNow': 'Guardar serie', 'w.finish': 'Terminar entreno', 'w.hint': 'Pon todo el cuerpo en la imagen',
     'w.autosave': 'La serie se guarda sola cuando descansas', 'w.pick': 'Elegir ejercicio', 'w.autoPick': '✨ Automático', 'w.autoPickSub': 'La cámara reconoce el ejercicio',
     'w.saved': 'Guardado: {ex} · {r} × {kg}', 'w.undo': 'Deshacer', 'w.edit': 'Editar', 'w.undone': 'Serie eliminada', 'w.weight': 'Peso', 'w.repsL': 'Reps',
     'w.ended': 'El entreno terminó por inactividad',
-    'start.title': 'RepCam ✨', 'start.text': 'Cuenta repeticiones con la cámara; todo ocurre en el teléfono.', 'start.go': 'Activar cámara', 'start.back': 'Volver', 'start.cam': 'Iniciando cámara…', 'start.model': 'Cargando modelo…',
+    'start.title': 'Newrun Lift ✨', 'start.text': 'Cuenta repeticiones con la cámara; todo ocurre en el teléfono.', 'start.go': 'Activar cámara', 'start.back': 'Volver', 'start.cam': 'Iniciando cámara…', 'start.model': 'Cargando modelo…',
     'start.retry': 'Reintentar', 'start.err': 'Error: {m}', 'start.copy': 'Copiar enlace', 'start.copied': 'Enlace copiado ✓',
     'help.denied': '<b>No se pudo acceder a la cámara.</b><br>1. Abre el enlace <b>directamente en Safari</b>, no dentro de otra app (Messenger, Snapchat, Instagram…).<br>2. Safari: toca <b>aA</b> en la barra › <b>Ajustes del sitio web</b> › <b>Cámara</b> › <b>Preguntar</b> o <b>Permitir</b> y recarga.<br>3. Ajustes › <b>Safari</b> › <b>Cámara</b> › <b>Preguntar</b> o <b>Permitir</b>.',
     'help.nocam': 'No se encontró ninguna cámara.', 'help.busy': 'Otra app está usando la cámara. Ciérrala e inténtalo de nuevo.', 'help.other': 'Algo salió mal: {m}',
@@ -173,13 +173,13 @@
     'prof.title': 'Profil', 'prof.stats': '{s} séances · {n} séries · {v} kg soulevés', 'prof.look': 'Apparence', 'prof.light': '☀️ Clair', 'prof.dark': '🌙 Sombre', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto suit le réglage du téléphone.', 'prof.lang': 'Langue', 'prof.langAuto': 'Automatique (langue du téléphone)', 'prof.data': 'Données', 'prof.export': '⬇️ Exporter les données (JSON)',
     'prof.local': 'Tout est stocké uniquement sur cet appareil.', 'prof.name': 'Nom', 'prof.bw': 'Poids du corps (facultatif)', 'prof.me': 'Moi', 'prof.about': 'Profil',
-    'onb.title': 'Bienvenue sur RepCam ✨', 'onb.text': 'Placez le téléphone pour qu’il vous voie et entraînez-vous. RepCam reconnaît l’exercice, compte les répétitions et enregistre la série pendant la pause.',
+    'onb.title': 'Bienvenue sur Newrun Lift ✨', 'onb.text': 'Placez le téléphone pour qu’il vous voie et entraînez-vous. Newrun Lift reconnaît l’exercice, compte les répétitions et enregistre la série pendant la pause.',
     'onb.go': 'Commencer', 'onb.namePh': 'Votre prénom (facultatif)', 'onb.bwPh': 'kg (facultatif)',
     'w.auto': 'Auto', 'w.detecting': 'Détection…', 'w.set': 'Série {n}', 'w.saveNow': 'Enregistrer', 'w.finish': 'Terminer la séance', 'w.hint': 'Mettez tout le corps dans l’image',
     'w.autosave': 'La série est enregistrée automatiquement pendant la pause', 'w.pick': 'Choisir l’exercice', 'w.autoPick': '✨ Automatique', 'w.autoPickSub': 'La caméra reconnaît l’exercice',
     'w.saved': 'Enregistré : {ex} · {r} × {kg}', 'w.undo': 'Annuler', 'w.edit': 'Modifier', 'w.undone': 'Série supprimée', 'w.weight': 'Charge', 'w.repsL': 'Rép.',
     'w.ended': 'Séance terminée après inactivité',
-    'start.title': 'RepCam ✨', 'start.text': 'Compte les répétitions avec la caméra – tout reste sur le téléphone.', 'start.go': 'Activer la caméra', 'start.back': 'Retour', 'start.cam': 'Démarrage de la caméra…', 'start.model': 'Chargement du modèle…',
+    'start.title': 'Newrun Lift ✨', 'start.text': 'Compte les répétitions avec la caméra – tout reste sur le téléphone.', 'start.go': 'Activer la caméra', 'start.back': 'Retour', 'start.cam': 'Démarrage de la caméra…', 'start.model': 'Chargement du modèle…',
     'start.retry': 'Réessayer', 'start.err': 'Erreur : {m}', 'start.copy': 'Copier le lien', 'start.copied': 'Lien copié ✓',
     'help.denied': '<b>Accès à la caméra impossible.</b><br>1. Ouvrez le lien <b>directement dans Safari</b>, pas dans une autre app (Messenger, Snapchat, Instagram…).<br>2. Safari : touchez <b>aA</b> dans la barre › <b>Réglages du site web</b> › <b>Caméra</b> › <b>Demander</b> ou <b>Autoriser</b>, puis rechargez.<br>3. Réglages › <b>Safari</b> › <b>Caméra</b> › <b>Demander</b> ou <b>Autoriser</b>.',
     'help.nocam': 'Aucune caméra trouvée.', 'help.busy': 'La caméra est utilisée par une autre app. Fermez-la et réessayez.', 'help.other': 'Un problème est survenu : {m}',
@@ -212,13 +212,13 @@
     'prof.title': 'Profil', 'prof.stats': '{s} pass · {n} set · {v} kg lyft', 'prof.look': 'Utseende', 'prof.light': '☀️ Ljus', 'prof.dark': '🌙 Mörk', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto följer telefonens inställning.', 'prof.lang': 'Språk', 'prof.langAuto': 'Automatiskt (telefonens språk)', 'prof.data': 'Data', 'prof.export': '⬇️ Exportera data (JSON)',
     'prof.local': 'Allt sparas bara på den här enheten.', 'prof.name': 'Namn', 'prof.bw': 'Kroppsvikt (valfritt)', 'prof.me': 'Jag', 'prof.about': 'Profil',
-    'onb.title': 'Välkommen till RepCam ✨', 'onb.text': 'Ställ telefonen där den ser dig och träna. RepCam känner igen övningen, räknar reps och sparar setet när du vilar.',
+    'onb.title': 'Välkommen till Newrun Lift ✨', 'onb.text': 'Ställ telefonen där den ser dig och träna. Newrun Lift känner igen övningen, räknar reps och sparar setet när du vilar.',
     'onb.go': 'Kom igång', 'onb.namePh': 'Ditt namn (valfritt)', 'onb.bwPh': 'kg (valfritt)',
     'w.auto': 'Auto', 'w.detecting': 'Känner igen…', 'w.set': 'Set {n}', 'w.saveNow': 'Spara set', 'w.finish': 'Avsluta pass', 'w.hint': 'Få med hela kroppen i bild',
     'w.autosave': 'Setet sparas automatiskt när du vilar', 'w.pick': 'Välj övning', 'w.autoPick': '✨ Automatiskt', 'w.autoPickSub': 'Kameran känner igen övningen',
     'w.saved': 'Sparat: {ex} · {r} × {kg}', 'w.undo': 'Ångra', 'w.edit': 'Ändra', 'w.undone': 'Setet togs bort', 'w.weight': 'Vikt', 'w.repsL': 'Reps',
     'w.ended': 'Passet avslutades efter inaktivitet',
-    'start.title': 'RepCam ✨', 'start.text': 'Räknar reps med kameran – allt sker i telefonen.', 'start.go': 'Starta kamera', 'start.back': 'Tillbaka', 'start.cam': 'Startar kamera…', 'start.model': 'Laddar modell…',
+    'start.title': 'Newrun Lift ✨', 'start.text': 'Räknar reps med kameran – allt sker i telefonen.', 'start.go': 'Starta kamera', 'start.back': 'Tillbaka', 'start.cam': 'Startar kamera…', 'start.model': 'Laddar modell…',
     'start.retry': 'Försök igen', 'start.err': 'Fel: {m}', 'start.copy': 'Kopiera länk', 'start.copied': 'Länk kopierad ✓',
     'help.denied': '<b>Fick inte tillgång till kameran.</b><br>1. Öppna länken <b>direkt i Safari</b> – inte i en annan app (Messenger, Snapchat, Instagram m.fl.).<br>2. Safari: tryck på <b>aA</b> i adressfältet › <b>Webbplatsinställningar</b> › <b>Kamera</b> › <b>Fråga</b> eller <b>Tillåt</b> och ladda om.<br>3. Inställningar › <b>Safari</b> › <b>Kamera</b> › <b>Fråga</b> eller <b>Tillåt</b>.',
     'help.nocam': 'Ingen kamera hittades.', 'help.busy': 'Kameran används av en annan app. Stäng den och försök igen.', 'help.other': 'Något gick fel: {m}',
@@ -251,13 +251,13 @@
     'prof.title': 'Profil', 'prof.stats': '{s} træninger · {n} sæt · {v} kg løftet', 'prof.look': 'Udseende', 'prof.light': '☀️ Lys', 'prof.dark': '🌙 Mørk', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto følger telefonens indstilling.', 'prof.lang': 'Sprog', 'prof.langAuto': 'Automatisk (telefonens sprog)', 'prof.data': 'Data', 'prof.export': '⬇️ Eksportér data (JSON)',
     'prof.local': 'Alt gemmes kun på denne enhed.', 'prof.name': 'Navn', 'prof.bw': 'Kropsvægt (valgfrit)', 'prof.me': 'Mig', 'prof.about': 'Profil',
-    'onb.title': 'Velkommen til RepCam ✨', 'onb.text': 'Stil telefonen, så den kan se dig, og træn. RepCam genkender øvelsen, tæller gentagelser og gemmer sættet, når du holder pause.',
+    'onb.title': 'Velkommen til Newrun Lift ✨', 'onb.text': 'Stil telefonen, så den kan se dig, og træn. Newrun Lift genkender øvelsen, tæller gentagelser og gemmer sættet, når du holder pause.',
     'onb.go': 'Kom i gang', 'onb.namePh': 'Dit navn (valgfrit)', 'onb.bwPh': 'kg (valgfrit)',
     'w.auto': 'Auto', 'w.detecting': 'Genkender…', 'w.set': 'Sæt {n}', 'w.saveNow': 'Gem sæt', 'w.finish': 'Afslut træning', 'w.hint': 'Få hele kroppen med i billedet',
     'w.autosave': 'Sættet gemmes automatisk, når du holder pause', 'w.pick': 'Vælg øvelse', 'w.autoPick': '✨ Automatisk', 'w.autoPickSub': 'Kameraet genkender øvelsen',
     'w.saved': 'Gemt: {ex} · {r} × {kg}', 'w.undo': 'Fortryd', 'w.edit': 'Ret', 'w.undone': 'Sættet blev fjernet', 'w.weight': 'Vægt', 'w.repsL': 'Reps',
     'w.ended': 'Træningen blev afsluttet efter inaktivitet',
-    'start.title': 'RepCam ✨', 'start.text': 'Tæller gentagelser med kameraet – alt sker på telefonen.', 'start.go': 'Start kamera', 'start.back': 'Tilbage', 'start.cam': 'Starter kamera…', 'start.model': 'Indlæser model…',
+    'start.title': 'Newrun Lift ✨', 'start.text': 'Tæller gentagelser med kameraet – alt sker på telefonen.', 'start.go': 'Start kamera', 'start.back': 'Tilbage', 'start.cam': 'Starter kamera…', 'start.model': 'Indlæser model…',
     'start.retry': 'Prøv igen', 'start.err': 'Fejl: {m}', 'start.copy': 'Kopiér link', 'start.copied': 'Link kopieret ✓',
     'help.denied': '<b>Fik ikke adgang til kameraet.</b><br>1. Åbn linket <b>direkte i Safari</b> – ikke i en anden app (Messenger, Snapchat, Instagram o.l.).<br>2. Safari: tryk på <b>aA</b> i adresselinjen › <b>Indstillinger for websted</b> › <b>Kamera</b> › <b>Spørg</b> eller <b>Tillad</b>, og genindlæs.<br>3. Indstillinger › <b>Safari</b> › <b>Kamera</b> › <b>Spørg</b> eller <b>Tillad</b>.',
     'help.nocam': 'Fandt intet kamera.', 'help.busy': 'Kameraet bruges af en anden app. Luk den, og prøv igen.', 'help.other': 'Noget gik galt: {m}',
@@ -283,13 +283,20 @@
   Object.assign(D.fr, {"w.resume": "Continuer", "w.resumeT": "Séance en cours", "w.resumeTx": "Touchez pour relancer la caméra.", "st.sub": "Vos séries sont ajoutées à la description de l’activité Strava qui chevauche la séance (p. ex. de la montre).", "st.connect": "Connecter Strava", "st.connected": "Connecté", "st.disconnect": "Déconnecter", "st.notConf": "Strava n’est pas encore configuré.", "st.synced": "Ajouté à « {a} »", "st.waiting": "En attente de l’activité sur Strava…", "st.nomatch": "Aucune activité Strava trouvée pour la séance {d}.", "st.create": "Créer l’activité", "st.created": "Activité créée sur Strava", "st.actName": "Musculation"});
   Object.assign(D.sv, {"w.resume": "Fortsätt", "w.resumeT": "Passet pågår", "w.resumeTx": "Tryck för att starta kameran igen.", "st.sub": "Seten läggs automatiskt in i beskrivningen av Strava-aktiviteten som överlappar passet (t.ex. från klockan).", "st.connect": "Anslut Strava", "st.connected": "Ansluten", "st.disconnect": "Koppla från", "st.notConf": "Strava är inte konfigurerat än.", "st.synced": "Tillagt i ”{a}”", "st.waiting": "Väntar på aktiviteten på Strava…", "st.nomatch": "Hittade ingen Strava-aktivitet för passet {d}.", "st.create": "Skapa aktivitet", "st.created": "Aktivitet skapad på Strava", "st.actName": "Styrketräning"});
   Object.assign(D.da, {"w.resume": "Fortsæt", "w.resumeT": "Træningen er i gang", "w.resumeTx": "Tryk for at starte kameraet igen.", "st.sub": "Sættene lægges automatisk ind i beskrivelsen af Strava-aktiviteten, der overlapper træningen (f.eks. fra uret).", "st.connect": "Forbind Strava", "st.connected": "Forbundet", "st.disconnect": "Afbryd", "st.notConf": "Strava er ikke sat op endnu.", "st.synced": "Tilføjet til “{a}”", "st.waiting": "Venter på aktiviteten på Strava…", "st.nomatch": "Fandt ingen Strava-aktivitet for træningen {d}.", "st.create": "Opret aktivitet", "st.created": "Aktivitet oprettet på Strava", "st.actName": "Styrketræning"});
-  Object.assign(D.nb, {'onb.private': 'Lagring er blokkert (privat nettlesing?). Navn, vekt og økter blir ikke husket.', 'st.otherCtx': 'Strava er koblet til i denne nettleseren. Bruker du RepCam fra hjemskjermen, åpne den og koble til der også.'});
-  Object.assign(D.en, {'onb.private': "Storage is blocked (private browsing?). Name, weight and workouts won't be remembered.", 'st.otherCtx': 'Strava is connected in this browser. If you use RepCam from the home screen, open it there and connect once more.'});
-  Object.assign(D.de, {'onb.private': 'Speicher ist blockiert (privates Surfen?). Name, Gewicht und Trainings werden nicht gespeichert.', 'st.otherCtx': 'Strava ist in diesem Browser verbunden. Nutzt du RepCam vom Home-Bildschirm, öffne es dort und verbinde dich noch einmal.'});
-  Object.assign(D.es, {'onb.private': 'El almacenamiento está bloqueado (¿navegación privada?). No se recordarán nombre, peso ni entrenamientos.', 'st.otherCtx': 'Strava está conectado en este navegador. Si usas RepCam desde la pantalla de inicio, ábrelo allí y conéctate otra vez.'});
-  Object.assign(D.fr, {'onb.private': 'Le stockage est bloqué (navigation privée ?). Nom, poids et séances ne seront pas conservés.', 'st.otherCtx': 'Strava est connecté dans ce navigateur. Si vous utilisez RepCam depuis l’écran d’accueil, ouvrez-le et connectez-vous à nouveau.'});
-  Object.assign(D.sv, {'onb.private': 'Lagring är blockerad (privat surfning?). Namn, vikt och pass sparas inte.', 'st.otherCtx': 'Strava är anslutet i den här webbläsaren. Använder du RepCam från hemskärmen, öppna den och anslut där också.'});
-  Object.assign(D.da, {'onb.private': 'Lagring er blokeret (privat browsing?). Navn, vægt og træninger huskes ikke.', 'st.otherCtx': 'Strava er forbundet i denne browser. Bruger du RepCam fra hjemmeskærmen, så åbn den og forbind der også.'});
+  Object.assign(D.nb, {'n.benkpress': 'Benkpress', 'tip.benkpress': 'Fra siden av benken i benkhøyde, eller fra fot-/hodeenden, så skuldre, albuer og hender vises.'});
+  Object.assign(D.nb, {'onb.private': 'Lagring er blokkert (privat nettlesing?). Navn, vekt og økter blir ikke husket.', 'st.otherCtx': 'Strava er koblet til i denne nettleseren. Bruker du Newrun Lift fra hjemskjermen, åpne den og koble til der også.'});
+  Object.assign(D.en, {'n.benkpress': 'Bench press', 'tip.benkpress': 'From the side of the bench at bench height, or from the foot/head end, so shoulders, elbows and hands are visible.'});
+  Object.assign(D.en, {'onb.private': "Storage is blocked (private browsing?). Name, weight and workouts won't be remembered.", 'st.otherCtx': 'Strava is connected in this browser. If you use Newrun Lift from the home screen, open it there and connect once more.'});
+  Object.assign(D.de, {'n.benkpress': 'Bankdrücken', 'tip.benkpress': 'Seitlich der Bank auf Bankhöhe oder vom Fuß-/Kopfende, sodass Schultern, Ellbogen und Hände sichtbar sind.'});
+  Object.assign(D.de, {'onb.private': 'Speicher ist blockiert (privates Surfen?). Name, Gewicht und Trainings werden nicht gespeichert.', 'st.otherCtx': 'Strava ist in diesem Browser verbunden. Nutzt du Newrun Lift vom Home-Bildschirm, öffne es dort und verbinde dich noch einmal.'});
+  Object.assign(D.es, {'n.benkpress': 'Press de banca', 'tip.benkpress': 'Al lado del banco, a su altura, o desde los pies/la cabeza, para ver hombros, codos y manos.'});
+  Object.assign(D.es, {'onb.private': 'El almacenamiento está bloqueado (¿navegación privada?). No se recordarán nombre, peso ni entrenamientos.', 'st.otherCtx': 'Strava está conectado en este navegador. Si usas Newrun Lift desde la pantalla de inicio, ábrelo allí y conéctate otra vez.'});
+  Object.assign(D.fr, {'n.benkpress': 'Développé couché', 'tip.benkpress': 'Sur le côté du banc, à sa hauteur, ou depuis les pieds/la tête, pour voir épaules, coudes et mains.'});
+  Object.assign(D.fr, {'onb.private': 'Le stockage est bloqué (navigation privée ?). Nom, poids et séances ne seront pas conservés.', 'st.otherCtx': 'Strava est connecté dans ce navigateur. Si vous utilisez Newrun Lift depuis l’écran d’accueil, ouvrez-le et connectez-vous à nouveau.'});
+  Object.assign(D.sv, {'n.benkpress': 'Bänkpress', 'tip.benkpress': 'Vid sidan av bänken i bänkhöjd, eller från fot-/huvudänden, så axlar, armbågar och händer syns.'});
+  Object.assign(D.sv, {'onb.private': 'Lagring är blockerad (privat surfning?). Namn, vikt och pass sparas inte.', 'st.otherCtx': 'Strava är anslutet i den här webbläsaren. Använder du Newrun Lift från hemskärmen, öppna den och anslut där också.'});
+  Object.assign(D.da, {'n.benkpress': 'Bænkpres', 'tip.benkpress': 'Fra siden af bænken i bænkhøjde, eller fra fod-/hovedenden, så skuldre, albuer og hænder ses.'});
+  Object.assign(D.da, {'onb.private': 'Lagring er blokeret (privat browsing?). Navn, vægt og træninger huskes ikke.', 'st.otherCtx': 'Strava er forbundet i denne browser. Bruger du Newrun Lift fra hjemmeskærmen, så åbn den og forbind der også.'});
   function detect(navLangs) {
     for (const l of navLangs || []) {
       const b = String(l).toLowerCase().split(/[-_]/)[0];

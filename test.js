@@ -19,7 +19,10 @@ function pose(ex, p, noise = 0.004) {
   if (ex === 'knebøy' || ex === 'bulgarsk') { const d = 0.17 * p; sh += d; hip += d; nose += d; wrY = sh + 0.05; elY = sh + 0.1; if (ex === 'bulgarsk') split = 0.22; }
   if (ex === 'pullups') { const d = -0.22 * p; sh = 0.40 + d; hip = 0.65 + d; kn = 0.80 + d; an = 0.95 + d; nose = 0.32 + d; wrY = 0.10; elY = (sh + wrY) / 2; }
   if (ex === 'dips') { const d = 0.12 * p; sh = 0.30 + d; hip = 0.55 + d; kn = 0.70 + d; an = 0.80 + d; nose = 0.22 + d; wrY = 0.45; elY = 0.38 + d / 2; }
-  if (ex === 'skråbenk') { shX = 0.45; hipX = 0.70; sh = 0.55; hip = 0.62; kn = 0.60; an = 0.75; nose = 0.50; wrX = 0.45; wrY = 0.30 + 0.20 * p; elY = 0.45 + 0.08 * p; }
+  // incline bench, side view: torso ~45 deg from vertical
+  if (ex === 'skråbenk') { shX = 0.50; hipX = 0.70; sh = 0.45; hip = 0.66; kn = 0.62; an = 0.80; nose = 0.38; wrX = 0.47; wrY = 0.18 + 0.20 * p; elY = 0.35 + 0.08 * p; }
+  // flat bench, side view: shoulders level with hips
+  if (ex === 'benkpress') { shX = 0.40; hipX = 0.70; sh = 0.55; hip = 0.57; kn = 0.52; an = 0.75; nose = 0.54; wrX = 0.40; wrY = 0.30 + 0.20 * p; elY = 0.45 + 0.08 * p; }
   if (ex === 'halvmark') { const a = (10 + 70 * p) * Math.PI / 180; shX = 0.5 - 0.25 * Math.sin(a); sh = 0.55 - 0.25 * Math.cos(a); nose = sh - 0.06; wrX = shX; wrY = sh + 0.25; elY = sh + 0.12; kn = 0.73; }
   if (ex === 'roing') { const a = 60 * Math.PI / 180; shX = 0.5 - 0.25 * Math.sin(a); sh = 0.55 - 0.25 * Math.cos(a); nose = sh - 0.05; wrX = shX + 0.02; wrY = sh + 0.25 - 0.16 * p; elY = sh + 0.1; kn = 0.73; }
   set(0, shX, nose);

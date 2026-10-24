@@ -243,7 +243,7 @@ addEventListener('hashchange', route);
 // One counter per exercise runs in parallel on the same landmarks; the recognizer (or the manual pick) decides which one is shown.
 let counters = {}, recognizer = Reps.createRecognizer(), manualEx = null, autoEx = null, lockEx = null;
 let cand = null, candSince = 0, lastRepWall = 0, lastActivity = Date.now(), shownReps = -1, toastT = 0;
-const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, skråbenk: 20, halvmark: 40, roing: 30 };
+const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30 };
 function kgFor(ex) { const x = LS.getItem('repcam.kg.' + ex); if (x != null) return +x; const l = store.lastKg(ex); return l != null ? l : (DEFAULT_KG[ex] ?? 0); }
 function setKgFor(ex, x) { LS.setItem('repcam.kg.' + ex, Math.max(0, Math.round(x * 100) / 100)); }
 const curEx = () => manualEx || lockEx || autoEx;
