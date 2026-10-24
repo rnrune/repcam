@@ -46,14 +46,20 @@
     return base ? base + '\n\n' + block : block;
   }
 
+  const b64e = s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const b64d = s => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))));
+  function parseState(search) { try { const st = new URLSearchParams(search).get('state') || '', i = st.indexOf('.'); return i < 0 ? null : JSON.parse(b64d(st.slice(i + 1))); } catch { return null; } }
   function createClient({ ls, fetch: f, config = {}, now = () => Date.now() }) {
     const read = (k, d) => { try { const v = JSON.parse(ls.getItem(k)); return v == null ? d : v; } catch { return d; } };
     const save = (k, v) => ls.setItem(k, JSON.stringify(v));
     const configured = () => !!(config.clientId && config.workerUrl);
     const connected = () => !!read(K.tok, null);
-    function authUrl(redirect) {
-      const st = Math.random().toString(36).slice(2); ls.setItem(K.state, st);
-      return 'https://www.strava.com/oauth/mobile/authorize?' + new URLSearchParams({ client_id: config.clientId, redirect_uri: redirect, response_type: 'code', approval_prompt: 'auto', scope: 'activity:read_all,activity:write', state: st });
+    // opts.web: use the plain web authorize page (stays inside an iOS home-screen app; the /mobile/ one can hand off to the
+    // Strava app, which then returns to Safari = a different storage). opts.carry: small object (profile) packed into `state`
+    // so it survives a return into a different browser context.
+    function authUrl(redirect, opts = {}) {
+      const st = Math.random().toString(36).slice(2) + (opts.carry ? '.' + b64e(JSON.stringify(opts.carry)) : ''); ls.setItem(K.state, st);
+      return 'https://www.strava.com/oauth/' + (opts.web ? '' : 'mobile/') + 'authorize?' + new URLSearchParams({ client_id: config.clientId, redirect_uri: redirect, response_type: 'code', approval_prompt: 'auto', scope: 'activity:read_all,activity:write', state: st });
     }
     async function worker(path, body) {
       const r = await f(config.workerUrl.replace(/\/$/, '') + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -62,7 +68,11 @@
     // Handle ?code=&state= on the redirect back from Strava. Returns true if connected.
     async function handleRedirect(search) {
       const p = new URLSearchParams(search); if (!p.get('code') && !p.get('error')) return false;
-      if (p.get('error') || p.get('state') !== ls.getItem(K.state)) return false;
+      const mine = ls.getItem(K.state);
+      if (p.get('error')) return false;
+      // Same context: state must match. No state stored here = the redirect landed in another storage context (iOS: home-screen
+      // app vs Safari); still exchange the code so the user isn't silently left unconnected.
+      if (mine ? p.get('state') !== mine : !/^[a-z0-9]{4,}(\.[A-Za-z0-9_-]+)?$/.test(p.get('state') || '')) return false;
       const scope = p.get('scope') || '';
       if (!/activity:write/.test(scope) || !/activity:read_all/.test(scope)) throw new Error('scope');
       const t = await worker('/token', { code: p.get('code') });
@@ -122,6 +132,6 @@
     function disconnect() { ls.removeItem(K.tok); ls.removeItem(K.q); }
     return { configured, connected, authUrl, handleRedirect, token, enqueue, process, createManual, queue, disconnect, athlete: () => (read(K.tok, {}) || {}).athlete };
   }
-  const lib = { pickActivity, queryWindow, describe, mergeDescription, createClient, TOL, RETRY_FOR, KEYS: K };
+  const lib = { parseState, pickActivity, queryWindow, describe, mergeDescription, createClient, TOL, RETRY_FOR, KEYS: K };
   if (typeof module !== 'undefined') module.exports = lib; else root.Strava = lib;
 })(this);

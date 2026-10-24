@@ -4,6 +4,10 @@ const $ = id => document.getElementById(id);
 const v = $('v'), c = $('c'), ctx = c.getContext('2d');
 const store = Store.createStore(localStorage);
 const LS = localStorage;
+// Private mode / blocked storage: detect so we can tell the user instead of silently forgetting everything.
+const storageOK = (() => { try { LS.setItem('repcam.probe', '1'); LS.removeItem('repcam.probe'); return true; } catch { return false; } })();
+navigator.storage?.persist?.().catch(() => {});
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const AUTOSAVE_MS = +(LS.getItem('repcam.autosaveMs') || 9000);   // pause after last rep before the set is saved
 const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen, camera running: auto-end after this long without reps
 // Time spent in other apps does NOT count toward IDLE_END_MS. The session only ends from being away when there have been no reps
@@ -34,7 +38,7 @@ const icon = id => Store.exInfo(id).icon;
 
 /* ---------- profil ---------- */
 function profile() { try { const p = JSON.parse(LS.getItem('repcam.profile')); if (p) return p; } catch {} return { name: store.sets().length ? 'Rune' : '', bw: null }; }
-function saveProfile(p) { LS.setItem('repcam.profile', JSON.stringify(p)); }
+function saveProfile(p) { try { LS.setItem('repcam.profile', JSON.stringify(p)); } catch (e) { console.warn('profile save', e); } }
 $('pName').onchange = () => { saveProfile({ ...profile(), name: $('pName').value.trim() }); renderProf(); };
 $('pBw').onchange = () => { const x = parseFloat($('pBw').value); saveProfile({ ...profile(), bw: x > 0 ? x : null }); };
 
@@ -175,7 +179,7 @@ function renderStrava() {
   const el = $('stravaCard'); if (!el) return;
   if (!strava.configured()) { el.innerHTML = `<div class="muted small">${L.t('st.sub')}</div><div class="muted">${L.t('st.notConf')}</div>`; return; }
   if (!strava.connected()) { el.innerHTML = `<div class="muted small">${L.t('st.sub')}</div><button class="btn" id="stConnect">${L.t('st.connect')}</button>`;
-    $('stConnect').onclick = () => { location.href = strava.authUrl(location.origin + location.pathname); }; return; }
+    $('stConnect').onclick = () => { const p = profile(); location.href = strava.authUrl(location.origin + location.pathname, { web: standalone, carry: { n: p.name || '', b: p.bw || null, l: langPref() } }); }; return; }
   const q = strava.queue().slice(-3).reverse().map(x => `<div class="muted small">${L.hm(x.start)} · ${x.status === 'synced' ? L.t('st.synced', { a: esc(x.activityName || x.activityId) }) : x.status === 'created' ? L.t('st.created') : x.status === 'nomatch' ? L.t('st.nomatch', { d: '' }) : L.t('st.waiting')}</div>`).join('');
   el.innerHTML = `<div class="row"><b>✓ ${L.t('st.connected')}${strava.athlete() ? ' · ' + esc(strava.athlete()) : ''}</b><button class="ghost" id="stOff" style="width:auto">${L.t('st.disconnect')}</button></div><div class="muted small">${L.t('st.sub')}</div>${q}`;
   $('stOff').onclick = () => { strava.disconnect(); renderStrava(); };
@@ -203,13 +207,18 @@ $('export').onclick = () => {
 function onboarding() {
   if (LS.getItem('repcam.onboarded')) return;
   const p = profile();
+  // A saved profile means setup was already done (flag lost/never written): don't ask again.
+  if (LS.getItem('repcam.profile') && (p.name || p.bw)) { LS.setItem('repcam.onboarded', '1'); return; }
   openSheet(`<h3>${L.t('onb.title')}</h3><div class="muted">${L.t('onb.text')}</div>
     <div class="muted small">${L.t('prof.lang')}</div><select id="oLang" class="inp">${$('langSel').innerHTML}</select>
     <div class="muted small">${L.t('prof.name')}</div><input id="oName" class="inp" placeholder="${L.t('onb.namePh')}" value="${esc(p.name || '')}">
-    <div class="muted small">${L.t('prof.bw')}</div><input id="oBw" class="inp" type="number" inputmode="decimal" placeholder="${L.t('onb.bwPh')}">
+    <div class="muted small">${L.t('prof.bw')}</div><input id="oBw" class="inp" type="number" inputmode="decimal" placeholder="${L.t('onb.bwPh')}" value="${p.bw || ''}">
+    ${storageOK ? '' : `<div class="muted small" id="oPriv">${L.t('onb.private')}</div>`}
     <button class="grad" id="oGo">${L.t('onb.go')}</button>`, () => LS.setItem('repcam.onboarded', '1'));
   $('oLang').value = langPref();
   $('oLang').onchange = () => { LS.setItem('repcam.lang', $('oLang').value); const n = $('oName').value, b = $('oBw').value; setLang(); renderHome(); LS.removeItem('repcam.onboarded'); onboarding(); $('oName').value = n; $('oBw').value = b; };
+  const keep = () => { const bw = parseNum($('oBw').value), name = $('oName').value.trim(); if (name || bw > 0) saveProfile({ name, bw: bw > 0 ? bw : null }); };
+  $('oName').oninput = keep; $('oBw').oninput = keep;
   $('oGo').onclick = () => { const bw = parseNum($('oBw').value); saveProfile({ name: $('oName').value.trim(), bw: bw > 0 ? bw : null }); closeSheet(); renderHome(); };
 }
 
@@ -424,7 +433,10 @@ modelP.catch(e => console.warn('model failed', e));
 route();
 // Back from Strava's OAuth page (?code=…&state=…)
 if (/[?&](code|error)=/.test(location.search)) {
-  strava.handleRedirect(location.search).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
+  const foreign = !LS.getItem(Strava.KEYS.state), carry = Strava.parseState(location.search);
+  // Landed in a context that doesn't have our profile (e.g. Safari instead of the home-screen app): restore it from `state`.
+  if (carry && !LS.getItem('repcam.profile') && (carry.n || carry.b)) { saveProfile({ name: carry.n || '', bw: carry.b || null }); if (carry.l) LS.setItem('repcam.lang', carry.l); LS.setItem('repcam.onboarded', '1'); setLang(); }
+  strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
 window.__repcam = { store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, I18n, lang: () => L.lang };

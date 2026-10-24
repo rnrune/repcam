@@ -84,5 +84,14 @@ function mock(acts) {
   assert.equal(c.queue().find(x => x.id === 's-2').status, 'created');
   // not connected → enqueue ignored
   const c2 = S.createClient({ ls: mem(), fetch: M.f, config: {} }); c2.enqueue(s); assert.equal(c2.queue().length, 0);
+  // v6: web endpoint for home-screen apps, profile carried in state, redirect landing in another storage context still connects
+  const c3 = S.createClient({ ls: mem(), fetch: M.f, config: { clientId: '1', workerUrl: 'https://w.example' } });
+  const u3 = new URL(c3.authUrl('https://x/', { web: true, carry: { n: 'Rune Ø', b: 82.5 } }));
+  assert.equal(u3.pathname, '/oauth/authorize'); assert(new URL(c3.authUrl('https://x/')).pathname.endsWith('/mobile/authorize'));
+  assert.deepEqual(S.parseState('?state=' + u3.searchParams.get('state')), { n: 'Rune Ø', b: 82.5 });
+  const c4 = S.createClient({ ls: mem(), fetch: M.f, config: { clientId: '1', workerUrl: 'https://w.example' } });
+  assert.equal(await c4.handleRedirect(`?state=${u3.searchParams.get('state')}&code=x&scope=activity:write,activity:read_all`), true);
+  assert(c4.connected());
+  assert.equal(await c3.handleRedirect('?state=abcdef&code=x&scope=activity:write,activity:read_all'), false); // own state mismatch
   console.log('strava tests passed');
 })().catch(e => { console.error(e); process.exit(1); });
