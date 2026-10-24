@@ -3,3 +3,8 @@ main = "strava-worker.js"
 compatibility_date = "2026-10-01"
 [vars]
 ALLOWED_ORIGINS = "https://rnrune.github.io"
+
+# Feedback clips (private). Requires R2 enabled on the account.
+[[r2_buckets]]
+binding = "FB"
+bucket_name = "newrun-feedback"

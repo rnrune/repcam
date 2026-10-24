@@ -103,9 +103,83 @@ function openEdit(ts, after) {
     <button class="grad" id="eSave">${L.t('edit.save')}</button><div class="btns"><button class="ghost" id="eDel">${L.t('edit.delete')}</button><button class="ghost" id="eNo">${L.t('edit.cancel')}</button></div>`);
   const sh = $('sheet'); wireSteppers(sh);
   sh.querySelectorAll('.exgrid button').forEach(b => b.onclick = () => { ex = b.dataset.ex; sh.querySelectorAll('.exgrid button').forEach(x => x.classList.toggle('on', x === b)); });
-  $('eSave').onclick = () => { store.updateSet(ts, { reps: parseNum($('eReps').value), kg: parseNum($('eKg').value), exercise: ex }); setKgFor(ex, parseNum($('eKg').value)); closeSheet(); after?.(); };
+  $('eSave').onclick = () => { fbLabel(ts, 'edit', { reps: parseNum($('eReps').value), kg: parseNum($('eKg').value), exercise: ex }); store.updateSet(ts, { reps: parseNum($('eReps').value), kg: parseNum($('eKg').value), exercise: ex }); setKgFor(ex, parseNum($('eKg').value)); closeSheet(); after?.(); };
   $('eNo').onclick = closeSheet;
-  $('eDel').onclick = async () => { if (await confirmDialog(L.t('del.title'), L.t('del.text'), L.t('del.ok'))) { store.deleteSet(ts); after?.(); } };
+  $('eDel').onclick = async () => { if (await confirmDialog(L.t('del.title'), L.t('del.text'), L.t('del.ok'))) { fbLabel(ts, 'delete'); store.deleteSet(ts); after?.(); } };
+}
+
+
+/* ---------- «Hjelp til å forbedre»: per-set clips + labels (feedback.js) ---------- */
+const APP_VERSION = '8.1+fb1';
+const fb = { rec: null, mime: '', repT: [], lm: [], lastLm: 0, lastTrim: 0, early: {}, cutting: {}, q: null };
+const fbOn = () => LS.getItem(Feedback.KEYS.on) === '1' && typeof MediaRecorder !== 'undefined' && !!(window.REPCAM_STRAVA || {}).workerUrl;
+function fbQueue() {
+  if (fb.q) return fb.q;
+  const rnd = b => crypto.getRandomValues(b);
+  if (!LS.getItem(Feedback.KEYS.inst)) { LS.setItem(Feedback.KEYS.inst, Feedback.rid(12, rnd)); LS.setItem(Feedback.KEYS.tok, Feedback.rid(32, rnd)); }
+  const send = Feedback.httpSender({ base: window.REPCAM_STRAVA.workerUrl, inst: LS.getItem(Feedback.KEYS.inst), tok: LS.getItem(Feedback.KEYS.tok), fetch: (...x) => fetch(...x) });
+  return fb.q = Feedback.createQueue({ kv: Feedback.idbKV(), send });
+}
+function fbStart() {
+  fbStop(true);
+  if (!fbOn() || !camLive()) return;
+  try { fb.mime = Feedback.pickMime(m => MediaRecorder.isTypeSupported(m)); fb.rec = Feedback.createRecorder(stream, { mime: fb.mime, bps: 1e6 }); fb.repT = []; fb.lm = []; }
+  catch (e) { console.warn('fb rec', e); fb.rec = null; }
+}
+function fbStop(discard) { const r = fb.rec; fb.rec = null; if (r) r.stop().catch(() => {}); }
+function fbSample(lm, ts) {
+  if (!fb.rec || !lm || ts - fb.lastLm < 100) return; fb.lastLm = ts;
+  const a = [Math.round(ts)]; for (const p of lm) a.push(+p.x.toFixed(3), +p.y.toFixed(3), +(p.visibility ?? 0).toFixed(2));
+  fb.lm.push(a); if (fb.lm.length > 3000) fb.lm.splice(0, 600);
+}
+function fbViewHint(lm) { // rough camera angle: shoulder width relative to torso height
+  const fr = lm.slice(-50); if (!fr.length) return null;
+  const r = fr.map(a => { const sx = Math.abs(a[1 + 11 * 3] - a[1 + 12 * 3]), ty = Math.abs((a[2 + 11 * 3] + a[2 + 12 * 3]) / 2 - (a[2 + 23 * 3] + a[2 + 24 * 3]) / 2) || 1; return sx / ty; }).sort((x, y) => x - y)[fr.length >> 1];
+  return r > 0.55 ? 'front' : r < 0.25 ? 'side' : 'oblique';
+}
+function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
+async function fbCut1(pred, setTs, label) {
+  const r = fb.rec; if (!r) return;
+  const repT = fb.repT, lmAll = fb.lm; fb.repT = []; fb.lm = [];
+  const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) return;
+  const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
+  const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
+  const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
+  const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
+    repTimes: repT.filter(t => t >= t0).map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
+    landmarks: { hz: 10, layout: 't,(x,y,vis)*33', frames: lm },
+    device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
+  const lab = fb.early[setTs] || label || Feedback.labelFrom(pred, 'implicit'); delete fb.early[setTs];
+  try { await fbQueue().add({ id, setTs, blob: seg.blob, mime: seg.blob.type.split(';')[0], meta, label: lab, created: Date.now() }); } catch (e) { console.warn('fb add', e); }
+  fbUpload();
+}
+async function fbLabel(ts, action, val) {
+  if (!LS.getItem(Feedback.KEYS.inst)) return;
+  const s0 = store.sets().find(x => x.timestamp === ts);
+  if (fb.cutting[ts]) await fb.cutting[ts].catch(() => {});
+  const s = s0 || store.sets().find(x => x.timestamp === ts) || {}, mk = pred => Feedback.labelFrom(pred, action, val);
+  try { if (!(await fbQueue().label(ts, mk))) fb.early[ts] = mk({ exercise: s.exercise, reps: s.reps, kg: s.kg }); } catch (e) { console.warn('fb label', e); }
+  fbUpload();
+}
+let fbBusy = false;
+async function fbUpload() {
+  if (fbBusy || !LS.getItem(Feedback.KEYS.inst) || !navigator.onLine) return; fbBusy = true;
+  try { await fbQueue().process(); } catch (e) { console.warn('fb up', e); } fbBusy = false;
+  if (cur === 'profil') renderFb();
+}
+addEventListener('online', fbUpload); setInterval(() => { if (document.visibilityState === 'visible') fbUpload(); }, 60e3);
+async function renderFb() {
+  const el = $('fbCard'); if (!el) return;
+  const on = LS.getItem(Feedback.KEYS.on) === '1';
+  let st = { pending: 0, uploaded: 0, bytes: 0 }; if (LS.getItem(Feedback.KEYS.inst)) { try { st = await fbQueue().stats(); } catch {} }
+  el.innerHTML = `<label class="row" style="gap:12px"><span><b>${L.t('fb.title')}</b><div class="muted small" style="margin:2px 0 0">${L.t('fb.sub')}</div></span><input type="checkbox" id="fbOn" class="sw" ${on ? 'checked' : ''}></label>
+    ${typeof MediaRecorder === 'undefined' ? `<div class="muted small">${L.t('fb.unsupported')}</div>` : ''}
+    <div class="muted small" id="fbStats">${L.t('fb.stats', { p: st.pending, u: st.uploaded, mb: L.nf(Math.round(st.bytes / 1e5) / 10, 1) })}</div>
+    ${st.pending ? `<div class="btns"><button class="ghost" id="fbSend">${L.t('fb.send')}</button><button class="ghost" id="fbDel">${L.t('fb.del')}</button></div>` : ''}`;
+  $('fbOn').onchange = () => { LS.setItem(Feedback.KEYS.on, $('fbOn').checked ? '1' : '0'); if ($('fbOn').checked) fbQueue(); renderFb(); };
+  if ($('fbSend')) $('fbSend').onclick = () => fbUpload();
+  if ($('fbDel')) $('fbDel').onclick = async () => { if (await confirmDialog(L.t('fb.del'), L.t('fb.delText'), L.t('del.ok'))) { await fbQueue().clearPending(); } renderFb(); };
 }
 
 /* ---------- små grafer ---------- */
@@ -197,7 +271,7 @@ async function stravaSync() {
   if (cur === 'profil') renderStrava(); if (cur === 'home') renderStravaNote();
 }
 function renderProf() {
-  renderStrava();
+  renderStrava(); renderFb();
   const ss = store.sessions(), all = store.sets(), p = profile();
   $('pName').placeholder = L.t('onb.namePh'); $('pName').value = p.name || ''; $('pBw').value = p.bw || ''; $('pBw').placeholder = L.t('onb.bwPh');
   $('avatar2').textContent = (p.name || '🙂')[0].toUpperCase();
@@ -255,6 +329,7 @@ const curEx = () => manualEx || lockEx || autoEx;
 function resetCounters() { counters = {}; for (const id of Reps.IDS) counters[id] = Reps.createCounter(id); lockEx = null; shownReps = -1; lastRepWall = 0; }
 function currentReps() { const e = curEx(); return e ? counters[e].reps : 0; }
 function renderWorkout() {
+  $('fbMiss').style.display = fb.rec ? '' : 'none';
   const a = store.active(), mine = a ? store.sets().filter(s => s.sessionId === a.id) : [], ex = curEx();
   $('setno').textContent = L.t('w.set', { n: mine.length + 1 });
   $('exIc').textContent = ex ? icon(ex) : '✨';
@@ -283,6 +358,8 @@ function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
   const rec = store.addSet({ exercise: ex, reps, kg: kgFor(ex) });
+  if (fb.rec) { const t0 = fb.rec.t0(); fb.repT = fb.repT.filter(t => t >= t0); while (fb.repT.length < reps) fb.repT.push(performance.now()); } // flush() can confirm a last pending rep
+  fbCut({ exercise: ex, reps, kg: rec.kg, auto: !manualEx }, rec.timestamp);
   resetCounters(); navigator.vibrate?.([40, 60, 40]);
   showToast(L.t('w.saved', { ex: exName(ex), r: reps, kg: L.kgf(rec.kg) }), rec.timestamp);
   renderWorkout(); return rec;
@@ -290,10 +367,11 @@ function saveSet() {
 function showToast(text, ts) {
   $('toastTx').textContent = text; $('toast').classList.add('on');
   $('tUndo').style.display = $('tEdit').style.display = ts ? '' : 'none';
-  $('tUndo').onclick = () => { store.deleteSet(ts); hideToast(); showToast(L.t('w.undone')); renderWorkout(); };
+  $('tUndo').onclick = () => { fbLabel(ts, 'delete'); store.deleteSet(ts); hideToast(); showToast(L.t('w.undone')); renderWorkout(); };
   $('tEdit').onclick = () => { hideToast(); openEdit(ts, renderWorkout); };
   clearTimeout(toastT); toastT = setTimeout(hideToast, ts ? 7000 : 2500);
 }
+$('fbMiss').onclick = () => { fbCut({ exercise: curEx(), reps: currentReps(), kg: kgFor(curEx() || 'knebøy') }, null, Feedback.labelFrom({}, 'missed')); showToast(L.t('fb.missedOk')); };
 function hideToast() { $('toast').classList.remove('on'); }
 $('confirm').onclick = () => { saveSet(); };
 function enterWorkout() {
@@ -318,7 +396,7 @@ let endedByIdle = false, endAt = null, hiddenAt = 0;
 // Backgrounded (other app, lock screen) or camera killed by iOS: keep the session, save any half-counted set, and come back without extra taps.
 function onHide() {
   if (cur !== 'okt' || !store.active()) return;
-  hiddenAt = Date.now(); finishPending();
+  hiddenAt = Date.now(); finishPending(); fbStop();
   store.touchActive({ seen: hiddenAt, manualEx });
 }
 function onShow() {
@@ -332,7 +410,7 @@ function onShow() {
 }
 function resumeCam() {
   if (pending || cur !== 'okt') return;
-  if (camLive()) { if (v.paused) v.play().catch(() => setStartUI(true)); return; }
+  if (camLive()) { if (v.paused) v.play().catch(() => setStartUI(true)); if (!fb.rec) fbStart(); return; }
   runCam(getCam(facing), true); // no gesture: works if iOS still has permission; otherwise the big «Fortsett» shows
 }
 document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' ? onHide() : onShow());
@@ -340,7 +418,7 @@ addEventListener('pagehide', onHide);
 addEventListener('pageshow', e => { if (e.persisted) onShow(); });
 function leaveWorkout() {
   finishPending();
-  hideToast(); clearInterval(tick); cancelAnimationFrame(raf); raf = 0; wake.off();
+  hideToast(); clearInterval(tick); cancelAnimationFrame(raf); raf = 0; wake.off(); fbStop();
   stream?.getTracks().forEach(t => t.stop()); stream = null; v.srcObject = null;
   const sum = store.endSession(endAt || new Date()), idle = endedByIdle; endedByIdle = false; endAt = null;
   if (sum && sum.sets) { queueStrava(sum); stravaSync(); setTimeout(() => showSummary(sum, idle), 150); }
@@ -375,6 +453,7 @@ async function attach(s) {
   stream = s; v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('autoplay', '');
   s.getVideoTracks().forEach(t => t.addEventListener('ended', () => { if (stream === s && document.visibilityState === 'visible') setTimeout(resumeCam, 300); }));
   v.srcObject = s; await v.play();
+  if (cur === 'okt') fbStart();
   [v, c].forEach(el => el.classList.toggle('mirror', facing === 'user'));
 }
 function showHelp(e) {
@@ -390,7 +469,7 @@ function runCam(camP, resume) {
     st.textContent = L.t('start.model');
     if (!modelP) modelP = initModel().then(m => landmarker = m);
     return modelP;
-  }).then(() => { pending = false; if (cur !== 'okt') { stream?.getTracks().forEach(t => t.stop()); stream = null; return; } $('start').style.display = 'none'; st.textContent = ''; lastActivity = Date.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); })
+  }).then(() => { pending = false; if (cur !== 'okt') { stream?.getTracks().forEach(t => t.stop()); stream = null; return; } $('start').style.display = 'none'; st.textContent = ''; lastActivity = Date.now(); if (!fb.rec) fbStart(); renderWorkout(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); })
   .catch(e => { pending = false; console.warn(e); if (resume && cur === 'okt') { setStartUI(true); return; } $('start').style.display = 'flex'; st.textContent = L.t('start.err', { m: e.message }); showHelp(e); go.disabled = false; go.textContent = L.t('start.retry'); });
 }
 // Both buttons: getUserMedia MUST be the first call, synchronous in the tap (iOS user activation)
@@ -423,6 +502,9 @@ function loop() {
   }
   const ex = curEx(), reps = currentReps();
   if (ex && !lockEx && !manualEx && reps >= 2) lockEx = ex;
+  fbSample(lm, ts);
+  if (fb.rec && reps > shownReps) for (let i = Math.max(shownReps, 0); i < reps; i++) fb.repT.push(ts);
+  if (fb.rec && reps === 0 && ts - fb.lastTrim > 2000) { fb.lastTrim = ts; fb.rec.trimIdle(30e3); }
   if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); if (reps > 0) lastActivity = Date.now(); }
   if (reps > 0 && Date.now() - lastRepWall > AUTOSAVE_MS) finishPending();
   $('hint').style.display = lm && (tracking || !ex) ? 'none' : 'block';
@@ -446,4 +528,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, I18n, lang: () => L.lang };
+window.__repcam = { fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, I18n, lang: () => L.lang };
