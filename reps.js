@@ -69,7 +69,8 @@
       // reclined on the bench: torso tilted back, or (frontal view) seated with bent knees / legs hidden by the bench
       posture: g => g.torsoTilt > 18 || g.legsVis < 0.4 || Math.min(g.knee[0] ?? 180, g.knee[1] ?? 180) < 150, minRep: 0.5, maxRep: 8, need: 'arms', trimLead: 0.7,
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
-    halvmark: { minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso',
+    // v8.8: standing hinge — legs visible (head-on push-ups hide them) and the hands not planted far below the hips
+    halvmark: { minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso', posture: (g, ref) => g.legsVis > 0.4 && g.wrM.y - g.hipM.y < 0.8 * ref,
       signal: (g, ref) => (g.hipM.y - g.shM.y) / ref },
      roing: { minAmp: 0.15, minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
@@ -79,6 +80,7 @@
     armhevinger: { bodyMove: 0.25, minAmp: 0.13, minRep: 0.45, maxRep: 8, need: 'arms', bodyRef: true,
       // prone: hands planted well below the shoulders and the torso either horizontal (side/oblique) or foreshortened (head-on)
       posture: (g, ref) => g.wrM.y - g.shM.y > -0.1 * ref && (g.torsoTilt > 40 || Math.abs(g.shM.y - g.hipM.y) < 1.3 * g.shW),
+      topHold: 0.5, // v8.8: the plank (top) must be held ≥0.5 s before the first rep (kneeling/lowering to the floor is setup)
       signal: (g, ref) => (g.wrM.y - g.shM.y) / ref },
     // sit-up: rest = lying flat (shoulders level with hips, signal ~0); sitting up lifts the shoulders above the hips so
     // the signal dips negative. Rest-high convention holds, each sit-up is one valley.
@@ -96,8 +98,8 @@
     const def = { ...EX[exId] || EX.knebøy, ...opts };
     const tau = def.tau ?? 0.12, topWin = def.topWin ?? 2, cntRatio = def.cntRatio ?? 0.5, overshoot = def.overshoot ?? 0.6;
     let s0T = null, repAmps = [], s, lastT, ref, refBuf, state, top, hist, lo, tDown, reps, amps, lastRepT, lastGood, repTimes, raw3, pend, auxLo, auxHi, aux2Lo, aux2Hi, onRep = opts.onRep;
-    let rejected = 0, qa = null, tents = [], camT = 0;
-    function reset() { tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; }
+    let rejected = 0, qa = null, tents = [], camT = 0, topPose = [];
+    function reset() { tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
     reset();
     const typAmp = () => { if (!amps.length) return null; const a = [...amps].sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; };
     const hiNow = () => top.length ? Math.max(...top.map(p => p[1])) : s;
@@ -129,6 +131,7 @@
       if (!strict) return count(p);
       const why = cleanRep(p); if (why) { rejected++; opts.onReject && opts.onReject(why, p); return; }
       if (reps > 0) return count(p);
+      if (p.q && p.q.topOk === false) { rejected++; opts.onReject && opts.onReject('setup', p); return; } // v8.8: no established top yet
       // pair with an earlier unconfirmed rep of similar amplitude and tempo (a half rep in between is skipped)
       const drop = x => { opts.onReject && opts.onReject('unpaired', x); };
       tents = tents.filter(x => p.t - x.t <= pairGap || (drop(x), false));
@@ -182,10 +185,11 @@
       const ta = typAmp();
       const thrDown = Math.max(def.minAmp * 0.5, ta ? 0.35 * ta : 0);
       if (pend) { if (s > pend.pk) { pend.pk = s; pend.tPk = t; } checkPend(t, false); }
+      if (def.topHold) { topPose.push([t, !def.posture || def.posture(g, ref)]); while (topPose[0][0] < t - 3) topPose.shift(); }
       if (state === 'top') {
         top.push([t, s]); while (top.length && top[0][0] < t - topWin) top.shift();
         const hi = hiNow();
-        if (hi - s > thrDown) { if (pend) checkPend(t, true); state = 'down'; lo = s; tDown = t; qa = { n: 0, bad: 0, pose: 0, xMin: Infinity, xMax: -Infinity }; top0 = hi; auxLo = aux; auxHi = aux; aux2Lo = aux2; aux2Hi = aux2; }
+        if (hi - s > thrDown) { if (pend) checkPend(t, true); state = 'down'; lo = s; tDown = t; qa = { n: 0, bad: 0, pose: 0, xMin: Infinity, xMax: -Infinity, topOk: topHeld(t) }; top0 = hi; auxLo = aux; auxHi = aux; aux2Lo = aux2; aux2Hi = aux2; }
       } else {
         if (s < lo) lo = s;
         if (aux != null) { auxLo = auxLo == null ? aux : Math.min(auxLo, aux); auxHi = auxHi == null ? aux : Math.max(auxHi, aux); }
@@ -210,6 +214,10 @@
       return out(true);
     }
     let top0 = 0;
+    // v8.8: was the exercise posture held (≥80 % of frames) during the top right before this descent? A set that starts
+    // tracking at the top (no history yet) passes; only a top seen OUT of posture (kneeling, lowering to the floor) fails.
+    function topHeld(t) { if (!def.topHold) return true; const w = topPose.filter(p => p[0] >= t - def.topHold - 0.3 && p[0] < t);
+      return w.filter(p => p[1]).length >= 0.8 * w.length; }
     // A pending rep is confirmed when the signal has settled at the top (no new max for 0.35 s), on the next descent, or on dropout/flush.
     // It is rejected if the signal kept rising far above where the descent started (the "top" was not a real top).
     function checkPend(t, force) {
@@ -296,10 +304,12 @@
       // in the tilt band the torso must also rise clearly (dyShW); frontal views (tilt < 25) are flat unless the torso is long
       const incline = Math.max(sig(f.tilt, 20, 30) * (1 - sig(f.tilt, 64, 72)) * sig(f.dyShW, 0.9, 1.05),
         (1 - sig(f.tilt, 20, 30)) * sig(f.dyShW, 1.8, 2.2));
+      const proneHoriz = Math.max(sig(f.tilt, 45, 66) * (1 - sig(f.tiltRange, 38, 60)), sig(-f.wrUp, 0.8, 1.2) * (1 - sig(f.dyShW, 1.1, 1.6)), headOn);
       S.skråbenk = press * incline;
       S.benkpress = press * (1 - incline);
       S.roing = sig(f.wrDist, 0.1, 0.3) * sig(f.wrMove / Math.max(0.05, f.shMove), 0.6, 1.1) * sig(f.tilt, 25, 45) * (1 - sig(f.tiltRange, 25, 45)) * (1 - sig(f.wrUp, -0.4, 0)) * (1 - sig(f.hinge, 0.35, 0.6));
-      S.halvmark = sig(f.hinge, 0.2, 0.45) * sig(f.tiltRange, 20, 40) * sig(f.knee, 130, 155) * (1 - sig(f.wrUp, -0.3, 0)) * sig(f.kneeMin, 40, 65);
+      // v8.8: a standing hinge shows the legs; a prone body (push-up, esp. head-on with hidden legs) is never an RDL
+      S.halvmark = sig(f.legsVis, 0.3, 0.5) * (1 - proneHoriz) * (1 - sig(-f.wrUp, 0.8, 1.1) * (1 - sig(f.dyShW, 0.95, 1.2))) * sig(f.hinge, 0.2, 0.45) * sig(f.tiltRange, 20, 40) * sig(f.knee, 130, 155) * (1 - sig(f.wrUp, -0.3, 0)) * sig(f.kneeMin, 40, 65);
       const squatish = (1 - headOn) * sig(f.legsVis, 0.3, 0.5) * sig(f.hipKnee, 0.15, 0.4) * (1 - sig(f.wrUp, 0.2, 0.6) * 0.3) * (1 - sig(f.tilt, 45, 70))
         * sig(f.kneeMin, 20, 32) * (1 - sig(f.tiltRange, 55, 80));
       const split = Math.max(sig(f.kneeDy, 0.3, 0.42), sig(f.ankDx, 1.12, 1.3));
@@ -309,7 +319,6 @@
       // vertically while the hands stay put, legs ~straight. Separated from dips (upright = low tilt) and bench (wrists up).
       // body reads horizontal (side/oblique) OR, in head/feet-end views where the torso foreshortens, the wrists sit far
       // below the shoulders (hands planted on the floor by the head) with the body prone
-      const proneHoriz = Math.max(sig(f.tilt, 45, 66) * (1 - sig(f.tiltRange, 38, 60)), sig(-f.wrUp, 0.8, 1.2) * (1 - sig(f.dyShW, 1.1, 1.6)), headOn);
       const legsHidden = 1 - sig(f.legsVis, 0.35, 0.6); // head-on: knee angles are noise, do not require straight legs
       S.armhevinger = proneHoriz * (1 - sig(f.wrUp, -0.1, 0.12))
         * bodyMoves * (1 - sig(f.wrMove / Math.max(0.05, f.shMove), 0.8, 1.5)) * Math.max(sig(f.knee, 115, 150), legsHidden, headOn);

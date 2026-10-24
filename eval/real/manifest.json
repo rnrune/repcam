@@ -1,0 +1,55 @@
+[
+ {
+  "id": "mvmtfqlo8d46051c",
+  "exercise": "armhevinger",
+  "gt": 6,
+  "kg": 0,
+  "view": "front",
+  "facing": "user",
+  "app": "8.7",
+  "pred": {
+   "exercise": "armhevinger",
+   "reps": 8,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   0.2,
+   0.2,
+   5.95,
+   8.37,
+   10.73,
+   13.2,
+   15.56,
+   18.01
+  ],
+  "label": "implicit",
+  "notes": "head-on push-ups after kneeling setup; app 8.7 counted 8 (2 phantom reps paired at t=0.2 from pre-clip setup motion). Brief said GT 7; frame-by-frame review (4 fps) and the shoulder signal show 6 descents (bottoms ~4.3, 6.7, 9.0, 11.4, 13.7, 16.1 s) — Rune was unsure 7/8, re-check"
+ },
+ {
+  "id": "mvmtju2917da1c69",
+  "exercise": "armhevinger",
+  "gt": 5,
+  "kg": 0,
+  "view": "front",
+  "facing": "user",
+  "app": "8.7",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 7,
+   "kg": 25,
+   "auto": true
+  },
+  "appRepTimes": [
+   11.83,
+   11.83,
+   14.08,
+   15.88,
+   17.72,
+   19.55,
+   21.59
+  ],
+  "label": "implicit",
+  "notes": "head-on push-ups after walking back + kneeling down; app 8.7 picked halvmark x7 @25 kg (default kg of halvmark). GT from Rune: 5 push-ups, 0 kg"
+ }
+]

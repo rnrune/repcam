@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.7';
+const APP_VERSION = '8.8';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -151,7 +151,7 @@ async function fbCut1(pred, setTs, label) {
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    repTimes: repT.filter(t => t >= t0).map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
     landmarks: { hz: 10, layout: 't,(x,y,vis)*33', frames: lm },
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -407,7 +407,8 @@ function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
   const rec = store.addSet({ exercise: ex, reps, kg: kgFor(ex) });
-  if (fb.rec) { const t0 = fb.rec.t0(); fb.repT = fb.repT.filter(t => t >= t0); while (fb.repT.length < reps) fb.repT.push(performance.now()); } // flush() can confirm a last pending rep
+  // v8.8: feedback repTimes = each rep's own time from the counter (a paired first rep used to get the confirmation time twice)
+  if (fb.rec) fb.repT = counters[ex].repTimes.map(t => t * 1000);
   fbCut({ exercise: ex, reps, kg: rec.kg, auto: !manualEx }, rec.timestamp);
   resetCounters(); navigator.vibrate?.([40, 60, 40]);
   showToast(L.t('w.saved', { ex: exName(ex), r: reps, kg: L.kgf(rec.kg) }), rec.timestamp);
@@ -560,7 +561,7 @@ function processFrame(lm, ts, asp, sensor) {
   if (ex && !lockEx && !manualEx && reps >= 2) lockEx = ex;
   fbSample(lm, ts);
   if (fb.rec && reps > shownReps) for (let i = Math.max(shownReps, 0); i < reps; i++) fb.repT.push(ts);
-  if (fb.rec && reps === 0 && ts - fb.lastTrim > 2000) { fb.lastTrim = ts; fb.rec.trimIdle(30e3); }
+  if (fb.rec && reps === 0 && !Reps.IDS.some(id => counters[id].tentative) && ts - fb.lastTrim > 2000) { fb.lastTrim = ts; fb.rec.trimIdle(30e3); }
   if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); if (reps > 0) lastActivity = Date.now(); }
   if (reps > 0 && Date.now() - lastRepWall > AUTOSAVE_MS) finishPending();
   $('hint').style.display = !cam && lm && (tracking || !ex) ? 'none' : 'block';
