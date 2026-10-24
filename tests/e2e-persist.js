@@ -20,7 +20,7 @@ const onb = p => p.evaluate(() => !!document.querySelector('#sheet.on #oName'));
   const live = !!process.env.LIVE;
   let p = await ctxPage(b, live);
   await p.goto(URL0); await p.waitForSelector('#sheet.on #oName');
-  ok(await p.evaluate(() => [...document.scripts].some(s => /\?v=8\.6/.test(s.src))), 'page loads v8.6 scripts');
+  ok(await p.evaluate(() => [...document.scripts].some(s => /\?v=8\.7/.test(s.src))), 'page loads v8.7 scripts');
   ok(await p.title() === 'Newrun Lift', 'title is Newrun Lift');
   ok((await p.textContent('#sheet')).includes('Newrun Lift') && !(await p.textContent('body')).includes('RepCam'), 'onboarding shows Newrun Lift, no RepCam text');
   { const m = await p.evaluate(() => fetch('manifest.webmanifest').then(r => r.json()));

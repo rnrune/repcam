@@ -96,7 +96,7 @@
     const def = { ...EX[exId] || EX.knebøy, ...opts };
     const tau = def.tau ?? 0.12, topWin = def.topWin ?? 2, cntRatio = def.cntRatio ?? 0.5, overshoot = def.overshoot ?? 0.6;
     let s0T = null, repAmps = [], s, lastT, ref, refBuf, state, top, hist, lo, tDown, reps, amps, lastRepT, lastGood, repTimes, raw3, pend, auxLo, auxHi, aux2Lo, aux2Hi, onRep = opts.onRep;
-    let rejected = 0, qa = null, tents = [];
+    let rejected = 0, qa = null, tents = [], camT = 0;
     function reset() { tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; }
     reset();
     const typAmp = () => { if (!amps.length) return null; const a = [...amps].sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; };
@@ -110,7 +110,10 @@
     function cleanRep(p) {
       const q = p.q; if (!q || !q.n) return 'noq';
       if (q.bad / q.n > 0.5) return 'vis'; // low visibility / out of frame / dropouts during the rep
-      if (!def.lying && (Math.abs(q.x1 - q.x0) > 0.8 || q.xMax - q.xMin > 1.5)) return 'travel'; // the person moved sideways through the frame (torso lengths)
+      // the person moved sideways through the frame (torso lengths). v8.7: a slow handheld pan/follow drifts the whole body a
+      // little per second, so the allowance grows with the rep duration (0.3 torso/s); walking (~2 torso/s) is still caught.
+      const drift = 0.3 * (p.dur || 0);
+      if (!def.lying && (Math.abs(q.x1 - q.x0) > 0.8 + drift || q.xMax - q.xMin > 1.5 + drift)) return 'travel';
       if (def.posture && q.pose / q.n < (def.poseMin ?? 0.5)) return 'pose';
       // body-weight moves (pull-ups, dips, push-ups): the SHOULDERS travel while the hands stay planted; waving the arms
       // around while standing moves only the wrists
@@ -134,8 +137,23 @@
       // wait for a matching rep
       tents.push(p); if (tents.length > 3) drop(tents.shift());
     }
-    function update(lm, tMs, aspect = 1) {
+    // v8.7: the phone itself moved a lot (pick-up, bump, reframing — see createCameraGate). Frames from that segment are
+    // ignored: a rep in progress and an unpaired first rep are dropped (never counted), tracking restarts
+    // afterwards from a fresh top (the body-size reference is kept: zooming in raises it at once, a pause can also be the
+    // athlete getting into position). Confirmed reps are kept.
+    function camPause(t) {
+      // a rep that had already finished well before the phone started moving is real: confirm it; a later one is dropped
+      if (pend) { if (t - pend.t >= 0.3 && !camT) checkPend(t, true); else { opts.onReject && opts.onReject('camera', pend); rejected++; pend = null; } }
+      if (!camT) camT = t; 
+      // unpaired first reps from before the move stay as candidates (they still need a matching rep within 12 s)
+      tents = tents.filter(x => x.t < camT - 0.3 || (opts.onReject && opts.onReject('camera', x), false));
+      s = null; s0T = null; state = 'top'; top = []; hist = []; raw3 = []; qa = null; refBuf = []; lastT = t; lastGood = null;
+      return out(false);
+    }
+    function update(lm, tMs, aspect = 1, camMoving = false) {
       const t = tMs / 1000;
+      if (camMoving) return camPause(t);
+      camT = 0;
       const g = lm && geom(lm, aspect);
       const ok = g && (def.need === 'legs' ? g.legsVis > 0.4 : def.need === 'arms' ? g.armsVis > 0.4 : true);
       if (!ok) { if (qa) { qa.n++; qa.bad++; } checkPend(t, true); return out(false); }
@@ -225,8 +243,9 @@
   function createRecognizer(opts = {}) {
     const win = opts.window ?? 6; // seconds
     const buf = [];
-    function update(lm, tMs, aspect = 1) {
-      const t = tMs / 1000, g = lm && geom(lm, aspect);
+    function update(lm, tMs, aspect = 1, camMoving = false) {
+      const t = tMs / 1000, g = !camMoving && lm && geom(lm, aspect);
+      if (camMoving) buf.length = 0; // features (travel, foot movement) mix camera and body motion: start over afterwards
       if (g) buf.push({ t, g });
       while (buf.length && buf[0].t < t - win) buf.shift();
       return classify();
@@ -327,6 +346,67 @@
       get current() { return cur; }, reset() { cand = null; since = 0; cur = null; }
     };
   }
+  // v8.7 camera-motion gate. Handheld filming (tremor, slow pan/follow, gentle drift/zoom) is tolerated: the rep signals are
+  // body-relative (differences between keypoints divided by the torso length), so a moderate global shift/zoom cancels out.
+  // Only LARGE or ABRUPT phone motion (picking it up, bumping it, re-propping, big rotation/reframing) pauses counting:
+  //  * sensor: DeviceMotion rotation rate (deg/s) / acceleration without gravity (m/s²), when available;
+  //  * vision fallback: every body part — including the ones an exercise keeps still (feet, hands on the bar/floor, hips on
+  //    the bench) — translates/scales/rotates together by a lot within 0.4 s. Real exercises always keep some part anchored.
+  // While moving and for `settleMs` afterwards, update() returns { ok:false } and the app/eval feed counters camMoving=true.
+  function createCameraGate(opts = {}) {
+    const win = opts.window ?? 0.4, minDisp = opts.minDisp ?? 0.5, minScale = opts.minScale ?? 0.3, minRot = opts.minRot ?? 10, holdMs = opts.holdMs ?? 400;
+    const gyroMax = opts.gyroMax ?? 90, accMax = opts.accMax ?? 4.5, gyroLow = opts.gyroLow ?? 30, accLow = opts.accLow ?? 1.5, settleMs = opts.settleMs ?? 600;
+    const buf = []; let until = -Infinity, why = null, sensorHits = 0, visT = null, lastD = 0;
+    const parts = g => {
+      const P = [], add = (p, k) => { if (p && p.visibility > 0.5) P.push([k, p]); };
+      add(g.nose, 'nose'); add(g.shM, 'sh'); add(g.hipM, 'hip');
+      add(vis(g.wr[0]) > 0.5 && vis(g.wr[1]) > 0.5 ? g.wrM : (vis(g.wr[0]) >= vis(g.wr[1]) ? g.wr[0] : g.wr[1]), 'wr');
+      const an = vis(g.an[0]) > 0.5 && vis(g.an[1]) > 0.5 ? mid(g.an[0], g.an[1]) : (vis(g.an[0]) >= vis(g.an[1]) ? g.an[0] : g.an[1]);
+      add(an, 'an'); return P;
+    };
+    function vision(lm, t, aspect) {
+      const g = lm && geom(lm, aspect); lastD = 0; if (!g) return null;
+      buf.push({ t, g, P: Object.fromEntries(parts(g)) });
+      while (buf.length > 2 && buf[1].t <= t - win) buf.shift();
+      const a = buf[0]; if (t - a.t < win * 0.5) return null;
+      const T = Math.max(a.g.torso, g.torso), keys = Object.keys(a.P).filter(k => buf[buf.length - 1].P[k]);
+      if (keys.length < 3) return null;
+      const b = buf[buf.length - 1].P;
+      const d = keys.map(k => dist(a.P[k], b[k]) / T), dMin = Math.min(...d); lastD = dMin;
+      // zoom: every body length (torso, shoulder width, thighs, shins, upper arms) scales the same way — a hinge, sit-up or
+      // squat changes some lengths (foreshortening) but not all of them in the same direction
+      const lens = gg => [gg.torso, gg.shW, dist(gg.hip[0], gg.kn[0]), dist(gg.hip[1], gg.kn[1]), dist(gg.kn[0], gg.an[0]), dist(gg.kn[1], gg.an[1]), dist(gg.sh[0], gg.el[0]), dist(gg.sh[1], gg.el[1])];
+      const okLen = gg => [1, gg.shW > 0.3 * gg.torso, vis(gg.kn[0]) > 0.5, vis(gg.kn[1]) > 0.5, vis(gg.an[0]) > 0.5 && vis(gg.kn[0]) > 0.5, vis(gg.an[1]) > 0.5 && vis(gg.kn[1]) > 0.5, vis(gg.el[0]) > 0.5, vis(gg.el[1]) > 0.5];
+      const l0 = lens(a.g), l1 = lens(g), o0 = okLen(a.g), o1 = okLen(g), zr = [];
+      for (let i = 0; i < l0.length; i++) if (o0[i] && o1[i] && l0[i] > 0.02 && l1[i] > 0.02) zr.push(Math.log(l1[i] / l0[i]));
+      const zoomed = zr.length >= 3 && (zr.every(x => x > 0.5 * minScale) || zr.every(x => x < -0.5 * minScale)) && Math.abs(zr.sort((x, y) => x - y)[zr.length >> 1]) > minScale;
+      if (dMin > minDisp) return 'shift';
+      // roll: shoulder line, hip line, torso and hip→ankle axis all turn by the same angle (a body turns them differently)
+      const ang = (p, q) => Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI, dA = (x, y) => ((x - y) % 360 + 540) % 360 - 180;
+      const L = gg => [gg.shW > 0.3 * gg.torso ? [gg.sh[0], gg.sh[1]] : null, dist(gg.hip[0], gg.hip[1]) > 0.2 * gg.torso ? [gg.hip[0], gg.hip[1]] : null,
+        [gg.shM, gg.hipM], b.an ? [gg.hipM, b.an] : null];
+      const L0 = L(a.g), L1 = L(g), r = [];
+      for (let i = 0; i < 4; i++) if (L0[i] && L1[i] && (i < 3 || a.P.an)) r.push(dA(ang(...L1[i]), ang(i === 3 ? a.g.hipM : L0[i][0], i === 3 ? a.P.an : L0[i][1])));
+      if (r.length >= 3 && (r.every(x => x > minRot) || r.every(x => x < -minRot)) && Math.min(...r.map(Math.abs)) > 0.6 * Math.max(...r.map(Math.abs))) return 'rotate';
+      if (zoomed) return 'zoom';
+      return null;
+    }
+    function update(lm, tMs, aspect = 1, sensor = null) {
+      const t = tMs / 1000;
+      let w = null;
+      if (sensor && ((sensor.gyro ?? 0) > gyroMax || (sensor.acc ?? 0) > accMax)) { if (++sensorHits >= 2) w = 'sensor'; } else sensorHits = 0;
+      // vision: the global shift has to persist for holdMs (single-frame landmark glitches are not camera motion)
+      const v0 = vision(lm, t, aspect); if (!v0) visT = null; else if (visT == null) visT = t; const vw = v0 && t - visT >= holdMs / 1000 ? v0 : null; w = w || vw;
+      // hysteresis: once moving, the gate stays closed until the phone is really still again (sensor below gyroLow/accLow,
+      // body parts no longer drifting together), then for settleMs — the tail of a pick-up is slow but still moves the image
+      if (!w && t < until && ((sensor && ((sensor.gyro ?? 0) > gyroLow || (sensor.acc ?? 0) > accLow)) || lastD > 0.5 * minDisp)) w = why;
+      if (w) { until = t + settleMs / 1000; why = w; }
+      const moving = t < until;
+      if (moving && w) buf.splice(0, Math.max(0, buf.length - 1)); // measure the next motion from where the camera is now
+      return { ok: !moving, moving: !!w, settling: moving && !w, why: moving ? why : null };
+    }
+    return { update, reset() { buf.length = 0; until = -Infinity; why = null; sensorHits = 0; visT = null; lastD = 0; } };
+  }
   // Legacy knee-angle counter API kept for backward compat (v1 tests)
   function createAngleCounter(opts = {}) {
     const down = opts.down ?? 100, up = opts.up ?? 160, alpha = opts.alpha ?? 0.4, minFrames = opts.minFrames ?? 3;
@@ -343,6 +423,6 @@
       reset() { reps = 0; state = 'up'; cnt = 0; }, get reps() { return reps; }
     };
   }
-  const api = { angle, geom, EX, IDS, createCounter, createRecognizer, createPicker, createAngleCounter };
+  const api = { angle, geom, EX, IDS, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

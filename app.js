@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.6';
+const APP_VERSION = '8.7';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -344,6 +344,32 @@ addEventListener('hashchange', route);
 /* ---------- økt: gjenkjenning, telling, autolagring ---------- */
 // One counter per exercise runs in parallel on the same landmarks; the recognizer (or the manual pick) decides which one is shown.
 let counters = {}, recognizer = Reps.createRecognizer(), picker = Reps.createPicker(), manualEx = null, autoEx = null, lockEx = null;
+// v8.7 camera-motion gate: big/abrupt phone movement (pick-up, bump, re-propping) pauses counting; handheld filming doesn't.
+let camGate = Reps.createCameraGate(), camPaused = false;
+// DeviceMotion: rotation rate (deg/s) + acceleration without gravity (m/s²), max since the last video frame. iOS needs
+// DeviceMotionEvent.requestPermission() from a tap: asked inside the Start/Fortsett tap (after getUserMedia), never on its own.
+// Denied/unavailable → the vision fallback in Reps.createCameraGate still works.
+const motion = { state: 'off', gyro: 0, acc: 0, last: 0,
+  onEv(e) { const r = e.rotationRate, a = e.acceleration; motion.last = performance.now();
+    if (r) motion.gyro = Math.max(motion.gyro, Math.hypot(r.alpha || 0, r.beta || 0, r.gamma || 0));
+    if (a) motion.acc = Math.max(motion.acc, Math.hypot(a.x || 0, a.y || 0, a.z || 0)); },
+  listen() { if (motion.state === 'on') return; motion.state = 'on'; addEventListener('devicemotion', motion.onEv); },
+  // must run synchronously inside a user tap
+  enable() {
+    if (motion.state === 'on' || motion.state === 'asking') return;
+    const DME = window.DeviceMotionEvent;
+    if (!DME) { motion.state = 'unavailable'; return; }
+    if (typeof DME.requestPermission !== 'function') return motion.listen(); // Android / desktop: no prompt
+    if (motion.state === 'denied') return; // iOS won't ask again; vision fallback
+    motion.state = 'asking';
+    // an error (e.g. no user activation) is not a denial: the next tap (Fortsett) tries again
+    try { DME.requestPermission().then(r => { if (r === 'granted') { motion.state = 'off'; motion.listen(); } else motion.state = 'denied'; LS.setItem('repcam.motion', r); }, () => { motion.state = 'error'; }); }
+    catch { motion.state = 'error'; }
+  },
+  // no tap needed when iOS already granted it earlier (resume after backgrounding / reload)
+  resume() { if (motion.state !== 'on' && (typeof window.DeviceMotionEvent?.requestPermission !== 'function' || LS.getItem('repcam.motion') === 'granted')) { if (window.DeviceMotionEvent) motion.listen(); } },
+  // readings since the previous frame; null when there is no live sensor (no events for 1 s)
+  read() { if (motion.state !== 'on' || performance.now() - motion.last > 1000) { motion.gyro = motion.acc = 0; return null; } const r = { gyro: motion.gyro, acc: motion.acc }; motion.gyro = motion.acc = 0; return r; } };
 let lastRepWall = 0, lastActivity = Date.now(), shownReps = -1, toastT = 0;
 const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30, armhevinger: 0, situps: 0 };
 function kgFor(ex) { const x = LS.getItem('repcam.kg.' + ex); if (x != null) return +x; const l = store.lastKg(ex); return l != null ? l : (DEFAULT_KG[ex] ?? 0); }
@@ -399,7 +425,7 @@ function hideToast() { $('toast').classList.remove('on'); }
 $('confirm').onclick = () => { saveSet(); };
 function enterWorkout() {
   const resumed = !!store.active();
-  const a = store.startSession(); resetCounters(); recognizer.reset(); picker.reset(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();
+  const a = store.startSession(); resetCounters(); recognizer.reset(); picker.reset(); camGate.reset(); camPaused = false; motion.resume(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();
   wake.on();
   if (!stream && !pending) { setStartUI(resumed); if (resumed) runCam(getCam(facing), true); }
   clearInterval(tick); tick = setInterval(() => {
@@ -433,6 +459,7 @@ function onShow() {
 }
 function resumeCam() {
   if (pending || cur !== 'okt') return;
+  motion.resume();
   if (camLive()) { if (v.paused) v.play().catch(() => setStartUI(true)); if (!fb.rec) fbStart(); return; }
   runCam(getCam(facing), true); // no gesture: works if iOS still has permission; otherwise the big «Fortsett» shows
 }
@@ -495,10 +522,11 @@ function runCam(camP, resume) {
   }).then(() => { pending = false; if (cur !== 'okt') { stream?.getTracks().forEach(t => t.stop()); stream = null; return; } $('start').style.display = 'none'; st.textContent = ''; lastActivity = Date.now(); if (!fb.rec) fbStart(); renderWorkout(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); })
   .catch(e => { pending = false; console.warn(e); if (resume && cur === 'okt') { setStartUI(true); return; } $('start').style.display = 'flex'; st.textContent = L.t('start.err', { m: e.message }); showHelp(e); go.disabled = false; go.textContent = L.t('start.retry'); });
 }
-// Both buttons: getUserMedia MUST be the first call, synchronous in the tap (iOS user activation)
-$('go').onclick = () => { const camP = getCam(facing); wake.acquire(); runCam(camP); };
+// Both buttons: getUserMedia MUST be the first call, synchronous in the tap (iOS user activation); the motion-sensor
+// permission is asked in the same tap (iOS shows it once, after the camera prompt)
+$('go').onclick = () => { const camP = getCam(facing); motion.enable(); wake.acquire(); runCam(camP); };
 $('startOkt').onclick = () => {
-  const camP = getCam(facing); wake.on();
+  const camP = getCam(facing); motion.enable(); wake.on();
   $('start').style.display = 'flex'; location.hash = '#/okt'; runCam(camP);
 };
 $('flip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await attach(await getCam(facing)); } catch (e) { alert(e.message); } };
@@ -515,11 +543,18 @@ function loop() {
     du.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: '#ff5a3c', lineWidth: 4 });
     du.drawLandmarks(lm, { color: '#ffffff', fillColor: '#ff2d87', radius: 4 });
   }
+  processFrame(lm, ts, asp, motion.read());
+}
+// One video frame through gate → counters → recognizer → picker → UI (exposed for tests as __repcam.processFrame).
+function processFrame(lm, ts, asp, sensor) {
+  // v8.7: while the phone itself moves a lot (and briefly after), frames are ignored — no rep, no set start, no exercise switch
+  const cg = camGate.update(lm, ts, asp, sensor), cam = !cg.ok;
+  if (cam !== camPaused) { camPaused = cam; $('hint').textContent = L.t(cam ? 'w.camMoving' : 'w.hint'); }
   let tracking = false;
-  for (const id in counters) { const r = counters[id].update(lm, ts, asp); if (id === curEx()) tracking = r.tracking; }
+  for (const id in counters) { const r = counters[id].update(lm, ts, asp, cam); if (id === curEx()) tracking = r.tracking; }
   // recognition (Reps.createPicker, same logic as the eval): switch only after a clear guess (score + margin) has held for
   // 1.5 s; lock once the set has 2+ reps. Counters are strict on their own (posture, visibility, paired first rep).
-  const rc = recognizer.update(lm, ts, asp), pk = picker.update(rc, ts);
+  const rc = recognizer.update(lm, ts, asp, cam), pk = picker.update(rc, ts);
   if (!manualEx && !lockEx && pk && pk !== autoEx) { autoEx = pk; renderWorkout(); }
   const ex = curEx(), reps = currentReps();
   if (ex && !lockEx && !manualEx && reps >= 2) lockEx = ex;
@@ -528,7 +563,7 @@ function loop() {
   if (fb.rec && reps === 0 && ts - fb.lastTrim > 2000) { fb.lastTrim = ts; fb.rec.trimIdle(30e3); }
   if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); if (reps > 0) lastActivity = Date.now(); }
   if (reps > 0 && Date.now() - lastRepWall > AUTOSAVE_MS) finishPending();
-  $('hint').style.display = lm && (tracking || !ex) ? 'none' : 'block';
+  $('hint').style.display = !cam && lm && (tracking || !ex) ? 'none' : 'block';
   $('ring').style.strokeDashoffset = 276.5 * (1 - (ex ? counters[ex].progress() : 0));
 }
 setLang();
@@ -549,4 +584,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

@@ -103,3 +103,10 @@ those combinations are untested.
   * one-arm dumbbell rows
   * a moving or orbiting camera
   * clips where the lifter is partly out of frame
+
+## v8.7: camera-motion robustness (see `results-v8.7.md`)
+`node eval/camera.js [--seeds 3] [--conds clean,handheld,large] [--modes v86,nogate,vision,sensor]` replays every clip with
+synthetic camera motion: handheld (tremor, slow pan, roll, zoom), or large (pick-up/bump/re-prop and swaying in the hand, with
+motion-blur keypoint jitter and dropouts, plus synthesized DeviceMotion). It compares the frozen v8.6 engine
+(`reps_v86.js`) with v8.7 with no gate, the vision gate only, and vision + sensor.
+`eval.js` runs `Reps.createCameraGate()` (vision only) exactly like the app.

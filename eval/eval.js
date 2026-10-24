@@ -11,11 +11,11 @@ const verbose = process.argv.includes('--verbose');
 function run(e) {
   const f = path.join(LM, (e.lm || e.id) + '.json'); if (!fs.existsSync(f)) return null;
   const d = JSON.parse(fs.readFileSync(f, 'utf8')), asp = d.w / d.h;
-  const c = R.createCounter(e.exercise), rec = R.createRecognizer(), votes = {};
+  const c = R.createCounter(e.exercise), rec = R.createRecognizer(), votes = {}, gate = R.createCameraGate?.(); // v8.7 camera gate (vision only: no sensors offline)
   d.frames.forEach((fr, i) => {
     const t = i / d.fps; if (e.start && t < e.start) return; if (e.end && t > e.end) return;
-    const ms = t * 1000; c.update(fr, ms, asp);
-    const r = rec.update(fr, ms, asp);
+    const ms = t * 1000, cam = gate ? !gate.update(fr, ms, asp).ok : false; c.update(fr, ms, asp, cam);
+    const r = rec.update(fr, ms, asp, cam);
     if (r.best && t - (e.start || 0) >= 3) votes[r.best] = (votes[r.best] || 0) + 1;
   });
   c.flush?.();
@@ -33,9 +33,9 @@ function runNeg(e) {
   const f = path.join(LM, (e.lm || e.id) + '.json'); if (!fs.existsSync(f)) return null;
   const d = JSON.parse(fs.readFileSync(f, 'utf8')), asp = d.w / d.h, cs = {}, rec = R.createRecognizer(), pick = R.createPicker ? R.createPicker() : legacyPicker();
   for (const id of R.IDS) cs[id] = R.createCounter(id);
-  let lock = null, best = 0, bestEx = null, auto = null; const votes = {};
-  d.frames.forEach((fr, i) => { const ms = i / d.fps * 1000; for (const id of R.IDS) cs[id].update(fr, ms, asp);
-    const r = rec.update(fr, ms, asp);
+  let lock = null, best = 0, bestEx = null, auto = null; const votes = {}, gate = R.createCameraGate?.();
+  d.frames.forEach((fr, i) => { const ms = i / d.fps * 1000, cam = gate ? !gate.update(fr, ms, asp).ok : false; for (const id of R.IDS) cs[id].update(fr, ms, asp, cam);
+    const r = rec.update(fr, ms, asp, cam);
     if (pick) auto = pick.update(r, ms); else { if (r.best && i / d.fps >= 3) votes[r.best] = (votes[r.best] || 0) + 1; }
     const ex = lock || auto; if (ex && cs[ex].reps > best) { best = cs[ex].reps; bestEx = ex; } if (ex && cs[ex].reps >= MIN_AUTO_REPS) lock = ex; });
   if (!pick) { const rb = Object.entries(votes).sort((a, b) => b[1] - a[1])[0]; bestEx = rb ? rb[0] : null; best = bestEx ? (cs[bestEx].flush?.(), cs[bestEx].reps) : 0; }
