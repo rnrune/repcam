@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.4';
+const APP_VERSION = '8.5';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -64,13 +64,14 @@ document.querySelectorAll('#themeSeg button').forEach(b => b.onclick = () => { L
 
 /* ---------- sheet ---------- */
 let sheetClose = null;
-function openSheet(html, onClose) { $('sheet').innerHTML = '<div class="grab"></div>' + html; $('sheet').classList.add('on'); $('sheetBg').classList.add('on'); sheetClose = onClose || null; }
+function openSheet(html, onClose) { $('sheet').innerHTML = '<div class="grab"></div>' + html; $('sheet').scrollTop = 0; $('sheet').classList.add('on'); $('sheetBg').classList.add('on'); sheetClose = onClose || null; }
 function closeSheet() { $('sheet').classList.remove('on'); $('sheetBg').classList.remove('on'); const f = sheetClose; sheetClose = null; f?.(); }
 $('sheetBg').onclick = closeSheet;
 function confirmDialog(title, text, okLabel) {
   return new Promise(res => {
     openSheet(`<h3>${title}</h3><div class="muted">${text}</div><div class="btns" style="margin-top:18px"><button class="ghost" id="dNo">${L.t('edit.cancel')}</button><button class="grad danger" id="dYes" style="margin-top:8px">${okLabel}</button></div>`);
-    $('dNo').onclick = () => { closeSheet(); res(false); }; $('dYes').onclick = () => { closeSheet(); res(true); };
+    let done = false; const fin = v => { if (done) return; done = true; closeSheet(); res(v); }; // one answer per dialog (rapid taps)
+    $('dNo').onclick = () => fin(false); $('dYes').onclick = () => fin(true); sheetClose = () => { if (!done) { done = true; res(false); } };
   });
 }
 // +/- stepper: tap = one step, hold = repeat, tap the number to type.
@@ -104,7 +105,7 @@ function openEdit(ts, after) {
     <div class="muted small">${L.t('w.repsL')}</div>${stepper('eReps', +s.reps || 0, 1, x => String(x))}
     <div class="muted small">${L.t('w.weight')} (kg · 0 = ${L.t('bw')})</div>${stepper('eKg', +s.kg || 0, 2.5, x => L.nf(x, 2))}
     <div class="muted small">${L.t('edit.ex')}</div>${exGrid(ex, false)}
-    <button class="grad" id="eSave">${L.t('edit.save')}</button><div class="btns"><button class="ghost" id="eDel">${L.t('edit.delete')}</button><button class="ghost" id="eNo">${L.t('edit.cancel')}</button></div>`);
+    <div class="sheetfoot"><button class="grad" id="eSave">${L.t('edit.save')}</button><div class="btns"><button class="ghost" id="eDel">${L.t('edit.delete')}</button><button class="ghost" id="eNo">${L.t('edit.cancel')}</button></div></div>`);
   const sh = $('sheet'); wireSteppers(sh);
   sh.querySelectorAll('.exgrid button').forEach(b => b.onclick = () => { ex = b.dataset.ex; sh.querySelectorAll('.exgrid button').forEach(x => x.classList.toggle('on', x === b)); });
   const sid = s.sessionId || store.sessionOf(ts);
@@ -249,7 +250,11 @@ function renderHist() {
 }
 $('histList').onclick = e => { const d = e.target.closest('[data-sdel]'); if (d) return deleteSession(d.dataset.sdel); const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, renderHist); };
 // "Slett hele økten": one confirmation, removes every set locally and cancels any pending Strava sync/auto-create. Never deletes on Strava.
+let sdelBusy = false;
 async function deleteSession(id) {
+  if (sdelBusy) return; sdelBusy = true; try { await deleteSession1(id); } finally { sdelBusy = false; }
+}
+async function deleteSession1(id) {
   const ss = store.sessions().find(x => x.id === id); if (!ss) return;
   const q = strava.queue().find(x => x.id === id), onStrava = q && ['synced', 'created', 'creating'].includes(q.status);
   const text = L.t('sdel.text', { n: ss.sets.length }) + ' ' + L.t(onStrava ? 'sdel.onStrava' : 'sdel.strava');

@@ -92,7 +92,9 @@
       },
       addSet(set, now = new Date()) {
         const a = api.startSession(now), s = api.sets();
-        const rec = { exercise: 'knebøy', ...set, timestamp: now.toISOString(), sessionId: a.id };
+        // The timestamp is the set's id (edit/delete/undo/Strava/clip labels): never reuse one, even for two saves in the same ms.
+        let ms = now.getTime(); while (s.some(x => x && x.timestamp === new Date(ms).toISOString())) ms++;
+        const rec = { exercise: 'knebøy', ...set, timestamp: new Date(ms).toISOString(), sessionId: a.id };
         s.push(rec); api.save(SETS, s); return rec;
       },
       // Merge fields into the active session (heartbeat 'seen', manual exercise…) so it survives backgrounding and reloads.
@@ -105,9 +107,10 @@
         if (sets.length) { const m = api.meta(); m.push({ id: a.id, start: a.start, end: sess.end }); api.save(SESS, m); }
         return { ...sess, ...summary(sess) };
       },
+      // Removes EVERY record with this timestamp: duplicated records (same id) would otherwise "come back" one by one.
       deleteSet(timestamp) {
-        const s = api.sets(), i = s.findIndex(x => x.timestamp === timestamp);
-        if (i < 0) return false; s.splice(i, 1); api.save(SETS, s);
+        const all = api.sets(), s = all.filter(x => !x || x.timestamp !== timestamp);
+        if (s.length === all.length) return false; api.save(SETS, s);
         const ids = new Set(s.map(x => x.sessionId)); api.save(SESS, api.meta().filter(m => ids.has(m.id))); return true;
       },
       // Delete a whole session (every set + its meta). Legacy sessions (computed ids) work too. Returns number of sets removed.

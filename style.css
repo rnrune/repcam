@@ -107,7 +107,10 @@ a.avatar{text-decoration:none;flex:none}
 .exgrid button{min-height:48px;border-radius:14px;border:1px solid var(--line);background:var(--chip);font-weight:650;text-align:left;padding:8px 10px}
 .exgrid button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--card))}
 .exgrid button.wide{grid-column:1/-1}
-.sheet{max-height:92vh;overflow:auto}
+.sheet{max-height:92vh;max-height:92dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.sheet:not(.on){pointer-events:none}
+.sheetfoot{position:sticky;bottom:calc(-1 * (env(safe-area-inset-bottom) + 20px));margin:8px -20px calc(-1 * (env(safe-area-inset-bottom) + 20px));padding:4px 20px calc(env(safe-area-inset-bottom) + 14px);background:var(--card);border-top:1px solid var(--line);z-index:1}
+.sheetfoot .grad{margin-top:8px}.sheetfoot .btns .ghost{margin-top:8px}
 #start .grad.big{min-height:120px;font-size:30px;border-radius:28px}
 .sessdel{width:auto;min-height:36px;margin:0 0 0 auto;padding:0 10px;border-radius:12px;font-size:15px;flex:none}
 
