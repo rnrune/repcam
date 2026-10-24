@@ -83,6 +83,17 @@ async function workout(p, tag, expectEx, minReps) {
   await p.click('#eSave'); await p.waitForTimeout(300);
   const ed = await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('repcam.sets')); return s[s.length - 1]; });
   ok(ed.reps === saved.reps - 1, 'en-squat: edit from toast (reps −1)');
+  // Same exercise, new weight (Rune: rack, load plates, go again): changing the weight while reps are pending closes that set
+  // at the OLD weight; the next set is a separate set and carries the new weight.
+  const countSets = () => p.evaluate(() => JSON.parse(localStorage.getItem('repcam.sets')).length);
+  await p.waitForFunction(() => +document.getElementById('reps').textContent >= 2, null, { timeout: 120000 });
+  const n0 = await countSets(); await p.click('#plus'); await p.waitForTimeout(200);
+  const split = await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('repcam.sets')); return s[s.length - 1]; });
+  ok((await countSets()) === n0 + 1 && split.kg === 72.5 && split.exercise === 'knebøy', 'en-squat: weight change closes pending set at old weight (' + split.reps + ' × ' + split.kg + ')');
+  ok((await p.textContent('#kg')).includes('75') && +(await p.textContent('#reps')) <= 1, 'en-squat: new weight shown, rep count restarted');
+  await p.waitForFunction(n => JSON.parse(localStorage.getItem('repcam.sets')).length > n, n0 + 1, { timeout: 120000 });
+  const next = await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('repcam.sets')); return s[s.length - 1]; });
+  ok(next.kg === 75 && next.exercise === 'knebøy' && next.reps >= 2, 'en-squat: next set is separate and carries the new weight (' + next.reps + ' × ' + next.kg + ')');
   await p.click('#finish'); await p.waitForSelector('#sheet.on'); await p.waitForTimeout(500);
   ok((await p.textContent('#sheet')).includes('Great job'), 'en: summary sheet');
   await p.screenshot({ path: SH + 'en-squat-4-summary.png' });

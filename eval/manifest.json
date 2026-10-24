@@ -1335,5 +1335,170 @@
   "license": "Pexels License",
   "file": "https://videos.pexels.com/video-files/8402078/8402078-hd_1920_1080_30fps.mp4",
   "viewDetail": "side"
+ },
+ {
+  "id": "px4367637",
+  "exercise": "none",
+  "activity": "walking",
+  "gt": 0,
+  "view": "side",
+  "notes": "negative: treadmill walking, legs only",
+  "source": "https://www.pexels.com/video/4367637/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/4367637/4367637-hd_1920_1080_30fps.mp4"
+ },
+ {
+  "id": "px4367446",
+  "exercise": "none",
+  "activity": "walking",
+  "gt": 0,
+  "view": "side",
+  "notes": "negative: walking across gym",
+  "source": "https://www.pexels.com/video/4367446/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/4367446/4367446-hd_1920_1080_30fps.mp4"
+ },
+ {
+  "id": "px4107475",
+  "exercise": "none",
+  "activity": "walking",
+  "gt": 0,
+  "view": "back",
+  "notes": "negative: walking away from camera",
+  "source": "https://www.pexels.com/video/4107475/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/4107475/4107475-uhd_3840_2160_25fps.mp4"
+ },
+ {
+  "id": "px4921640",
+  "exercise": "none",
+  "activity": "other",
+  "gt": 0,
+  "view": "front",
+  "notes": "negative: shadowboxing / moving around",
+  "source": "https://www.pexels.com/video/4921640/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/4921640/4921640-hd_1066_1920_25fps.mp4"
+ },
+ {
+  "id": "px5837693",
+  "exercise": "none",
+  "activity": "loading plates",
+  "gt": 0,
+  "view": "side",
+  "notes": "negative: bending to load a plate on bar",
+  "source": "https://www.pexels.com/video/5837693/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/5837693/5837693-uhd_3840_2160_24fps.mp4"
+ },
+ {
+  "id": "px4859451",
+  "exercise": "none",
+  "activity": "loading plates",
+  "gt": 0,
+  "view": "oblique",
+  "notes": "negative: loading plates on barbell",
+  "source": "https://www.pexels.com/video/4859451/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/4859451/4859451-uhd_3840_2160_25fps.mp4"
+ },
+ {
+  "id": "px4746004",
+  "exercise": "none",
+  "activity": "loading plates",
+  "gt": 0,
+  "view": "oblique",
+  "notes": "negative: loading plate, close-up",
+  "source": "https://www.pexels.com/video/4746004/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/4746004/4746004-uhd_3840_2160_25fps.mp4"
+ },
+ {
+  "id": "px6077619",
+  "exercise": "none",
+  "activity": "sitting",
+  "gt": 0,
+  "view": "front",
+  "notes": "negative: sitting with ball, sitting down/up",
+  "source": "https://www.pexels.com/video/6077619/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/6077619/6077619-uhd_4096_2160_25fps.mp4"
+ },
+ {
+  "id": "px6548012",
+  "exercise": "none",
+  "activity": "sitting",
+  "gt": 0,
+  "view": "front",
+  "notes": "negative: sitting, resting between sets",
+  "source": "https://www.pexels.com/video/6548012/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/6548012/6548012-uhd_2160_3840_24fps.mp4"
+ },
+ {
+  "id": "px6388879",
+  "exercise": "none",
+  "activity": "sitting",
+  "gt": 0,
+  "view": "front",
+  "notes": "negative: standing up / sitting down in locker room",
+  "source": "https://www.pexels.com/video/6388879/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/6388879/6388879-uhd_2160_3840_25fps.mp4"
+ },
+ {
+  "id": "px4069100",
+  "exercise": "none",
+  "activity": "sitting",
+  "gt": 0,
+  "view": "side",
+  "notes": "negative: sitting on bench",
+  "source": "https://www.pexels.com/video/4069100/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/4069100/4069100-uhd_3840_2160_30fps.mp4"
+ },
+ {
+  "id": "px6388424",
+  "exercise": "none",
+  "activity": "standing",
+  "gt": 0,
+  "view": "front",
+  "notes": "negative: standing holding dumbbells",
+  "source": "https://www.pexels.com/video/6388424/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/6388424/6388424-uhd_2160_3840_25fps.mp4"
+ },
+ {
+  "id": "px6980330",
+  "exercise": "none",
+  "activity": "standing",
+  "gt": 0,
+  "view": "front",
+  "notes": "negative: standing, adjusting gloves",
+  "source": "https://www.pexels.com/video/6980330/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/6980330/6980330-uhd_2160_4096_30fps.mp4"
+ },
+ {
+  "id": "px4752964",
+  "exercise": "none",
+  "activity": "standing",
+  "gt": 0,
+  "view": "front",
+  "notes": "negative: standing with arms crossed",
+  "source": "https://www.pexels.com/video/4752964/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/4752964/4752964-uhd_4096_2160_25fps.mp4"
+ },
+ {
+  "id": "px6296380",
+  "exercise": "none",
+  "activity": "standing",
+  "gt": 0,
+  "view": "front",
+  "notes": "negative: putting on gloves",
+  "source": "https://www.pexels.com/video/6296380/",
+  "license": "Pexels License",
+  "file": "https://videos.pexels.com/video-files/6296380/6296380-hd_1080_1920_25fps.mp4"
  }
 ]

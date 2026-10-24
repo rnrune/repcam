@@ -192,7 +192,7 @@
         tilt: q(buf.map(b => b.g.torsoTilt), 0.5), tiltRange: rng(buf.map(b => b.g.torsoTilt)),
         wrUp: q(n(g => g.shM.y - g.wrM.y), 0.5), // wrists above shoulders (+)
         wrHead: q(buf.map(b => b.g.nose ? (b.g.nose.y - b.g.wrM.y) / ref : null), 0.5),
-        shMove: rng(n(g => g.shM.y)), hipMove: rng(n(g => g.hipM.y)), wrMove: rng(n(g => g.wrM.y)),
+        shMove: rng(n(g => g.shM.y)), hipMove: rng(n(g => g.hipM.y)), hipTravel: rng(n(g => g.hipM.x)), footMove: rng(n(g => (g.an[0].y + g.an[1].y) / 2)), wrMove: rng(n(g => g.wrM.y)),
         wrRel: rng(n(g => g.wrM.y - g.shM.y)), wrDist: rng(n(g => dist(g.wr[g.arm], g.sh[g.arm]))),
         hipKnee: rng(n(g => Math.min(g.kn[0].y, g.kn[1].y) - g.hipM.y)), hinge: rng(n(g => g.hipM.y - g.shM.y)),
         knee: q(buf.map(b => Math.max(b.g.knee[0] ?? 0, b.g.knee[1] ?? 0)), 0.5),
@@ -215,8 +215,8 @@
       const bodyMoves = sig(f.shMove, 0.08, 0.3), handsFixed = 1 - sig(f.wrRel / Math.max(0.05, f.shMove + 0.05), 0.6, 1.2);
       S.pullups = sig(Math.max(f.wrHead ?? -1, f.wrUp - 0.25), 0, 0.3) * bodyMoves * (1 - sig(f.tilt, 30, 50)) * (0.5 + 0.5 * sig(f.wrRel, 0.2, 0.5))
         * (1 - sig(f.wrMove / Math.max(0.05, f.shMove), 1.5, 2.5)); // hands hang on a fixed bar (a press from the feet end has moving hands, still shoulders)
-      S.dips = (1 - sig(f.wrUp, -0.2, 0.1)) * sig(f.wrUp, -1.4, -0.5) * bodyMoves * (1 - sig(f.tilt, 35, 60)) * (1 - sig(f.hipKnee, 0.35, 0.6)) * (1 - 0.6 * sig(f.wrMove / Math.max(0.05, f.shMove), 0.6, 1)) * sig(f.wrRel, 0.1, 0.3);
-      const press = sig(f.wrDist, 0.15, 0.4) * (1 - sig(f.shMove / Math.max(0.05, f.wrMove), 0.5, 0.9)) * sig(f.wrUp, -0.3, 0.2) * (1 - sig(f.wrHead ?? 0, 0.5, 0.9) * 0.5);
+      S.dips = (1 - sig(f.wrUp, -0.2, 0.1)) * sig(f.wrUp, -1.4, -0.5) * bodyMoves * (1 - sig(f.tilt, 35, 60)) * (1 - sig(f.hipKnee, 0.35, 0.6)) * (1 - 0.6 * sig(f.wrMove / Math.max(0.05, f.shMove), 0.6, 1)) * sig(f.wrRel, 0.1, 0.3) * (1 - sig(f.wrMove, 0.5, 0.65));
+      const press = sig(f.wrDist, 0.15, 0.4) * (1 - sig(f.shMove / Math.max(0.05, f.wrMove), 0.5, 0.9)) * sig(f.wrUp, -0.05, 0.12) * (1 - sig(f.wrHead ?? 0, 0.5, 0.9) * 0.5);
       // flat vs incline: side/oblique view -> torso tilt (incline ~25-65 deg from vertical, flat ~70-110, >95 = head-end view);
       // in the tilt band the torso must also rise clearly (dyShW); frontal views (tilt < 25) are flat unless the torso is long
       const incline = Math.max(sig(f.tilt, 20, 30) * (1 - sig(f.tilt, 64, 72)) * sig(f.dyShW, 0.9, 1.05),
@@ -224,8 +224,9 @@
       S.skråbenk = press * incline;
       S.benkpress = press * (1 - incline);
       S.roing = sig(f.wrDist, 0.1, 0.3) * sig(f.wrMove / Math.max(0.05, f.shMove), 0.6, 1.1) * sig(f.tilt, 25, 45) * (1 - sig(f.tiltRange, 25, 45)) * (1 - sig(f.wrUp, -0.4, 0)) * (1 - sig(f.hinge, 0.35, 0.6));
-      S.halvmark = sig(f.hinge, 0.2, 0.45) * sig(f.tiltRange, 20, 40) * sig(f.knee, 130, 155) * (1 - sig(f.wrUp, -0.3, 0));
-      const squatish = sig(f.hipKnee, 0.15, 0.4) * (1 - sig(f.wrUp, 0.2, 0.6) * 0.3) * (1 - sig(f.tilt, 45, 70));
+      S.halvmark = sig(f.hinge, 0.2, 0.45) * sig(f.tiltRange, 20, 40) * sig(f.knee, 130, 155) * (1 - sig(f.wrUp, -0.3, 0)) * sig(f.kneeMin, 40, 65);
+      const squatish = sig(f.hipKnee, 0.15, 0.4) * (1 - sig(f.wrUp, 0.2, 0.6) * 0.3) * (1 - sig(f.tilt, 45, 70))
+        * sig(f.kneeMin, 20, 32) * (1 - sig(f.tiltRange, 55, 80));
       const split = Math.max(sig(f.kneeDy, 0.3, 0.42), sig(f.ankDx, 1.12, 1.3));
       S.knebøy = squatish * (1 - split);
       S.bulgarsk = squatish * split;
@@ -239,7 +240,13 @@
       // sit-up: starts lying and rotates upright -> large tilt range and big torso-hinge swing; shoulders move far while the
       // hips stay; knees bent; hands not pressing. Separated from RDL (knees straight, stays standing).
       S.situps = sig(f.shMove, 0.16, 0.4) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
-        * sig(f.hinge, 0.25, 0.55) * (1 - sig(f.kneeMin, 110, 145)) * (0.35 + 0.65 * sig(f.tiltRange, 25, 55)) * (0.3 + 0.7 * sig(f.tilt, 38, 55));
+        * sig(f.hinge, 0.25, 0.55) * (1 - sig(f.kneeMin, 110, 145)) * (0.35 + 0.65 * sig(f.tiltRange, 25, 55)) * (0.3 + 0.7 * sig(f.tilt, 38, 55)) * (1 - sig(f.hipMove, 0.3, 0.5));
+      // Walking/carrying: the hips travel sideways across the frame. Stationary exercises never do (eval max 0.98 torso).
+      const still = 1 - sig(f.hipTravel ?? 0, 1.15, 1.45);
+      for (const k in S) if (k !== 'benkpress' && k !== 'skråbenk') S[k] *= still;
+      // Feet planted: squats, RDL, rows, floor work never move the feet much; walking toward/away from the camera does.
+      const planted = 1 - sig(f.footMove ?? 0, 0.95, 1.1);
+      for (const k of ['knebøy', 'bulgarsk', 'halvmark', 'roing', 'situps', 'armhevinger']) if (S[k]) S[k] *= planted;
       let best = null, bs = 0; for (const k in S) if (S[k] > bs) { bs = S[k]; best = k; }
       const sorted = Object.values(S).sort((a, b) => b - a);
       return { best: bs > 0.12 ? best : null, conf: bs ? (sorted[0] - (sorted[1] || 0)) / sorted[0] : 0, scores: S, features: f, moving };

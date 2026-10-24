@@ -9,6 +9,9 @@ const storageOK = (() => { try { LS.setItem('repcam.probe', '1'); LS.removeItem(
 navigator.storage?.persist?.().catch(() => {});
 const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const AUTOSAVE_MS = +(LS.getItem('repcam.autosaveMs') || 9000);   // pause after last rep before the set is saved
+// A set is only saved automatically with 2+ reps: walking, sitting down, bending to load plates or re-racking can fake ONE
+// rep, never a rhythm. A deliberate 1-rep set can still be saved with the ✓ button.
+const MIN_AUTO_REPS = 2;
 const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen, camera running: auto-end after this long without reps
 // Time spent in other apps does NOT count toward IDLE_END_MS. The session only ends from being away when there have been no reps
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
@@ -184,10 +187,12 @@ function renderStrava() {
   el.innerHTML = `<div class="row"><b>✓ ${L.t('st.connected')}${strava.athlete() ? ' · ' + esc(strava.athlete()) : ''}</b><button class="ghost" id="stOff" style="width:auto">${L.t('st.disconnect')}</button></div><div class="muted small">${L.t('st.sub')}</div>${q}`;
   $('stOff').onclick = () => { strava.disconnect(); renderStrava(); };
 }
+// Auto-create runs 1 h after a session if no watch activity showed up: re-check while the app is open (and on every return to it).
+setInterval(() => { if (document.visibilityState === 'visible') stravaSync(); }, 5 * 60e3);
 const queueStrava = sum => strava.enqueue({ ...sum, sets: store.sets().filter(s => s.sessionId === sum.id) });
 let stravaBusy = false;
 async function stravaSync() {
-  if (stravaBusy || !strava.connected() || !strava.queue().some(x => x.status === 'waiting')) return;
+  if (stravaBusy || !strava.connected() || !strava.queue().some(x => x.status === 'waiting' || x.status === 'creating')) return;
   stravaBusy = true; try { await strava.process(stravaFmt()); } catch (e) { console.warn('strava', e); } stravaBusy = false;
   if (cur === 'profil') renderStrava(); if (cur === 'home') renderStravaNote();
 }
@@ -258,20 +263,22 @@ function renderWorkout() {
   $('log').innerHTML = mine.slice(-3).reverse().map(x => `${L.hm(x.timestamp)} · ${esc(exName(x.exercise))} · ${L.t('reps', { n: x.reps })} × ${L.kgf(x.kg)}`).join('<br>');
   $('reps').textContent = currentReps();
 }
-function bumpKg(d) { const ex = curEx() || 'knebøy'; setKgFor(ex, kgFor(ex) + d); renderWorkout(); }
+function bumpKg(d) { const ex = curEx() || 'knebøy'; finishPending(); setKgFor(ex, kgFor(ex) + d); renderWorkout(); }
 $('minus').onclick = () => bumpKg(-2.5); $('plus').onclick = () => bumpKg(2.5);
 $('kg').onclick = () => {
   const ex = curEx() || 'knebøy';
   openSheet(`<h3>${L.t('w.weight')} · ${esc(exName(ex))}</h3><div class="muted small">0 = ${L.t('bw')}</div>${stepper('wKg', kgFor(ex), 2.5, x => L.nf(x, 2))}<button class="grad" id="wOk">${L.t('edit.save')}</button>`);
-  wireSteppers($('sheet')); $('wOk').onclick = () => { setKgFor(ex, parseNum($('wKg').value)); closeSheet(); renderWorkout(); };
+  wireSteppers($('sheet')); $('wOk').onclick = () => { const x = parseNum($('wKg').value); if (x !== kgFor(ex)) finishPending(); setKgFor(ex, x); closeSheet(); renderWorkout(); };
 };
 $('exChip').onclick = () => {
   openSheet(`<h3>${L.t('w.pick')}</h3>${exGrid(manualEx, true)}`);
   $('sheet').querySelectorAll('.exgrid button').forEach(b => b.onclick = () => {
-    manualEx = b.dataset.ex || null; lockEx = null; store.touchActive({ manualEx });
+    finishPending(); manualEx = b.dataset.ex || null; lockEx = null; store.touchActive({ manualEx });
     closeSheet(); renderWorkout();
   });
 };
+// Close the pending set without a tap: keep it if it is a real set (2+ reps), drop a lone stray rep.
+function finishPending() { const r = currentReps(); if (r >= MIN_AUTO_REPS) return saveSet(); if (r > 0) resetCounters(); return null; }
 function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
@@ -311,7 +318,7 @@ let endedByIdle = false, endAt = null, hiddenAt = 0;
 // Backgrounded (other app, lock screen) or camera killed by iOS: keep the session, save any half-counted set, and come back without extra taps.
 function onHide() {
   if (cur !== 'okt' || !store.active()) return;
-  hiddenAt = Date.now(); if (currentReps() > 0) saveSet();
+  hiddenAt = Date.now(); finishPending();
   store.touchActive({ seen: hiddenAt, manualEx });
 }
 function onShow() {
@@ -332,7 +339,7 @@ document.addEventListener('visibilitychange', () => document.visibilityState ===
 addEventListener('pagehide', onHide);
 addEventListener('pageshow', e => { if (e.persisted) onShow(); });
 function leaveWorkout() {
-  if (currentReps() > 0) saveSet();
+  finishPending();
   hideToast(); clearInterval(tick); cancelAnimationFrame(raf); raf = 0; wake.off();
   stream?.getTracks().forEach(t => t.stop()); stream = null; v.srcObject = null;
   const sum = store.endSession(endAt || new Date()), idle = endedByIdle; endedByIdle = false; endAt = null;
@@ -417,7 +424,7 @@ function loop() {
   const ex = curEx(), reps = currentReps();
   if (ex && !lockEx && !manualEx && reps >= 2) lockEx = ex;
   if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); if (reps > 0) lastActivity = Date.now(); }
-  if (reps > 0 && Date.now() - lastRepWall > AUTOSAVE_MS) saveSet();
+  if (reps > 0 && Date.now() - lastRepWall > AUTOSAVE_MS) finishPending();
   $('hint').style.display = lm && (tracking || !ex) ? 'none' : 'block';
   $('ring').style.strokeDashoffset = 276.5 * (1 - (ex ? counters[ex].progress() : 0));
 }

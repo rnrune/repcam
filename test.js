@@ -71,4 +71,28 @@ for (const ex of IDS) {
   for (const [dur, a, b] of reps(4)) for (let i = 0; i < dur * 15; i++, t += 1 / 15) out = r.update(pose(ex, a + (b - a) * i / (dur * 15)), t * 1000, 1);
   ok(out.best === ex, 'recognizer ' + ex + ' -> ' + out.best);
 }
+
+// Negatives (Rune between sets: walks around, sits down / stands up, bends to load plates, stands still).
+// Replayed like the app: every counter runs, the recognizer picks the exercise, and a set is auto-saved only with
+// 2+ reps (MIN_AUTO_REPS in app.js). None of these may produce a saved set.
+function appSim(frameAt, secs, fps = 15) {
+  const cs = {}; for (const id of IDS) cs[id] = createCounter(id);
+  const r = createRecognizer(), votes = {};
+  for (let i = 0; i < secs * fps; i++) { const t = i / fps, f = frameAt(t);
+    for (const id of IDS) cs[id].update(f, t * 1000, 1);
+    const o = r.update(f, t * 1000, 1); if (o.best && t >= 3) votes[o.best] = (votes[o.best] || 0) + 1; }
+  const rb = Object.entries(votes).sort((a, b) => b[1] - a[1])[0], ex = rb ? rb[0] : null;
+  return { ex, reps: ex ? cs[ex].flush() : 0 };
+}
+const shift = (P, dx, dy) => P.map(([x, y, z, v]) => [x + dx, y + dy, z, v]);
+const standing = () => pose('none', 0);
+const NEG = {
+  'standing still': t => standing(),
+  'walking across the frame': t => { const P = shift(standing(), -0.35 + 0.09 * (t % 8), 0.012 * Math.abs(Math.sin(Math.PI * 1.8 * t)));
+    const sw = 0.07 * Math.sin(Math.PI * 1.8 * t); P[27][0] += sw; P[28][0] -= sw; P[25][0] += sw / 2; P[26][0] -= sw / 2; return P; },
+  'walking toward/away from the camera': t => { const k = 0.75 + 0.25 * Math.sin(t / 3); return standing().map(([x, y, z, v]) => [0.5 + (x - 0.5) * k, 0.5 + (y - 0.5) * k + 0.01 * Math.sin(Math.PI * 1.8 * t), z, v]); },
+  'sitting down, resting, standing up': t => { const p = t < 2 ? 0 : t < 3.5 ? (t - 2) / 1.5 : t < 12 ? 1 : t < 13.5 ? 1 - (t - 12) / 1.5 : 0; return pose('knebøy', p * 1.2); },
+  'bending once to load a plate, then standing': t => pose('halvmark', t > 3 && t < 6 ? Math.sin(Math.PI * (t - 3) / 3) : 0),
+};
+for (const [name, fn] of Object.entries(NEG)) { const r = appSim(fn, 18); ok(r.reps < 2, 'negative: ' + name + ' -> no saved set (rec=' + r.ex + ', reps=' + r.reps + ')'); }
 console.log(n + ' rep-engine tests passed');

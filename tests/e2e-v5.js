@@ -74,7 +74,7 @@ async function start(p) { await p.goto(URL); await p.waitForSelector('#view-home
   // ---- 3. away rule: no reps + away longer than awayEndMs → session ends at the moment the app left
   p = await mk(b, 'away', { ...base, 'repcam.awayEndMs': '3000' });
   await start(p);
-  await p.waitForFunction(() => +document.getElementById('reps').textContent >= 1, null, { timeout: 120000 });
+  await p.waitForFunction(() => +document.getElementById('reps').textContent >= 2, null, { timeout: 120000 });
   await p.evaluate(() => window.__setVis('hidden'));
   const hidAt = Date.now(); await p.waitForTimeout(4500);
   await p.evaluate(() => window.__setVis('visible')); await p.waitForTimeout(800);

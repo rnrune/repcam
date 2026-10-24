@@ -4,7 +4,14 @@
 (function (root) {
   const API = 'https://www.strava.com/api/v3';
   const TOL = 15 * 60e3;                  // allowed gap between RepCam session and activity
-  const RETRY_FOR = 24 * 3600e3;          // keep looking for a late-synced watch activity this long
+  const RETRY_FOR = 24 * 3600e3;          // keep retrying a failing auto-create this long, then fall back to the manual button
+  const AUTO_CREATE_AFTER = 3600e3;       // no matching watch activity 1 h after the session ended → create one ourselves
+  const STALE_CREATE = 10 * 60e3;         // a 'creating' item older than this (app killed mid-upload) is re-checked / retried
+  // Newrun Lift exercise → Strava strength exercise_type (JSON upload, https://developers.strava.com/docs/uploads/).
+  const EXERCISE_TYPE = { knebøy: 'BARBELL_BACK_SQUAT', bulgarsk: 'DUMBBELL_BULGARIAN_SPLIT_SQUATS', pullups: 'PULL_UP_GENERIC', dips: 'CHEST_DIP',
+    benkpress: 'BARBELL_BENCH_PRESS', skråbenk: 'INCLINE_BARBELL_BENCH_PRESS', halvmark: 'BARBELL_ROMANIAN_DEADLIFT', roing: 'BENT_OVER_BARBELL_ROW',
+    armhevinger: 'PUSH_UP_GENERIC', pushups: 'PUSH_UP_GENERIC', situps: 'SIT_UP_GENERIC', markløft: 'BARBELL_DEADLIFT', skulderpress: 'OVERHEAD_BARBELL_PRESS', utfall: 'LUNGE_GENERIC' };
+  const exerciseType = (ex, kg) => ex === 'dips' && +kg > 0 ? 'WEIGHTED_CHEST_DIP' : (EXERCISE_TYPE[ex] || 'TOTAL_BODY_GENERIC');
   const PREFERRED = ['WeightTraining', 'Workout', 'Crossfit', 'HighIntensityIntervalTraining'];
   const K = { tok: 'repcam.strava.tok', q: 'repcam.strava.queue', state: 'repcam.strava.state' };
   const ms = d => new Date(d).getTime();
@@ -46,10 +53,18 @@
     return base ? base + '\n\n' + block : block;
   }
 
+  // Strava JSON strength-training file: one entry per set (exercise_type, repetitions, weight in kg; bodyweight = no weight).
+  function strengthFile(it, creator = 'Newrun Lift') {
+    const s = new Date(it.start), e = new Date(it.end);
+    return { version: '1.0', start_time: s.toISOString().replace(/\.\d{3}Z$/, 'Z'), utc_offset: -s.getTimezoneOffset() * 60,
+      elapsed_time: Math.max(60, Math.round((e - s) / 1000)), creator: { name: creator },
+      sets: it.sets.map(x => ({ exercise_type: exerciseType(x.exercise || 'knebøy', x.kg), repetitions: +x.reps || 0, ...(+x.kg > 0 ? { weight: +x.kg } : {}),
+        ...(x.t ? { start_time: new Date(x.t).toISOString().replace(/\.\d{3}Z$/, 'Z') } : {}) })) };
+  }
   const b64e = s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   const b64d = s => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))));
   function parseState(search) { try { const st = new URLSearchParams(search).get('state') || '', i = st.indexOf('.'); return i < 0 ? null : JSON.parse(b64d(st.slice(i + 1))); } catch { return null; } }
-  function createClient({ ls, fetch: f, config = {}, now = () => Date.now() }) {
+  function createClient({ ls, fetch: f, config = {}, now = () => Date.now(), sleep = ms_ => new Promise(r => setTimeout(r, ms_)) }) {
     const read = (k, d) => { try { const v = JSON.parse(ls.getItem(k)); return v == null ? d : v; } catch { return d; } };
     const save = (k, v) => ls.setItem(k, JSON.stringify(v));
     const configured = () => !!(config.clientId && config.workerUrl);
@@ -87,51 +102,105 @@
       return n.access_token;
     }
     async function api(path, opt = {}) {
-      const r = await f(API + path, { ...opt, headers: { Authorization: 'Bearer ' + await token(), ...(opt.body ? { 'Content-Type': 'application/json' } : {}) } });
+      const json = typeof opt.body === 'string'; // FormData (uploads) sets its own multipart Content-Type
+      const r = await f(API + path, { ...opt, headers: { Authorization: 'Bearer ' + await token(), ...(json ? { 'Content-Type': 'application/json' } : {}) } });
       if (r.status === 401) { const t = read(K.tok, null); if (t) save(K.tok, { ...t, expires_at: 0 }); }
-      if (!r.ok) throw new Error('strava ' + r.status); return r.json();
+      if (!r.ok) { let b = null; try { b = await r.json(); } catch {} const e = new Error('strava ' + r.status + (b && b.error ? ': ' + b.error : '')); e.status = r.status; e.body = b; throw e; }
+      return r.json();
     }
     const queue = () => read(K.q, []);
     function enqueue(sess) {
       if (!connected() || !sess || !sess.sets || !sess.sets.length) return;
       const q = queue().filter(x => x.id !== sess.id);
-      q.push({ id: sess.id, start: sess.start, end: sess.end, sets: sess.sets.map(s => ({ exercise: s.exercise, reps: s.reps, kg: s.kg })), added: now(), status: 'waiting' });
+      const old = queue().find(x => x.id === sess.id);
+      if (old && ['synced', 'created', 'creating'].includes(old.status)) return; // never re-open a session that already has an activity
+      q.push({ id: sess.id, start: sess.start, end: sess.end, sets: sess.sets.map(s => ({ exercise: s.exercise, reps: s.reps, kg: s.kg, t: s.timestamp })), added: now(), status: 'waiting' });
       save(K.q, q.slice(-20));
     }
     const setItem = (id, patch) => save(K.q, queue().map(x => x.id === id ? { ...x, ...patch } : x));
-    // Try every waiting session. Matched → description written. After 24 h without match → 'nomatch' (UI offers manual create).
+    async function matchFor(it) { const w = queryWindow(it); return pickActivity(await api(`/athlete/activities?after=${w.after}&before=${w.before}&per_page=50`), it); }
+    const dupId = e => { const m = /duplicate of activity (\d+)/i.exec((e && (e.error || (e.body && e.body.error) || e.message)) || ''); return m ? m[1] : null; };
+    // Poll an upload until Strava has turned it into an activity (≥1 s apart, as the docs ask). Returns activity id, null = still processing.
+    async function pollUpload(uploadId, tries = 8) {
+      for (let i = 0; i < tries; i++) {
+        await sleep(1000);
+        const u = await api('/uploads/' + uploadId);
+        if (u.activity_id) return String(u.activity_id);
+        const d = dupId(u); if (d) return d;
+        if (u.error) { const e = new Error('upload: ' + u.error); e.upload = true; throw e; }
+      }
+      return null;
+    }
+    // Create the activity for a session nothing matched. Preferred: structured JSON upload (exercises, sets, reps, kg show natively
+    // in Strava, plus the same description block). If Strava rejects the format, fall back to a plain manual activity with the
+    // description block. The item is marked 'creating' BEFORE any request so a second tab/run can never create a duplicate.
+    async function create(it, fmt = {}) {
+      const name = fmt.title || 'Styrke (Newrun Lift)', description = describe(it.sets, fmt.name, fmt.kgf);
+      setItem(it.id, { status: 'creating', creatingAt: now() });
+      let activityId = null, structured = false;
+      try {
+        const fd = new FormData(), file = strengthFile(it);
+        fd.append('data_type', 'json'); fd.append('sport_type', 'WeightTraining'); fd.append('name', name); fd.append('description', description);
+        fd.append('external_id', 'newrunlift-' + it.id + '.json');
+        fd.append('file', new Blob([JSON.stringify(file)], { type: 'application/json' }), 'newrunlift-' + it.id + '.json');
+        const up = await api('/uploads', { method: 'POST', body: fd });
+        setItem(it.id, { uploadId: String(up.id_str || up.id) });
+        activityId = dupId(up) || (up.activity_id ? String(up.activity_id) : await pollUpload(up.id_str || up.id));
+        structured = true;
+        if (!activityId) return { id: it.id, status: 'creating' }; // still processing: next process() picks it up
+      } catch (e) {
+        const d = dupId(e); if (d) activityId = d;
+        else if (e.upload || (e.status >= 400 && e.status < 500 && e.status !== 401 && e.status !== 429)) { // format/feature rejected → plain manual activity
+          const d0 = new Date(it.start), pad = n => String(n).padStart(2, '0');
+          const local = `${d0.getFullYear()}-${pad(d0.getMonth() + 1)}-${pad(d0.getDate())}T${pad(d0.getHours())}:${pad(d0.getMinutes())}:${pad(d0.getSeconds())}`;
+          const a = await api('/activities', { method: 'POST', body: JSON.stringify({ name, sport_type: 'WeightTraining', start_date_local: local,
+            elapsed_time: Math.max(60, Math.round((ms(it.end) - ms(it.start)) / 1000)), description }) });
+          activityId = String(a.id);
+        } else { setItem(it.id, { status: 'waiting', createErr: e.message }); throw e; } // network/auth/rate limit: retry later
+      }
+      setItem(it.id, { status: 'created', activityId, structured, at: now() });
+      return { id: it.id, status: 'created', activityId, structured };
+    }
+    // Every waiting session: a matching (watch) activity gets the description block. If none exists 1 h after the session ended,
+    // the activity is created automatically. If auto-create keeps failing for 24 h → 'nomatch' and the UI offers the manual button.
     async function process(fmt = {}) {
       if (!configured() || !connected()) return [];
       const out = [];
-      for (const it of queue().filter(x => x.status === 'waiting')) {
+      for (const it of queue().filter(x => x.status === 'waiting' || x.status === 'creating')) {
         try {
-          const w = queryWindow(it);
-          const acts = await api(`/athlete/activities?after=${w.after}&before=${w.before}&per_page=50`);
-          const m = pickActivity(acts, it);
+          if (it.status === 'creating') { // interrupted or still-processing create: finish it, never start a second one
+            if (it.uploadId) { const id = await pollUpload(it.uploadId, 1).catch(e => { if (dupId(e)) return dupId(e); throw e; });
+              if (id) { setItem(it.id, { status: 'created', activityId: id, structured: true, at: now() }); out.push({ id: it.id, status: 'created', activityId: id }); }
+              else out.push({ id: it.id, status: 'creating' }); continue; }
+            const m = await matchFor(it); // POST may have gone through before the app died: the new activity overlaps the session
+            if (m) { setItem(it.id, { status: 'created', activityId: m.activity.id, at: now() }); out.push({ id: it.id, status: 'created', activityId: m.activity.id }); continue; }
+            if (now() - (it.creatingAt || 0) < STALE_CREATE) { out.push({ id: it.id, status: 'creating' }); continue; }
+            out.push(await create(it, fmt)); continue;
+          }
+          const m = await matchFor(it);
           if (m) {
             const full = await api('/activities/' + m.activity.id);
             const description = mergeDescription(full.description, describe(it.sets, fmt.name, fmt.kgf));
             await api('/activities/' + m.activity.id, { method: 'PUT', body: JSON.stringify({ description }) });
             setItem(it.id, { status: 'synced', activityId: m.activity.id, activityName: m.activity.name, at: now() });
             out.push({ id: it.id, status: 'synced', activityId: m.activity.id });
-          } else if (now() - it.added > RETRY_FOR) { setItem(it.id, { status: 'nomatch' }); out.push({ id: it.id, status: 'nomatch' }); }
-          else { setItem(it.id, { tries: (it.tries || 0) + 1 }); out.push({ id: it.id, status: 'waiting' }); }
+          } else if (now() - ms(it.end) >= AUTO_CREATE_AFTER) {
+            try { out.push(await create(it, fmt)); }
+            catch (e) { if (now() - it.added > RETRY_FOR) { setItem(it.id, { status: 'nomatch' }); out.push({ id: it.id, status: 'nomatch' }); } else throw e; }
+          } else { setItem(it.id, { tries: (it.tries || 0) + 1 }); out.push({ id: it.id, status: 'waiting' }); }
         } catch (e) { out.push({ id: it.id, status: 'error', error: e.message }); }
       }
       return out;
     }
-    // Last resort: create a manual WeightTraining activity for a session nothing matched.
+    // Manual override (button): create now. No-op if the session already has an activity or a create is in flight.
     async function createManual(id, fmt = {}) {
       const it = queue().find(x => x.id === id); if (!it) return null;
-      const d = new Date(it.start), pad = n => String(n).padStart(2, '0');
-      const local = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-      const a = await api('/activities', { method: 'POST', body: JSON.stringify({ name: fmt.title || 'Styrke (Newrun Lift)', sport_type: 'WeightTraining', start_date_local: local,
-        elapsed_time: Math.max(60, Math.round((ms(it.end) - ms(it.start)) / 1000)), description: describe(it.sets, fmt.name, fmt.kgf) }) });
-      setItem(id, { status: 'created', activityId: a.id, at: now() }); return a;
+      if (['created', 'synced', 'creating'].includes(it.status)) return { id: it.activityId || null, status: it.status, existing: true };
+      const r = await create(it, fmt); return { ...r, id: r.activityId };
     }
     function disconnect() { ls.removeItem(K.tok); ls.removeItem(K.q); }
     return { configured, connected, authUrl, handleRedirect, token, enqueue, process, createManual, queue, disconnect, athlete: () => (read(K.tok, {}) || {}).athlete };
   }
-  const lib = { parseState, pickActivity, queryWindow, describe, mergeDescription, createClient, TOL, RETRY_FOR, KEYS: K };
+  const lib = { parseState, pickActivity, queryWindow, describe, mergeDescription, strengthFile, exerciseType, createClient, TOL, RETRY_FOR, AUTO_CREATE_AFTER, KEYS: K };
   if (typeof module !== 'undefined') module.exports = lib; else root.Strava = lib;
 })(this);

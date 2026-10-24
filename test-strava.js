@@ -30,10 +30,18 @@ const once = S.mergeDescription('Fin økt', blk); assert.equal(S.mergeDescriptio
 
 // ---- client with mocked Strava + worker
 function mem() { const m = {}; return { getItem: k => k in m ? m[k] : null, setItem: (k, v) => m[k] = String(v), removeItem: k => delete m[k], m }; }
-function mock(acts) {
+function mock(acts, up = {}) {
   const calls = [];
   const f = async (url, o = {}) => {
-    calls.push({ url, method: o.method || 'GET', body: o.body, auth: o.headers && o.headers.Authorization });
+    calls.push({ url, method: o.method || 'GET', body: o.body, auth: o.headers && o.headers.Authorization, ctype: o.headers && o.headers['Content-Type'] });
+    if (url.endsWith('/uploads') && o.method === 'POST') {
+      if (up.reject) return { ok: false, status: 400, json: async () => ({ error: 'data_type json not supported' }) };
+      if (up.netFail) throw new Error('network down');
+      const file = JSON.parse(await o.body.get('file').text()); calls[calls.length - 1].file = file; calls[calls.length - 1].form = Object.fromEntries([...o.body.entries()].filter(([k]) => k !== 'file'));
+      return { ok: true, status: 201, json: async () => ({ id: 77, id_str: '77', error: null, status: 'Your activity is still being processed.', activity_id: null }) };
+    }
+    if (/\/uploads\/77$/.test(url)) { up.polls = (up.polls || 0) + 1; return { ok: true, status: 200, json: async () => up.dup ? { id: 77, error: 'x.json duplicate of activity 4242', status: 'There was an error processing your activity.', activity_id: null }
+      : up.polls < 2 ? { id: 77, error: null, status: 'Your activity is still being processed.', activity_id: null } : { id: 77, error: null, status: 'Your activity is ready.', activity_id: 1001 } }; }
     const j = x => ({ ok: true, status: 200, json: async () => x });
     if (url.endsWith('/token')) return j({ access_token: 'A1', refresh_token: 'R1', expires_at: 2e9, athlete: { firstname: 'Rune' } });
     if (url.endsWith('/refresh')) return j({ access_token: 'A2', refresh_token: 'R2', expires_at: 2e9 });
@@ -73,15 +81,76 @@ function mock(acts) {
   // token refresh when expired
   ls.setItem(S.KEYS.tok, JSON.stringify({ access_token: 'old', refresh_token: 'R1', expires_at: 1 }));
   assert.equal(await c.token(), 'A2');
-  // no match for 24 h → nomatch → manual create
+  // ---- v8.1 auto-create: nothing matches → wait; 1 h after the session ended → create via structured JSON upload
+  const nop = async () => {};
+  const uploads = () => M.calls.filter(x => x.method === 'POST' && x.url.endsWith('/uploads'));
+  assert(!uploads().length, 'a matched session never creates an activity');
   list = [act(60, '2026-10-20T10:00:00Z', 30, 'Run')];
-  c.enqueue({ id: 's-2', start: '2026-10-25T08:00:00Z', end: '2026-10-25T08:40:00Z', sets: [{ exercise: 'dips', reps: 10, kg: 0 }] });
-  t = Date.parse('2026-10-25T09:00:00Z'); assert.equal((await c.process())[0].status, 'waiting');
-  t += 25 * 3600e3; assert.equal((await c.process())[0].status, 'nomatch');
-  const a = await c.createManual('s-2'); assert.equal(a.id, 999);
-  const post = JSON.parse(M.calls.find(x => x.method === 'POST' && x.url.endsWith('/activities')).body);
-  assert.equal(post.sport_type, 'WeightTraining'); assert.equal(post.elapsed_time, 2400);
-  assert.equal(c.queue().find(x => x.id === 's-2').status, 'created');
+  const c5 = S.createClient({ ls, fetch: M.f, config: { clientId: '123', workerUrl: 'https://w.example/' }, now: () => t, sleep: nop });
+  c5.enqueue({ id: 's-2', start: '2026-10-25T08:00:00Z', end: '2026-10-25T08:40:00Z', sets: [
+    { exercise: 'knebøy', reps: 5, kg: 80, timestamp: '2026-10-25T08:05:00Z' }, { exercise: 'knebøy', reps: 5, kg: 85, timestamp: '2026-10-25T08:10:00Z' },
+    { exercise: 'armhevinger', reps: 20, kg: 0 }, { exercise: 'situps', reps: 15, kg: 0 }, { exercise: 'dips', reps: 8, kg: 10 }] });
+  t = Date.parse('2026-10-25T09:00:00Z'); assert.equal((await c5.process())[0].status, 'waiting'); // 20 min after end
+  t = Date.parse('2026-10-25T09:39:00Z'); assert.equal((await c5.process())[0].status, 'waiting'); // 59 min
+  assert(!uploads().length, 'no create before 1 h');
+  t = Date.parse('2026-10-25T09:41:00Z'); r = await c5.process({ title: 'Styrke', name: x => x });
+  assert.equal(r[0].status, 'created'); assert.equal(r[0].activityId, '1001'); assert.equal(uploads().length, 1);
+  const U = uploads()[0];
+  assert.equal(U.ctype, undefined, 'multipart: no JSON content-type on uploads');
+  assert.equal(U.form.data_type, 'json'); assert.equal(U.form.sport_type, 'WeightTraining'); assert.equal(U.form.name, 'Styrke'); assert(U.form.description.startsWith('— Newrun Lift —'));
+  assert.equal(U.form.external_id, 'newrunlift-s-2.json');
+  assert.equal(U.file.version, '1.0'); assert.equal(U.file.start_time, '2026-10-25T08:00:00Z'); assert.equal(U.file.elapsed_time, 2400); assert(Number.isInteger(U.file.utc_offset));
+  assert.deepEqual(U.file.sets, [
+    { exercise_type: 'BARBELL_BACK_SQUAT', repetitions: 5, weight: 80, start_time: '2026-10-25T08:05:00Z' },
+    { exercise_type: 'BARBELL_BACK_SQUAT', repetitions: 5, weight: 85, start_time: '2026-10-25T08:10:00Z' },
+    { exercise_type: 'PUSH_UP_GENERIC', repetitions: 20 }, { exercise_type: 'SIT_UP_GENERIC', repetitions: 15 },
+    { exercise_type: 'WEIGHTED_CHEST_DIP', repetitions: 8, weight: 10 }]);
+  const it2 = c5.queue().find(x => x.id === 's-2'); assert.equal(it2.status, 'created'); assert.equal(it2.structured, true);
+  // never a duplicate: further runs, the manual button, and re-enqueueing the same session are all no-ops
+  t += 3600e3; assert.equal((await c5.process()).length, 0);
+  const again = await c5.createManual('s-2'); assert(again.existing && again.status === 'created');
+  c5.enqueue({ id: 's-2', start: '2026-10-25T08:00:00Z', end: '2026-10-25T08:40:00Z', sets: [{ exercise: 'dips', reps: 1, kg: 0 }] });
+  assert.equal(c5.queue().find(x => x.id === 's-2').status, 'created'); assert.equal(uploads().length, 1);
+  // a watch activity that appears within the hour wins: description written, nothing created
+  c5.enqueue({ id: 's-3', start: '2026-10-26T08:00:00Z', end: '2026-10-26T08:40:00Z', sets: [{ exercise: 'roing', reps: 8, kg: 50 }] });
+  t = Date.parse('2026-10-26T08:50:00Z'); assert.equal((await c5.process())[0].status, 'waiting');
+  list = [act(70, '2026-10-26T07:58:00Z', 45)];
+  t = Date.parse('2026-10-26T09:30:00Z'); assert.equal((await c5.process())[0].status, 'synced'); assert.equal(uploads().length, 1);
+  // still processing after polling → 'creating'; next run finishes it from the stored upload id (no second upload)
+  { const M2 = mock(() => [], { polls: -20 }), ls2 = mem(); ls2.setItem(S.KEYS.tok, JSON.stringify({ access_token: 'A', refresh_token: 'R', expires_at: 2e9 }));
+    let t2 = Date.parse('2026-10-25T10:00:00Z'); const cc = S.createClient({ ls: ls2, fetch: M2.f, config: { clientId: '1', workerUrl: 'https://w' }, now: () => t2, sleep: nop });
+    cc.enqueue({ id: 'p', start: '2026-10-25T08:00:00Z', end: '2026-10-25T08:40:00Z', sets: [{ exercise: 'situps', reps: 20, kg: 0 }] });
+    assert.equal((await cc.process())[0].status, 'creating');
+    assert.equal((await cc.createManual('p')).existing, true, 'button is a no-op while a create is in flight');
+    let k = 0; while (cc.queue()[0].status === 'creating' && k++ < 30) await cc.process();
+    assert.equal(cc.queue()[0].status, 'created'); assert.equal(cc.queue()[0].activityId, '1001');
+    assert.equal(M2.calls.filter(x => x.url.endsWith('/uploads') && x.method === 'POST').length, 1); }
+  // Strava says duplicate (e.g. retried after an app crash) → adopt that activity, don't create again
+  { const M3 = mock(() => [], { dup: true }), ls3 = mem(); ls3.setItem(S.KEYS.tok, JSON.stringify({ access_token: 'A', refresh_token: 'R', expires_at: 2e9 }));
+    const cc = S.createClient({ ls: ls3, fetch: M3.f, config: { clientId: '1', workerUrl: 'https://w' }, now: () => Date.parse('2026-10-25T10:00:00Z'), sleep: nop });
+    cc.enqueue({ id: 'd', start: '2026-10-25T08:00:00Z', end: '2026-10-25T08:40:00Z', sets: [{ exercise: 'dips', reps: 8, kg: 0 }] });
+    assert.equal((await cc.process())[0].activityId, '4242'); assert.equal(cc.queue()[0].status, 'created'); }
+  // app killed after marking 'creating' (no upload id): the next run finds the activity it made (overlaps session) instead of re-creating
+  { let acts3 = []; const M4 = mock(() => acts3), ls4 = mem(); ls4.setItem(S.KEYS.tok, JSON.stringify({ access_token: 'A', refresh_token: 'R', expires_at: 2e9 }));
+    let t4 = Date.parse('2026-10-25T10:00:00Z'); const cc = S.createClient({ ls: ls4, fetch: M4.f, config: { clientId: '1', workerUrl: 'https://w' }, now: () => t4, sleep: nop });
+    cc.enqueue({ id: 'k', start: '2026-10-25T08:00:00Z', end: '2026-10-25T08:40:00Z', sets: [{ exercise: 'dips', reps: 8, kg: 0 }] });
+    ls4.setItem(S.KEYS.q, JSON.stringify(cc.queue().map(x => ({ ...x, status: 'creating', creatingAt: t4 }))));
+    acts3 = [act(555, '2026-10-25T08:00:00Z', 40)]; t4 += 15 * 60e3;
+    assert.equal((await cc.process())[0].activityId, 555); assert.equal(M4.calls.filter(x => x.url.endsWith('/uploads')).length, 0); }
+  // Strava rejects the JSON format → plain manual activity with the description block (old behaviour)
+  { const M5 = mock(() => [], { reject: true }), ls5 = mem(); ls5.setItem(S.KEYS.tok, JSON.stringify({ access_token: 'A', refresh_token: 'R', expires_at: 2e9 }));
+    const cc = S.createClient({ ls: ls5, fetch: M5.f, config: { clientId: '1', workerUrl: 'https://w' }, now: () => Date.parse('2026-10-25T10:00:00Z'), sleep: nop });
+    cc.enqueue({ id: 'f', start: '2026-10-25T08:00:00Z', end: '2026-10-25T08:40:00Z', sets: [{ exercise: 'dips', reps: 10, kg: 0 }] });
+    const rr = await cc.process(); assert.equal(rr[0].status, 'created'); assert.equal(rr[0].activityId, '999'); assert.equal(rr[0].structured, false);
+    const post = JSON.parse(M5.calls.find(x => x.method === 'POST' && x.url.endsWith('/activities')).body);
+    assert.equal(post.sport_type, 'WeightTraining'); assert.equal(post.elapsed_time, 2400); assert(post.description.includes('dips: 10 × BW')); }
+  // network down: retried (stays waiting) for 24 h, then 'nomatch' → the manual 'Opprett aktivitet' button
+  { const up = { netFail: true }, M6 = mock(() => [], up), ls6 = mem(); ls6.setItem(S.KEYS.tok, JSON.stringify({ access_token: 'A', refresh_token: 'R', expires_at: 2e9 }));
+    let t6 = Date.parse('2026-10-25T09:00:00Z'); const cc = S.createClient({ ls: ls6, fetch: M6.f, config: { clientId: '1', workerUrl: 'https://w' }, now: () => t6, sleep: nop });
+    cc.enqueue({ id: 'n', start: '2026-10-25T07:00:00Z', end: '2026-10-25T07:40:00Z', sets: [{ exercise: 'dips', reps: 10, kg: 0 }] });
+    assert.equal((await cc.process())[0].status, 'error'); assert.equal(cc.queue()[0].status, 'waiting');
+    t6 += 25 * 3600e3; assert.equal((await cc.process())[0].status, 'nomatch');
+    up.netFail = false; const a = await cc.createManual('n'); assert.equal(a.id, '1001'); assert.equal(cc.queue()[0].status, 'created'); }
   // not connected → enqueue ignored
   const c2 = S.createClient({ ls: mem(), fetch: M.f, config: {} }); c2.enqueue(s); assert.equal(c2.queue().length, 0);
   // v6: web endpoint for home-screen apps, profile carried in state, redirect landing in another storage context still connects
