@@ -22,23 +22,31 @@
    "abs": 6,
    "gt": 46,
    "recN": 9,
-   "recOk": 7
+   "recOk": 9
   },
   "dips": {
-   "n": 9,
+   "n": 11,
    "exact": 9,
-   "abs": 0,
-   "gt": 37,
-   "recN": 9,
-   "recOk": 7
+   "abs": 7,
+   "gt": 58,
+   "recN": 11,
+   "recOk": 11
   },
   "skråbenk": {
-   "n": 8,
-   "exact": 7,
+   "n": 9,
+   "exact": 8,
    "abs": 1,
-   "gt": 23,
-   "recN": 8,
+   "gt": 35,
+   "recN": 9,
    "recOk": 8
+  },
+  "benkpress": {
+   "n": 23,
+   "exact": 20,
+   "abs": 9,
+   "gt": 131,
+   "recN": 23,
+   "recOk": 23
   },
   "halvmark": {
    "n": 6,
@@ -55,6 +63,22 @@
    "gt": 39,
    "recN": 7,
    "recOk": 4
+  },
+  "armhevinger": {
+   "n": 26,
+   "exact": 25,
+   "abs": 1,
+   "gt": 97,
+   "recN": 26,
+   "recOk": 23
+  },
+  "situps": {
+   "n": 7,
+   "exact": 7,
+   "abs": 0,
+   "gt": 29,
+   "recN": 7,
+   "recOk": 5
   }
  },
  "byView": {
@@ -124,23 +148,28 @@
    "abs": 0
   },
   "dips|front": {
-   "n": 1,
+   "n": 3,
    "exact": 1,
-   "abs": 0
+   "abs": 7
   },
   "skråbenk|side": {
    "n": 6,
    "exact": 5,
    "abs": 1
   },
-  "skråbenk|front": {
-   "n": 1,
-   "exact": 1,
-   "abs": 0
+  "benkpress|front": {
+   "n": 6,
+   "exact": 5,
+   "abs": 7
   },
-  "skråbenk|overhead": {
-   "n": 1,
-   "exact": 1,
+  "benkpress|side": {
+   "n": 6,
+   "exact": 5,
+   "abs": 1
+  },
+  "benkpress|head-end": {
+   "n": 3,
+   "exact": 3,
    "abs": 0
   },
   "halvmark|side": {
@@ -169,6 +198,56 @@
    "abs": 2
   },
   "roing|front": {
+   "n": 1,
+   "exact": 1,
+   "abs": 0
+  },
+  "benkpress|oblique": {
+   "n": 7,
+   "exact": 6,
+   "abs": 1
+  },
+  "benkpress|orbiting": {
+   "n": 1,
+   "exact": 1,
+   "abs": 0
+  },
+  "skråbenk|oblique": {
+   "n": 2,
+   "exact": 2,
+   "abs": 0
+  },
+  "skråbenk|front": {
+   "n": 1,
+   "exact": 1,
+   "abs": 0
+  },
+  "armhevinger|side": {
+   "n": 12,
+   "exact": 12,
+   "abs": 0
+  },
+  "armhevinger|front": {
+   "n": 7,
+   "exact": 6,
+   "abs": 1
+  },
+  "armhevinger|oblique": {
+   "n": 7,
+   "exact": 7,
+   "abs": 0
+  },
+  "situps|side": {
+   "n": 4,
+   "exact": 4,
+   "abs": 0
+  },
+  "situps|front": {
+   "n": 2,
+   "exact": 2,
+   "abs": 0
+  },
+  "situps|oblique": {
    "n": 1,
    "exact": 1,
    "abs": 0
@@ -866,7 +945,7 @@
    "file": "https://videos.pexels.com/video-files/35333696/14971126_2560_1440_25fps.mp4",
    "viewDetail": "back",
    "pred": 6,
-   "rec": "bulgarsk",
+   "rec": "pullups",
    "times": [
     1.5,
     4,
@@ -925,7 +1004,7 @@
    "file": "https://videos.pexels.com/video-files/35585612/15079342_1080_1920_30fps.mp4",
    "viewDetail": "oblique",
    "pred": 3,
-   "rec": "knebøy",
+   "rec": "pullups",
    "times": [
     3.7,
     5.1,
@@ -962,7 +1041,7 @@
    "file": "https://videos.pexels.com/video-files/31622708/13475108_3840_2160_60fps.mp4",
    "viewDetail": "front",
    "pred": 4,
-   "rec": "knebøy",
+   "rec": "pullups",
    "times": [
     3.7,
     11.1,
@@ -1064,7 +1143,7 @@
    "file": "https://videos.pexels.com/video-files/4367579/4367579-hd_1920_1080_30fps.mp4",
    "viewDetail": "side",
    "pred": 2,
-   "rec": "halvmark",
+   "rec": "dips",
    "times": [
     10.9,
     21.3
@@ -1122,7 +1201,7 @@
    "file": "https://videos.pexels.com/video-files/4065479/4065479-uhd_3840_2160_30fps.mp4",
    "viewDetail": "oblique",
    "pred": 3,
-   "rec": "knebøy",
+   "rec": "dips",
    "times": [
     3.7,
     8.2,
@@ -1210,16 +1289,16 @@
   },
   {
    "id": "px4110677",
-   "exercise": "skråbenk",
+   "exercise": "benkpress",
    "gt": 3,
    "view": "front",
-   "notes": "flat bench proxy",
+   "notes": "",
    "source": "https://www.pexels.com/video/4110677/",
    "license": "Pexels License",
    "file": "https://videos.pexels.com/video-files/4110677/4110677-uhd_3840_2160_25fps.mp4",
-   "viewDetail": "front",
+   "viewDetail": "feet-end",
    "pred": 3,
-   "rec": "skråbenk",
+   "rec": "benkpress",
    "times": [
     3.9,
     10.2,
@@ -1229,34 +1308,34 @@
   },
   {
    "id": "wc295071",
-   "exercise": "skråbenk",
+   "exercise": "benkpress",
    "gt": 1,
    "view": "side",
-   "notes": "flat bench proxy; last press cut by clip end",
+   "notes": "last press cut by clip end",
    "source": "https://commons.wikimedia.org/wiki/File:Bench_press_-_exercise_demonstration_video.webm",
    "license": "CC BY 3.0",
    "file": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm",
    "viewDetail": "side",
    "pred": 2,
-   "rec": "skråbenk",
+   "rec": "benkpress",
    "times": [
-    4.1,
+    4,
     7
    ],
    "err": 1
   },
   {
    "id": "px5320007",
-   "exercise": "skråbenk",
+   "exercise": "benkpress",
    "gt": 3,
-   "view": "overhead",
-   "notes": "flat bench, head-end camera, dropouts",
+   "view": "head-end",
+   "notes": "head-end camera, dropouts",
    "source": "https://www.pexels.com/video/5320007/",
    "license": "Pexels License",
    "file": "https://videos.pexels.com/video-files/5320007/5320007-uhd_3840_2160_25fps.mp4",
-   "viewDetail": "overhead",
+   "viewDetail": "head-end (camera behind head, looking down)",
    "pred": 3,
-   "rec": "skråbenk",
+   "rec": "benkpress",
    "times": [
     6,
     9.6,
@@ -1266,19 +1345,19 @@
   },
   {
    "id": "px4945133",
-   "exercise": "skråbenk",
+   "exercise": "benkpress",
    "gt": 7,
    "view": "side",
-   "notes": "flat bench; evaluated from 8.0 s (pose not found before)",
+   "notes": "evaluated from 8.0 s (pose not found before)",
    "start": 8,
    "source": "https://www.pexels.com/video/4945133/",
    "license": "Pexels License",
    "file": "https://videos.pexels.com/video-files/4945133/4945133-uhd_4096_2160_24fps.mp4",
    "viewDetail": "side",
    "pred": 7,
-   "rec": "skråbenk",
+   "rec": "benkpress",
    "times": [
-    10.6,
+    10.5,
     12.6,
     14.7,
     16.9,
@@ -1290,18 +1369,18 @@
   },
   {
    "id": "px6116240",
-   "exercise": "skråbenk",
+   "exercise": "benkpress",
    "gt": 1,
    "view": "side",
-   "notes": "dumbbell press",
+   "notes": "flat dumbbell bench press (variant)",
    "source": "https://www.pexels.com/video/6116240/",
    "license": "Pexels License",
    "file": "https://videos.pexels.com/video-files/6116240/6116240-hd_1920_1080_25fps.mp4",
    "viewDetail": "side",
    "pred": 1,
-   "rec": "skråbenk",
+   "rec": "benkpress",
    "times": [
-    3.2
+    3.1
    ],
    "err": 0
   },
@@ -1429,7 +1508,7 @@
    "file": "https://videos.pexels.com/video-files/4686178/4686178-hd_1080_1920_30fps.mp4",
    "viewDetail": "oblique",
    "pred": 15,
-   "rec": "dips",
+   "rec": "bulgarsk",
    "times": [
     3,
     4.1,
@@ -1564,6 +1643,2056 @@
     7.4
    ],
    "err": 0
+  },
+  {
+   "id": "ytz838WQVSBmk",
+   "exercise": "benkpress",
+   "gt": 4,
+   "view": "side",
+   "notes": "slow tempo, starts at lockout",
+   "source": "https://www.youtube.com/watch?v=z838WQVSBmk",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "side",
+   "pred": 4,
+   "rec": "benkpress",
+   "times": [
+    3.4,
+    6.9,
+    10.2,
+    13.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "yteWIZk_S_Bi0",
+   "exercise": "benkpress",
+   "gt": 4,
+   "view": "side",
+   "notes": "first camera angle only (cut at 16.5 s)",
+   "source": "https://www.youtube.com/watch?v=eWIZk_S_Bi0",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "side",
+   "end": 16.5,
+   "pred": 4,
+   "rec": "benkpress",
+   "times": [
+    5.3,
+    8.9,
+    12.5,
+    15.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "yteWIZk_S_Bi0_b",
+   "exercise": "benkpress",
+   "gt": 2,
+   "view": "front",
+   "notes": "second camera angle of the same video (swinging camera cut 16.7-17.5 s); segment starts with the bar at the chest, so the first press does not count",
+   "source": "https://www.youtube.com/watch?v=eWIZk_S_Bi0",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "feet-end, elevated",
+   "lm": "yteWIZk_S_Bi0",
+   "start": 17.5,
+   "pred": 2,
+   "rec": "benkpress",
+   "times": [
+    22.9,
+    26.4
+   ],
+   "err": 0
+  },
+  {
+   "id": "yta8mTttNgkgk",
+   "exercise": "benkpress",
+   "gt": 7,
+   "view": "oblique",
+   "notes": "long setup with hands on racked bar before unrack",
+   "source": "https://www.youtube.com/watch?v=a8mTttNgkgk",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "oblique from feet side",
+   "pred": 7,
+   "rec": "benkpress",
+   "times": [
+    19.1,
+    21.2,
+    23.1,
+    25,
+    26.9,
+    28.6,
+    30.4
+   ],
+   "err": 0
+  },
+  {
+   "id": "yt5cS_nvR-Sf4",
+   "exercise": "benkpress",
+   "gt": 8,
+   "view": "oblique",
+   "notes": "sits down and lies back first; ends with re-rack",
+   "source": "https://www.youtube.com/watch?v=5cS_nvR-Sf4",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "front-oblique",
+   "pred": 8,
+   "rec": "benkpress",
+   "times": [
+    17.9,
+    19.5,
+    21.1,
+    22.7,
+    24.3,
+    26.2,
+    29.6,
+    31.8
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytEPetH7lopsE",
+   "exercise": "benkpress",
+   "gt": 10,
+   "view": "orbiting",
+   "notes": "woman; evaluated from 9.5 s (deadlift/curl demo before); several camera cuts; final lowering at 46-48 s is the re-rack, not a rep",
+   "source": "https://www.youtube.com/watch?v=EPetH7lopsE",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "side → oblique → head-end (edited)",
+   "start": 9.5,
+   "pred": 10,
+   "rec": "benkpress",
+   "times": [
+    16.2,
+    19.5,
+    22.8,
+    25.7,
+    29.1,
+    32.4,
+    35.7,
+    38.6,
+    41.7,
+    44.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "ythGmx4eHhtus",
+   "exercise": "benkpress",
+   "gt": 1,
+   "view": "front",
+   "notes": "woman, single slow rep",
+   "source": "https://www.youtube.com/watch?v=hGmx4eHhtus",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "feet-end, high",
+   "pred": 1,
+   "rec": "benkpress",
+   "times": [
+    4.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytcVQNEP4-_kE",
+   "exercise": "benkpress",
+   "gt": 4,
+   "view": "oblique",
+   "notes": "",
+   "source": "https://www.youtube.com/watch?v=cVQNEP4-_kE",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "front-side oblique",
+   "pred": 4,
+   "rec": "benkpress",
+   "times": [
+    3.5,
+    5.7,
+    8,
+    10.3
+   ],
+   "err": 0
+  },
+  {
+   "id": "ythIuj1H1WOxM",
+   "exercise": "benkpress",
+   "gt": 1,
+   "view": "side",
+   "notes": "woman, single rep",
+   "source": "https://www.youtube.com/watch?v=hIuj1H1WOxM",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "side, far",
+   "pred": 1,
+   "rec": "benkpress",
+   "times": [
+    3.9
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytPjoND-PrWZ8",
+   "exercise": "benkpress",
+   "gt": 1,
+   "view": "front",
+   "notes": "3-count pause rep",
+   "source": "https://www.youtube.com/watch?v=PjoND-PrWZ8",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "feet-end, elevated",
+   "pred": 1,
+   "rec": "benkpress",
+   "times": [
+    8.9
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytG1-7DLG5UZs",
+   "exercise": "benkpress",
+   "gt": 10,
+   "view": "oblique",
+   "notes": "touch and go; title says 10 reps",
+   "source": "https://www.youtube.com/watch?v=G1-7DLG5UZs",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "low oblique",
+   "pred": 10,
+   "rec": "benkpress",
+   "times": [
+    4.3,
+    5.9,
+    7.6,
+    9.4,
+    11.2,
+    13.1,
+    15.3,
+    17.7,
+    21.1,
+    25.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytXaXRHCj-bnk",
+   "exercise": "benkpress",
+   "gt": 8,
+   "view": "oblique",
+   "notes": "YouTube title says incline, but the bench is flat (feet up on bench); ends with re-rack and sitting up",
+   "source": "https://www.youtube.com/watch?v=XaXRHCj-bnk",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "oblique",
+   "pred": 8,
+   "rec": "benkpress",
+   "times": [
+    6.5,
+    8.3,
+    10,
+    11.7,
+    13.7,
+    15.4,
+    17,
+    18.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytLgRZY6V2uGk",
+   "exercise": "skråbenk",
+   "gt": 8,
+   "view": "side",
+   "notes": "woman, dumbbell incline, slow",
+   "source": "https://www.youtube.com/watch?v=LgRZY6V2uGk",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "side-oblique",
+   "pred": 8,
+   "rec": "skråbenk",
+   "times": [
+    8.5,
+    13.1,
+    17.9,
+    22.5,
+    27.3,
+    32.7,
+    37.9,
+    43.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytlJ2o89kcnxY",
+   "exercise": "skråbenk",
+   "gt": 4,
+   "view": "oblique",
+   "notes": "",
+   "source": "https://www.youtube.com/watch?v=lJ2o89kcnxY",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "oblique",
+   "pred": 4,
+   "rec": "skråbenk",
+   "times": [
+    2.2,
+    4.5,
+    7.1,
+    9.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "yt37GYMNZOau4",
+   "exercise": "skråbenk",
+   "gt": 3,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.youtube.com/watch?v=37GYMNZOau4",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "side, Smith-style rack",
+   "pred": 3,
+   "rec": "skråbenk",
+   "times": [
+    4.7,
+    8,
+    11.3
+   ],
+   "err": 0
+  },
+  {
+   "id": "yttjro8BbygH8",
+   "exercise": "benkpress",
+   "gt": 6,
+   "view": "front",
+   "notes": "title: 6 reps",
+   "source": "https://www.youtube.com/watch?v=tjro8BbygH8",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "feet-end, bench height",
+   "pred": 6,
+   "rec": "benkpress",
+   "times": [
+    3.3,
+    6.8,
+    11.6,
+    15.9,
+    21.5,
+    27.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytu5ZUiDVwVCo",
+   "exercise": "benkpress",
+   "gt": 5,
+   "view": "head-end",
+   "notes": "title: 5 reps; ~10 s of setup with hands on the racked bar",
+   "source": "https://www.youtube.com/watch?v=u5ZUiDVwVCo",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "head-end oblique, elevated",
+   "pred": 5,
+   "rec": "benkpress",
+   "times": [
+    11.7,
+    14.3,
+    16.9,
+    22.3,
+    27.9
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytG68C2J9QPv0",
+   "exercise": "benkpress",
+   "gt": 5,
+   "view": "oblique",
+   "notes": "title: 5 reps; evaluated until 24.5 s (lifter then walks to the camera)",
+   "source": "https://www.youtube.com/watch?v=G68C2J9QPv0",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "oblique from head side, outdoors",
+   "end": 24.5,
+   "pred": 5,
+   "rec": "benkpress",
+   "times": [
+    5.5,
+    8.8,
+    11.6,
+    15.6,
+    21.8
+   ],
+   "err": 0
+  },
+  {
+   "id": "yt9fPaZLJcwQc",
+   "exercise": "benkpress",
+   "gt": 23,
+   "view": "oblique",
+   "notes": "title: 23 reps; fast partial reps, spotters/crowd in frame",
+   "source": "https://www.youtube.com/watch?v=9fPaZLJcwQc",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "oblique, competition",
+   "pred": 22,
+   "rec": "benkpress",
+   "times": [
+    10.2,
+    12.4,
+    13.2,
+    14.1,
+    14.9,
+    15.7,
+    16.5,
+    17.4,
+    18.3,
+    19.2,
+    19.9,
+    20.9,
+    21.9,
+    22.9,
+    23.7,
+    24.7,
+    25.7,
+    26.6,
+    27.6,
+    31.2,
+    32.7,
+    33.9
+   ],
+   "err": -1
+  },
+  {
+   "id": "ytxA_LbY4J1_M",
+   "exercise": "skråbenk",
+   "gt": 5,
+   "view": "front",
+   "notes": "title: 5 reps; evaluated until 39 s (lifter stands up and walks off)",
+   "source": "https://www.youtube.com/watch?v=xA_LbY4J1_M",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "front (feet end), incline",
+   "end": 39,
+   "pred": 5,
+   "rec": "benkpress",
+   "times": [
+    24,
+    26,
+    28.1,
+    29.9,
+    33
+   ],
+   "err": 0
+  },
+  {
+   "id": "yt0nZay-5yzkI",
+   "exercise": "skråbenk",
+   "gt": 3,
+   "view": "oblique",
+   "notes": "held-out (added after tuning)",
+   "source": "https://www.youtube.com/watch?v=0nZay-5yzkI",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "oblique, 45° incline",
+   "pred": 3,
+   "rec": "skråbenk",
+   "times": [
+    4.5,
+    7.3,
+    10.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "yteA81J-16v1Y",
+   "exercise": "skråbenk",
+   "gt": 4,
+   "view": "side",
+   "notes": "held-out (added after tuning); landmark spikes",
+   "source": "https://www.youtube.com/watch?v=eA81J-16v1Y",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "side, 45° incline",
+   "pred": 3,
+   "rec": "skråbenk",
+   "times": [
+    3.5,
+    6.5,
+    8.5
+   ],
+   "err": -1
+  },
+  {
+   "id": "ytx0BUe-AgOYw",
+   "exercise": "benkpress",
+   "gt": 8,
+   "view": "head-end",
+   "notes": "held-out (added after tuning); title: 8 reps",
+   "source": "https://www.youtube.com/watch?v=x0BUe-AgOYw",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "head-end, elevated",
+   "pred": 8,
+   "rec": "benkpress",
+   "times": [
+    5.5,
+    8.8,
+    12.1,
+    15.3,
+    18.9,
+    23.1,
+    28.2,
+    34.2
+   ],
+   "err": 0
+  },
+  {
+   "id": "ytM2_te5uI7Tw",
+   "exercise": "benkpress",
+   "gt": 9,
+   "view": "front",
+   "notes": "held-out (added after tuning); title: 9 reps; MediaPipe loses the lifter for ~1/3 of frames",
+   "source": "https://www.youtube.com/watch?v=M2_te5uI7Tw",
+   "license": "YouTube (standard license; used for offline evaluation only, not redistributed)",
+   "viewDetail": "feet-end, bench height",
+   "pred": 2,
+   "rec": "benkpress",
+   "times": [
+    21.3,
+    28.9
+   ],
+   "err": -7
+  },
+  {
+   "id": "px37281098",
+   "exercise": "armhevinger",
+   "gt": 4,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/37281098/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/37281098/15793600_1080_1920_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 4,
+   "rec": "armhevinger",
+   "times": [
+    5.3,
+    8.9,
+    12.8,
+    16.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4258997",
+   "exercise": "armhevinger",
+   "gt": 5,
+   "view": "front",
+   "notes": "two people in sync",
+   "source": "https://www.pexels.com/video/4258997/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4258997/4258997-uhd_3840_2160_25fps.mp4",
+   "viewDetail": "front",
+   "pred": 5,
+   "rec": "armhevinger",
+   "times": [
+    3.2,
+    5.9,
+    8.5,
+    11,
+    14.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4742661",
+   "exercise": "armhevinger",
+   "gt": 4,
+   "view": "side",
+   "notes": "slow",
+   "source": "https://www.pexels.com/video/4742661/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4742661/4742661-uhd_3840_2160_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 4,
+   "rec": "armhevinger",
+   "times": [
+    6.6,
+    12.3,
+    17.2,
+    22.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4804787",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/4804787/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4804787/4804787-uhd_3840_2160_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 3,
+   "rec": "halvmark",
+   "times": [
+    2.5,
+    6.5,
+    11.2
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4921654",
+   "exercise": "armhevinger",
+   "gt": 5,
+   "view": "side",
+   "notes": "ends mid-descent",
+   "source": "https://www.pexels.com/video/4921654/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4921654/4921654-hd_1066_1920_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 5,
+   "rec": "armhevinger",
+   "times": [
+    1.1,
+    3,
+    4.9,
+    6.6,
+    8.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4945123",
+   "exercise": "armhevinger",
+   "gt": 8,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/4945123/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4945123/4945123-uhd_4096_2160_24fps.mp4",
+   "viewDetail": "side",
+   "pred": 8,
+   "rec": "armhevinger",
+   "times": [
+    2.6,
+    4.6,
+    6.7,
+    9.1,
+    11.4,
+    13.7,
+    15.9,
+    18.1
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4964649",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "oblique",
+   "notes": "front-oblique",
+   "source": "https://www.pexels.com/video/4964649/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4964649/4964649-hd_1920_1080_25fps.mp4",
+   "viewDetail": "diagonal",
+   "pred": 3,
+   "rec": "armhevinger",
+   "times": [
+    6.1,
+    10.3,
+    14.6
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4964650",
+   "exercise": "armhevinger",
+   "gt": 5,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/4964650/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4964650/4964650-hd_1920_1080_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 5,
+   "rec": "armhevinger",
+   "times": [
+    5.1,
+    8.7,
+    12.3,
+    16.1,
+    19.8
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4964651",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "oblique",
+   "notes": "head-end oblique",
+   "source": "https://www.pexels.com/video/4964651/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4964651/4964651-hd_1920_1080_25fps.mp4",
+   "viewDetail": "diagonal",
+   "pred": 3,
+   "rec": "armhevinger",
+   "times": [
+    3.1,
+    6.9,
+    10.9
+   ],
+   "err": 0
+  },
+  {
+   "id": "px5802475",
+   "exercise": "armhevinger",
+   "gt": 6,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/5802475/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/5802475/5802475-hd_1920_1080_30fps.mp4",
+   "viewDetail": "side",
+   "pred": 6,
+   "rec": "armhevinger",
+   "times": [
+    2.5,
+    4.5,
+    6.3,
+    7.8,
+    9.3,
+    10.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "px6022762",
+   "exercise": "armhevinger",
+   "gt": 5,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/6022762/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6022762/6022762-uhd_3840_2160_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 5,
+   "rec": "armhevinger",
+   "times": [
+    6.7,
+    8.5,
+    10.3,
+    12.3,
+    14.8
+   ],
+   "err": 0
+  },
+  {
+   "id": "px6116020",
+   "exercise": "armhevinger",
+   "gt": 2,
+   "view": "oblique",
+   "notes": "short",
+   "source": "https://www.pexels.com/video/6116020/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6116020/6116020-hd_1920_1080_25fps.mp4",
+   "viewDetail": "diagonal",
+   "pred": 2,
+   "rec": "situps",
+   "times": [
+    1.6,
+    3.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "px6293131",
+   "exercise": "armhevinger",
+   "gt": 2,
+   "view": "front",
+   "notes": "stands up after",
+   "source": "https://www.pexels.com/video/6293131/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6293131/6293131-uhd_4096_2160_25fps.mp4",
+   "viewDetail": "front",
+   "pred": 2,
+   "rec": "armhevinger",
+   "times": [
+    2.7,
+    5.2
+   ],
+   "err": 0
+  },
+  {
+   "id": "px6893304",
+   "exercise": "armhevinger",
+   "gt": 2,
+   "view": "front",
+   "notes": "partial body",
+   "source": "https://www.pexels.com/video/6893304/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6893304/6893304-uhd_3840_2160_25fps.mp4",
+   "viewDetail": "front",
+   "pred": 2,
+   "rec": "armhevinger",
+   "times": [
+    1.7,
+    5.1
+   ],
+   "err": 0
+  },
+  {
+   "id": "px6970145",
+   "exercise": "armhevinger",
+   "gt": 4,
+   "view": "oblique",
+   "notes": "oblique-front",
+   "source": "https://www.pexels.com/video/6970145/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6970145/6970145-hd_1920_1080_30fps.mp4",
+   "viewDetail": "diagonal",
+   "pred": 4,
+   "rec": "armhevinger",
+   "times": [
+    2.7,
+    5,
+    7.5,
+    10.2
+   ],
+   "err": 0
+  },
+  {
+   "id": "px6970183",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "side",
+   "notes": "side-oblique",
+   "source": "https://www.pexels.com/video/6970183/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6970183/6970183-hd_1920_1080_30fps.mp4",
+   "viewDetail": "side",
+   "pred": 3,
+   "rec": "armhevinger",
+   "times": [
+    2.3,
+    4.7,
+    7.3
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8171383",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "oblique",
+   "notes": "oblique",
+   "source": "https://www.pexels.com/video/8171383/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8171383/8171383-uhd_3840_2160_25fps.mp4",
+   "viewDetail": "diagonal",
+   "pred": 3,
+   "rec": "armhevinger",
+   "times": [
+    2.2,
+    6.5,
+    11
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8171386",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "oblique",
+   "notes": "",
+   "source": "https://www.pexels.com/video/8171386/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8171386/8171386-uhd_3840_2160_25fps.mp4",
+   "viewDetail": "diagonal",
+   "pred": 3,
+   "rec": "armhevinger",
+   "times": [
+    3.4,
+    7.3,
+    11.2
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8343993",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "oblique",
+   "notes": "incline hands on bench",
+   "source": "https://www.pexels.com/video/8343993/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8343993/8343993-uhd_2560_1440_25fps.mp4",
+   "viewDetail": "diagonal",
+   "pred": 3,
+   "rec": "halvmark",
+   "times": [
+    2.3,
+    5.3,
+    10.1
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8435123",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/8435123/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8435123/8435123-uhd_4096_2160_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 3,
+   "rec": "armhevinger",
+   "times": [
+    2.7,
+    6.3,
+    10.1
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8456661",
+   "exercise": "armhevinger",
+   "gt": 4,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/8456661/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8456661/8456661-hd_1920_1080_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 4,
+   "rec": "armhevinger",
+   "times": [
+    6,
+    7.8,
+    10.7,
+    13.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8456715",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/8456715/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8456715/8456715-hd_1080_1920_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 3,
+   "rec": "armhevinger",
+   "times": [
+    3.3,
+    6.3,
+    9.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4754028",
+   "exercise": "situps",
+   "gt": 5,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/4754028/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4754028/4754028-uhd_4096_2160_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 5,
+   "rec": null,
+   "times": [
+    3.9,
+    7,
+    10.1,
+    13.1,
+    16.3
+   ],
+   "err": 0
+  },
+  {
+   "id": "px4754029",
+   "exercise": "situps",
+   "gt": 3,
+   "view": "front",
+   "notes": "shoe-tie first, trim to 19s",
+   "source": "https://www.pexels.com/video/4754029/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4754029/4754029-uhd_2160_4096_25fps.mp4",
+   "viewDetail": "front",
+   "start": 19,
+   "pred": 3,
+   "rec": "skråbenk",
+   "times": [
+    24.2,
+    27.9,
+    31.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "px5025762",
+   "exercise": "situps",
+   "gt": 4,
+   "view": "oblique",
+   "notes": "oblique",
+   "source": "https://www.pexels.com/video/5025762/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/5025762/5025762-hd_1920_1080_25fps.mp4",
+   "viewDetail": "diagonal",
+   "pred": 4,
+   "rec": "situps",
+   "times": [
+    1.9,
+    4,
+    6.2,
+    8.4
+   ],
+   "err": 0
+  },
+  {
+   "id": "px6739975",
+   "exercise": "situps",
+   "gt": 3,
+   "view": "side",
+   "notes": "slow",
+   "source": "https://www.pexels.com/video/6739975/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6739975/6739975-hd_1920_1080_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 3,
+   "rec": "situps",
+   "times": [
+    3.3,
+    7.4,
+    20.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8026529",
+   "exercise": "situps",
+   "gt": 6,
+   "view": "side",
+   "notes": "clean periodic",
+   "source": "https://www.pexels.com/video/8026529/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8026529/8026529-uhd_2160_4096_25fps.mp4",
+   "viewDetail": "side",
+   "pred": 6,
+   "rec": "situps",
+   "times": [
+    2.4,
+    5.1,
+    8.1,
+    11.1,
+    14.3,
+    17.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8026546",
+   "exercise": "situps",
+   "gt": 5,
+   "view": "front",
+   "notes": "",
+   "source": "https://www.pexels.com/video/8026546/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8026546/8026546-uhd_4096_2160_25fps.mp4",
+   "viewDetail": "front",
+   "pred": 5,
+   "rec": "situps",
+   "times": [
+    2.2,
+    5.1,
+    7.9,
+    10.5,
+    13.6
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8402078",
+   "exercise": "situps",
+   "gt": 3,
+   "view": "side",
+   "notes": "",
+   "source": "https://www.pexels.com/video/8402078/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8402078/8402078-hd_1920_1080_30fps.mp4",
+   "viewDetail": "side",
+   "pred": 3,
+   "rec": "situps",
+   "times": [
+    2.4,
+    5.7,
+    9.2
+   ],
+   "err": 0
+  },
+  {
+   "id": "px6455340",
+   "exercise": "armhevinger",
+   "gt": 5,
+   "view": "front",
+   "viewDetail": "head-on",
+   "notes": "camera on the floor in front of the head (Rune's setup); recognized as dips in v8.1",
+   "source": "https://www.pexels.com/video/6455340/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6455340/6455340-uhd_2160_3840_24fps.mp4",
+   "pred": 5,
+   "rec": "armhevinger",
+   "times": [
+    1.4,
+    2.5,
+    3.7,
+    6.1,
+    9.5
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8520078",
+   "exercise": "armhevinger",
+   "gt": 1,
+   "view": "front",
+   "viewDetail": "head-on",
+   "notes": "camera on the floor in front, one slow rep, outdoor",
+   "source": "https://www.pexels.com/video/8520078/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8520078/8520078-uhd_4096_1680_25fps.mp4",
+   "pred": 1,
+   "rec": "armhevinger",
+   "times": [
+    4.7
+   ],
+   "err": 0
+  },
+  {
+   "id": "px8544666",
+   "exercise": "armhevinger",
+   "gt": 3,
+   "view": "front",
+   "viewDetail": "head-on",
+   "notes": "close camera on the ground in front of the head; starts mid-descent (not counted), ends lying down",
+   "source": "https://www.pexels.com/video/8544666/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8544666/8544666-uhd_3840_2160_25fps.mp4",
+   "pred": 4,
+   "rec": "armhevinger",
+   "times": [
+    0.7,
+    2.1,
+    3.7,
+    5.2
+   ],
+   "err": 1
+  },
+  {
+   "id": "px10483843",
+   "exercise": "armhevinger",
+   "gt": 5,
+   "view": "front",
+   "viewDetail": "head-on-oblique",
+   "notes": "camera low in front-oblique; stands up and walks afterwards",
+   "source": "https://www.pexels.com/video/10483843/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/10483843/10483843-uhd_2160_4096_25fps.mp4",
+   "pred": 5,
+   "rec": "armhevinger",
+   "times": [
+    3.1,
+    5.3,
+    7.7,
+    10.2,
+    12.6
+   ],
+   "err": 0
+  },
+  {
+   "id": "px40252346",
+   "exercise": "dips",
+   "gt": 10,
+   "view": "front",
+   "viewDetail": "front",
+   "notes": "parallel-bar dips, front silhouette; starts at the bottom (not counted)",
+   "source": "https://www.pexels.com/video/40252346/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/40252346/17191046_1080_1920_25fps.mp4",
+   "pred": 9,
+   "rec": "dips",
+   "times": [
+    2.9,
+    4.1,
+    5.5,
+    6.7,
+    8.2,
+    9.3,
+    10.5,
+    11.7,
+    13.2
+   ],
+   "err": -1
+  },
+  {
+   "id": "px40401181",
+   "exercise": "dips",
+   "gt": 11,
+   "view": "front",
+   "viewDetail": "front-oblique",
+   "notes": "dip station, low front-oblique camera",
+   "source": "https://www.pexels.com/video/40401181/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/40401181/17263334_3840_2160_25fps.mp4",
+   "pred": 5,
+   "rec": "dips",
+   "times": [
+    8.7,
+    10.2,
+    11.6,
+    13.1,
+    14.5
+   ],
+   "err": -6
+  }
+ ],
+ "negRows": [
+  {
+   "id": "px4367637",
+   "exercise": "none",
+   "activity": "walking",
+   "gt": 0,
+   "view": "side",
+   "notes": "negative: treadmill walking, legs only",
+   "source": "https://www.pexels.com/video/4367637/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4367637/4367637-hd_1920_1080_30fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 1,
+   "manualEx": [
+    "situps"
+   ]
+  },
+  {
+   "id": "px4367446",
+   "exercise": "none",
+   "activity": "walking",
+   "gt": 0,
+   "view": "side",
+   "notes": "negative: walking across gym",
+   "source": "https://www.pexels.com/video/4367446/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4367446/4367446-hd_1920_1080_30fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px4107475",
+   "exercise": "none",
+   "activity": "walking",
+   "gt": 0,
+   "view": "back",
+   "notes": "negative: walking away from camera",
+   "source": "https://www.pexels.com/video/4107475/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4107475/4107475-uhd_3840_2160_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 1,
+   "manualEx": [
+    "bulgarsk"
+   ]
+  },
+  {
+   "id": "px4921640",
+   "exercise": "none",
+   "activity": "other",
+   "gt": 0,
+   "view": "front",
+   "notes": "negative: shadowboxing / moving around",
+   "source": "https://www.pexels.com/video/4921640/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4921640/4921640-hd_1066_1920_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 4,
+   "manualEx": [
+    "bulgarsk",
+    "pullups",
+    "dips",
+    "roing"
+   ]
+  },
+  {
+   "id": "px5837693",
+   "exercise": "none",
+   "activity": "loading plates",
+   "gt": 0,
+   "view": "side",
+   "notes": "negative: bending to load a plate on bar",
+   "source": "https://www.pexels.com/video/5837693/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/5837693/5837693-uhd_3840_2160_24fps.mp4",
+   "rec": "benkpress",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px4859451",
+   "exercise": "none",
+   "activity": "loading plates",
+   "gt": 0,
+   "view": "oblique",
+   "notes": "negative: loading plates on barbell",
+   "source": "https://www.pexels.com/video/4859451/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4859451/4859451-uhd_3840_2160_25fps.mp4",
+   "rec": "roing",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 2,
+   "manualEx": [
+    "benkpress",
+    "skråbenk"
+   ]
+  },
+  {
+   "id": "px4746004",
+   "exercise": "none",
+   "activity": "loading plates",
+   "gt": 0,
+   "view": "oblique",
+   "notes": "negative: loading plate, close-up",
+   "source": "https://www.pexels.com/video/4746004/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4746004/4746004-uhd_3840_2160_25fps.mp4",
+   "rec": "benkpress",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 2,
+   "manualEx": [
+    "skråbenk",
+    "roing"
+   ]
+  },
+  {
+   "id": "px6077619",
+   "exercise": "none",
+   "activity": "sitting",
+   "gt": 0,
+   "view": "front",
+   "notes": "negative: sitting with ball, sitting down/up",
+   "source": "https://www.pexels.com/video/6077619/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6077619/6077619-uhd_4096_2160_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 3,
+   "manualEx": [
+    "knebøy",
+    "bulgarsk",
+    "roing"
+   ]
+  },
+  {
+   "id": "px6548012",
+   "exercise": "none",
+   "activity": "sitting",
+   "gt": 0,
+   "view": "front",
+   "notes": "negative: sitting, resting between sets",
+   "source": "https://www.pexels.com/video/6548012/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6548012/6548012-uhd_2160_3840_24fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px6388879",
+   "exercise": "none",
+   "activity": "sitting",
+   "gt": 0,
+   "view": "front",
+   "notes": "negative: standing up / sitting down in locker room",
+   "source": "https://www.pexels.com/video/6388879/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6388879/6388879-uhd_2160_3840_25fps.mp4",
+   "rec": "knebøy",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px4069100",
+   "exercise": "none",
+   "activity": "sitting",
+   "gt": 0,
+   "view": "side",
+   "notes": "negative: sitting on bench",
+   "source": "https://www.pexels.com/video/4069100/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4069100/4069100-uhd_3840_2160_30fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px6388424",
+   "exercise": "none",
+   "activity": "standing",
+   "gt": 0,
+   "view": "front",
+   "notes": "negative: standing holding dumbbells",
+   "source": "https://www.pexels.com/video/6388424/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6388424/6388424-uhd_2160_3840_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 1,
+   "manualEx": [
+    "roing"
+   ]
+  },
+  {
+   "id": "px6980330",
+   "exercise": "none",
+   "activity": "standing",
+   "gt": 0,
+   "view": "front",
+   "notes": "negative: standing, adjusting gloves",
+   "source": "https://www.pexels.com/video/6980330/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6980330/6980330-uhd_2160_4096_30fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 2,
+   "manualEx": [
+    "dips",
+    "roing"
+   ]
+  },
+  {
+   "id": "px4752964",
+   "exercise": "none",
+   "activity": "standing",
+   "gt": 0,
+   "view": "front",
+   "notes": "negative: standing with arms crossed",
+   "source": "https://www.pexels.com/video/4752964/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4752964/4752964-uhd_4096_2160_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px6296380",
+   "exercise": "none",
+   "activity": "standing",
+   "gt": 0,
+   "view": "front",
+   "notes": "negative: putting on gloves",
+   "source": "https://www.pexels.com/video/6296380/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6296380/6296380-hd_1080_1920_25fps.mp4",
+   "rec": "knebøy",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 4,
+   "manualEx": [
+    "dips",
+    "skråbenk",
+    "halvmark",
+    "situps"
+   ]
+  },
+  {
+   "id": "px4920822",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "stretching",
+   "notes": "negative v8.2: stretching",
+   "source": "https://www.pexels.com/video/4920822/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4920822/4920822-hd_1920_1080_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 2,
+   "manualEx": [
+    "benkpress",
+    "roing"
+   ]
+  },
+  {
+   "id": "px6326785",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "stretching",
+   "notes": "negative v8.2: stretching",
+   "source": "https://www.pexels.com/video/6326785/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6326785/6326785-hd_1080_1920_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px7319946",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "stretching",
+   "notes": "negative v8.2: stretching",
+   "source": "https://www.pexels.com/video/7319946/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7319946/7319946-uhd_3840_2160_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 2,
+   "manualEx": [
+    "skråbenk",
+    "roing"
+   ]
+  },
+  {
+   "id": "px6446121",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "stretching",
+   "notes": "negative v8.2: stretching",
+   "source": "https://www.pexels.com/video/6446121/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6446121/6446121-hd_1920_1080_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 2,
+   "manualEx": [
+    "skråbenk",
+    "roing"
+   ]
+  },
+  {
+   "id": "px8520295",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "stretching",
+   "notes": "negative v8.2: stretching",
+   "source": "https://www.pexels.com/video/8520295/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8520295/8520295-uhd_4096_1680_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px8456949",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "stretching",
+   "notes": "negative v8.2: stretching",
+   "source": "https://www.pexels.com/video/8456949/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8456949/8456949-hd_1920_1080_25fps.mp4",
+   "rec": "skråbenk",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 1,
+   "manualEx": [
+    "roing"
+   ]
+  },
+  {
+   "id": "px7297833",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "stretching",
+   "notes": "negative v8.2: stretching",
+   "source": "https://www.pexels.com/video/7297833/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7297833/7297833-uhd_3840_2160_30fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px6326810",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "phone handling",
+   "notes": "negative v8.2: phone handling",
+   "source": "https://www.pexels.com/video/6326810/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6326810/6326810-hd_1080_1920_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px4367754",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "phone handling",
+   "notes": "negative v8.2: phone handling",
+   "source": "https://www.pexels.com/video/4367754/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4367754/4367754-hd_1920_1080_30fps.mp4",
+   "rec": "bulgarsk",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 4,
+   "manualEx": [
+    "skråbenk",
+    "halvmark",
+    "roing",
+    "situps"
+   ]
+  },
+  {
+   "id": "px6617449",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "phone handling",
+   "notes": "negative v8.2: phone handling",
+   "source": "https://www.pexels.com/video/6617449/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6617449/6617449-uhd_3840_2160_30fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 2,
+   "manualEx": [
+    "skråbenk",
+    "roing"
+   ]
+  },
+  {
+   "id": "px8357560",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "phone handling",
+   "notes": "negative v8.2: phone handling",
+   "source": "https://www.pexels.com/video/8357560/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8357560/8357560-uhd_2160_4096_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px7234061",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "phone handling",
+   "notes": "negative v8.2: phone handling",
+   "source": "https://www.pexels.com/video/7234061/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7234061/7234061-uhd_2160_3840_24fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px33874625",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "adjusting camera",
+   "notes": "negative v8.2: adjusting camera",
+   "source": "https://www.pexels.com/video/33874625/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/33874625/14377116_1920_1080_25fps.mp4",
+   "rec": "armhevinger",
+   "reps": 4,
+   "falseSet": true,
+   "manualFP": 1,
+   "manualEx": [
+    "armhevinger"
+   ]
+  },
+  {
+   "id": "px12433098",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "adjusting camera",
+   "notes": "negative v8.2: adjusting camera",
+   "source": "https://www.pexels.com/video/12433098/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/12433098/12433098-uhd_3840_2160_30fps.mp4",
+   "rec": "skråbenk",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px4586439",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "talking/gesturing",
+   "notes": "negative v8.2: talking/gesturing",
+   "source": "https://www.pexels.com/video/4586439/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4586439/4586439-uhd_3840_2160_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px8655089",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "talking/gesturing",
+   "notes": "negative v8.2: talking/gesturing",
+   "source": "https://www.pexels.com/video/8655089/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8655089/8655089-hd_1920_1080_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px8135472",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "talking/gesturing",
+   "notes": "negative v8.2: talking/gesturing",
+   "source": "https://www.pexels.com/video/8135472/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8135472/8135472-hd_1920_1080_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px7671782",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "walking near camera",
+   "notes": "negative v8.2: walking near camera",
+   "source": "https://www.pexels.com/video/7671782/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7671782/7671782-uhd_2160_4096_25fps.mp4",
+   "rec": "pullups",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px6388433",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "walking near camera",
+   "notes": "negative v8.2: walking near camera",
+   "source": "https://www.pexels.com/video/6388433/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6388433/6388433-uhd_3840_2160_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px7317444",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "picking up items",
+   "notes": "negative v8.2: picking up items",
+   "source": "https://www.pexels.com/video/7317444/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7317444/7317444-uhd_2160_3840_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px7590403",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "picking up items",
+   "notes": "negative v8.2: picking up items",
+   "source": "https://www.pexels.com/video/7590403/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7590403/7590403-uhd_2160_3840_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px6594038",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "picking up items",
+   "notes": "negative v8.2: picking up items",
+   "source": "https://www.pexels.com/video/6594038/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6594038/6594038-uhd_4096_2160_25fps.mp4",
+   "rec": "knebøy",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 3,
+   "manualEx": [
+    "dips",
+    "skråbenk",
+    "roing"
+   ]
+  },
+  {
+   "id": "px7187516",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "resting/drinking/towel",
+   "notes": "negative v8.2: resting/drinking/towel",
+   "source": "https://www.pexels.com/video/7187516/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7187516/7187516-hd_1920_1080_24fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px4438075",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "resting/drinking/towel",
+   "notes": "negative v8.2: resting/drinking/towel",
+   "source": "https://www.pexels.com/video/4438075/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/4438075/4438075-hd_1920_1080_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 2,
+   "manualEx": [
+    "skråbenk",
+    "roing"
+   ]
+  },
+  {
+   "id": "px5320008",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "resting/drinking/towel",
+   "notes": "negative v8.2: resting/drinking/towel",
+   "source": "https://www.pexels.com/video/5320008/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/5320008/5320008-uhd_2160_3840_25fps.mp4",
+   "rec": "knebøy",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 1,
+   "manualEx": [
+    "dips"
+   ]
+  },
+  {
+   "id": "px7314308",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "resting/drinking/towel",
+   "notes": "negative v8.2: resting/drinking/towel",
+   "source": "https://www.pexels.com/video/7314308/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7314308/7314308-uhd_2160_4096_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px6390163",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "resting/drinking/towel",
+   "notes": "negative v8.2: resting/drinking/towel",
+   "source": "https://www.pexels.com/video/6390163/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6390163/6390163-uhd_3840_2160_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px5033898",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "resting/drinking/towel",
+   "notes": "negative v8.2: resting/drinking/towel",
+   "source": "https://www.pexels.com/video/5033898/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/5033898/5033898-uhd_3840_2160_30fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px7329856",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "dancing",
+   "notes": "negative v8.2: dancing",
+   "source": "https://www.pexels.com/video/7329856/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7329856/7329856-uhd_3840_2160_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 2,
+   "manualEx": [
+    "bulgarsk",
+    "roing"
+   ]
+  },
+  {
+   "id": "px8921456",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "dancing",
+   "notes": "negative v8.2: dancing",
+   "source": "https://www.pexels.com/video/8921456/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/8921456/8921456-uhd_3840_2160_25fps.mp4",
+   "rec": "skråbenk",
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px6262593",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "dancing (2 people, far)",
+   "notes": "negative v8.2: couple dancing in a living room, small in frame, two people",
+   "source": "https://www.pexels.com/video/6262593/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6262593/6262593-uhd_2160_4096_25fps.mp4",
+   "rec": "dips",
+   "reps": 4,
+   "falseSet": true,
+   "manualFP": 7,
+   "manualEx": [
+    "knebøy",
+    "bulgarsk",
+    "dips",
+    "skråbenk",
+    "halvmark",
+    "roing",
+    "situps"
+   ]
+  },
+  {
+   "id": "px7423525",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "household",
+   "notes": "negative v8.2: household",
+   "source": "https://www.pexels.com/video/7423525/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/7423525/7423525-uhd_3840_2160_30fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 0,
+   "manualEx": []
+  },
+  {
+   "id": "px6571888",
+   "exercise": "none",
+   "gt": 0,
+   "view": "front",
+   "activity": "gymnastics (other)",
+   "notes": "negative v8.2: gymnastics (other)",
+   "source": "https://www.pexels.com/video/6571888/",
+   "license": "Pexels License",
+   "file": "https://videos.pexels.com/video-files/6571888/6571888-uhd_3840_2160_25fps.mp4",
+   "rec": null,
+   "reps": 0,
+   "falseSet": false,
+   "manualFP": 7,
+   "manualEx": [
+    "knebøy",
+    "bulgarsk",
+    "dips",
+    "skråbenk",
+    "halvmark",
+    "roing",
+    "situps"
+   ]
   }
  ]
 }

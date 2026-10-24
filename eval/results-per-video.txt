@@ -1,70 +1,93 @@
-✓ knebøy    wc8050bb    gt=2 pred=2 rec=knebøy 3.2,6.3
-✓ knebøy    px6114481   gt=2 pred=2 rec=knebøy 4.1,6.7
-✓ knebøy    px4921641   gt=2 pred=2 rec=knebøy 4.7,7.9
-✓ knebøy    px4764175   gt=5 pred=5 rec=knebøy 3.1,8.3,13.8,19.8,25.9
-✓ knebøy    px6980032   gt=1 pred=1 rec=knebøy 6.5
-✓ knebøy    px6980765   gt=3 pred=3 rec=knebøy 5.5,10.9,16.5
-✓ knebøy    px6454275   gt=4 pred=4 rec=knebøy 1.7,4.2,6.7,9.2
-✓ knebøy    px8837118   gt=4 pred=4 rec=knebøy 4.3,11.3,19.8,28.3
-✓ knebøy    px5025965   gt=8 pred=8 rec=knebøy 1.6,3.5,5.5,7.5,9.5,11.5,13.4,15.4
-✓ knebøy    px8837221   gt=5 pred=5 rec=knebøy 3.1,7.8,13.3,18.5,24.2
-✓ knebøy    px6454284   gt=4 pred=4 rec=knebøy 1.7,3.9,6.3,8.8
-✓ knebøy    px6980132   gt=2 pred=2 rec=knebøy 4.7,9
-✓ knebøy    px8026531   gt=3 pred=3 rec=knebøy 7.3,11.5,18.3
-✓ knebøy    px4838220   gt=2 pred=2 rec=knebøy 2.9,7.5
-✓ knebøy    px8435486   gt=3 pred=3 rec=knebøy 3.4,8.7,14.6
-✓ knebøy    px6874797   gt=2 pred=2 rec=knebøy 3.9,13.9
-✓ knebøy    px37997554  gt=8 pred=8 rec=knebøy 7.7,10.7,13.5,16.5,19.9,23,26.1,29.2
-✓ bulgarsk  px35585592  gt=2 pred=2 rec=bulgarsk 3.9,5.7
-✓ bulgarsk  px31035743  gt=3 pred=3 rec=bulgarsk 2.7,5.5,8.3
-✓ bulgarsk  px7746661   gt=4 pred=4 rec=bulgarsk 2.5,5.1,7.7,10.5
-✓ bulgarsk  px8233047   gt=5 pred=5 rec=bulgarsk 4.4,13.6,23.5,32.8,42.4
-✓ bulgarsk  px31035750  gt=4 pred=4 rec=knebøy 1.1,3.2,5.9,8.7
-✓ bulgarsk  px31035747  gt=3 pred=3 rec=knebøy 3,6.3,9.8
-✓ bulgarsk  px6525491   gt=2 pred=2 rec=bulgarsk 1.5,4.5
-✓ bulgarsk  px8456719   gt=3 pred=3 rec=knebøy 5.1,10.5,15.9
-✓ bulgarsk  px8171292   gt=5 pred=5 rec=bulgarsk 3.7,5.5,7.3,9,10.9
-✓ bulgarsk  px19742421  gt=4 pred=4 rec=bulgarsk 1.7,2.9,4.1,5.3
-✓ bulgarsk  px4488000   gt=5 pred=5 rec=bulgarsk 6.4,8.6,10.4,12.4,14.4
-✓ bulgarsk  px5025832   gt=4 pred=4 rec=bulgarsk 3.4,7.9,12.5,17
-✓ pullups   px11252321  gt=5 pred=5 rec=pullups 5.3,7.3,9.3,11.3,13.3
-✓ pullups   px15859716  gt=4 pred=4 rec=pullups 1.6,3.9,6.5,9
-✓ pullups   px7187450   gt=9 pred=9 rec=pullups 1.8,3.5,5.3,7.1,9,10.8,14.9,16.8,18.7
-✓ pullups   px39954722  gt=5 pred=5 rec=pullups 2.2,6.4,10.5,14.7,19.3
-✓ pullups   px32363351  gt=9 pred=9 rec=pullups 1.6,5.7,9.6,12.9,16.9,20.6,25.3,30.3,35.3
-✓ pullups   px35333696  gt=6 pred=6 rec=bulgarsk 1.5,4,6.5,9.1,11.7,14.4
-✓ pullups   wcf5dfa1    gt=2 pred=2 rec=pullups 2,5.7
-✓ pullups   px14293451  gt=3 pred=3 rec=pullups 3.9,7.1,9.9
-✓ pullups   px35585612  gt=3 pred=3 rec=knebøy 3.7,5.1,6.5
-✗ pullups   px31622705  gt=0 pred=2 rec=pullups 3.5,5.7
-✗ pullups   px31622708  gt=0 pred=4 rec=knebøy 3.7,11.1,14.7,29.6
-✓ dips      px17886673  gt=7 pred=7 rec=dips 2.7,5.1,7.4,9.7,12.3,14.9,17.3
-✓ dips      px856909    gt=6 pred=6 rec=dips 1.6,3.6,5.8,7.7,9.8,12
-✓ dips      px4804773   gt=2 pred=2 rec=dips 5.3,9.9
-✓ dips      px11970122  gt=3 pred=3 rec=dips 4.8,7.1,9.5
-✓ dips      px4367579   gt=2 pred=2 rec=halvmark 10.9,21.3
-✓ dips      px4804788   gt=5 pred=5 rec=dips 4.3,7.7,11.1,15.1,18.7
-✓ dips      px4804792   gt=3 pred=3 rec=dips 3.5,6.4,9.3
-✓ dips      px4065479   gt=3 pred=3 rec=knebøy 3.7,8.2,12.8
-✓ dips      px4964658   gt=6 pred=6 rec=dips 1.5,2.9,4.8,6.6,8.7,10.7
-✓ skråbenk  wc9631ce    gt=1 pred=1 rec=skråbenk 4.1
-✓ skråbenk  px4920810   gt=4 pred=4 rec=skråbenk 2.1,5,8,10.8
-✓ skråbenk  px4921647   gt=3 pred=3 rec=skråbenk 5.1,7.7,10.3
-✓ skråbenk  px4110677   gt=3 pred=3 rec=skråbenk 3.9,10.2,17.2
-✗ skråbenk  wc295071    gt=1 pred=2 rec=skråbenk 4.1,7
-✓ skråbenk  px5320007   gt=3 pred=3 rec=skråbenk 6,9.6,13.1
-✓ skråbenk  px4945133   gt=7 pred=7 rec=skråbenk 10.6,12.6,14.7,16.9,19,21.1,23.4
-✓ skråbenk  px6116240   gt=1 pred=1 rec=skråbenk 3.2
-✓ halvmark  wc3a2973    gt=2 pred=2 rec=halvmark 1.7,5.5
-✓ halvmark  px7674502   gt=3 pred=3 rec=halvmark 3.4,7.7,13.1
-✓ halvmark  px6115230   gt=1 pred=1 rec=halvmark 7.5
-✓ halvmark  px4859740   gt=3 pred=3 rec=halvmark 5.9,10,14.7
-✓ roing     wce1a0f9    gt=2 pred=2 rec=null 3.1,5
-✓ roing     wc02da41    gt=6 pred=6 rec=roing 7.5,14.7,22.9,30.7,38.8,46.9
-✓ roing     px4686178   gt=15 pred=15 rec=dips 3,4.1,5.3,6.5,7.6,8.8,9.9,11.1,12.2,13.4,14.5,15.7,16.7,17.9,19.1
-✓ roing     px34801823  gt=5 pred=5 rec=null 1.7,2.9,4.1,5.4,6.7
-✗ roing     px7875577   gt=4 pred=5 rec=roing 2.1,3.5,5.7,9.2,12.9
-✓ roing     px4867620   gt=2 pred=2 rec=roing 4.3,7.7
-✗ roing     px5837737   gt=5 pred=3 rec=roing 4.5,5.7,9.3
-✓ halvmark  px7674505   gt=4 pred=4 rec=halvmark 6.6,11.7,17,22.2
-✓ halvmark  px4859742   gt=1 pred=1 rec=knebøy 7.4
+✗ none/adjusting camera px33874625  rec=armhevinger reps=4 manual=armhevinger
+✗ none/dancing (2 people, far) px6262593   rec=dips reps=4 manual=knebøy,bulgarsk,dips,skråbenk,halvmark,roing,situps
+✗ pullups   px31622705  gt=0 pred=2 rec=pullups 
+✗ pullups   px31622708  gt=0 pred=4 rec=pullups 
+✗ benkpress wc295071    gt=1 pred=2 rec=benkpress 
+✗ roing     px7875577   gt=4 pred=5 rec=roing 
+✗ roing     px5837737   gt=5 pred=3 rec=roing 
+✗ benkpress yt9fPaZLJcwQc gt=23 pred=22 rec=benkpress 
+✗ skråbenk  yteA81J-16v1Y gt=4 pred=3 rec=skråbenk 
+✗ benkpress ytM2_te5uI7Tw gt=9 pred=2 rec=benkpress 
+✗ armhevinger px8544666   gt=3 pred=4 rec=armhevinger 
+✗ dips      px40252346  gt=10 pred=9 rec=dips 
+✗ dips      px40401181  gt=11 pred=5 rec=dips 
+
+| Exercise | Videos | GT reps | Exact | MAE | Recognition |
+|---|---|---|---|---|---|
+| knebøy | 17 | 60 | 17/17 (100%) | 0.00 | 17/17 |
+| bulgarsk | 12 | 44 | 12/12 (100%) | 0.00 | 9/12 |
+| pullups | 11 | 46 | 9/11 (82%) | 0.55 | 9/9 |
+| dips | 11 | 58 | 9/11 (82%) | 0.64 | 11/11 |
+| skråbenk | 9 | 35 | 8/9 (89%) | 0.11 | 8/9 |
+| benkpress | 23 | 131 | 20/23 (87%) | 0.39 | 23/23 |
+| halvmark | 6 | 14 | 6/6 (100%) | 0.00 | 5/6 |
+| roing | 7 | 39 | 5/7 (71%) | 0.43 | 4/7 |
+| armhevinger | 26 | 97 | 25/26 (96%) | 0.04 | 23/26 |
+| situps | 7 | 29 | 7/7 (100%) | 0.00 | 5/7 |
+| **all** | 129 | 553 | 118/129 (91%) | 0.21 | 114/127 (90%) |
+
+| Exercise | View | Videos | Exact | MAE |
+|---|---|---|---|---|
+| armhevinger | front | 7 | 6/7 | 0.14 |
+| armhevinger | oblique | 7 | 7/7 | 0.00 |
+| armhevinger | side | 12 | 12/12 | 0.00 |
+| benkpress | front | 6 | 5/6 | 1.17 |
+| benkpress | head-end | 3 | 3/3 | 0.00 |
+| benkpress | oblique | 7 | 6/7 | 0.14 |
+| benkpress | orbiting | 1 | 1/1 | 0.00 |
+| benkpress | side | 6 | 5/6 | 0.17 |
+| bulgarsk | front | 5 | 5/5 | 0.00 |
+| bulgarsk | oblique | 1 | 1/1 | 0.00 |
+| bulgarsk | side | 6 | 6/6 | 0.00 |
+| dips | front | 3 | 1/3 | 2.33 |
+| dips | oblique | 1 | 1/1 | 0.00 |
+| dips | orbiting | 1 | 1/1 | 0.00 |
+| dips | side | 6 | 6/6 | 0.00 |
+| halvmark | front | 2 | 2/2 | 0.00 |
+| halvmark | oblique | 1 | 1/1 | 0.00 |
+| halvmark | side | 3 | 3/3 | 0.00 |
+| knebøy | front | 6 | 6/6 | 0.00 |
+| knebøy | oblique | 8 | 8/8 | 0.00 |
+| knebøy | side | 3 | 3/3 | 0.00 |
+| pullups | back | 2 | 2/2 | 0.00 |
+| pullups | front | 6 | 4/6 | 1.00 |
+| pullups | oblique | 1 | 1/1 | 0.00 |
+| pullups | side | 2 | 2/2 | 0.00 |
+| roing | front | 1 | 1/1 | 0.00 |
+| roing | oblique | 2 | 1/2 | 1.00 |
+| roing | side | 4 | 3/4 | 0.25 |
+| situps | front | 2 | 2/2 | 0.00 |
+| situps | oblique | 1 | 1/1 | 0.00 |
+| situps | side | 4 | 4/4 | 0.00 |
+| skråbenk | front | 1 | 1/1 | 0.00 |
+| skråbenk | oblique | 2 | 2/2 | 0.00 |
+| skråbenk | side | 6 | 5/6 | 0.17 |
+
+| View (all exercises) | Videos | Exact | MAE |
+|---|---|---|---|
+| front | 39 | 33/39 (85%) | 0.54 |
+| oblique | 31 | 29/31 (94%) | 0.10 |
+| side | 52 | 49/52 (94%) | 0.06 |
+| head-end | 3 | 3/3 (100%) | 0.00 |
+| orbiting | 2 | 2/2 (100%) | 0.00 |
+| back | 2 | 2/2 (100%) | 0.00 |
+
+| Negative activity | Clips | False sets, auto mode (≥2 reps) | FP rate | Manual pick: counters reaching 2 |
+|---|---|---|---|---|
+| walking | 3 | 0 | 0% | 2/30 |
+| other | 1 | 0 | 0% | 4/10 |
+| loading plates | 3 | 0 | 0% | 4/30 |
+| sitting | 4 | 0 | 0% | 3/40 |
+| standing | 4 | 0 | 0% | 7/40 |
+| stretching | 7 | 0 | 0% | 7/70 |
+| phone handling | 5 | 0 | 0% | 6/50 |
+| adjusting camera | 2 | 1 | 50% | 1/20 |
+| talking/gesturing | 3 | 0 | 0% | 0/30 |
+| walking near camera | 2 | 0 | 0% | 0/20 |
+| picking up items | 3 | 0 | 0% | 3/30 |
+| resting/drinking/towel | 6 | 0 | 0% | 3/60 |
+| dancing | 2 | 0 | 0% | 2/20 |
+| dancing (2 people, far) | 1 | 1 | 100% | 7/10 |
+| household | 1 | 0 | 0% | 0/10 |
+| gymnastics (other) | 1 | 0 | 0% | 7/10 |
+| **all** | 48 | 2 | 4.2% | 56/480 (11.7%) |

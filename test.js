@@ -77,12 +77,15 @@ for (const ex of IDS) {
 // 2+ reps (MIN_AUTO_REPS in app.js). None of these may produce a saved set.
 function appSim(frameAt, secs, fps = 15) {
   const cs = {}; for (const id of IDS) cs[id] = createCounter(id);
-  const r = createRecognizer(), votes = {};
+  // same as the app: Reps.createPicker() picks the exercise, the set locks at 2 reps; report the most reps the active
+  // exercise ever showed
+  const r = createRecognizer(), pk = R.createPicker(); let lock = null, best = 0, bestEx = null;
   for (let i = 0; i < secs * fps; i++) { const t = i / fps, f = frameAt(t);
     for (const id of IDS) cs[id].update(f, t * 1000, 1);
-    const o = r.update(f, t * 1000, 1); if (o.best && t >= 3) votes[o.best] = (votes[o.best] || 0) + 1; }
-  const rb = Object.entries(votes).sort((a, b) => b[1] - a[1])[0], ex = rb ? rb[0] : null;
-  return { ex, reps: ex ? cs[ex].flush() : 0 };
+    const auto = pk.update(r.update(f, t * 1000, 1), t * 1000), ex = lock || auto;
+    if (ex) { if (cs[ex].reps >= best) { best = cs[ex].reps; bestEx = ex; } if (cs[ex].reps >= 2) lock = ex; } }
+  if (bestEx && !best) best = cs[bestEx].flush();
+  return { ex: bestEx || pk.current, reps: best };
 }
 const shift = (P, dx, dy) => P.map(([x, y, z, v]) => [x + dx, y + dy, z, v]);
 const standing = () => pose('none', 0);
@@ -95,4 +98,40 @@ const NEG = {
   'bending once to load a plate, then standing': t => pose('halvmark', t > 3 && t < 6 ? Math.sin(Math.PI * (t - 3) / 3) : 0),
 };
 for (const [name, fn] of Object.entries(NEG)) { const r = appSim(fn, 18); ok(r.reps < 2, 'negative: ' + name + ' -> no saved set (rec=' + r.ex + ', reps=' + r.reps + ')'); }
+
+// ---- v8.2 strictness: random one-off movements are never counted
+for (const ex of IDS) {
+  { // one isolated rep-shaped movement: the live count stays 0 (it is only tentative until a matching 2nd rep)
+    const c = createCounter(ex); let t = 0;
+    for (const [dur, a, b] of [[1, 0, 0], [1, 0, 1], [1, 1, 0], [6, 0, 0]]) for (let i = 0; i < dur * 15; i++, t += 1 / 15)
+      c.update(pose(ex, a + (b - a) * (0.5 - 0.5 * Math.cos(Math.PI * i / (dur * 15)))), t * 1000, 1);
+    ok(c.reps === 0, ex + ': a single movement is not shown as a rep'); }
+  // two movements with very different size and tempo, far apart, are not a set
+  ok(play(ex, [[1, 0, 0], [0.5, 0, 1], [0.5, 1, 0], [10, 0, 0], [3, 0, 0.35], [3, 0.35, 0], [1.5, 0, 0]]) < 2, ex + ': mismatched pair is not a set');
+  // the first rep IS counted once the second one matches (2 reps -> 2)
+  ok(play(ex, reps(2)) === 2, ex + ': first rep confirmed by the second');
+}
+{ // non-strict mode keeps the old behaviour (used for diagnostics)
+  const c = createCounter('knebøy', { strict: false }); let t = 0;
+  for (const [dur, a, b] of [[1, 0, 0], [1, 0, 1], [1, 1, 0], [2, 0, 0]]) for (let i = 0; i < dur * 15; i++, t += 1 / 15)
+    c.update(pose('knebøy', a + (b - a) * (0.5 - 0.5 * Math.cos(Math.PI * i / (dur * 15)))), t * 1000, 1);
+  ok(c.reps === 1, 'strict:false counts a single rep immediately'); }
+{ // waving the arms up and down while standing is not dips / push-ups / pull-ups (the shoulders do not travel)
+  const wave = t => { const P = standing(), d = 0.15 * (0.5 - 0.5 * Math.cos(Math.PI * 2 * t / 1.5));
+    for (const i of [15, 16]) P[i] = [P[i][0], 0.55 - d, 0, 0.95]; for (const i of [13, 14]) P[i] = [P[i][0], 0.42 - d / 2, 0, 0.95]; return P; };
+  for (const ex of ['dips', 'armhevinger', 'pullups']) { const c = createCounter(ex); for (let i = 0; i < 15 * 12; i++) c.update(wave(i / 15), i / 15 * 1000, 1);
+    ok(c.flush() < 2, 'arm waving is not ' + ex); } }
+{ // head-on push-up (phone on the floor in front of the head): torso foreshortened, hands on the floor below shoulders
+  // and hips, legs hidden. Must be recognized as push-ups, not dips.
+  const headOn = p => { const P = Array.from({ length: 33 }, () => [0.5, 0.5, 0, 0.05]);
+    const set = (i, x, y, v = 0.95) => { P[i] = [x + rnd() * 0.004, y + rnd() * 0.004, 0, v]; };
+    const sh = 0.45 + 0.2 * p, hip = sh + 0.12; set(0, 0.5, sh - 0.12);
+    for (const s of [0, 1]) { const o = s ? 0.13 : -0.13; set(11 + s, 0.5 + o, sh); set(13 + s, 0.5 + o * 1.4, (sh + 0.85) / 2); set(15 + s, 0.5 + o * 1.3, 0.85);
+      set(23 + s, 0.5 + o * 0.6, hip, 0.6); set(25 + s, 0.5 + o * 0.6, hip + 0.03, 0.1); set(27 + s, 0.5 + o * 0.6, hip + 0.05, 0.05); }
+    return P; };
+  const r = createRecognizer(), c = createCounter('armhevinger'); let t = 0, out;
+  for (const [dur, a, b] of reps(5)) for (let i = 0; i < dur * 15; i++, t += 1 / 15) { const f = headOn(a + (b - a) * (0.5 - 0.5 * Math.cos(Math.PI * i / (dur * 15)))); out = r.update(f, t * 1000, 1); c.update(f, t * 1000, 1); }
+  ok(out.best === 'armhevinger', 'head-on push-up recognized as push-ups (got ' + out.best + ')');
+  ok(!(out.scores.dips > out.scores.armhevinger), 'head-on push-up: dips score below push-ups');
+  ok(c.flush() === 5, 'head-on push-up: 5 reps counted'); }
 console.log(n + ' rep-engine tests passed');

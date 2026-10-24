@@ -246,8 +246,8 @@ addEventListener('hashchange', route);
 
 /* ---------- økt: gjenkjenning, telling, autolagring ---------- */
 // One counter per exercise runs in parallel on the same landmarks; the recognizer (or the manual pick) decides which one is shown.
-let counters = {}, recognizer = Reps.createRecognizer(), manualEx = null, autoEx = null, lockEx = null;
-let cand = null, candSince = 0, lastRepWall = 0, lastActivity = Date.now(), shownReps = -1, toastT = 0;
+let counters = {}, recognizer = Reps.createRecognizer(), picker = Reps.createPicker(), manualEx = null, autoEx = null, lockEx = null;
+let lastRepWall = 0, lastActivity = Date.now(), shownReps = -1, toastT = 0;
 const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30, armhevinger: 0, situps: 0 };
 function kgFor(ex) { const x = LS.getItem('repcam.kg.' + ex); if (x != null) return +x; const l = store.lastKg(ex); return l != null ? l : (DEFAULT_KG[ex] ?? 0); }
 function setKgFor(ex, x) { LS.setItem('repcam.kg.' + ex, Math.max(0, Math.round(x * 100) / 100)); }
@@ -298,7 +298,7 @@ function hideToast() { $('toast').classList.remove('on'); }
 $('confirm').onclick = () => { saveSet(); };
 function enterWorkout() {
   const resumed = !!store.active();
-  const a = store.startSession(); resetCounters(); recognizer.reset(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();
+  const a = store.startSession(); resetCounters(); recognizer.reset(); picker.reset(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();
   wake.on();
   if (!stream && !pending) { setStartUI(resumed); if (resumed) runCam(getCam(facing), true); }
   clearInterval(tick); tick = setInterval(() => {
@@ -415,12 +415,10 @@ function loop() {
   }
   let tracking = false;
   for (const id in counters) { const r = counters[id].update(lm, ts, asp); if (id === curEx()) tracking = r.tracking; }
-  // recognition: switch only after the same guess has held for 1.5 s; lock once the set has 2+ reps
-  const rc = recognizer.update(lm, ts, asp);
-  if (!manualEx && !lockEx && rc.best) {
-    if (rc.best !== cand) { cand = rc.best; candSince = ts; }
-    else if (cand !== autoEx && ts - candSince > 1500) { autoEx = cand; renderWorkout(); }
-  }
+  // recognition (Reps.createPicker, same logic as the eval): switch only after a clear guess (score + margin) has held for
+  // 1.5 s; lock once the set has 2+ reps. Counters are strict on their own (posture, visibility, paired first rep).
+  const rc = recognizer.update(lm, ts, asp), pk = picker.update(rc, ts);
+  if (!manualEx && !lockEx && pk && pk !== autoEx) { autoEx = pk; renderWorkout(); }
   const ex = curEx(), reps = currentReps();
   if (ex && !lockEx && !manualEx && reps >= 2) lockEx = ex;
   if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); if (reps > 0) lastActivity = Date.now(); }

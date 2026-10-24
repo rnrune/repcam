@@ -25,6 +25,19 @@ by eye from the frames.
 * Caveat: I set the GT while looking at the same signal plots that the tuning used. That gives the GT some potential bias toward
   the signal, although every count was checked against the thumbnails.
 
+## v8.2: strict counting + head-on push-ups (see `results-v8.2.md`)
+* **Strict counter (default):** a rep only counts when, during the rep, the needed landmarks are visible and the shoulders
+  are inside the frame (≤50 % bad frames), the person is not travelling across the frame, the exercise posture holds
+  (push-ups prone, dips upright with hands at hip height, bench lying, pull-ups hanging…), and for pull-ups/dips/push-ups
+  the shoulders really travel (hands planted). The **first rep is tentative** until a second rep with similar amplitude
+  (≤2.5×) and tempo (≤4.5×) follows within 12 s, so a single random movement never shows up. `strict:false` restores v8.1.
+* **Auto pick (`Reps.createPicker`, shared by app and eval):** a recognizer guess needs score ≥0.3 and a 25 % margin over the
+  runner-up, held 1.5 s.
+* **Head-on push-ups:** foreshortened torso (vertical torso < 1.0–1.3 × shoulder width), hands below shoulders *and* hips,
+  legs hidden → push-ups; dips need a long upright torso and hands at hip height. Squat recognition needs visible legs.
+* Negatives: 48 clips (stretching, phone handling, adjusting the camera, talking/gesturing, walking near the camera,
+  picking up items, resting/drinking, dancing, household, gymnastics, plus the v8.1 set). False sets 16.7 % → **4.2 %**.
+
 ## Results (70 clips, 263 reps)
 Before: the first v4 engine draft (`reps_before.js`). After: the current `reps.js`.
 
