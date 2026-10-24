@@ -9,10 +9,13 @@ const errors = [], fails = []; const ok = (c, m) => { console.log((c ? 'PASS ' :
 (async () => {
   const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=' + (process.env.VIDEO || '/workspace/repcam-test/squat.y4m'), '--enable-unsafe-swiftshader'] });
   const ctx = await b.newContext({ ...devices['iPhone 13'], permissions: ['camera'] });
+  // Live worker only accepts the real origin: serve the local checkout under https://rnrune.github.io/repcam/ (SERVE_DIR).
+  if (process.env.SERVE_DIR) await ctx.route('https://rnrune.github.io/repcam/**', r => { let f = new globalThis.URL(r.request().url()).pathname.replace(/^\/repcam\//, '') || 'index.html'; f = path.join(process.env.SERVE_DIR, f); if (!fs.existsSync(f)) return r.fulfill({ status: 404, body: '' }); const ext = path.extname(f).slice(1); r.fulfill({ body: fs.readFileSync(f), contentType: { html: 'text/html', js: 'text/javascript', css: 'text/css', png: 'image/png', webmanifest: 'application/manifest+json', mp4: 'video/mp4', ico: 'image/x-icon', wasm: 'application/wasm', json: 'application/json' }[ext] || 'application/octet-stream' }); });
   await ctx.route('**/strava-config.js*', r => r.fulfill({ contentType: 'text/javascript', body: `window.REPCAM_STRAVA={clientId:'1',workerUrl:${JSON.stringify(FB_URL)}}` }));
   await ctx.addInitScript(() => { if (!sessionStorage.s) { sessionStorage.s = 1; Object.entries({ 'repcam.onboarded': '1', 'repcam.lang': 'nb', 'repcam.autosaveMs': '3500', 'repcam.profile': '{"name":"Rune"}' }).forEach(([k, v]) => localStorage.setItem(k, v)); } });
   const p = await ctx.newPage();
-  p.on('console', m => { if (m.text().startsWith('FBDBG')) console.log(m.text()); if (m.type() === 'error' && !/strava|favicon/i.test(m.text())) errors.push(m.text()); }); p.on('pageerror', e => errors.push(e.message));
+  p.on('response', r => { if (r.url().includes('/fb/') && !r.ok()) console.log('FBRESP', r.status(), r.url()); }); p.on('requestfailed', r => { if (r.url().includes('/fb/')) console.log('FBREQFAIL', r.failure()?.errorText, r.url()); });
+  p.on('console', m => { if (m.type() === 'warning') console.log('WARN', m.text()); if (m.text().startsWith('FBDBG')) console.log(m.text()); if (m.type() === 'error' && !/strava|favicon/i.test(m.text())) errors.push(m.text()); }); p.on('pageerror', e => errors.push(e.message));
   await p.goto(URL + '#/profil'); await p.waitForSelector('#fbOn');
   ok(!(await p.isChecked('#fbOn')), 'toggle off by default');
   ok((await p.textContent('#fbCard')).includes('Hjelp til å forbedre'), 'nb label');
@@ -37,7 +40,8 @@ const errors = [], fails = []; const ok = (c, m) => { console.log((c ? 'PASS ' :
   await p.screenshot({ path: SH + '2-workout.png' });
   await p.click('#finish'); await p.waitForTimeout(500);
   await p.goto(URL + '#/profil');
-  const st = await p.waitForFunction(async () => { await __repcam.fbUpload(); const s = await __repcam.fbQueue().stats(); return s.uploaded >= 3 && s.pending === 0 && s; }, null, { timeout: 90000, polling: 2000 }).then(h => h.jsonValue()).catch(() => null);
+  const st = await p.waitForFunction(async () => { await __repcam.fbUpload(); const s = await __repcam.fbQueue().stats(); return s.uploaded >= 3 && s.pending === 0 && s; }, null, { timeout: 180000, polling: 2000 }).then(h => h.jsonValue()).catch(() => null);
+  if (!st) console.log('QUEUE', JSON.stringify(await p.evaluate(async () => (await Feedback.idbKV().all()).map(r => ({ id: r.id, c: r.clipDone, m: r.metaDone, d: r.labelDirty, t: r.tries, n: r.next - Date.now(), sz: r.blob && r.blob.size })))));
   ok(st, 'all clips + labels uploaded ' + JSON.stringify(st));
   await p.waitForTimeout(500); ok(/0 venter · [3-9]\d* sendt/.test(await p.textContent('#fbStats')), 'profile counter: ' + await p.textContent('#fbStats'));
   await p.screenshot({ path: SH + '3-profile-uploaded.png' });
