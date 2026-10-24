@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#f5f6fa" id="tc"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
 <title>RepCam</title>
 <script>(function(){var t=localStorage.getItem('repcam.theme')||'auto';var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';})()</script>
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head><body>
 <main id="app">
 <section class="view" id="view-home">
@@ -13,6 +13,7 @@
   <button class="hero" id="startOkt"><span class="hero-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
     <span class="hero-tx"><b data-i="home.start"></b><small data-i="home.startSub"></small></span><span class="hero-arrow">›</span></button>
   <div class="sec"><h2 data-i="home.today"></h2><span class="muted" id="todayVol"></span></div>
+  <div id="stravaNote"></div>
   <div id="todayList"></div>
   <div class="sec"><h2 data-i="home.week"></h2></div>
   <div class="card week"><div class="row"><div><div class="big-num" id="weekTotal">0 kg</div><div class="muted" data-i="home.thisWeek"></div></div><div class="pill" id="weekPct"></div></div>
@@ -28,6 +29,8 @@
   <div class="sec"><h2 data-i="prof.look"></h2></div>
   <div class="card"><div class="seg" id="themeSeg" role="radiogroup"><button data-t="light" data-i="prof.light"></button><button data-t="dark" data-i="prof.dark"></button><button data-t="auto" data-i="prof.auto"></button></div>
   <div class="muted small" data-i="prof.autoNote"></div></div>
+  <div class="sec"><h2>Strava</h2></div>
+  <div class="card" id="stravaCard"></div>
   <div class="sec"><h2 data-i="prof.data"></h2></div>
   <div class="card"><button class="btn" id="export" data-i="prof.export"></button><div class="muted small" data-i="prof.local"></div></div>
 </section>
@@ -42,7 +45,7 @@
   <div class="wcard glass"><div class="row"><div><div id="setno" class="b22">Sett 1</div><div class="muted small tight" data-i="w.autosave"></div></div>
     <div class="kg"><button id="minus" data-ia="a.less">−</button><span id="kg" role="button" tabindex="0">20 kg</span><button id="plus" data-ia="a.more">+</button></div></div>
     <div class="btns"><button class="ghost" id="confirm" data-i="w.saveNow"></button><button class="ghost" id="finish" data-i="w.finish"></button></div><div id="log"></div></div>
-  <div id="start"><div class="b28" data-i="start.title"></div><div data-i="start.text"></div>
+  <div id="start"><div class="b28" id="startT" data-i="start.title"></div><div id="startTx" data-i="start.text"></div>
     <button class="grad" id="go" data-i="start.go"></button><div id="status"></div>
     <div id="help"><div id="helptext"></div><button id="copy" data-i="start.copy"></button></div>
     <button class="ghost" id="back" data-i="start.back"></button></div>
@@ -56,8 +59,11 @@
 </nav>
 <div id="sheetBg" class="sheet-bg"></div>
 <div id="sheet" class="sheet" role="dialog" aria-modal="true"></div>
-<script src="i18n.js?v=4"></script>
-<script src="reps.js?v=4"></script>
-<script src="store.js?v=4"></script>
-<script type="module" src="app.js?v=4"></script>
+<script src="i18n.js?v=5"></script>
+<script src="reps.js?v=5"></script>
+<script src="store.js?v=5"></script>
+<script src="strava-config.js?v=5"></script>
+<script src="strava.js?v=5"></script>
+<script src="wake.js?v=5"></script>
+<script type="module" src="app.js?v=5"></script>
 </body></html>

@@ -5,7 +5,13 @@ const v = $('v'), c = $('c'), ctx = c.getContext('2d');
 const store = Store.createStore(localStorage);
 const LS = localStorage;
 const AUTOSAVE_MS = +(LS.getItem('repcam.autosaveMs') || 9000);   // pause after last rep before the set is saved
-const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // session auto-ends after this long without reps
+const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen, camera running: auto-end after this long without reps
+// Time spent in other apps does NOT count toward IDLE_END_MS. The session only ends from being away when there have been no reps
+// for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
+const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
+const wake = Wake.createWake();
+const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {} });
+const stravaFmt = () => ({ name: exName, kgf: L.kgf, title: L.t('st.actName') });
 let pending = false, landmarker, modelP, stream, facing = 'user', lastTs = -1, raf = 0, tick = 0;
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -129,6 +135,7 @@ function renderHome() {
   $('title').textContent = L.t(h < 12 ? 'title.morning' : h < 17 ? 'title.day' : 'title.evening');
   const all = store.sets(), today = Store.todaySets(all), groups = Store.groupByExercise(today);
   $('todayVol').textContent = today.length ? L.t('home.total', { v: L.nf(Store.volume(today)) }) : '';
+  renderStravaNote();
   $('todayList').innerHTML = groups.length ? groups.map(g => `<div class="card"><div class="ex"><div class="ex-ic">${g.icon}</div><div class="ex-main"><b>${esc(exName(g.id))}</b><span class="muted">${groupLabel(g)}</span></div><span class="badge">${L.kgf(g.topKg)}</span></div>
     <div class="ex-foot"><div><div class="muted small" style="margin:0">${L.t('home.volume')}</div><b>${L.nf(g.volume)} kg</b></div>${spark(Store.kgHistory(all, g.id))}</div></div>`).join('')
     : `<div class="card empty"><div class="e">🌱</div><b>${L.t('home.empty')}</b>${L.t('home.emptySub')}</div>`;
@@ -156,7 +163,32 @@ function renderHist() {
   $('histList').innerHTML = out;
 }
 $('histList').onclick = e => { const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, renderHist); };
+/* ---------- Strava ---------- */
+function renderStravaNote() {
+  const nm = strava.connected() ? strava.queue().filter(x => x.status === 'nomatch') : [];
+  $('stravaNote').innerHTML = nm.map(x => `<div class="card"><div class="muted">${L.t('st.nomatch', { d: esc(L.date(x.start, { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + L.hm(x.start)) })}</div><button class="btn" data-create="${esc(x.id)}">${L.t('st.create')}</button></div>`).join('');
+}
+async function stravaCreate(id) { try { await strava.createManual(id, stravaFmt()); showToastGlobal(L.t('st.created')); } catch (e) { showToastGlobal(e.message); } renderStravaNote(); renderStrava(); }
+document.addEventListener('click', e => { const b = e.target.closest('[data-create]'); if (b) { b.disabled = true; stravaCreate(b.dataset.create); } });
+function showToastGlobal(t) { const n = $('stravaNote'); if (n) { n.insertAdjacentHTML('afterbegin', `<div class="card muted">${esc(t)}</div>`); } }
+function renderStrava() {
+  const el = $('stravaCard'); if (!el) return;
+  if (!strava.configured()) { el.innerHTML = `<div class="muted small">${L.t('st.sub')}</div><div class="muted">${L.t('st.notConf')}</div>`; return; }
+  if (!strava.connected()) { el.innerHTML = `<div class="muted small">${L.t('st.sub')}</div><button class="btn" id="stConnect">${L.t('st.connect')}</button>`;
+    $('stConnect').onclick = () => { location.href = strava.authUrl(location.origin + location.pathname); }; return; }
+  const q = strava.queue().slice(-3).reverse().map(x => `<div class="muted small">${L.hm(x.start)} · ${x.status === 'synced' ? L.t('st.synced', { a: esc(x.activityName || x.activityId) }) : x.status === 'created' ? L.t('st.created') : x.status === 'nomatch' ? L.t('st.nomatch', { d: '' }) : L.t('st.waiting')}</div>`).join('');
+  el.innerHTML = `<div class="row"><b>✓ ${L.t('st.connected')}${strava.athlete() ? ' · ' + esc(strava.athlete()) : ''}</b><button class="ghost" id="stOff" style="width:auto">${L.t('st.disconnect')}</button></div><div class="muted small">${L.t('st.sub')}</div>${q}`;
+  $('stOff').onclick = () => { strava.disconnect(); renderStrava(); };
+}
+const queueStrava = sum => strava.enqueue({ ...sum, sets: store.sets().filter(s => s.sessionId === sum.id) });
+let stravaBusy = false;
+async function stravaSync() {
+  if (stravaBusy || !strava.connected() || !strava.queue().some(x => x.status === 'waiting')) return;
+  stravaBusy = true; try { await strava.process(stravaFmt()); } catch (e) { console.warn('strava', e); } stravaBusy = false;
+  if (cur === 'profil') renderStrava(); if (cur === 'home') renderStravaNote();
+}
 function renderProf() {
+  renderStrava();
   const ss = store.sessions(), all = store.sets(), p = profile();
   $('pName').placeholder = L.t('onb.namePh'); $('pName').value = p.name || ''; $('pBw').value = p.bw || ''; $('pBw').placeholder = L.t('onb.bwPh');
   $('avatar2').textContent = (p.name || '🙂')[0].toUpperCase();
@@ -227,7 +259,7 @@ $('kg').onclick = () => {
 $('exChip').onclick = () => {
   openSheet(`<h3>${L.t('w.pick')}</h3>${exGrid(manualEx, true)}`);
   $('sheet').querySelectorAll('.exgrid button').forEach(b => b.onclick = () => {
-    manualEx = b.dataset.ex || null; lockEx = null;
+    manualEx = b.dataset.ex || null; lockEx = null; store.touchActive({ manualEx });
     closeSheet(); renderWorkout();
   });
 };
@@ -249,21 +281,53 @@ function showToast(text, ts) {
 function hideToast() { $('toast').classList.remove('on'); }
 $('confirm').onclick = () => { saveSet(); };
 function enterWorkout() {
-  store.startSession(); resetCounters(); recognizer.reset(); autoEx = null; manualEx = null; lastActivity = Date.now(); renderWorkout();
-  if (!stream && !pending) { $('start').style.display = 'flex'; $('go').disabled = false; $('go').textContent = L.t('start.go'); }
+  const resumed = !!store.active();
+  const a = store.startSession(); resetCounters(); recognizer.reset(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();
+  wake.on();
+  if (!stream && !pending) { setStartUI(resumed); if (resumed) runCam(getCam(facing), true); }
   clearInterval(tick); tick = setInterval(() => {
     const a = store.active(); if (!a) return; const s = Math.floor((Date.now() - new Date(a.start)) / 1000);
     $('elapsed').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-    if (stream && Date.now() - lastActivity > IDLE_END_MS) { endedByIdle = true; location.hash = '#/'; }
+    if (document.visibilityState === 'visible') { if (s % 5 === 0) store.touchActive({ seen: Date.now() }); }
+    if (camLive() && Date.now() - lastActivity > IDLE_END_MS) { endedByIdle = true; location.hash = '#/'; }
   }, 1000);
 }
-let endedByIdle = false;
+function setStartUI(resume) {
+  $('start').style.display = 'flex'; $('go').disabled = false; $('help').style.display = 'none'; $('status').textContent = '';
+  $('startT').textContent = L.t(resume ? 'w.resumeT' : 'start.title'); $('startTx').textContent = L.t(resume ? 'w.resumeTx' : 'start.text');
+  $('go').textContent = L.t(resume ? 'w.resume' : 'start.go'); $('go').classList.toggle('big', !!resume);
+}
+const camLive = () => !!stream && stream.getVideoTracks().some(t => t.readyState === 'live');
+let endedByIdle = false, endAt = null, hiddenAt = 0;
+// Backgrounded (other app, lock screen) or camera killed by iOS: keep the session, save any half-counted set, and come back without extra taps.
+function onHide() {
+  if (cur !== 'okt' || !store.active()) return;
+  hiddenAt = Date.now(); if (currentReps() > 0) saveSet();
+  store.touchActive({ seen: hiddenAt, manualEx });
+}
+function onShow() {
+  stravaSync();
+  if (cur !== 'okt' || !store.active()) return;
+  const away = hiddenAt ? Date.now() - hiddenAt : 0; hiddenAt = 0;
+  if (away && Date.now() - lastActivity > AWAY_END_MS) { endAt = new Date(Date.now() - away); endedByIdle = true; location.hash = '#/'; return; }
+  lastActivity += away; // time away doesn't count toward the on-screen idle rule
+  store.touchActive({ seen: Date.now() });
+  resumeCam();
+}
+function resumeCam() {
+  if (pending || cur !== 'okt') return;
+  if (camLive()) { if (v.paused) v.play().catch(() => setStartUI(true)); return; }
+  runCam(getCam(facing), true); // no gesture: works if iOS still has permission; otherwise the big «Fortsett» shows
+}
+document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' ? onHide() : onShow());
+addEventListener('pagehide', onHide);
+addEventListener('pageshow', e => { if (e.persisted) onShow(); });
 function leaveWorkout() {
   if (currentReps() > 0) saveSet();
-  hideToast(); clearInterval(tick); cancelAnimationFrame(raf); raf = 0;
+  hideToast(); clearInterval(tick); cancelAnimationFrame(raf); raf = 0; wake.off();
   stream?.getTracks().forEach(t => t.stop()); stream = null; v.srcObject = null;
-  const sum = store.endSession(), idle = endedByIdle; endedByIdle = false;
-  if (sum && sum.sets) setTimeout(() => showSummary(sum, idle), 150);
+  const sum = store.endSession(endAt || new Date()), idle = endedByIdle; endedByIdle = false; endAt = null;
+  if (sum && sum.sets) { queueStrava(sum); stravaSync(); setTimeout(() => showSummary(sum, idle), 150); }
 }
 function showSummary(s, idle) {
   openSheet(`<h3>${L.t('sum.title')}</h3><div class="muted">${idle ? L.t('w.ended') + '. ' : ''}${L.t('sum.text')}</div>
@@ -293,6 +357,7 @@ function getCam(f) {
 async function attach(s) {
   stream?.getTracks().forEach(t => t.stop());
   stream = s; v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('autoplay', '');
+  s.getVideoTracks().forEach(t => t.addEventListener('ended', () => { if (stream === s && document.visibilityState === 'visible') setTimeout(resumeCam, 300); }));
   v.srcObject = s; await v.play();
   [v, c].forEach(el => el.classList.toggle('mirror', facing === 'user'));
 }
@@ -302,7 +367,7 @@ function showHelp(e) {
   $('helptext').innerHTML = L.t(k, { m: esc(e.message) });
 }
 $('copy').onclick = async () => { try { await navigator.clipboard.writeText(location.href); $('copy').textContent = L.t('start.copied'); } catch { prompt(L.t('start.copy'), location.href); } };
-function runCam(camP) {
+function runCam(camP, resume) {
   const st = $('status'), go = $('go');
   pending = true; go.disabled = true; st.textContent = L.t('start.cam');
   camP.then(attach).then(() => {
@@ -310,18 +375,18 @@ function runCam(camP) {
     if (!modelP) modelP = initModel().then(m => landmarker = m);
     return modelP;
   }).then(() => { pending = false; if (cur !== 'okt') { stream?.getTracks().forEach(t => t.stop()); stream = null; return; } $('start').style.display = 'none'; st.textContent = ''; lastActivity = Date.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); })
-  .catch(e => { pending = false; console.warn(e); $('start').style.display = 'flex'; st.textContent = L.t('start.err', { m: e.message }); showHelp(e); go.disabled = false; go.textContent = L.t('start.retry'); });
+  .catch(e => { pending = false; console.warn(e); if (resume && cur === 'okt') { setStartUI(true); return; } $('start').style.display = 'flex'; st.textContent = L.t('start.err', { m: e.message }); showHelp(e); go.disabled = false; go.textContent = L.t('start.retry'); });
 }
 // Both buttons: getUserMedia MUST be the first call, synchronous in the tap (iOS user activation)
-$('go').onclick = () => { const camP = getCam(facing); runCam(camP); };
+$('go').onclick = () => { const camP = getCam(facing); wake.acquire(); runCam(camP); };
 $('startOkt').onclick = () => {
-  const camP = getCam(facing);
+  const camP = getCam(facing); wake.on();
   $('start').style.display = 'flex'; location.hash = '#/okt'; runCam(camP);
 };
 $('flip').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await attach(await getCam(facing)); } catch (e) { alert(e.message); } };
 function loop() {
   raf = requestAnimationFrame(loop);
-  if (!landmarker || v.readyState < 2) return;
+  if (!landmarker || v.readyState < 2 || document.visibilityState !== 'visible') return;
   if (c.width !== v.videoWidth) { c.width = v.videoWidth; c.height = v.videoHeight; }
   const ts = performance.now(); if (ts <= lastTs) return; lastTs = ts;
   const res = landmarker.detectForVideo(v, ts);
@@ -342,7 +407,7 @@ function loop() {
   }
   const ex = curEx(), reps = currentReps();
   if (ex && !lockEx && !manualEx && reps >= 2) lockEx = ex;
-  if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); lastActivity = Date.now(); }
+  if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); if (reps > 0) lastActivity = Date.now(); }
   if (reps > 0 && Date.now() - lastRepWall > AUTOSAVE_MS) saveSet();
   $('hint').style.display = lm && (tracking || !ex) ? 'none' : 'block';
   $('ring').style.strokeDashoffset = 276.5 * (1 - (ex ? counters[ex].progress() : 0));
@@ -351,8 +416,15 @@ setLang();
 if (inApp) { $('help').style.display = 'block'; $('helptext').innerHTML = L.t('help.inapp'); }
 modelP = initModel().then(m => landmarker = m).catch(e => { modelP = null; throw e; });
 modelP.catch(e => console.warn('model failed', e));
-// A stale active session from a closed tab: if we load outside the workout, close it.
-if (!/okt/.test(location.hash) && store.active()) store.endSession();
+// Active session from a backgrounded/killed tab: resume it if it was alive recently, otherwise close it at the last moment it was seen.
+{ const a = store.active();
+  if (a) { const seen = new Date(a.seen || a.start).getTime();
+    if (Date.now() - seen > AWAY_END_MS) { const sum = store.endSession(new Date(seen)); if (sum && sum.sets) queueStrava(sum); }
+    else if (!/okt/.test(location.hash)) history.replaceState(null, '', '#/okt'); } }
 route();
+// Back from Strava's OAuth page (?code=…&state=…)
+if (/[?&](code|error)=/.test(location.search)) {
+  strava.handleRedirect(location.search).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
+} else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { store, counters: () => counters, curEx, saveSet, I18n, lang: () => L.lang };
+window.__repcam = { store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, I18n, lang: () => L.lang };

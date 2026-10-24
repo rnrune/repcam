@@ -1,0 +1,5 @@
+name = "repcam-strava"
+main = "strava-worker.js"
+compatibility_date = "2026-10-01"
+[vars]
+ALLOWED_ORIGINS = "https://rnrune.github.io"

@@ -92,6 +92,8 @@
         const rec = { exercise: 'knebøy', ...set, timestamp: now.toISOString(), sessionId: a.id };
         s.push(rec); api.save(SETS, s); return rec;
       },
+      // Merge fields into the active session (heartbeat 'seen', manual exercise…) so it survives backgrounding and reloads.
+      touchActive(patch) { const a = api.active(); if (!a) return null; const n = { ...a, ...patch }; api.save(ACTIVE, n); return n; },
       endSession(now = new Date()) {
         const a = api.active(); if (!a) return null;
         ls.removeItem(ACTIVE);

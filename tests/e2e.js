@@ -1,4 +1,4 @@
-// RepCam v4 e2e: iPhone 13 emulation, fake camera from real exercise videos, i18n, auto-save + undo/edit, history editing, no console errors.
+// RepCam e2e (v4 features): iPhone 13 emulation, fake camera from real exercise videos, i18n, auto-save + undo/edit, history editing, no console errors.
 const { chromium, devices } = require('playwright-core');
 const SH = '/workspace/repcam-shots/v4/', URL = process.env.URL || 'http://localhost:8765/';
 const errors = [], fails = [];

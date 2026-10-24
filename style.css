@@ -108,3 +108,4 @@ a.avatar{text-decoration:none;flex:none}
 .exgrid button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--card))}
 .exgrid button.wide{grid-column:1/-1}
 .sheet{max-height:92vh;overflow:auto}
+#start .grad.big{min-height:120px;font-size:30px;border-radius:28px}
