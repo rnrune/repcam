@@ -64,8 +64,17 @@
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
     halvmark: { minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso',
       signal: (g, ref) => (g.hipM.y - g.shM.y) / ref },
-    roing: { minAmp: 0.15, minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
-      signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref }
+     roing: { minAmp: 0.15, minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
+      signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
+    // push-up: wrists planted below the shoulders (rest = arms extended, body high). Same scalar family as dips, but the
+    // recognizer tells them apart by torso orientation (push-up body horizontal, dips upright). bodyRef handles strong
+    // torso foreshortening when filmed from the head or feet end.
+    armhevinger: { minAmp: 0.13, minRep: 0.45, maxRep: 8, need: 'arms', bodyRef: true,
+      signal: (g, ref) => (g.wrM.y - g.shM.y) / ref },
+    // sit-up: rest = lying flat (shoulders level with hips, signal ~0); sitting up lifts the shoulders above the hips so
+    // the signal dips negative. Rest-high convention holds, each sit-up is one valley.
+    situps: { minAmp: 0.18, minRep: 0.55, maxRep: 12, need: 'torso',
+      signal: (g, ref) => (g.shM.y - g.hipM.y) / ref }
   };
   const IDS = Object.keys(EX);
 
@@ -214,12 +223,23 @@
         (1 - sig(f.tilt, 20, 30)) * sig(f.dyShW, 1.8, 2.2));
       S.skråbenk = press * incline;
       S.benkpress = press * (1 - incline);
-      S.roing = sig(f.wrDist, 0.1, 0.3) * sig(f.tilt, 25, 45) * (1 - sig(f.tiltRange, 25, 45)) * (1 - sig(f.wrUp, -0.4, 0)) * (1 - sig(f.hinge, 0.35, 0.6));
+      S.roing = sig(f.wrDist, 0.1, 0.3) * sig(f.wrMove / Math.max(0.05, f.shMove), 0.6, 1.1) * sig(f.tilt, 25, 45) * (1 - sig(f.tiltRange, 25, 45)) * (1 - sig(f.wrUp, -0.4, 0)) * (1 - sig(f.hinge, 0.35, 0.6));
       S.halvmark = sig(f.hinge, 0.2, 0.45) * sig(f.tiltRange, 20, 40) * sig(f.knee, 130, 155) * (1 - sig(f.wrUp, -0.3, 0));
       const squatish = sig(f.hipKnee, 0.15, 0.4) * (1 - sig(f.wrUp, 0.2, 0.6) * 0.3) * (1 - sig(f.tilt, 45, 70));
       const split = Math.max(sig(f.kneeDy, 0.3, 0.42), sig(f.ankDx, 1.12, 1.3));
       S.knebøy = squatish * (1 - split);
       S.bulgarsk = squatish * split;
+      // push-up: body stays horizontal (high tilt, small tilt range), wrists planted below the shoulders, shoulders travel
+      // vertically while the hands stay put, legs ~straight. Separated from dips (upright = low tilt) and bench (wrists up).
+      // body reads horizontal (side/oblique) OR, in head/feet-end views where the torso foreshortens, the wrists sit far
+      // below the shoulders (hands planted on the floor by the head) with the body prone
+      const proneHoriz = Math.max(sig(f.tilt, 45, 66) * (1 - sig(f.tiltRange, 38, 60)), sig(-f.wrUp, 0.8, 1.2) * (1 - sig(f.dyShW, 1.1, 1.6)));
+      S.armhevinger = proneHoriz * (1 - sig(f.wrUp, -0.1, 0.12))
+        * bodyMoves * (1 - sig(f.wrMove / Math.max(0.05, f.shMove), 0.8, 1.5)) * sig(f.knee, 115, 150);
+      // sit-up: starts lying and rotates upright -> large tilt range and big torso-hinge swing; shoulders move far while the
+      // hips stay; knees bent; hands not pressing. Separated from RDL (knees straight, stays standing).
+      S.situps = sig(f.shMove, 0.16, 0.4) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
+        * sig(f.hinge, 0.25, 0.55) * (1 - sig(f.kneeMin, 110, 145)) * (0.35 + 0.65 * sig(f.tiltRange, 25, 55)) * (0.3 + 0.7 * sig(f.tilt, 38, 55));
       let best = null, bs = 0; for (const k in S) if (S[k] > bs) { bs = S[k]; best = k; }
       const sorted = Object.values(S).sort((a, b) => b - a);
       return { best: bs > 0.12 ? best : null, conf: bs ? (sorted[0] - (sorted[1] || 0)) / sorted[0] : 0, scores: S, features: f, moving };

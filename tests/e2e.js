@@ -50,7 +50,7 @@ async function workout(p, tag, expectEx, minReps) {
   ok((await p.textContent('#todayList')).includes('Incline bench press'), 'en: exercise names translated');
   await p.screenshot({ path: SH + 'en-01-home.png' });
   await p.click('#tabs a[data-v=ovelser]'); await p.waitForTimeout(300);
-  ok(await p.locator('#exList .card').count() === 8 && (await p.textContent('#exList')).includes('Camera placement') && (await p.textContent('#exList')).includes('Bench press'), 'en: 8 active exercises (incl. bench press) with camera tips');
+  ok(await p.locator('#exList .card').count() === 10 && (await p.textContent('#exList')).includes('Camera placement') && (await p.textContent('#exList')).includes('Bench press') && (await p.textContent('#exList')).includes('Push-ups') && (await p.textContent('#exList')).includes('Sit-ups'), 'en: 10 active exercises (incl. push-ups and sit-ups) with camera tips');
   await p.screenshot({ path: SH + 'en-02-exercises.png', fullPage: true });
   await p.click('#tabs a[data-v=historikk]'); await p.waitForTimeout(300);
   await p.screenshot({ path: SH + 'en-03-history.png' });

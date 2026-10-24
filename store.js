@@ -11,7 +11,9 @@
     { id: 'benkpress', name: 'Benkpress', icon: '🏋️‍♂️', active: true },
     { id: 'skråbenk', name: 'Skråbenk', icon: '💪', active: true },
     { id: 'halvmark', name: 'Rumensk markløft', icon: '🔥', active: true },
-    { id: 'roing', name: 'Stående roing', icon: '🚣', active: true }
+    { id: 'roing', name: 'Stående roing', icon: '🚣', active: true },
+    { id: 'armhevinger', name: 'Armhevinger', icon: '💥', active: true },
+    { id: 'situps', name: 'Sit-ups', icon: '🙇', active: true }
   ];
   const LEGACY = [
     { id: 'markløft', name: 'Markløft', icon: '🔥' },

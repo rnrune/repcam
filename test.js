@@ -25,6 +25,10 @@ function pose(ex, p, noise = 0.004) {
   if (ex === 'benkpress') { shX = 0.40; hipX = 0.70; sh = 0.55; hip = 0.57; kn = 0.52; an = 0.75; nose = 0.54; wrX = 0.40; wrY = 0.30 + 0.20 * p; elY = 0.45 + 0.08 * p; }
   if (ex === 'halvmark') { const a = (10 + 70 * p) * Math.PI / 180; shX = 0.5 - 0.25 * Math.sin(a); sh = 0.55 - 0.25 * Math.cos(a); nose = sh - 0.06; wrX = shX; wrY = sh + 0.25; elY = sh + 0.12; kn = 0.73; }
   if (ex === 'roing') { const a = 60 * Math.PI / 180; shX = 0.5 - 0.25 * Math.sin(a); sh = 0.55 - 0.25 * Math.cos(a); nose = sh - 0.05; wrX = shX + 0.02; wrY = sh + 0.25 - 0.16 * p; elY = sh + 0.1; kn = 0.73; }
+  // push-up, side view: body horizontal, hands planted on the floor, shoulders travel down as p -> 1 (bottom)
+  if (ex === 'armhevinger') { shX = 0.35; hipX = 0.62; sh = 0.48 + 0.18 * p; hip = 0.52 + 0.08 * p; nose = sh - 0.02; wrX = 0.30; wrY = 0.78; elY = (sh + wrY) / 2; kn = 0.56 + 0.04 * p; an = 0.60 + 0.04 * p; }
+  // sit-up, side view: torso rotates up about the hips (lying at p=0 -> sitting at p=1), knees bent and feet planted
+  if (ex === 'situps') { const a = (6 + 78 * p) * Math.PI / 180; hipX = 0.60; hip = 0.60; shX = 0.60 - 0.27 * Math.cos(a); sh = 0.60 - 0.27 * Math.sin(a); nose = sh - 0.02; wrX = shX; wrY = sh - 0.03; elY = sh + 0.02; kn = 0.50; an = 0.64; split = 0.2; }
   set(0, shX, nose);
   for (const s of [0, 1]) {
     const o = s ? 0.04 : -0.04;
