@@ -110,3 +110,6 @@ a.avatar{text-decoration:none;flex:none}
 .sheet{max-height:92vh;overflow:auto}
 #start .grad.big{min-height:120px;font-size:30px;border-radius:28px}
 .sessdel{width:auto;min-height:36px;margin:0 0 0 auto;padding:0 10px;border-radius:12px;font-size:15px;flex:none}
+
+.btns>.fbmiss{flex:0 0 52px}
+#fbCard .row{cursor:pointer}#fbCard input.sw{width:24px;height:24px;accent-color:#ff2d87;flex:0 0 auto}

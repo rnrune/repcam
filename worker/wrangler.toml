@@ -3,3 +3,8 @@ main = "strava-worker.js"
 compatibility_date = "2026-10-01"
 [vars]
 ALLOWED_ORIGINS = "https://rnrune.github.io"
+
+DROPBOX_ROOT = ""  # "" = root of the App-folder app (/Apps/Newrun Lift-klipp). Full-Dropbox app: "/Newrun Lift-klipp"
+
+# Feedback clips are stored in Dropbox (no R2). Secrets (wrangler secret put):
+#   DROPBOX_APP_KEY, DROPBOX_APP_SECRET, DROPBOX_REFRESH_TOKEN, FB_ADMIN_SECRET
