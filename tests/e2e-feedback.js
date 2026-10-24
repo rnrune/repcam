@@ -1,5 +1,5 @@
 // E2E «Hjelp til å forbedre»: fake camera (squat video) → set recorded → user corrects reps → second set undone → missed-set flag
-// → background upload to the worker (R2) → eval/feedback/pull.sh downloads clips + labels → manifest entries carry the ground truth.
+// → background upload to the worker (Dropbox) → eval/feedback/pull.sh downloads clips + labels → manifest entries carry the ground truth.
 // Env: URL (app, default http://localhost:8766/), FB_URL (worker, default local `wrangler dev` at :8797), VIDEO.
 const { chromium, devices } = require('playwright-core');
 const { execFileSync } = require('child_process'), fs = require('fs'), path = require('path');
