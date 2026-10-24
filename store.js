@@ -110,6 +110,14 @@
         if (i < 0) return false; s.splice(i, 1); api.save(SETS, s);
         const ids = new Set(s.map(x => x.sessionId)); api.save(SESS, api.meta().filter(m => ids.has(m.id))); return true;
       },
+      // Delete a whole session (every set + its meta). Legacy sessions (computed ids) work too. Returns number of sets removed.
+      deleteSession(id) {
+        const gone = new Set(normalize(api.sets()).filter(x => x.sessionId === id).map(x => x.timestamp));
+        const s = api.sets().filter(x => !(x && gone.has(x.timestamp) && (!x.sessionId || x.sessionId === id)));
+        const n = api.sets().length - s.length; api.save(SETS, s);
+        api.save(SESS, api.meta().filter(m => m.id !== id)); return n;
+      },
+      sessionOf(timestamp) { const x = normalize(api.sets()).find(y => y.timestamp === timestamp); return x ? x.sessionId : null; },
       // Patch a logged set (reps, kg, exercise). Returns the updated record or null.
       updateSet(timestamp, patch) {
         const s = api.sets(), i = s.findIndex(x => x.timestamp === timestamp);

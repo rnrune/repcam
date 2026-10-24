@@ -17,7 +17,11 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {} });
+const APP_VERSION = '8.3';
+const liveSets = id => store.sets().filter(s => s.sessionId === id);
+const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
+// A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
+const stravaResync = sid => { if (sid) strava.update(sid, liveSets(sid)); };
 const stravaFmt = () => ({ name: exName, kgf: L.kgf, title: L.t('st.actName') });
 let pending = false, landmarker, modelP, stream, facing = 'user', lastTs = -1, raf = 0, tick = 0;
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
@@ -103,9 +107,10 @@ function openEdit(ts, after) {
     <button class="grad" id="eSave">${L.t('edit.save')}</button><div class="btns"><button class="ghost" id="eDel">${L.t('edit.delete')}</button><button class="ghost" id="eNo">${L.t('edit.cancel')}</button></div>`);
   const sh = $('sheet'); wireSteppers(sh);
   sh.querySelectorAll('.exgrid button').forEach(b => b.onclick = () => { ex = b.dataset.ex; sh.querySelectorAll('.exgrid button').forEach(x => x.classList.toggle('on', x === b)); });
-  $('eSave').onclick = () => { store.updateSet(ts, { reps: parseNum($('eReps').value), kg: parseNum($('eKg').value), exercise: ex }); setKgFor(ex, parseNum($('eKg').value)); closeSheet(); after?.(); };
+  const sid = s.sessionId || store.sessionOf(ts);
+  $('eSave').onclick = () => { store.updateSet(ts, { reps: parseNum($('eReps').value), kg: parseNum($('eKg').value), exercise: ex }); setKgFor(ex, parseNum($('eKg').value)); stravaResync(sid); closeSheet(); after?.(); };
   $('eNo').onclick = closeSheet;
-  $('eDel').onclick = async () => { if (await confirmDialog(L.t('del.title'), L.t('del.text'), L.t('del.ok'))) { store.deleteSet(ts); after?.(); } };
+  $('eDel').onclick = async () => { if (await confirmDialog(L.t('del.title'), L.t('del.text'), L.t('del.ok'))) { store.deleteSet(ts); stravaResync(sid); after?.(); } };
 }
 
 /* ---------- små grafer ---------- */
@@ -164,12 +169,20 @@ function renderHist() {
   for (const s of ss) {
     const d = L.date(s.start, { weekday: 'long', day: 'numeric', month: 'long' });
     if (d !== last) { out += `<div class="day">${esc(d)}</div>`; last = d; }
-    out += `<div class="card"><div class="row"><b>${L.hm(s.start)}–${L.hm(s.end)}</b><span class="muted">${L.t('sets', { n: s.sets.length })} · ${L.nf(s.volume)} kg</span></div>` +
+    out += `<div class="card"><div class="row"><b>${L.hm(s.start)}–${L.hm(s.end)}</b><span class="muted">${L.t('sets', { n: s.sets.length })} · ${L.nf(s.volume)} kg</span><button class="ghost sessdel" data-sdel="${esc(s.id)}" aria-label="${L.t('sdel.btn')}" title="${L.t('sdel.btn')}">🗑</button></div>` +
       s.sets.map(x => `<div class="setrow" data-ts="${esc(x.timestamp)}" role="button" tabindex="0"><span>${icon(x.exercise)} ${esc(exName(x.exercise || 'knebøy'))} · <b>${L.t('reps', { n: x.reps })}</b> × ${L.kgf(x.kg)}</span><span class="muted">✎</span></div>`).join('') + '</div>';
   }
   $('histList').innerHTML = out;
 }
-$('histList').onclick = e => { const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, renderHist); };
+$('histList').onclick = e => { const d = e.target.closest('[data-sdel]'); if (d) return deleteSession(d.dataset.sdel); const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, renderHist); };
+// "Slett hele økten": one confirmation, removes every set locally and cancels any pending Strava sync/auto-create. Never deletes on Strava.
+async function deleteSession(id) {
+  const ss = store.sessions().find(x => x.id === id); if (!ss) return;
+  const q = strava.queue().find(x => x.id === id), onStrava = q && ['synced', 'created', 'creating'].includes(q.status);
+  const text = L.t('sdel.text', { n: ss.sets.length }) + ' ' + L.t(onStrava ? 'sdel.onStrava' : 'sdel.strava');
+  if (!(await confirmDialog(L.t('sdel.title'), text, L.t('sdel.ok')))) return;
+  store.deleteSession(id); strava.cancel(id); renderHist();
+}
 /* ---------- Strava ---------- */
 function renderStravaNote() {
   const nm = strava.connected() ? strava.queue().filter(x => x.status === 'nomatch') : [];
@@ -290,7 +303,7 @@ function saveSet() {
 function showToast(text, ts) {
   $('toastTx').textContent = text; $('toast').classList.add('on');
   $('tUndo').style.display = $('tEdit').style.display = ts ? '' : 'none';
-  $('tUndo').onclick = () => { store.deleteSet(ts); hideToast(); showToast(L.t('w.undone')); renderWorkout(); };
+  $('tUndo').onclick = () => { const sid = store.sessionOf(ts); store.deleteSet(ts); stravaResync(sid); hideToast(); showToast(L.t('w.undone')); renderWorkout(); };
   $('tEdit').onclick = () => { hideToast(); openEdit(ts, renderWorkout); };
   clearTimeout(toastT); toastT = setTimeout(hideToast, ts ? 7000 : 2500);
 }
@@ -444,4 +457,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, I18n, lang: () => L.lang };

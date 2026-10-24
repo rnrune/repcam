@@ -64,7 +64,7 @@
   const b64e = s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   const b64d = s => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))));
   function parseState(search) { try { const st = new URLSearchParams(search).get('state') || '', i = st.indexOf('.'); return i < 0 ? null : JSON.parse(b64d(st.slice(i + 1))); } catch { return null; } }
-  function createClient({ ls, fetch: f, config = {}, now = () => Date.now(), sleep = ms_ => new Promise(r => setTimeout(r, ms_)) }) {
+  function createClient({ ls, fetch: f, config = {}, liveSets = null, now = () => Date.now(), sleep = ms_ => new Promise(r => setTimeout(r, ms_)) }) {
     const read = (k, d) => { try { const v = JSON.parse(ls.getItem(k)); return v == null ? d : v; } catch { return d; } };
     const save = (k, v) => ls.setItem(k, JSON.stringify(v));
     const configured = () => !!(config.clientId && config.workerUrl);
@@ -114,8 +114,32 @@
       const q = queue().filter(x => x.id !== sess.id);
       const old = queue().find(x => x.id === sess.id);
       if (old && ['synced', 'created', 'creating'].includes(old.status)) return; // never re-open a session that already has an activity
-      q.push({ id: sess.id, start: sess.start, end: sess.end, sets: sess.sets.map(s => ({ exercise: s.exercise, reps: s.reps, kg: s.kg, t: s.timestamp })), added: now(), status: 'waiting' });
+      q.push({ id: sess.id, start: sess.start, end: sess.end, sets: slim(sess.sets), added: now(), status: 'waiting' });
       save(K.q, q.slice(-20));
+    }
+    const slim = sets => sets.map(s => ({ exercise: s.exercise, reps: s.reps, kg: s.kg, t: s.timestamp || s.t }));
+    const ON_STRAVA = ['synced', 'created'];
+    // Drop a session from the queue (all its sets deleted, or the whole session deleted). Never touches Strava.
+    // Returns 'cancelled' | 'onStrava' (already has an activity; must be deleted in Strava) | 'uploading' (upload in flight) | null (not queued).
+    function cancel(id) {
+      const it = queue().find(x => x.id === id); if (!it) return null;
+      if (ON_STRAVA.includes(it.status)) return 'onStrava';
+      if (it.status === 'creating' && it.uploadId) return 'uploading';
+      save(K.q, queue().filter(x => x.id !== id)); return 'cancelled';
+    }
+    // Sets of a queued session changed (edit/delete). Pending items get the new sets; zero sets left = cancelled.
+    function update(id, sets) {
+      const it = queue().find(x => x.id === id); if (!it) return null;
+      if (!sets || !sets.length) return cancel(id);
+      if (it.status === 'waiting' || it.status === 'nomatch') { setItem(id, { sets: slim(sets) }); return 'updated'; }
+      return it.status;
+    }
+    // Before any request: re-read the session's current sets from the app (deleted sets are gone). Returns the item or null if cancelled.
+    function fresh(it) {
+      if (!liveSets) return it.sets && it.sets.length ? it : (cancel(it.id), null);
+      const live = liveSets(it.id) || [];
+      if (!live.length) { cancel(it.id); return null; }
+      const n = { ...it, sets: slim(live) }; setItem(it.id, { sets: n.sets }); return n;
     }
     const setItem = (id, patch) => save(K.q, queue().map(x => x.id === id ? { ...x, ...patch } : x));
     async function matchFor(it) { const w = queryWindow(it); return pickActivity(await api(`/athlete/activities?after=${w.after}&before=${w.before}&per_page=50`), it); }
@@ -135,6 +159,7 @@
     // in Strava, plus the same description block). If Strava rejects the format, fall back to a plain manual activity with the
     // description block. The item is marked 'creating' BEFORE any request so a second tab/run can never create a duplicate.
     async function create(it, fmt = {}) {
+      if (!it.sets || !it.sets.length) { cancel(it.id); return { id: it.id, status: 'cancelled' }; } // never create an empty activity
       const name = fmt.title || 'Styrke (Newrun Lift)', description = describe(it.sets, fmt.name, fmt.kgf);
       setItem(it.id, { status: 'creating', creatingAt: now() });
       let activityId = null, structured = false;
@@ -166,8 +191,9 @@
     async function process(fmt = {}) {
       if (!configured() || !connected()) return [];
       const out = [];
-      for (const it of queue().filter(x => x.status === 'waiting' || x.status === 'creating')) {
+      for (let it of queue().filter(x => x.status === 'waiting' || x.status === 'creating')) {
         try {
+          if (!(it.status === 'creating' && it.uploadId)) { it = fresh(it); if (!it) continue; } // deleted sets never reach Strava
           if (it.status === 'creating') { // interrupted or still-processing create: finish it, never start a second one
             if (it.uploadId) { const id = await pollUpload(it.uploadId, 1).catch(e => { if (dupId(e)) return dupId(e); throw e; });
               if (id) { setItem(it.id, { status: 'created', activityId: id, structured: true, at: now() }); out.push({ id: it.id, status: 'created', activityId: id }); }
@@ -194,12 +220,13 @@
     }
     // Manual override (button): create now. No-op if the session already has an activity or a create is in flight.
     async function createManual(id, fmt = {}) {
-      const it = queue().find(x => x.id === id); if (!it) return null;
+      let it = queue().find(x => x.id === id); if (!it) return null;
       if (['created', 'synced', 'creating'].includes(it.status)) return { id: it.activityId || null, status: it.status, existing: true };
+      it = fresh(it); if (!it) return { id: null, status: 'cancelled' };
       const r = await create(it, fmt); return { ...r, id: r.activityId };
     }
     function disconnect() { ls.removeItem(K.tok); ls.removeItem(K.q); }
-    return { configured, connected, authUrl, handleRedirect, token, enqueue, process, createManual, queue, disconnect, athlete: () => (read(K.tok, {}) || {}).athlete };
+    return { configured, connected, authUrl, handleRedirect, token, enqueue, process, createManual, queue, cancel, update, disconnect, athlete: () => (read(K.tok, {}) || {}).athlete };
   }
   const lib = { parseState, pickActivity, queryWindow, describe, mergeDescription, strengthFile, exerciseType, createClient, TOL, RETRY_FOR, AUTO_CREATE_AFTER, KEYS: K };
   if (typeof module !== 'undefined') module.exports = lib; else root.Strava = lib;
