@@ -43,9 +43,9 @@
     'tip.skråbenk': 'Fra siden av benken i benkhøyde, så skulder, albue og hånd vises.',
     'tip.halvmark': 'Fra siden, hele kroppen i bildet.',
     'tip.roing': 'Fra siden eller skrått, med overkropp og armer i bildet.',
-    'n.armhevinger': 'Armhevinger', 'n.situps': 'Sit-ups',
+    'n.armhevinger': 'Armhevinger', 'n.situps': 'Sit-ups', 'n.curl': 'EZ-curl',
     'tip.armhevinger': 'Fra siden, i gulvhøyde, med hele kroppen i bildet.',
-    'tip.situps': 'Fra siden, i gulvhøyde, med overkropp og knær i bildet.'
+    'tip.situps': 'Fra siden, i gulvhøyde, med overkropp og knær i bildet.', 'tip.curl': 'Forfra eller skrått, med hele kroppen i bildet (stå stille, bare armene beveger seg).'
   };
   D.en = {
     'sets.1': '1 set', 'reps.1': '1 rep', 'setsXreps.1': '1 set × {r} reps', 'setsRange.1': '1 set · {a}–{b} reps',
@@ -87,9 +87,9 @@
     'tip.skråbenk': 'From the side of the bench at bench height, so shoulder, elbow and hand are visible.',
     'tip.halvmark': 'From the side, whole body in view.',
     'tip.roing': 'From the side or at an angle, with torso and arms in view.',
-    'n.armhevinger': 'Push-ups', 'n.situps': 'Sit-ups',
+    'n.armhevinger': 'Push-ups', 'n.situps': 'Sit-ups', 'n.curl': 'EZ-bar curl',
     'tip.armhevinger': 'From the side at floor level, whole body in view.',
-    'tip.situps': 'From the side at floor level, with torso and knees in view.'
+    'tip.situps': 'From the side at floor level, with torso and knees in view.', 'tip.curl': 'From the front or at an angle, whole body in view (stand still, only the arms move).'
   };
   D.de = {
     'sets.1': '1 Satz', 'reps.1': '1 Wdh.', 'setsXreps.1': '1 Satz × {r} Wdh.', 'setsRange.1': '1 Satz · {a}–{b} Wdh.',
@@ -131,9 +131,9 @@
     'tip.skråbenk': 'Seitlich der Bank auf Bankhöhe, sodass Schulter, Ellbogen und Hand sichtbar sind.',
     'tip.halvmark': 'Von der Seite, ganzer Körper im Bild.',
     'tip.roing': 'Von der Seite oder schräg, Oberkörper und Arme im Bild.',
-    'n.armhevinger': 'Flexiones', 'n.situps': 'Abdominales',
+    'n.armhevinger': 'Flexiones', 'n.situps': 'Abdominales', 'n.curl': 'Curl con barra Z',
     'tip.armhevinger': 'De lado, a ras de suelo, con todo el cuerpo en el encuadre.',
-    'tip.situps': 'De lado, a ras de suelo, con el torso y las rodillas en el encuadre.'
+    'tip.situps': 'De lado, a ras de suelo, con el torso y las rodillas en el encuadre.', 'tip.curl': 'De frente o en diagonal, con todo el cuerpo en el encuadre.'
   };
   D.es = {
     'sets.1': '1 serie', 'reps.1': '1 rep', 'setsXreps.1': '1 serie × {r} reps', 'setsRange.1': '1 serie · {a}–{b} reps',
@@ -175,9 +175,9 @@
     'tip.skråbenk': 'Al lado del banco, a su altura, para ver hombro, codo y mano.',
     'tip.halvmark': 'De lado, todo el cuerpo visible.',
     'tip.roing': 'De lado o en diagonal, con torso y brazos a la vista.',
-    'n.armhevinger': 'Liegestütze', 'n.situps': 'Sit-ups',
+    'n.armhevinger': 'Liegestütze', 'n.situps': 'Sit-ups', 'n.curl': 'SZ-Curls',
     'tip.armhevinger': 'Von der Seite auf Bodenhöhe, ganzer Körper im Bild.',
-    'tip.situps': 'Von der Seite auf Bodenhöhe, Oberkörper und Knie im Bild.'
+    'tip.situps': 'Von der Seite auf Bodenhöhe, Oberkörper und Knie im Bild.', 'tip.curl': 'Von vorne oder schräg, ganzer Körper im Bild.'
   };
   D.fr = {
     'sets.1': '1 série', 'reps.1': '1 rép.', 'setsXreps.1': '1 série × {r} rép.', 'setsRange.1': '1 série · {a}–{b} rép.',
@@ -219,9 +219,9 @@
     'tip.skråbenk': 'Sur le côté du banc, à sa hauteur, pour voir épaule, coude et main.',
     'tip.halvmark': 'De côté, tout le corps visible.',
     'tip.roing': 'De côté ou de biais, avec buste et bras visibles.',
-    'n.armhevinger': 'Pompes', 'n.situps': 'Redressements assis',
+    'n.armhevinger': 'Pompes', 'n.situps': 'Redressements assis', 'n.curl': 'Curl barre EZ',
     'tip.armhevinger': 'De côté, au ras du sol, tout le corps dans le cadre.',
-    'tip.situps': 'De côté, au ras du sol, torse et genoux dans le cadre.'
+    'tip.situps': 'De côté, au ras du sol, torse et genoux dans le cadre.', 'tip.curl': 'De face ou en biais, corps entier dans le cadre.'
   };
   D.sv = {
     'sets.1': '1 set', 'reps.1': '1 rep', 'setsXreps.1': '1 set × {r} reps', 'setsRange.1': '1 set · {a}–{b} reps',
@@ -263,9 +263,9 @@
     'tip.skråbenk': 'Vid sidan av bänken i bänkhöjd, så axel, armbåge och hand syns.',
     'tip.halvmark': 'Från sidan, hela kroppen i bild.',
     'tip.roing': 'Från sidan eller snett, med överkropp och armar i bild.',
-    'n.armhevinger': 'Armhävningar', 'n.situps': 'Sit-ups',
+    'n.armhevinger': 'Armhävningar', 'n.situps': 'Sit-ups', 'n.curl': 'EZ-curl',
     'tip.armhevinger': 'Från sidan i golvhöjd, hela kroppen i bild.',
-    'tip.situps': 'Från sidan i golvhöjd, med överkropp och knän i bild.'
+    'tip.situps': 'Från sidan i golvhöjd, med överkropp och knän i bild.', 'tip.curl': 'Framifrån eller snett, med hela kroppen i bild.'
   };
   D.da = {
     'sets.1': '1 sæt', 'reps.1': '1 rep', 'setsXreps.1': '1 sæt × {r} reps', 'setsRange.1': '1 sæt · {a}–{b} reps',
@@ -307,9 +307,9 @@
     'tip.skråbenk': 'Fra siden af bænken i bænkhøjde, så skulder, albue og hånd ses.',
     'tip.halvmark': 'Fra siden, hele kroppen i billedet.',
     'tip.roing': 'Fra siden eller skråt, med overkrop og arme i billedet.',
-    'n.armhevinger': 'Armstrækninger', 'n.situps': 'Mavebøjninger',
+    'n.armhevinger': 'Armstrækninger', 'n.situps': 'Mavebøjninger', 'n.curl': 'EZ-curl',
     'tip.armhevinger': 'Fra siden i gulvhøjde, hele kroppen i billedet.',
-    'tip.situps': 'Fra siden i gulvhøjde, med overkrop og knæ i billedet.'
+    'tip.situps': 'Fra siden i gulvhøjde, med overkrop og knæ i billedet.', 'tip.curl': 'Forfra eller skråt, med hele kroppen i billedet.'
   };
   Object.assign(D.nb, {"w.resume": "Fortsett", "w.resumeT": "Økta pågår", "w.resumeTx": "Trykk for å starte kameraet igjen.", "st.sub": "Settene legges automatisk inn i beskrivelsen på Strava-aktiviteten som overlapper økta (f.eks. fra klokka). Finnes ingen innen 1 time etter økta, opprettes en styrkeaktivitet med øvelser, sett, reps og kilo automatisk.", "st.connect": "Koble til Strava", "st.connected": "Tilkoblet", "st.disconnect": "Koble fra", "st.notConf": "Strava er ikke satt opp ennå.", "st.synced": "Lagt inn på «{a}»", "st.waiting": "Venter på aktiviteten fra Strava…", "st.nomatch": "Fant ingen Strava-aktivitet for økta {d}.", "st.create": "Opprett aktivitet", "st.created": "Aktivitet opprettet på Strava", "st.actName": "Styrketrening"});
   Object.assign(D.en, {"w.resume": "Continue", "w.resumeT": "Workout in progress", "w.resumeTx": "Tap to restart the camera.", "st.sub": "Your sets are added to the description of the Strava activity that overlaps the workout (e.g. from your watch). If none shows up within 1 hour after the workout, a strength activity with your exercises, sets, reps and weights is created automatically.", "st.connect": "Connect Strava", "st.connected": "Connected", "st.disconnect": "Disconnect", "st.notConf": "Strava is not set up yet.", "st.synced": "Added to “{a}”", "st.waiting": "Waiting for the activity on Strava…", "st.nomatch": "No Strava activity found for the workout {d}.", "st.create": "Create activity", "st.created": "Activity created on Strava", "st.actName": "Strength training"});

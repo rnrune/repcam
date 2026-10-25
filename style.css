@@ -81,7 +81,7 @@ body.workout #tabs{display:none}
 .kg button{width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:inherit;font-size:24px}
 .kg span{font-size:22px;font-weight:700;min-width:90px;text-align:center;display:inline-block}
 .b22{font-size:22px;font-weight:700}.b28{font-size:28px;font-weight:800}
-#log{margin-top:10px;max-height:64px;overflow:auto;font-size:13px;opacity:.75}
+#log{margin-top:10px;max-height:96px;overflow:auto;font-size:13px;opacity:.75}
 #start{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0d0e12;color:#fff;z-index:10;text-align:center;padding:24px}
 #start .grad,#start .ghost{max-width:320px;border-color:#333}
 #status{color:#aaa;font-size:14px}
@@ -116,3 +116,5 @@ a.avatar{text-decoration:none;flex:none}
 
 .btns>.fbmiss{flex:0 0 52px}
 #fbCard .row{cursor:pointer}#fbCard input.sw{width:24px;height:24px;accent-color:#ff2d87;flex:0 0 auto}
+/* v8.9: tappable set log (edit any set of the session) */
+#log .logrow{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:4px 0;min-height:28px;cursor:pointer}

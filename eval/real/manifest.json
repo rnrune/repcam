@@ -24,7 +24,8 @@
    18.01
   ],
   "label": "implicit",
-  "notes": "head-on push-ups after kneeling setup; app 8.7 counted 8 (2 phantom reps paired at t=0.2 from pre-clip setup motion). Brief said GT 7; frame-by-frame review (4 fps) and the shoulder signal show 6 descents (bottoms ~4.3, 6.7, 9.0, 11.4, 13.7, 16.1 s) — Rune was unsure 7/8, re-check"
+  "notes": "head-on push-ups after kneeling setup; app 8.7 counted 8 (2 phantom reps paired at t=0.2 from pre-clip setup motion). Brief said GT 7; frame-by-frame review (4 fps) and the shoulder signal show 6 descents (bottoms ~4.3, 6.7, 9.0, 11.4, 13.7, 16.1 s) — Rune was unsure 7/8, re-check",
+  "must": true
  },
  {
   "id": "mvmtju2917da1c69",
@@ -50,6 +51,883 @@
    21.59
   ],
   "label": "implicit",
-  "notes": "head-on push-ups after walking back + kneeling down; app 8.7 picked halvmark x7 @25 kg (default kg of halvmark). GT from Rune: 5 push-ups, 0 kg"
+  "notes": "head-on push-ups after walking back + kneeling down; app 8.7 picked halvmark x7 @25 kg (default kg of halvmark). GT from Rune: 5 push-ups, 0 kg",
+  "must": true
+ },
+ {
+  "id": "mvnn4l651c1e1196",
+  "exercise": "benkpress",
+  "gt": 12,
+  "kg": 20,
+  "realKg": 50,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:43:49.806Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 13,
+   "kg": 20,
+   "auto": true
+  },
+  "appRepTimes": [
+   97.49,
+   99.05,
+   100.48,
+   101.93,
+   103.34,
+   104.82,
+   106.18,
+   107.65,
+   108.97,
+   110.45,
+   111.93,
+   113.51,
+   118.14
+  ],
+  "label": "implicit",
+  "labelReps": 13,
+  "labelEx": "benkpress",
+  "notes": "2026-10-25 session: bench 50kg x12 warm-up, side view, lies down ~90 s; 12 wrist-shoulder valleys 96.5-112.8 s",
+  "regress": true
+ },
+ {
+  "id": "mvnn5r2m4dcaaed1",
+  "exercise": "benkpress",
+  "gt": 3,
+  "kg": 20,
+  "realKg": 80,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:44:44.110Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 2,
+   "kg": 20,
+   "auto": true
+  },
+  "appRepTimes": [
+   9.14,
+   13.5
+  ],
+  "label": "implicit",
+  "labelReps": 2,
+  "labelEx": "knebøy",
+  "notes": "2026-10-25 session: FIRST HALF of bench 80kg x6: app locked knebøy on 2 setup reps and autosaved 9 s later mid-set (set split); 3 presses at ~18.9/20.6/22.5 s"
+ },
+ {
+  "id": "mvnn63hcade41090",
+  "exercise": "benkpress",
+  "gt": 3,
+  "kg": 20,
+  "realKg": 80,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:45:00.192Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 3,
+   "kg": 50,
+   "auto": true
+  },
+  "appRepTimes": [
+   2.21,
+   4.02,
+   5.88
+  ],
+  "label": "corrected",
+  "labelReps": 6,
+  "labelEx": "benkpress",
+  "notes": "2026-10-25 session: second half of the split 80kg x6 set (Rune corrected the label to 6 — whole set); 3 presses in this clip",
+  "regress": true
+ },
+ {
+  "id": "mvnn79nr4e8f55a4",
+  "exercise": "benkpress",
+  "gt": 3,
+  "kg": 20,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:45:54.855Z",
+  "pred": {
+   "exercise": "situps",
+   "reps": 4,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   26.33,
+   31.5,
+   38.71,
+   41.02
+  ],
+  "label": "implicit",
+  "labelReps": 4,
+  "labelEx": "situps",
+  "notes": "2026-10-25 session: FIRST HALF of bench 100kg set 1 (app said situps 4); lies down ~37 s, presses at ~50/52/54 s then set split"
+ },
+ {
+  "id": "mvnn7o35d80c0438",
+  "exercise": "benkpress",
+  "gt": 3,
+  "kg": 20,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:46:13.553Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 3,
+   "kg": 80,
+   "auto": true
+  },
+  "appRepTimes": [
+   2.27,
+   4.33,
+   8.2
+  ],
+  "label": "corrected",
+  "labelReps": 6,
+  "labelEx": "benkpress",
+  "notes": "2026-10-25 session: second half of 100kg set 1 (label corrected to 6 = whole set); 3 presses here",
+  "regress": true
+ },
+ {
+  "id": "mvnnauvh327e01f6",
+  "exercise": "benkpress",
+  "gt": 6,
+  "kg": 20,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:48:42.317Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 7,
+   "kg": 100,
+   "auto": true
+  },
+  "appRepTimes": [
+   123.19,
+   124.97,
+   126.62,
+   128.41,
+   130.66,
+   133.91,
+   138.84
+  ],
+  "label": "implicit",
+  "labelReps": 7,
+  "labelEx": "benkpress",
+  "notes": "2026-10-25 session: bench 100kg set 2"
+ },
+ {
+  "id": "mvnne20j922852c2",
+  "exercise": "benkpress",
+  "gt": 6,
+  "kg": 20,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:51:11.539Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 7,
+   "kg": 100,
+   "auto": true
+  },
+  "appRepTimes": [
+   124.36,
+   125.9,
+   127.4,
+   129.29,
+   131.09,
+   134.25,
+   139.48
+  ],
+  "label": "implicit",
+  "labelReps": 7,
+  "labelEx": "benkpress",
+  "notes": "2026-10-25 session: bench 100kg set 3",
+  "regress": true
+ },
+ {
+  "id": "mvnnh70nea07ec8a",
+  "exercise": "benkpress",
+  "gt": 6,
+  "kg": 20,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:53:37.991Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 6,
+   "kg": 100,
+   "auto": true
+  },
+  "appRepTimes": [
+   122.73,
+   124.49,
+   126.2,
+   128.1,
+   131.18,
+   134.78
+  ],
+  "label": "implicit",
+  "labelReps": 6,
+  "labelEx": "benkpress",
+  "notes": "2026-10-25 session: bench 100kg set 4",
+  "regress": true
+ },
+ {
+  "id": "mvnni53q2857159c",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:54:22.166Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 4,
+   "kg": 22.5,
+   "auto": true
+  },
+  "appRepTimes": [
+   14.34,
+   18.81,
+   26.74,
+   34.1
+  ],
+  "label": "implicit",
+  "labelReps": 4,
+  "labelEx": "knebøy",
+  "notes": "2026-10-25 session: between bench and pull-ups (moving around, oblique); app logged knebøy 4 — not a set"
+ },
+ {
+  "id": "mvnnjow896196e28",
+  "exercise": "pullups",
+  "gt": 6,
+  "kg": 0,
+  "realKg": 10,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:55:34.472Z",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 6,
+   "kg": 20,
+   "auto": true
+  },
+  "appRepTimes": [
+   51.85,
+   53.92,
+   55.78,
+   57.98,
+   60.56,
+   62.79
+  ],
+  "label": "corrected",
+  "labelReps": 6,
+  "labelEx": "pullups",
+  "notes": "2026-10-25 session: pull-ups +10 kg set 1 (label corrected skråbenk -> pullups)",
+  "regress": true
+ },
+ {
+  "id": "mvnnmlyb8d46d904",
+  "exercise": "pullups",
+  "gt": 6,
+  "kg": 0,
+  "realKg": 10,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T09:57:50.628Z",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 5,
+   "kg": 10,
+   "auto": true
+  },
+  "appRepTimes": [
+   88.01,
+   89.61,
+   91.22,
+   92.96,
+   94.81
+  ],
+  "label": "implicit",
+  "labelReps": 5,
+  "labelEx": "pullups",
+  "notes": "2026-10-25 session: pull-ups +10 kg set 2"
+ },
+ {
+  "id": "mvnnpi950c4573ee",
+  "exercise": "pullups",
+  "gt": 6,
+  "kg": 0,
+  "realKg": 10,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:00:05.801Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 3,
+   "kg": 22.5,
+   "auto": true
+  },
+  "appRepTimes": [
+   117.55,
+   119.45,
+   125.78
+  ],
+  "label": "implicit",
+  "labelReps": 3,
+  "labelEx": "knebøy",
+  "notes": "2026-10-25 session: pull-ups +10 kg set 3 at ~120-135 s; app said knebøy 3"
+ },
+ {
+  "id": "mvnnso2aea1f27b0",
+  "exercise": "pullups",
+  "gt": 6,
+  "kg": 0,
+  "realKg": 10,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:02:33.298Z",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 6,
+   "kg": 10,
+   "auto": true
+  },
+  "appRepTimes": [
+   127.82,
+   129.41,
+   130.98,
+   132.6,
+   134.34,
+   137.96
+  ],
+  "label": "implicit",
+  "labelReps": 6,
+  "labelEx": "pullups",
+  "notes": "2026-10-25 session: pull-ups +10 kg set 4 at ~124-137 s"
+ },
+ {
+  "id": "mvnnu10fd5aab31c",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:03:36.735Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 6,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   22.29,
+   29.87,
+   37.87,
+   42.34,
+   49.49,
+   53.31
+  ],
+  "label": "implicit",
+  "labelReps": 6,
+  "labelEx": "halvmark",
+  "notes": "2026-10-25 session: transition pull-ups -> incline (sitting/lying around); app logged halvmark 6 — not a set"
+ },
+ {
+  "id": "mvnnumk35bc1533f",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:04:04.659Z",
+  "pred": {
+   "exercise": "roing",
+   "reps": 4,
+   "kg": 30,
+   "auto": true
+  },
+  "appRepTimes": [
+   12.15,
+   14.08,
+   15.27,
+   17.15
+  ],
+  "label": "implicit",
+  "labelReps": 4,
+  "labelEx": "roing",
+  "notes": "2026-10-25 session: setting up the incline bench; app logged roing 4 — not a set"
+ },
+ {
+  "id": "mvnnvm4m78a14062",
+  "exercise": "skråbenk",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 80,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:04:50.758Z",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 11,
+   "kg": 20,
+   "auto": true
+  },
+  "appRepTimes": [
+   5.71,
+   17.59,
+   19.11,
+   20.68,
+   22.07,
+   23.83,
+   25.61,
+   27.72,
+   30.78,
+   35.73,
+   45.96
+  ],
+  "label": "implicit",
+  "labelReps": 11,
+  "labelEx": "skråbenk",
+  "notes": "2026-10-25 session: incline 80kg set 1, frontal view; 8 valleys 16.8-30 s",
+  "regress": true
+ },
+ {
+  "id": "mvnnyske91a727d2",
+  "exercise": "skråbenk",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 80,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:07:19.070Z",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 12,
+   "kg": 20,
+   "auto": true
+  },
+  "appRepTimes": [
+   107.49,
+   108.8,
+   111.78,
+   121.5,
+   122.73,
+   124,
+   125.45,
+   126.96,
+   128.61,
+   131.19,
+   134.3,
+   139.09
+  ],
+  "label": "implicit",
+  "labelReps": 12,
+  "labelEx": "skråbenk",
+  "notes": "2026-10-25 session: incline 80kg set 2",
+  "regress": true
+ },
+ {
+  "id": "mvno21b4b03d0f8b",
+  "exercise": "skråbenk",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 80,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:09:50.368Z",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 9,
+   "kg": 20,
+   "auto": true
+  },
+  "appRepTimes": [
+   91.97,
+   93.28,
+   94.58,
+   96.13,
+   97.73,
+   99.71,
+   103.45,
+   106.75,
+   110.91
+  ],
+  "label": "implicit",
+  "labelReps": 9,
+  "labelEx": "skråbenk",
+  "notes": "2026-10-25 session: incline 80kg set 3",
+  "regress": true
+ },
+ {
+  "id": "mvno2nrl20c2da02",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:10:19.473Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 2,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   9.05,
+   20.01
+  ],
+  "label": "implicit",
+  "labelReps": 2,
+  "labelEx": "halvmark",
+  "notes": "2026-10-25 session: after incline, moving the phone; app logged halvmark 2 — not a set",
+  "regress": true
+ },
+ {
+  "id": "mvno4ocl012d89f9",
+  "exercise": "roing",
+  "gt": 10,
+  "kg": 30,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:11:53.541Z",
+  "pred": {
+   "exercise": "dips",
+   "reps": 8,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   15.89,
+   17.78,
+   19.49,
+   21.49,
+   26.74,
+   30.7,
+   40.3,
+   48.13
+  ],
+  "label": "implicit",
+  "labelReps": 8,
+  "labelEx": "dips",
+  "notes": "2026-10-25 session: standing row 100kg set 1 (torso ~25-50 deg, knees bent) ~27-50 s; app said dips 8"
+ },
+ {
+  "id": "mvno6wnoab08c185",
+  "exercise": "roing",
+  "gt": 10,
+  "kg": 30,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:13:37.620Z",
+  "pred": {
+   "exercise": "roing",
+   "reps": 13,
+   "kg": 30,
+   "auto": true
+  },
+  "appRepTimes": [
+   73.15,
+   74.12,
+   79.01,
+   80.15,
+   81.34,
+   82.58,
+   83.82,
+   85.04,
+   86.35,
+   87.54,
+   89.02,
+   90.5,
+   93.77
+  ],
+  "label": "implicit",
+  "labelReps": 13,
+  "labelEx": "roing",
+  "notes": "2026-10-25 session: standing row 100kg set 2 ~74-92 s"
+ },
+ {
+  "id": "mvnoa62be037036e",
+  "exercise": "roing",
+  "gt": 10,
+  "kg": 30,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:16:09.779Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 4,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   111.81,
+   115.22,
+   118.31,
+   142.54
+  ],
+  "label": "implicit",
+  "labelReps": 4,
+  "labelEx": "halvmark",
+  "notes": "2026-10-25 session: standing row 100kg set 3 ~114-131 s; app said halvmark 4"
+ },
+ {
+  "id": "mvnoc4f7aa1e6640",
+  "exercise": "dips",
+  "gt": 12,
+  "kg": 0,
+  "realKg": 15,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:17:40.964Z",
+  "pred": {
+   "exercise": "dips",
+   "reps": 16,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   5.22,
+   8.05,
+   50.42,
+   57.58,
+   63.69,
+   65.32,
+   66.83,
+   68.4,
+   69.96,
+   71.45,
+   73.08,
+   74.62,
+   76.13,
+   77.73,
+   79.29,
+   81.08
+  ],
+  "label": "implicit",
+  "labelReps": 16,
+  "labelEx": "dips",
+  "notes": "2026-10-25 session: dips +15 kg set 1"
+ },
+ {
+  "id": "mvnoctaf7a668445",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:18:13.191Z",
+  "pred": {
+   "exercise": "roing",
+   "reps": 8,
+   "kg": 30,
+   "auto": true
+  },
+  "appRepTimes": [
+   3.69,
+   9.25,
+   12.1,
+   14.04,
+   16.6,
+   19.52,
+   21.07,
+   22.62
+  ],
+  "label": "implicit",
+  "labelReps": 8,
+  "labelEx": "roing",
+  "notes": "2026-10-25 session: between dips and curls (phone handled/laid down); app logged roing 8 — not a set"
+ },
+ {
+  "id": "mvnoe7jm75332b16",
+  "exercise": "curl",
+  "gt": 10,
+  "kg": 20,
+  "realKg": 40,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:19:18.322Z",
+  "pred": {
+   "exercise": "roing",
+   "reps": 20,
+   "kg": 30,
+   "auto": true
+  },
+  "appRepTimes": [
+   2.38,
+   3.52,
+   10.41,
+   12.56,
+   17.25,
+   19.51,
+   21.67,
+   23.79,
+   26.62,
+   28.78,
+   33.44,
+   36.19,
+   38.54,
+   40.83,
+   42.64,
+   43.14,
+   43.9,
+   44.83,
+   49.09,
+   55.36
+  ],
+  "label": "implicit",
+  "labelReps": 20,
+  "labelEx": "roing",
+  "notes": "2026-10-25 session: EZ curl 40kg set 1, standing frontal; wrist peaks ~11.8-36 s; app said roing 20"
+ },
+ {
+  "id": "mvnogfwn500e341f",
+  "exercise": "dips",
+  "gt": 12,
+  "kg": 0,
+  "realKg": 15,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:21:02.471Z",
+  "pred": {
+   "exercise": "dips",
+   "reps": 13,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   77.36,
+   78.72,
+   80.02,
+   81.31,
+   82.61,
+   83.85,
+   85.11,
+   86.37,
+   87.62,
+   88.94,
+   90.28,
+   91.73,
+   93.98
+  ],
+  "label": "implicit",
+  "labelReps": 13,
+  "labelEx": "dips",
+  "notes": "2026-10-25 session: dips +15 kg set 2"
+ },
+ {
+  "id": "mvnohgsi2c916059",
+  "exercise": "curl",
+  "gt": 10,
+  "kg": 20,
+  "realKg": 40,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:21:50.274Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 9,
+   "kg": 22.5,
+   "auto": true
+  },
+  "appRepTimes": [
+   13.13,
+   16.6,
+   18.31,
+   21.16,
+   23.28,
+   29.89,
+   33.51,
+   35.12,
+   38.29
+  ],
+  "label": "implicit",
+  "labelReps": 9,
+  "labelEx": "knebøy",
+  "notes": "2026-10-25 session: EZ curl 40kg set 2, peaks ~5.5-27 s; app said knebøy 9",
+  "regress": true
+ },
+ {
+  "id": "mvnok2vt347693bc",
+  "exercise": "dips",
+  "gt": 12,
+  "kg": 0,
+  "realKg": 15,
+  "view": "front",
+  "facing": "user",
+  "app": "8.8",
+  "created": "2026-10-25T10:23:52.217Z",
+  "pred": {
+   "exercise": "dips",
+   "reps": 16,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   65.31,
+   66.99,
+   86.13,
+   87.43,
+   88.57,
+   89.8,
+   90.88,
+   92.01,
+   93.2,
+   94.22,
+   95.41,
+   96.59,
+   97.9,
+   100.84,
+   103.94,
+   112.47
+  ],
+  "label": "implicit",
+  "labelReps": 16,
+  "labelEx": "dips",
+  "notes": "2026-10-25 session: dips +15 kg set 3 (third curl set has no clip)",
+  "regress": true
  }
 ]

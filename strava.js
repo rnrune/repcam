@@ -10,7 +10,7 @@
   // Newrun Lift exercise → Strava strength exercise_type (JSON upload, https://developers.strava.com/docs/uploads/).
   const EXERCISE_TYPE = { knebøy: 'BARBELL_BACK_SQUAT', bulgarsk: 'DUMBBELL_BULGARIAN_SPLIT_SQUATS', pullups: 'PULL_UP_GENERIC', dips: 'CHEST_DIP',
     benkpress: 'BARBELL_BENCH_PRESS', skråbenk: 'INCLINE_BARBELL_BENCH_PRESS', halvmark: 'BARBELL_ROMANIAN_DEADLIFT', roing: 'BENT_OVER_BARBELL_ROW',
-    armhevinger: 'PUSH_UP_GENERIC', pushups: 'PUSH_UP_GENERIC', situps: 'SIT_UP_GENERIC', markløft: 'BARBELL_DEADLIFT', skulderpress: 'OVERHEAD_BARBELL_PRESS', utfall: 'LUNGE_GENERIC' };
+    armhevinger: 'PUSH_UP_GENERIC', pushups: 'PUSH_UP_GENERIC', situps: 'SIT_UP_GENERIC', curl: 'EZ_BAR_CURL', markløft: 'BARBELL_DEADLIFT', skulderpress: 'OVERHEAD_BARBELL_PRESS', utfall: 'LUNGE_GENERIC' };
   const exerciseType = (ex, kg) => ex === 'dips' && +kg > 0 ? 'WEIGHTED_CHEST_DIP' : (EXERCISE_TYPE[ex] || 'TOTAL_BODY_GENERIC');
   const PREFERRED = ['WeightTraining', 'Workout', 'Crossfit', 'HighIntensityIntervalTraining'];
   const K = { tok: 'repcam.strava.tok', q: 'repcam.strava.queue', state: 'repcam.strava.state' };

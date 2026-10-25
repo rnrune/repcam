@@ -29,6 +29,8 @@ function pose(ex, p, noise = 0.004) {
   if (ex === 'armhevinger') { shX = 0.35; hipX = 0.62; sh = 0.48 + 0.18 * p; hip = 0.52 + 0.08 * p; nose = sh - 0.02; wrX = 0.30; wrY = 0.78; elY = (sh + wrY) / 2; kn = 0.56 + 0.04 * p; an = 0.60 + 0.04 * p; }
   // sit-up, side view: torso rotates up about the hips (lying at p=0 -> sitting at p=1), knees bent and feet planted
   if (ex === 'situps') { const a = (6 + 78 * p) * Math.PI / 180; hipX = 0.60; hip = 0.60; shX = 0.60 - 0.27 * Math.cos(a); sh = 0.60 - 0.27 * Math.sin(a); nose = sh - 0.02; wrX = shX; wrY = sh - 0.03; elY = sh + 0.02; kn = 0.50; an = 0.64; split = 0.2; }
+  // v8.9 EZ curl, front view: standing still, the wrists swing from the hips up to just below the shoulders, elbows stay
+  if (ex === 'curl') { wrX = 0.5; wrY = 0.55 - 0.20 * p; elY = 0.43; }
   set(0, shX, nose);
   for (const s of [0, 1]) {
     const o = s ? 0.04 : -0.04;

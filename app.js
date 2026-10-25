@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.8';
+const APP_VERSION = '8.9';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -370,8 +370,8 @@ const motion = { state: 'off', gyro: 0, acc: 0, last: 0,
   resume() { if (motion.state !== 'on' && (typeof window.DeviceMotionEvent?.requestPermission !== 'function' || LS.getItem('repcam.motion') === 'granted')) { if (window.DeviceMotionEvent) motion.listen(); } },
   // readings since the previous frame; null when there is no live sensor (no events for 1 s)
   read() { if (motion.state !== 'on' || performance.now() - motion.last > 1000) { motion.gyro = motion.acc = 0; return null; } const r = { gyro: motion.gyro, acc: motion.acc }; motion.gyro = motion.acc = 0; return r; } };
-let lastRepWall = 0, lastActivity = Date.now(), shownReps = -1, toastT = 0;
-const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30, armhevinger: 0, situps: 0 };
+let lastRepWall = 0, lastActivity = Date.now(), shownReps = -1, toastT = 0, lastFrameT = null;
+const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30, armhevinger: 0, situps: 0, curl: 20 };
 function kgFor(ex) { const x = LS.getItem('repcam.kg.' + ex); if (x != null) return +x; const l = store.lastKg(ex); return l != null ? l : (DEFAULT_KG[ex] ?? 0); }
 function setKgFor(ex, x) { LS.setItem('repcam.kg.' + ex, Math.max(0, Math.round(x * 100) / 100)); }
 const curEx = () => manualEx || lockEx || autoEx;
@@ -384,7 +384,9 @@ function renderWorkout() {
   $('exIc').textContent = ex ? icon(ex) : '✨';
   $('exName').textContent = ex ? (manualEx ? '' : L.t('w.auto') + ': ') + exName(ex) : L.t('w.detecting');
   $('kg').textContent = L.kgf(kgFor(ex || 'knebøy'));
-  $('log').innerHTML = mine.slice(-3).reverse().map(x => `${L.hm(x.timestamp)} · ${esc(exName(x.exercise))} · ${L.t('reps', { n: x.reps })} × ${L.kgf(x.kg)}`).join('<br>');
+  // v8.9: every set of this session stays editable — tap a line in the log (newest first)
+  $('log').innerHTML = mine.slice(-3).reverse().map(x => `<button class="logrow" data-ts="${esc(x.timestamp)}">${L.hm(x.timestamp)} · ${esc(exName(x.exercise))} · ${L.t('reps', { n: x.reps })} × ${L.kgf(x.kg)} ✎</button>`).join('');
+  $('log').querySelectorAll('.logrow').forEach(b => b.onclick = () => openEdit(b.dataset.ts, renderWorkout));
   $('reps').textContent = currentReps();
 }
 function bumpKg(d) { const ex = curEx() || 'knebøy'; finishPending(); setKgFor(ex, kgFor(ex) + d); renderWorkout(); }
@@ -402,7 +404,12 @@ $('exChip').onclick = () => {
   });
 };
 // Close the pending set without a tap: keep it if it is a real set (2+ reps), drop a lone stray rep.
-function finishPending() { const r = currentReps(); if (r >= MIN_AUTO_REPS) return saveSet(); if (r > 0) resetCounters(); return null; }
+// v8.9: a stray rep only resets ITS exercise's counter — resetting all of them used to wipe a set that another counter was
+// already counting (e.g. pull-ups in progress while the picker still showed the previous exercise).
+function finishPending() {
+  // v8.9: last-chance re-lock — the set was locked on setup motion while another exercise's counter holds the real set
+  if (lockEx && !manualEx && lastFrameT != null) { const nl = Reps.relock(counters, lockEx, null, lastFrameT, null, true); if (nl !== lockEx) lockEx = nl; }
+  const r = currentReps(); if (r >= MIN_AUTO_REPS) return saveSet(); if (r > 0) { const e = curEx(); counters[e] = Reps.createCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
 function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
@@ -419,10 +426,16 @@ function showToast(text, ts) {
   $('tUndo').style.display = $('tEdit').style.display = ts ? '' : 'none';
   $('tUndo').onclick = () => { fbLabel(ts, 'delete'); const sid = store.sessionOf(ts); store.deleteSet(ts); stravaResync(sid); hideToast(); showToast(L.t('w.undone')); renderWorkout(); };
   $('tEdit').onclick = () => { hideToast(); openEdit(ts, renderWorkout); };
-  clearTimeout(toastT); toastT = setTimeout(hideToast, ts ? 7000 : 2500);
+  // v8.9: a saved set's toast (Angre/Endre) stays until the NEXT set has started, and at least SET_TOAST_MIN_MS (60 s);
+  // it used to vanish after 7 s. Plain notices still disappear after 2.5 s.
+  clearTimeout(toastT); setToast = ts ? { at: Date.now() } : null; toastT = setTimeout(hideToast, ts ? SET_TOAST_MAX_MS : 2500);
 }
+const SET_TOAST_MIN_MS = 60e3, SET_TOAST_MAX_MS = 15 * 60e3;
+let setToast = null;
+// called every frame: hide the set toast once the next set is under way (a rep counted) and the minimum time has passed
+function setToastTick() { if (setToast && currentReps() > 0 && Date.now() - setToast.at >= SET_TOAST_MIN_MS) hideToast(); }
 $('fbMiss').onclick = () => { fbCut({ exercise: curEx(), reps: currentReps(), kg: kgFor(curEx() || 'knebøy') }, null, Feedback.labelFrom({}, 'missed')); showToast(L.t('fb.missedOk')); };
-function hideToast() { $('toast').classList.remove('on'); }
+function hideToast() { $('toast').classList.remove('on'); setToast = null; }
 $('confirm').onclick = () => { saveSet(); };
 function enterWorkout() {
   const resumed = !!store.active();
@@ -557,8 +570,14 @@ function processFrame(lm, ts, asp, sensor) {
   // 1.5 s; lock once the set has 2+ reps. Counters are strict on their own (posture, visibility, paired first rep).
   const rc = recognizer.update(lm, ts, asp, cam), pk = picker.update(rc, ts);
   if (!manualEx && !lockEx && pk && pk !== autoEx) { autoEx = pk; renderWorkout(); }
+  lastFrameT = ts / 1000;
+  // v8.9: the set was locked (2 reps) on setup motion of another exercise -> follow the exercise that is really counting
+  if (lockEx && !manualEx) { const nl = Reps.relock(counters, lockEx, pk, lastFrameT, rc.scores); if (nl !== lockEx) { lockEx = nl; autoEx = nl; renderWorkout(); } }
   const ex = curEx(), reps = currentReps();
   if (ex && !lockEx && !manualEx && reps >= 2) lockEx = ex;
+  // v8.9: background counters forget stale reps (none for AUTOSAVE_MS) so switching to them later does not inherit old junk
+  for (const id in counters) if (id !== ex && counters[id].reps > 0 && lastFrameT - counters[id].lastRepT > AUTOSAVE_MS / 1000) counters[id].forget();
+  setToastTick();
   fbSample(lm, ts);
   if (fb.rec && reps > shownReps) for (let i = Math.max(shownReps, 0); i < reps; i++) fb.repT.push(ts);
   if (fb.rec && reps === 0 && !Reps.IDS.some(id => counters[id].tentative) && ts - fb.lastTrim > 2000) { fb.lastTrim = ts; fb.rec.trimIdle(30e3); }

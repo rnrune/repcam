@@ -24,7 +24,7 @@ function seed() {
   const stored = p => p.evaluate(() => JSON.parse(localStorage['repcam.sets']));
   const reachable = (p, sel) => p.evaluate(s => { const e = document.querySelector(s), r = e.getBoundingClientRect(), h = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return r.bottom <= innerHeight && (h === e || e.contains(h)); }, sel);
   let p = await page();
-  ok(await p.evaluate(() => window.__repcam.APP_VERSION === '8.8' && [...document.scripts].filter(s => /repcam|localhost|github\.io/.test(s.src) || /\.js\?/.test(s.src)).every(s => /\?v=8\.8/.test(s.src))), 'APP_VERSION 8.7 + ?v=8.7');
+  ok(await p.evaluate(() => window.__repcam.APP_VERSION === '8.9' && [...document.scripts].filter(s => /repcam|localhost|github\.io/.test(s.src) || /\.js\?/.test(s.src)).every(s => /\?v=8\.9/.test(s.src))), 'APP_VERSION 8.7 + ?v=8.7');
   // 1) delete one set (85 kg) of s-new with taps, buttons reachable without scrolling on every iPhone size
   for (const dev of ['iPhone SE', 'iPhone 13', 'iPhone 15 Pro Max']) { const q = dev === 'iPhone 13' ? p : await page(dev);
     await q.tap('.setrow >> nth=1'); await q.waitForSelector('#sheet.on #eDel'); await q.waitForTimeout(350);

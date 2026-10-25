@@ -84,6 +84,11 @@
       signal: (g, ref) => (g.wrM.y - g.shM.y) / ref },
     // sit-up: rest = lying flat (shoulders level with hips, signal ~0); sitting up lifts the shoulders above the hips so
     // the signal dips negative. Rest-high convention holds, each sit-up is one valley.
+    // v8.9: EZ-bar / biceps curl, standing upright: the wrists swing up toward the shoulders while the shoulders, hips and
+    // knees stay put (squat = hips drop, RDL = torso hinges, dips/pull-ups = the shoulders travel with the hands planted)
+    curl: { minAmp: 0.4, minRep: 0.8, maxRep: 8, need: 'arms', stillBody: 0.75,
+      posture: g => g.torsoTilt < 30 && (g.legsVis < 0.4 || Math.min(g.knee[0] ?? 180, g.knee[1] ?? 180) > 120),
+      signal: (g, ref) => (g.wr[g.arm].y - g.sh[g.arm].y) / ref },
     situps: { lying: true, minAmp: 0.18, minRep: 0.55, maxRep: 12, need: 'torso',
       signal: (g, ref) => (g.shM.y - g.hipM.y) / ref }
   };
@@ -120,6 +125,7 @@
       // body-weight moves (pull-ups, dips, push-ups): the SHOULDERS travel while the hands stay planted; waving the arms
       // around while standing moves only the wrists
       if (def.bodyMove && !(q.syMax - q.syMin >= def.bodyMove * p.amp)) return 'still'; // not in the exercise posture
+      if (def.stillBody && q.syMax - q.syMin > def.stillBody * p.amp) return 'body'; // v8.9 curl: the shoulders must stay put
       return null;
     }
     function confirm(ok, t) {
@@ -239,12 +245,35 @@
         }
         if (k) { reps -= k; repTimes.splice(0, k); repAmps.splice(0, k); }
       }
+      // v8.9: tempo outliers at either end of the set — a "rep" far slower to follow (lead) or to arrive (tail) than the
+      // set's own rhythm is setup/re-racking motion (lying down onto the bench, sitting up, reaching for the bar), not a rep
+      if (def.edgeTrim ?? true) {
+        // split the set where a gap is far longer than its typical rep-to-rep time (40th percentile, so slow junk at the
+        // edges does not inflate it) (L); an edge group is dropped while ≥4
+        // reps remain if it is tiny (≤2 reps), or at most half the size of the rest AND cut off by a long pause (≥2 L, ≥6 s).
+        // A mid-set pause between two big halves (rest-pause) keeps both.
+        const g = []; for (let i = 1; i < repTimes.length; i++) g.push(repTimes[i] - repTimes[i - 1]);
+        if (g.length >= 3) {
+          const m = [...g].sort((x, y) => x - y)[Math.floor(0.4 * (g.length - 1))], L = Math.max(def.edgeGap ?? 3, (def.edgeRatio ?? 2.6) * m);
+          // the last reps of a hard set slow down (grinding): a trailing split needs a gap of at least 4 s
+          const Lt = Math.max(def.edgeGapTail ?? 4, L);
+          const cl = [[0]], gapBefore = [0]; for (let i = 1; i < repTimes.length; i++) { if (g[i - 1] > (i >= repTimes.length - 2 ? Lt : L)) { cl.push([]); gapBefore.push(g[i - 1]); } cl[cl.length - 1].push(i); }
+          let n = reps;
+          const drop = (c, gap) => n - c.length >= 4 && (c.length <= 2 || (2 * c.length <= n - c.length && gap >= Math.max(6, 2 * L)));
+          while (cl.length > 1 && drop(cl[0], gapBefore[1])) { n -= cl.shift().length; gapBefore.shift(); }
+          while (cl.length > 1 && drop(cl[cl.length - 1], gapBefore[cl.length - 1])) { n -= cl.pop().length; gapBefore.pop(); }
+          const keep = cl.flat(); if (keep.length < reps) { const k0 = keep[0], k1 = keep[keep.length - 1] + 1;
+            repTimes = repTimes.slice(k0, k1); repAmps = repAmps.slice(k0, k1); reps = repTimes.length; }
+        }
+      }
       return reps;
     }
     function out(tracking) { return { reps, state, signal: s, tracking, progress: progress(), pending: !!pend }; }
     function progress() { if (s == null) return 0; const hi = state === 'top' ? hiNow() : top0; const ta = typAmp() || def.minAmp * 1.6; return Math.max(0, Math.min(1, (hi - s) / ta)); }
-    return { update, progress, flush, reset,
-      get reps() { return reps; }, get tentative() { return tents.length; }, get rejected() { return rejected; }, get lastRepT() { return lastRepT; }, get repTimes() { return repTimes; }, def };
+    // v8.9: drop the counted reps (stale background count) but keep tracking the signal, so a rep in progress survives
+    function forget() { reps = 0; repTimes = []; repAmps = []; lastRepT = null; }
+    return { update, progress, flush, reset, forget,
+      get reps() { return reps; }, get tentative() { return tents.length; }, get rejected() { return rejected; }, get lastRepT() { return lastRepT; }, get repTimes() { return repTimes; }, get repAmps() { return repAmps; }, def };
   }
 
   // Best-effort exercise recognition from a sliding window of pose features.
@@ -282,6 +311,8 @@
         legsVis: q(buf.map(b => b.g.legsVis), 0.5), armsVis: q(buf.map(b => b.g.armsVis), 0.5),
         // head-on views: wrists relative to the hips (push-up hands on the floor sit far BELOW the hips in the image, dips
         // hands grip the bars at hip height) and shoulder width relative to the visible torso (prone torso foreshortens)
+        // v8.9: both hands on one bar (EZ curl) keep the wrists level; gesturing/dancing/stretching arms move independently
+        wrDy: q(buf.map(b => Math.min(vis(b.g.wr[0]), vis(b.g.wr[1])) > 0.4 ? Math.abs(b.g.wr[0].y - b.g.wr[1].y) / ref : 1), 0.8),
         wrHip: q(n(g => g.wrM.y - g.hipM.y), 0.5), shWt: q(buf.map(b => b.g.shW / b.g.torso), 0.5)
       };
       return f;
@@ -292,7 +323,10 @@
       const moving = Math.max(f.shMove, f.hipMove, f.wrMove, f.wrDist);
       // body moves, hands fixed
       const bodyMoves = sig(f.shMove, 0.08, 0.3), handsFixed = 1 - sig(f.wrRel / Math.max(0.05, f.shMove + 0.05), 0.6, 1.2);
-      S.pullups = sig(Math.max(f.wrHead ?? -1, f.wrUp - 0.25), 0, 0.3) * bodyMoves * (1 - sig(f.tilt, 30, 50)) * (0.5 + 0.5 * sig(f.wrRel, 0.2, 0.5))
+      // v8.9: weighted/kipping-free pull-ups filmed from below: the median wrist is only slightly above the shoulders, but it
+      // sits far above the hips and the shoulders travel a lot relative to the hands (a squat's hands ride with the shoulders)
+      const hang = sig(f.wrUp, -0.05, 0.15) * sig(f.wrRel, 0.4, 0.6) * sig(-f.wrHip, 0.8, 1.0);
+      S.pullups = Math.max(sig(Math.max(f.wrHead ?? -1, f.wrUp - 0.25), 0, 0.3), hang) * bodyMoves * (1 - sig(f.tilt, 30, 50)) * (0.5 + 0.5 * sig(f.wrRel, 0.2, 0.5))
         * (1 - sig(f.wrMove / Math.max(0.05, f.shMove), 1.5, 2.5)); // hands hang on a fixed bar (a press from the feet end has moving hands, still shoulders)
       // head-on push-up (camera on the floor in front of the head): torso foreshortened (short vertical torso vs shoulder
       // width), hands planted below the shoulders AND below the hips, legs hidden behind the body. Dips are upright: long
@@ -307,13 +341,16 @@
       const proneHoriz = Math.max(sig(f.tilt, 45, 66) * (1 - sig(f.tiltRange, 38, 60)), sig(-f.wrUp, 0.8, 1.2) * (1 - sig(f.dyShW, 1.1, 1.6)), headOn);
       S.skråbenk = press * incline;
       S.benkpress = press * (1 - incline);
-      S.roing = sig(f.wrDist, 0.1, 0.3) * sig(f.wrMove / Math.max(0.05, f.shMove), 0.6, 1.1) * sig(f.tilt, 25, 45) * (1 - sig(f.tiltRange, 25, 45)) * (1 - sig(f.wrUp, -0.4, 0)) * (1 - sig(f.hinge, 0.35, 0.6));
+      // v8.9: shallow "standing" rows (torso ~20-30° from vertical, knees soft) count too; a torso past ~80° is lying, not rowing
+      S.roing = sig(f.wrDist, 0.1, 0.3) * sig(f.wrMove / Math.max(0.05, f.shMove), 0.6, 1.1) * sig(f.tilt, 14, 24) * (1 - sig(f.tilt, 72, 85)) * (1 - sig(f.tiltRange, 25, 45)) * (1 - sig(f.wrUp, -0.4, 0)) * (1 - sig(f.hinge, 0.35, 0.6));
       // v8.8: a standing hinge shows the legs; a prone body (push-up, esp. head-on with hidden legs) is never an RDL
       S.halvmark = sig(f.legsVis, 0.3, 0.5) * (1 - proneHoriz) * (1 - sig(-f.wrUp, 0.8, 1.1) * (1 - sig(f.dyShW, 0.95, 1.2))) * sig(f.hinge, 0.2, 0.45) * sig(f.tiltRange, 20, 40) * sig(f.knee, 130, 155) * (1 - sig(f.wrUp, -0.3, 0)) * sig(f.kneeMin, 40, 65);
       const squatish = (1 - headOn) * sig(f.legsVis, 0.3, 0.5) * sig(f.hipKnee, 0.15, 0.4) * (1 - sig(f.wrUp, 0.2, 0.6) * 0.3) * (1 - sig(f.tilt, 45, 70))
         * sig(f.kneeMin, 20, 32) * (1 - sig(f.tiltRange, 55, 80));
       const split = Math.max(sig(f.kneeDy, 0.3, 0.42), sig(f.ankDx, 1.12, 1.3));
-      S.knebøy = squatish * (1 - split);
+      // a row pulls the hands far relative to steady shoulders; in a squat the shoulders travel and the hands ride along
+      const rowish = (1 - sig(f.tilt, 72, 85)) * sig(f.tilt, 14, 24) * sig(f.wrDist, 0.25, 0.4) * (1 - sig(f.shMove, 0.3, 0.45));
+      S.knebøy = squatish * (1 - split) * (1 - hang) * (1 - rowish);
       S.bulgarsk = squatish * split;
       // push-up: body stays horizontal (high tilt, small tilt range), wrists planted below the shoulders, shoulders travel
       // vertically while the hands stay put, legs ~straight. Separated from dips (upright = low tilt) and bench (wrists up).
@@ -326,12 +363,20 @@
       // hips stay; knees bent; hands not pressing. Separated from RDL (knees straight, stays standing).
       S.situps = sig(f.shMove, 0.16, 0.4) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
         * sig(f.hinge, 0.25, 0.55) * (1 - sig(f.kneeMin, 110, 145)) * (0.35 + 0.65 * sig(f.tiltRange, 25, 55)) * (0.3 + 0.7 * sig(f.tilt, 38, 55)) * (1 - sig(f.hipMove, 0.3, 0.5));
+      // v8.9 EZ curl: upright and steady torso, the wrists swing far relative to the shoulders while the shoulders barely move
+      // (dips/pull-ups: hands fixed, shoulders travel), no hip drop (squat) or hinge (RDL), wrists stay below the shoulders
+      // (presses/pull-ups/stretching overhead: the median wrist sits well below the shoulders), whole body in view, legs straight
+      const curlish = (1 - sig(f.tilt, 15, 28)) * (1 - sig(f.tiltRange, 25, 45)) * sig(f.wrRel, 0.4, 0.55) * sig(f.wrMove / Math.max(0.05, f.shMove), 1.5, 2.5)
+        * (1 - sig(f.shMove, 0.25, 0.4)) * (1 - sig(f.wrUp, -0.6, -0.45));
+      S.curl = curlish * (1 - sig(f.hinge, 0.25, 0.4)) * (1 - sig(f.hipKnee, 0.3, 0.45)) * sig(f.legsVis, 0.3, 0.5) * sig(f.knee, 145, 160);
+      // a squat keeps the hands still on the bar/bell: a curling arm swing is not a squat even if the hip-knee signal wobbles
+      S.knebøy *= (1 - 0.8 * curlish * (1 - sig(f.hipKnee, 0.3, 0.45))) * (1 - sig(f.wrMove / Math.max(0.05, f.shMove), 2.2, 3.2) * (1 - sig(f.hipKnee, 0.3, 0.45)));
       // Walking/carrying: the hips travel sideways across the frame. Stationary exercises never do (eval max 0.98 torso).
       const still = 1 - sig(f.hipTravel ?? 0, 1.15, 1.45);
       for (const k in S) if (k !== 'benkpress' && k !== 'skråbenk') S[k] *= still;
       // Feet planted: squats, RDL, rows, floor work never move the feet much; walking toward/away from the camera does.
       const planted = 1 - sig(f.footMove ?? 0, 0.95, 1.1);
-      for (const k of ['knebøy', 'bulgarsk', 'halvmark', 'roing', 'situps']) if (S[k]) S[k] *= planted;
+      for (const k of ['knebøy', 'bulgarsk', 'halvmark', 'roing', 'situps', 'curl']) if (S[k]) S[k] *= planted;
       if (S.armhevinger) S.armhevinger *= Math.max(planted, legsHidden * headOn); // hidden legs give a noisy foot signal
       let best = null, bs = 0; for (const k in S) if (S[k] > bs) { bs = S[k]; best = k; }
       const sorted = Object.values(S).sort((a, b) => b - a);
@@ -354,6 +399,29 @@
       },
       get current() { return cur; }, reset() { cand = null; since = 0; cur = null; }
     };
+  }
+  // v8.9: the set is locked to an exercise at 2 reps; if those were setup motion of another exercise (e.g. 2 "squats" while
+  // lying down on the bench), the real set used to be cut off by the autosave 9 s later. Re-lock when the picker now shows
+  // another exercise whose counter has 3+ reps of its own after the locked exercise's last rep, with the locked one idle ≥5 s
+  // (before the 9 s autosave).
+  // atSave: called right before the autosave would store the locked set — then a counter with 2+ reps after it and clearly
+  // more reps in total (2 more, or any more over a bare 2-rep lock) wins without a recognizer vote (the reps are the evidence).
+  function relock(cs, lock, pick, tSec, scores, atSave = false) {
+    if (!lock || !cs[lock]) return lock;
+    const lt = cs[lock].lastRepT ?? -Infinity;
+    if (tSec - lt < 5 || cs[lock].reps > 3) return lock; // a real set (4+ reps) is never re-assigned
+    const after = id => cs[id] ? cs[id].repTimes.filter(t => t > lt).length : 0;
+    if (pick && pick !== lock && after(pick) >= 3) return pick;
+    // the picker can lag (it needs a 1.5 s clear lead): accept a counter that is clearly counting (4+ reps) while the
+    // recognizer currently rates its exercise ≥0.3
+    let best = lock, bn = 3;
+    if (atSave) { // 2+ reps after the locked set's last one and more reps in total than the locked set
+      const lr = cs[lock].reps; let bt = lr;
+      for (const id in cs) if (id !== lock && after(id) >= 2 && cs[id].reps > bt && (cs[id].reps >= lr + 2 || lr <= 2)) { best = id; bt = cs[id].reps; }
+      return best;
+    }
+    for (const id in cs) if (id !== lock && scores && (scores[id] || 0) >= 0.3 && after(id) > bn) { best = id; bn = after(id); }
+    return best;
   }
   // v8.7 camera-motion gate. Handheld filming (tremor, slow pan/follow, gentle drift/zoom) is tolerated: the rep signals are
   // body-relative (differences between keypoints divided by the torso length), so a moderate global shift/zoom cancels out.
@@ -432,6 +500,6 @@
       reset() { reps = 0; state = 'up'; cnt = 0; }, get reps() { return reps; }
     };
   }
-  const api = { angle, geom, EX, IDS, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { angle, geom, EX, IDS, relock, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

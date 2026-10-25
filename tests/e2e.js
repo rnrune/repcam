@@ -1,7 +1,7 @@
 // Newrun Lift (formerly RepCam) e2e (v4 features): iPhone 13 emulation, fake camera from real exercise videos, i18n, auto-save + undo/edit, history editing, no console errors.
 const { chromium, devices } = require('playwright-core');
 const SH = '/workspace/repcam-shots/v4/', URL = process.env.URL || 'http://localhost:8765/';
-const errors = [], fails = [];
+const errors = [], fails = []; let firstTag; // v8.9: the toast-persistence check runs on the first auto-saved set only
 const ok = (c, msg) => { console.log((c ? 'PASS ' : 'FAIL ') + msg); if (!c) fails.push(msg); };
 function seed(extra = {}) {
   const now = new Date(), d = (days, h, m = 0) => { const x = new Date(now); x.setDate(x.getDate() - days); x.setHours(h, m, 0, 0); return x.toISOString(); };
@@ -37,6 +37,9 @@ async function workout(p, tag, expectEx, minReps) {
   await p.screenshot({ path: SH + tag + '-1-workout.png' });
   await p.waitForSelector('#toast.on', { timeout: 60000 }).then(() => ok(true, tag + ': set auto-saved after pause')).catch(() => ok(false, tag + ': set auto-saved after pause'));
   await p.screenshot({ path: SH + tag + '-2-autosaved-toast.png' });
+  // v8.9: the saved set stays editable well past the old 7 s (toast until the next set started, ≥60 s) + log rows are tappable
+  if (!firstTag) { firstTag = tag; await p.waitForTimeout(9000); ok(await p.evaluate(() => document.getElementById('toast').classList.contains('on') && getComputedStyle(document.getElementById('tEdit')).display !== 'none'), tag + ': set toast (Angre/Endre) still shown after 9 s');
+    ok(await p.locator('#log .logrow').count() >= 1, tag + ': saved set listed as a tappable log row'); }
   const saved = await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('repcam.sets')); return s[s.length - 1]; });
   ok(saved.reps >= minReps, tag + ': saved set has ' + saved.reps + ' reps, exercise ' + saved.exercise);
   return saved;
@@ -50,7 +53,7 @@ async function workout(p, tag, expectEx, minReps) {
   ok((await p.textContent('#todayList')).includes('Incline bench press'), 'en: exercise names translated');
   await p.screenshot({ path: SH + 'en-01-home.png' });
   await p.click('#tabs a[data-v=ovelser]'); await p.waitForTimeout(300);
-  ok(await p.locator('#exList .card').count() === 10 && (await p.textContent('#exList')).includes('Camera placement') && (await p.textContent('#exList')).includes('Bench press') && (await p.textContent('#exList')).includes('Push-ups') && (await p.textContent('#exList')).includes('Sit-ups'), 'en: 10 active exercises (incl. push-ups and sit-ups) with camera tips');
+  ok(await p.locator('#exList .card').count() === 11 && (await p.textContent('#exList')).includes('EZ-bar curl') && (await p.textContent('#exList')).includes('Camera placement') && (await p.textContent('#exList')).includes('Bench press') && (await p.textContent('#exList')).includes('Push-ups') && (await p.textContent('#exList')).includes('Sit-ups'), 'en: 11 active exercises (incl. push-ups, sit-ups and EZ curl) with camera tips');
   await p.screenshot({ path: SH + 'en-02-exercises.png', fullPage: true });
   await p.click('#tabs a[data-v=historikk]'); await p.waitForTimeout(300);
   await p.screenshot({ path: SH + 'en-03-history.png' });

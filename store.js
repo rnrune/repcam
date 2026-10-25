@@ -13,7 +13,8 @@
     { id: 'halvmark', name: 'Rumensk markløft', icon: '🔥', active: true },
     { id: 'roing', name: 'Stående roing', icon: '🚣', active: true },
     { id: 'armhevinger', name: 'Armhevinger', icon: '💥', active: true },
-    { id: 'situps', name: 'Sit-ups', icon: '🙇', active: true }
+    { id: 'situps', name: 'Sit-ups', icon: '🙇', active: true },
+    { id: 'curl', name: 'EZ-curl', icon: '💪', active: true }
   ];
   const LEGACY = [
     { id: 'markløft', name: 'Markløft', icon: '🔥' },

@@ -50,7 +50,7 @@ async function feed(p, frames, t0) {
   async function startWorkout(p) { await p.tap('#startOkt'); await p.waitForFunction(() => window.__log.includes('gum') && document.querySelector('#view-okt.on')); await p.waitForTimeout(400); await p.evaluate(() => window.__repcam.stopLoop()); }
   // ---- iOS, permission granted
   let p = await page('granted');
-  ok(await p.evaluate(() => window.__repcam.APP_VERSION === '8.8' && [...document.scripts].filter(s => /\.js\?/.test(s.src)).every(s => /\?v=8\.8/.test(s.src))), 'APP_VERSION 8.7 + ?v=8.7');
+  ok(await p.evaluate(() => window.__repcam.APP_VERSION === '8.9' && [...document.scripts].filter(s => /\.js\?/.test(s.src)).every(s => /\?v=8\.9/.test(s.src))), 'APP_VERSION 8.7 + ?v=8.7');
   ok(await p.evaluate(() => !window.__log.length), 'no motion prompt before the user taps Start');
   await startWorkout(p);
   const log = await p.evaluate(() => window.__log);

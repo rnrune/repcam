@@ -3,7 +3,7 @@
 // counts once a plank (top) has been held.
 const R = require('./reps.js'), assert = require('assert'), real = require('./eval/real/run.js');
 let n = 0; const ok = (c, m) => { assert(c, m); n++; };
-for (const e of real.man()) for (const hz of [0, 30]) {
+for (const e of real.man().filter(e => e.must)) for (const hz of [0, 30]) { // v8.9: only clips marked must (eval/real/run.js scores the rest)
   const r = real.replay(real.load(e.id), hz), tag = `${e.id}@${hz || 'log'}Hz`;
   ok(r.ex === e.exercise, `${tag}: exercise ${r.ex} ≠ ${e.exercise}`); ok(r.reps === e.gt, `${tag}: reps ${r.reps} ≠ ${e.gt}`); ok(r.kg === e.kg, `${tag}: kg ${r.kg}`);
   ok(r.times.every((t, i) => !i || t - r.times[i - 1] >= 0.45), `${tag}: rep times distinct + spaced ${r.times}`);
