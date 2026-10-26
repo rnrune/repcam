@@ -929,5 +929,280 @@
   "labelEx": "dips",
   "notes": "2026-10-25 session: dips +15 kg set 3 (third curl set has no clip)",
   "regress": true
+ },
+ {
+  "id": "rvmvp56r670f42e340",
+  "exercise": "benkpress",
+  "gt": 3,
+  "kg": 0,
+  "view": "web",
+  "facing": "unknown",
+  "app": "8.11",
+  "created": "2026-10-26T10:57:10.158Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 6,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   7,
+   4.4,
+   4.2,
+   1.1,
+   4.2,
+   4.2
+  ],
+  "label": "review",
+  "kind": "review",
+  "clipId": "wc-01",
+  "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "licence": "CC BY 3.0",
+  "labelReps": 3,
+  "labelEx": "benkpress",
+  "notes": "review mode wc-01 (Wikimedia), Rune: 3 benkpress",
+  "worst": true
+ },
+ {
+  "id": "rvmvp5852nf5306b2a",
+  "exercise": "skråbenk",
+  "gt": 2,
+  "kg": 0,
+  "view": "web",
+  "facing": "unknown",
+  "app": "8.11",
+  "created": "2026-10-26T10:58:14.831Z",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 2,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   4.1,
+   4.2
+  ],
+  "label": "review",
+  "kind": "review",
+  "clipId": "wc-03",
+  "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/8/80/Incline_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "licence": "CC BY 3.0",
+  "labelReps": 2,
+  "labelEx": "skråbenk",
+  "notes": "review mode wc-03 (Wikimedia), Rune: 2 skråbenk"
+ },
+ {
+  "id": "rvmvp58x3t552fc13b",
+  "exercise": "knebøy",
+  "gt": 2,
+  "kg": 0,
+  "view": "web",
+  "facing": "unknown",
+  "app": "8.11",
+  "created": "2026-10-26T10:58:51.161Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 5,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   6.3,
+   3.3,
+   6.4,
+   3.3,
+   6.3
+  ],
+  "label": "review",
+  "kind": "review",
+  "clipId": "wc-04",
+  "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Squat_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "licence": "CC BY 3.0",
+  "labelReps": 2,
+  "labelEx": "knebøy",
+  "notes": "review mode wc-04 (Wikimedia), Rune: 2 knebøy",
+  "worst": true
+ },
+ {
+  "id": "rvmvp59jkd18db8960",
+  "exercise": "halvmark",
+  "gt": 2,
+  "kg": 0,
+  "view": "web",
+  "facing": "unknown",
+  "app": "8.11",
+  "created": "2026-10-26T10:59:20.269Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 4,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   1.7,
+   5.6,
+   1.9,
+   5.7
+  ],
+  "label": "review",
+  "kind": "review",
+  "clipId": "wc-05",
+  "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/6/62/Deadlift_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "licence": "CC BY 3.0",
+  "labelReps": 2,
+  "labelEx": "halvmark",
+  "notes": "review mode wc-05 (Wikimedia), Rune: 2 halvmark",
+  "worst": true
+ },
+ {
+  "id": "rvmvp5bcd165fabef6",
+  "exercise": "halvmark",
+  "gt": 6,
+  "kg": 0,
+  "view": "web",
+  "facing": "unknown",
+  "app": "8.11",
+  "created": "2026-10-26T11:00:44.245Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 2,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   33.3,
+   36.7
+  ],
+  "label": "review",
+  "kind": "review",
+  "clipId": "wc-06",
+  "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/Army_Combat_Fitness_Test-_3_Repetition_Maximum_Deadlift_%28MDL%29_%28Event_1%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "licence": "Public domain",
+  "labelReps": 6,
+  "labelEx": "halvmark",
+  "notes": "review mode wc-06 (Wikimedia), Rune: 6 halvmark",
+  "worst": true
+ },
+ {
+  "id": "rvmvp5cxw223f1866e",
+  "exercise": "pullups",
+  "gt": 2,
+  "kg": 0,
+  "view": "web",
+  "facing": "unknown",
+  "app": "8.11",
+  "created": "2026-10-26T11:01:58.802Z",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 5,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   2.1,
+   2.1,
+   5.7,
+   2.1,
+   5.7
+  ],
+  "label": "review",
+  "kind": "review",
+  "clipId": "wc-07",
+  "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/Pull-ups_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "licence": "CC BY 3.0",
+  "labelReps": 2,
+  "labelEx": "pullups",
+  "notes": "review mode wc-07 (Wikimedia), Rune: 2 pullups",
+  "worst": true
+ },
+ {
+  "id": "rvmvp5ioxydabb4060",
+  "exercise": "armhevinger",
+  "gt": 6,
+  "kg": 0,
+  "view": "web",
+  "facing": "unknown",
+  "app": "8.12",
+  "created": "2026-10-26T11:06:27.142Z",
+  "pred": {
+   "exercise": "armhevinger",
+   "reps": 3,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   61.7,
+   69.2,
+   75.8
+  ],
+  "label": "review",
+  "kind": "review",
+  "clipId": "wc-09",
+  "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Army_Combat_Fitness_Test-_Hand-Release_Push-Up_%28HRP%29_%28Event_3%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "licence": "Public domain",
+  "labelReps": 6,
+  "labelEx": "armhevinger",
+  "notes": "review mode wc-09 (Wikimedia), Rune: 6 armhevinger — Ikke vanlige armhevinger, først demonsterer han 1 rep. Så tar han 5 repetisjoner etter hverandre",
+  "worst": true
+ },
+ {
+  "id": "rvmvp5llc7698e92dc",
+  "exercise": "curl",
+  "gt": 12,
+  "kg": 0,
+  "view": "web",
+  "facing": "unknown",
+  "app": "8.12",
+  "created": "2026-10-26T11:08:42.439Z",
+  "pred": {
+   "exercise": "armhevinger",
+   "reps": 1,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   38.8
+  ],
+  "label": "review",
+  "kind": "review",
+  "clipId": "wc-10",
+  "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Video_of_EZ_Bar_Curl_and_Straight_Bar_Curl.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "licence": "CC BY 3.0",
+  "labelReps": 12,
+  "labelEx": "curl",
+  "notes": "review mode wc-10 (Wikimedia), Rune: 12 curl — 12 ez bar curls etterfulgt av 4 straight bar curls",
+  "worst": true
+ },
+ {
+  "id": "rvmvp5n7j4e13f42bd",
+  "exercise": "roing",
+  "gt": 2,
+  "kg": 0,
+  "view": "web",
+  "facing": "unknown",
+  "app": "8.12",
+  "created": "2026-10-26T11:09:57.856Z",
+  "pred": {
+   "exercise": "roing",
+   "reps": 5,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   3.2,
+   5.1,
+   1,
+   3.1,
+   5.1
+  ],
+  "label": "review",
+  "kind": "review",
+  "clipId": "wc-12",
+  "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Bent-over_row_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "licence": "CC BY 3.0",
+  "labelReps": 2,
+  "labelEx": "roing",
+  "notes": "review mode wc-12 (Wikimedia), Rune: 2 roing — 2 fullstendige reps",
+  "worst": true
  }
 ]
