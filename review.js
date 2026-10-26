@@ -1,4 +1,4 @@
-// v8.11 hidden review mode (?review=1 -> review.html): runs the app's pose + recognizer + counters on a web clip,
+// v8.12 hidden review mode (?review=1 -> review.html): runs the app's pose + recognizer + counters on a web clip,
 // Rune corrects exercise/reps, the result goes to the feedback worker as meta + label (kind 'review'), clip marked done.
 const VISION = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 const $ = id => document.getElementById(id), v = $('v'), c = $('c'), ctx = c.getContext('2d'), LS = localStorage, R = Reps, F = Feedback;
@@ -35,6 +35,7 @@ function show(final) {
 }
 function next() {
   const d = done(), left = clips.filter(x => !d.includes(x.id)); $('left').textContent = `(${left.length} igjen)`;
+  $('comment').value = '';
   cur = left[0]; lm = []; lastT = -1; lastLog = -1;
   if (!cur) { $('info').textContent = 'Alle klipp er gjennomgått 🎉'; v.removeAttribute('src'); return; }
   $('info').innerHTML = `${cur.id}: <a href="${cur.page}" target="_blank">${cur.title}</a> · ${cur.licence} · ${cur.author || ''}${cur.expected ? ' · forventet: ' + NAMES[cur.expected] : ''}`;
@@ -59,6 +60,7 @@ async function submit(action) {
   const label = { kind: 'review', action, clipId: cur.id, clipUrl: cur.url, source: cur.source, licence: cur.licence, expected: cur.expected,
     detected: { exercise: det.ex, reps: det.reps, repTimes: det.times },
     exercise: action === 'notASet' ? null : ex, reps: action === 'notASet' ? 0 : reps, kg: null, notASet: action === 'notASet', missed: false,
+    comment: $('comment').value.trim() || null,
     changed: ['exercise', 'reps'].filter(k => String(k === 'exercise' ? ex : reps) !== String(k === 'exercise' ? det.ex : det.reps)), at: new Date().toISOString() };
   if (action !== 'skip') {
     if (!cfg.workerUrl) { $('st').textContent = 'Mangler workerUrl'; return; }
@@ -66,7 +68,7 @@ async function submit(action) {
     if (!LS.getItem(F.KEYS.inst)) { LS.setItem(F.KEYS.inst, F.rid(12, rnd)); LS.setItem(F.KEYS.tok, F.rid(32, rnd)); }
     const send = F.httpSender({ base: cfg.workerUrl, inst: LS.getItem(F.KEYS.inst), tok: LS.getItem(F.KEYS.tok), fetch: (...x) => fetch(...x) });
     const id = 'rv' + Date.now().toString(36) + F.rid(4, rnd);
-    const meta = { id, app: '8.11', kind: 'review', created: label.at, clip: { id: cur.id, url: cur.url, page: cur.page, title: cur.title, licence: cur.licence },
+    const meta = { id, app: '8.12', kind: 'review', created: label.at, comment: label.comment, clip: { id: cur.id, url: cur.url, page: cur.page, title: cur.title, licence: cur.licence },
       pred: { exercise: det.ex, reps: det.reps }, repTimes: det.times, durationS: v.duration || null, video: { w: v.videoWidth, h: v.videoHeight },
       landmarks: { hz: 10, layout: 't,(x,y,vis)*33', frames: lm }, device: { ua: navigator.userAgent } };
     $('st').textContent = 'Sender …';
@@ -77,7 +79,7 @@ async function submit(action) {
 }
 $('ok').onclick = () => submit('corrected'); $('skip').onclick = () => submit('skip'); $('none').onclick = () => submit('notASet');
 $('reset').onclick = e => { e.preventDefault(); LS.removeItem(DONE); next(); };
-clips = await (await fetch('review-clips.json?v=8.11')).json(); next(); loop();
+clips = await (await fetch('review-clips.json?v=8.12')).json(); next(); loop();
 const { PoseLandmarker, FilesetResolver } = await import(VISION);
 const fs = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
 const opts = d => ({ baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task", delegate: d }, runningMode: "VIDEO", numPoses: 1 });
