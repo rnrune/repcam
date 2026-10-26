@@ -72,7 +72,7 @@
     // v8.8: standing hinge — legs visible (head-on push-ups hide them) and the hands not planted far below the hips
     halvmark: { minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso', posture: (g, ref) => g.legsVis > 0.4 && g.wrM.y - g.hipM.y < 0.8 * ref,
       signal: (g, ref) => (g.hipM.y - g.shM.y) / ref },
-     roing: { minAmp: 0.15, minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
+     roing: { minAmp: 0.15, bigEdge: 1.25, minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
     // push-up: wrists planted below the shoulders (rest = arms extended, body high). Same scalar family as dips, but the
     // recognizer tells them apart by torso orientation (push-up body horizontal, dips upright). bodyRef handles strong
@@ -265,6 +265,16 @@
           const keep = cl.flat(); if (keep.length < reps) { const k0 = keep[0], k1 = keep[keep.length - 1] + 1;
             repTimes = repTimes.slice(k0, k1); repAmps = repAmps.slice(k0, k1); reps = repTimes.length; }
         }
+      }
+      // v8.10: rows — the setup lift (bar from floor/rack to the hang, hinging over) and putting it back are one big, slow
+      // excursion at an edge of the set: drop an edge rep much bigger than the set's median AND slower than its rhythm
+      if (def.bigEdge && reps >= 6) {
+        const big = () => { const a = [...repAmps].sort((x, y) => x - y)[Math.floor(repAmps.length / 2)];
+          const g = []; for (let i = 1; i < repTimes.length; i++) g.push(repTimes[i] - repTimes[i - 1]); const gm = [...g].sort((x, y) => x - y)[Math.floor(g.length / 2)];
+          return [a, gm, g]; };
+        for (let it = 0; it < 2 && reps >= 6; it++) { const [a, gm, g] = big(), L = reps - 1;
+          if (repAmps[L] > def.bigEdge * a && (g[L - 1] > 1.4 * gm || repAmps[L - 1] > def.bigEdge * a)) { reps--; repTimes.pop(); repAmps.pop(); }
+          else if (repAmps[0] > def.bigEdge * a && (g[0] > 1.4 * gm || repAmps[1] > def.bigEdge * a)) { reps--; repTimes.shift(); repAmps.shift(); } else break; }
       }
       return reps;
     }
