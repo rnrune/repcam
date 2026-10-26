@@ -39,6 +39,6 @@ ok(R.IDS.includes('curl') && R.EX.curl.stillBody > 0, 'curl exercise defined');
 // app: the last set stays editable — toast until the next set started and ≥60 s; every set in the log is tappable
 { const app = fs.readFileSync('app.js', 'utf8'); const m = app.match(/SET_TOAST_MIN_MS = (\d+)e3/);
   ok(m && +m[1] >= 60, 'set toast min ≥ 60 s'); ok(/currentReps\(\) > 0 && Date\.now\(\) - setToast\.at >= SET_TOAST_MIN_MS/.test(app), 'hidden only after the next set started');
-  ok(/class="logrow"/.test(app) && /openEdit\(b\.dataset\.ts/.test(app), 'log rows open the editor'); ok(/APP_VERSION = '8\.9'/.test(app), 'APP_VERSION 8.9');
+  ok(/class="logrow"/.test(app) && /openEdit\(b\.dataset\.ts/.test(app), 'log rows open the editor'); ok(/APP_VERSION = '8\.1?[0-9]+'/.test(app), 'APP_VERSION 8.x');
   ok(/DEFAULT_KG = \{[^}]*curl: 20/.test(app), 'curl default kg'); }
 console.log(n + ' v8.9 tests passed (session exact ' + exact + '/' + man.filter(e => /^mvn[no]/.test(e.id)).length + ', exercise ' + exOk + '/' + pos.length + ')');

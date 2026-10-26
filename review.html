@@ -1,0 +1,16 @@
+<!doctype html><html lang="nb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Newrun Lift – Gjennomgang</title><meta name="robots" content="noindex">
+<style>body{font-family:system-ui,sans-serif;background:#111;color:#eee;margin:0;padding:12px;max-width:720px}
+#w{position:relative}video,canvas{width:100%;display:block}canvas{position:absolute;inset:0;pointer-events:none}
+button,select,input{font-size:16px;padding:8px;margin:4px 4px 4px 0;border-radius:8px;border:0}button{background:#ff5a3c;color:#fff}.g{background:#333}
+.m{color:#999;font-size:13px}#det{font-size:20px;margin:8px 0}a{color:#8cf}</style></head><body>
+<h2>Gjennomgang <span class="m" id="left"></span></h2>
+<div class="m" id="info"></div>
+<div id="w"><video id="v" crossorigin="anonymous" playsinline muted controls></video><canvas id="c"></canvas></div>
+<div id="det">Laster modell …</div>
+<div><select id="ex"></select> <input id="reps" type="number" min="0" max="100" style="width:80px"> reps</div>
+<div><button id="ok">Send</button><button class="g" id="skip">Hopp over</button><button class="g" id="none">Ikke et sett</button></div>
+<div class="m" id="st"></div>
+<p class="m"><a href="./">← Tilbake til appen</a> · <a href="#" id="reset">Nullstill ferdige</a></p>
+<script src="reps.js?v=8.11"></script><script src="feedback.js?v=8.11"></script><script src="strava-config.js?v=8.11"></script>
+<script type="module" src="review.js?v=8.11"></script></body></html>
