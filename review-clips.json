@@ -1,172 +1,172 @@
 [
- {
-  "id": "wc-01",
-  "title": "Bench press - exercise demonstration video",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Bench_press_-_exercise_demonstration_video.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY 3.0",
-  "author": "FitnessScape",
-  "expected": "benkpress"
- },
- {
-  "id": "wc-02",
-  "title": "Video showing how to perform the dumbbell bench press and the dumbbell incline bench press",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Video_showing_how_to_perform_the_dumbbell_bench_press_and_the_dumbbell_incline_bench_press.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Video_showing_how_to_perform_the_dumbbell_bench_press_and_the_dumbbell_incline_bench_press.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY-SA 4.0",
-  "author": "Gantner626",
-  "expected": "benkpress"
- },
- {
-  "id": "wc-03",
-  "title": "Incline press - exercise demonstration video",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/8/80/Incline_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Incline_press_-_exercise_demonstration_video.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY 3.0",
-  "author": "FitnessScape",
-  "expected": "skråbenk"
- },
- {
-  "id": "wc-04",
-  "title": "Squat - exercise demonstration video",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Squat_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Squat_-_exercise_demonstration_video.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY 3.0",
-  "author": "FitnessScape",
-  "expected": "knebøy"
- },
- {
-  "id": "wc-05",
-  "title": "Deadlift - exercise demonstration video",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/6/62/Deadlift_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Deadlift_-_exercise_demonstration_video.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY 3.0",
-  "author": "FitnessScape",
-  "expected": "halvmark"
- },
- {
-  "id": "wc-06",
-  "title": "Army Combat Fitness Test- 3 Repetition Maximum Deadlift (MDL) (Event 1)",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Army_Combat_Fitness_Test-_3_Repetition_Maximum_Deadlift_%28MDL%29_%28Event_1%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Army_Combat_Fitness_Test-_3_Repetition_Maximum_Deadlift_(MDL)_(Event_1).webm",
-  "source": "Wikimedia Commons",
-  "licence": "Public domain",
-  "author": "Army Combat Fitness Test",
-  "expected": "halvmark"
- },
- {
-  "id": "wc-07",
-  "title": "Pull-ups - exercise demonstration video",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Pull-ups_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Pull-ups_-_exercise_demonstration_video.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY 3.0",
-  "author": "FitnessScape",
-  "expected": "pullups"
- },
- {
-  "id": "wc-08",
-  "title": "Get Fit- Proper Pull-Up Technique, Marine Corps Air Station, Iwakuni, Japan 2026 (FIT) (1017403)",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Get_Fit-_Proper_Pull-Up_Technique%2C_Marine_Corps_Air_Station%2C_Iwakuni%2C_Japan_2026_%28FIT%29_%281017403%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Get_Fit-_Proper_Pull-Up_Technique,_Marine_Corps_Air_Station,_Iwakuni,_Japan_2026_(FIT)_(1017403).webm",
-  "source": "Wikimedia Commons",
-  "licence": "Public domain",
-  "author": "U.S. Marine Corps video by Lance Cpl. Andrew Knight",
-  "expected": "pullups"
- },
- {
-  "id": "wc-09",
-  "title": "Army Combat Fitness Test- Hand-Release Push-Up (HRP) (Event 3)",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Army_Combat_Fitness_Test-_Hand-Release_Push-Up_%28HRP%29_%28Event_3%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Army_Combat_Fitness_Test-_Hand-Release_Push-Up_(HRP)_(Event_3).webm",
-  "source": "Wikimedia Commons",
-  "licence": "Public domain",
-  "author": "Army Combat Fitness Test",
-  "expected": "armhevinger"
- },
- {
-  "id": "wc-10",
-  "title": "Video of EZ Bar Curl and Straight Bar Curl",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Video_of_EZ_Bar_Curl_and_Straight_Bar_Curl.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Video_of_EZ_Bar_Curl_and_Straight_Bar_Curl.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY 3.0",
-  "author": "Colossus Fitness",
-  "expected": "curl"
- },
- {
-  "id": "wc-11",
-  "title": "CURL BÍCEPS",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/0/0a/CURL_B%C3%8DCEPS.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:CURL_B%C3%8DCEPS.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY-SA 4.0",
-  "author": "MariaMilagrosPérez\nObra derivada de / Derivate of:\nParedes\n2022 textures.com\nSue",
-  "expected": "curl"
- },
- {
-  "id": "wc-12",
-  "title": "Bent-over row - exercise demonstration video",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Bent-over_row_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Bent-over_row_-_exercise_demonstration_video.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY 3.0",
-  "author": "FitnessScape",
-  "expected": "roing"
- },
- {
-  "id": "wc-13",
-  "title": "How to do a T-Bar Row in strength training workouts",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/6/69/How_to_do_a_T-Bar_Row_in_strength_training_workouts.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:How_to_do_a_T-Bar_Row_in_strength_training_workouts.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY 3.0",
-  "author": "FitnessScape",
-  "expected": "roing"
- },
- {
-  "id": "wc-14",
-  "title": "Half rack resistance exercise workout",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Half_rack_resistance_exercise_workout.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Half_rack_resistance_exercise_workout.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY 3.0",
-  "author": "FitnessScape",
-  "expected": null
- },
- {
-  "id": "wc-15",
-  "title": "Muscle Strengthening at the Gym - Chest Press",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Muscle_Strengthening_at_the_Gym_-_Chest_Press.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Muscle_Strengthening_at_the_Gym_-_Chest_Press.webm",
-  "source": "Wikimedia Commons",
-  "licence": "Public domain",
-  "author": "Centers for Disease Control and Prevention",
-  "expected": null
- },
- {
-  "id": "wc-16",
-  "title": "Peso Muerto sumo",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/d/df/Peso_Muerto_sumo.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Peso_Muerto_sumo.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY-SA 3.0",
-  "author": "Martars022 Obra derivada de / Derivative work: \nSandeep 2022 \nstorque12 2022 \nwo",
-  "expected": "halvmark"
- },
- {
-  "id": "wc-17",
-  "title": "Basic single leg squat",
-  "url": "https://upload.wikimedia.org/wikipedia/commons/1/16/Basic_single_leg_squat.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-  "page": "https://commons.wikimedia.org/wiki/File:Basic_single_leg_squat.webm",
-  "source": "Wikimedia Commons",
-  "licence": "CC BY-SA 4.0",
-  "author": "RickyBennison",
-  "expected": null
- }
+  {
+    "id": "wc-01",
+    "title": "Bench press - exercise demonstration video",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Bench_press_-_exercise_demonstration_video.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY 3.0",
+    "author": "FitnessScape",
+    "expected": "benkpress"
+  },
+  {
+    "id": "wc-02",
+    "title": "Video showing how to perform the dumbbell bench press and the dumbbell incline bench press",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Video_showing_how_to_perform_the_dumbbell_bench_press_and_the_dumbbell_incline_bench_press.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Video_showing_how_to_perform_the_dumbbell_bench_press_and_the_dumbbell_incline_bench_press.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY-SA 4.0",
+    "author": "Gantner626",
+    "expected": "benkpress"
+  },
+  {
+    "id": "wc-03",
+    "title": "Incline press - exercise demonstration video",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/8/80/Incline_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Incline_press_-_exercise_demonstration_video.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY 3.0",
+    "author": "FitnessScape",
+    "expected": "skråbenk"
+  },
+  {
+    "id": "wc-04",
+    "title": "Squat - exercise demonstration video",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Squat_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Squat_-_exercise_demonstration_video.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY 3.0",
+    "author": "FitnessScape",
+    "expected": "knebøy"
+  },
+  {
+    "id": "wc-05",
+    "title": "Deadlift - exercise demonstration video",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/6/62/Deadlift_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Deadlift_-_exercise_demonstration_video.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY 3.0",
+    "author": "FitnessScape",
+    "expected": "halvmark"
+  },
+  {
+    "id": "wc-06",
+    "title": "Army Combat Fitness Test- 3 Repetition Maximum Deadlift (MDL) (Event 1)",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Army_Combat_Fitness_Test-_3_Repetition_Maximum_Deadlift_%28MDL%29_%28Event_1%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Army_Combat_Fitness_Test-_3_Repetition_Maximum_Deadlift_(MDL)_(Event_1).webm",
+    "source": "Wikimedia Commons",
+    "licence": "Public domain",
+    "author": "Army Combat Fitness Test",
+    "expected": "halvmark"
+  },
+  {
+    "id": "wc-07",
+    "title": "Pull-ups - exercise demonstration video",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Pull-ups_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Pull-ups_-_exercise_demonstration_video.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY 3.0",
+    "author": "FitnessScape",
+    "expected": "pullups"
+  },
+  {
+    "id": "wc-08",
+    "title": "Get Fit- Proper Pull-Up Technique, Marine Corps Air Station, Iwakuni, Japan 2026 (FIT) (1017403)",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Get_Fit-_Proper_Pull-Up_Technique%2C_Marine_Corps_Air_Station%2C_Iwakuni%2C_Japan_2026_%28FIT%29_%281017403%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Get_Fit-_Proper_Pull-Up_Technique,_Marine_Corps_Air_Station,_Iwakuni,_Japan_2026_(FIT)_(1017403).webm",
+    "source": "Wikimedia Commons",
+    "licence": "Public domain",
+    "author": "U.S. Marine Corps video by Lance Cpl. Andrew Knight",
+    "expected": "pullups"
+  },
+  {
+    "id": "wc-09",
+    "title": "Army Combat Fitness Test- Hand-Release Push-Up (HRP) (Event 3)",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Army_Combat_Fitness_Test-_Hand-Release_Push-Up_%28HRP%29_%28Event_3%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Army_Combat_Fitness_Test-_Hand-Release_Push-Up_(HRP)_(Event_3).webm",
+    "source": "Wikimedia Commons",
+    "licence": "Public domain",
+    "author": "Army Combat Fitness Test",
+    "expected": "armhevinger"
+  },
+  {
+    "id": "wc-10",
+    "title": "Video of EZ Bar Curl and Straight Bar Curl",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Video_of_EZ_Bar_Curl_and_Straight_Bar_Curl.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Video_of_EZ_Bar_Curl_and_Straight_Bar_Curl.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY 3.0",
+    "author": "Colossus Fitness",
+    "expected": "curl"
+  },
+  {
+    "id": "wc-11",
+    "title": "CURL BÍCEPS",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0a/CURL_B%C3%8DCEPS.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:CURL_B%C3%8DCEPS.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY-SA 4.0",
+    "author": "MariaMilagrosPérez\nObra derivada de / Derivate of:\nParedes\n2022 textures.com\nSue",
+    "expected": "curl"
+  },
+  {
+    "id": "wc-12",
+    "title": "Bent-over row - exercise demonstration video",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Bent-over_row_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Bent-over_row_-_exercise_demonstration_video.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY 3.0",
+    "author": "FitnessScape",
+    "expected": "roing"
+  },
+  {
+    "id": "wc-13",
+    "title": "How to do a T-Bar Row in strength training workouts",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/6/69/How_to_do_a_T-Bar_Row_in_strength_training_workouts.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:How_to_do_a_T-Bar_Row_in_strength_training_workouts.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY 3.0",
+    "author": "FitnessScape",
+    "expected": "roing"
+  },
+  {
+    "id": "wc-14",
+    "title": "Half rack resistance exercise workout",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Half_rack_resistance_exercise_workout.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Half_rack_resistance_exercise_workout.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY 3.0",
+    "author": "FitnessScape",
+    "expected": null
+  },
+  {
+    "id": "wc-15",
+    "title": "Muscle Strengthening at the Gym - Chest Press",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Muscle_Strengthening_at_the_Gym_-_Chest_Press.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Muscle_Strengthening_at_the_Gym_-_Chest_Press.webm",
+    "source": "Wikimedia Commons",
+    "licence": "Public domain",
+    "author": "Centers for Disease Control and Prevention",
+    "expected": null
+  },
+  {
+    "id": "wc-16",
+    "title": "Peso Muerto sumo",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/d/df/Peso_Muerto_sumo.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Peso_Muerto_sumo.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY-SA 3.0",
+    "author": "Martars022 Obra derivada de / Derivative work: \nSandeep 2022 \nstorque12 2022 \nwo",
+    "expected": "halvmark"
+  },
+  {
+    "id": "wc-17",
+    "title": "Basic single leg squat",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/16/Basic_single_leg_squat.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Basic_single_leg_squat.webm",
+    "source": "Wikimedia Commons",
+    "licence": "CC BY-SA 4.0",
+    "author": "RickyBennison",
+    "expected": null
+  }
 ]
