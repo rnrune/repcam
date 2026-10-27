@@ -10,7 +10,7 @@
   // Newrun Lift exercise → Strava strength exercise_type (JSON upload, https://developers.strava.com/docs/uploads/).
   const EXERCISE_TYPE = { knebøy: 'BARBELL_BACK_SQUAT', bulgarsk: 'DUMBBELL_BULGARIAN_SPLIT_SQUATS', pullups: 'PULL_UP_GENERIC', dips: 'CHEST_DIP',
     benkpress: 'BARBELL_BENCH_PRESS', skråbenk: 'INCLINE_BARBELL_BENCH_PRESS', halvmark: 'BARBELL_ROMANIAN_DEADLIFT', roing: 'BENT_OVER_BARBELL_ROW',
-    armhevinger: 'PUSH_UP_GENERIC', pushups: 'PUSH_UP_GENERIC', situps: 'SIT_UP_GENERIC', curl: 'EZ_BAR_CURL', markløft: 'BARBELL_DEADLIFT', skulderpress: 'OVERHEAD_BARBELL_PRESS', utfall: 'LUNGE_GENERIC' };
+    armhevinger: 'PUSH_UP_GENERIC', pushups: 'PUSH_UP_GENERIC', situps: 'SIT_UP_GENERIC', vsitup: 'SIT_UP_GENERIC', curl: 'EZ_BAR_CURL', markløft: 'BARBELL_DEADLIFT', skulderpress: 'OVERHEAD_BARBELL_PRESS', utfall: 'LUNGE_GENERIC' };
   const exerciseType = (ex, kg) => ex === 'dips' && +kg > 0 ? 'WEIGHTED_CHEST_DIP' : (EXERCISE_TYPE[ex] || 'TOTAL_BODY_GENERIC');
   const PREFERRED = ['WeightTraining', 'Workout', 'Crossfit', 'HighIntensityIntervalTraining'];
   const K = { tok: 'repcam.strava.tok', q: 'repcam.strava.queue', state: 'repcam.strava.state' };
@@ -132,6 +132,9 @@
       const it = queue().find(x => x.id === id); if (!it) return null;
       if (!sets || !sets.length) return cancel(id);
       if (it.status === 'waiting' || it.status === 'nomatch') { setItem(id, { sets: slim(sets) }); return 'updated'; }
+      // v8.13: a session edited after its activity exists — the Newrun Lift block in the activity description is rewritten on the
+      // next process() (deleted sets are gone from it). Structured sets of an activity we uploaded cannot be changed via the API.
+      if (ON_STRAVA.includes(it.status) && it.activityId) { setItem(id, { sets: slim(sets), descDirty: true }); return 'descUpdate'; }
       return it.status;
     }
     // Before any request: re-read the session's current sets from the app (deleted sets are gone). Returns the item or null if cancelled.
@@ -214,6 +217,16 @@
             try { out.push(await create(it, fmt)); }
             catch (e) { if (now() - it.added > RETRY_FOR) { setItem(it.id, { status: 'nomatch' }); out.push({ id: it.id, status: 'nomatch' }); } else throw e; }
           } else { setItem(it.id, { tries: (it.tries || 0) + 1 }); out.push({ id: it.id, status: 'waiting' }); }
+        } catch (e) { out.push({ id: it.id, status: 'error', error: e.message }); }
+      }
+      // v8.13: rewrite the description block of activities whose session was edited afterwards
+      for (let it of queue().filter(x => x.descDirty && ON_STRAVA.includes(x.status) && x.activityId)) {
+        try {
+          const live = liveSets ? liveSets(it.id) || [] : it.sets; if (!live.length) { setItem(it.id, { descDirty: false }); continue; }
+          const full = await api('/activities/' + it.activityId);
+          const description = mergeDescription(full.description, describe(slim(live), fmt.name, fmt.kgf));
+          await api('/activities/' + it.activityId, { method: 'PUT', body: JSON.stringify({ description }) });
+          setItem(it.id, { sets: slim(live), descDirty: false, at: now() }); out.push({ id: it.id, status: 'descUpdated', activityId: it.activityId });
         } catch (e) { out.push({ id: it.id, status: 'error', error: e.message }); }
       }
       return out;

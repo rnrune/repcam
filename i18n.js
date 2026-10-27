@@ -13,7 +13,7 @@
     'home.empty': 'Ingen sett i dag ennå', 'home.emptySub': 'Trykk «Start økt» og la kameraet telle repsene for deg.', 'home.volume': 'Volum',
     'sets': '{n} sett', 'reps': '{n} reps', 'kg': '{n} kg', 'bw': 'Kroppsvekt', 'setsXreps': '{n} sett × {r} reps', 'setsRange': '{n} sett · {a}–{b} reps',
     'ex.title': 'Øvelser', 'ex.active': 'Aktiv', 'ex.auto': 'Gjenkjennes automatisk – du kan også velge manuelt i økta.', 'ex.tip': 'Kameraplassering',
-    'hist.title': 'Historikk', 'hist.empty': 'Ingen økter ennå', 'hist.emptySub': 'Når du logger sett, dukker de opp her.', 'hist.editHint': 'Trykk på et sett for å endre det.',
+    'hist.title': 'Historikk', 'hist.empty': 'Ingen økter ennå', 'hist.emptySub': 'Når du logger sett, dukker de opp her.', 'hist.editHint': 'Trykk på et sett for å endre eller slette det, eller legg til et sett nederst i økta.', 'hist.addSet': 'Legg til sett',
     'prof.title': 'Profil', 'prof.stats': '{s} økter · {n} sett · {v} kg løftet', 'prof.look': 'Utseende', 'prof.light': '☀️ Lys', 'prof.dark': '🌙 Mørk', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto følger innstillingen på telefonen.', 'prof.lang': 'Språk', 'prof.langAuto': 'Automatisk (telefonens språk)', 'prof.data': 'Data', 'prof.export': '⬇️ Eksporter data (JSON)',
     'prof.local': 'Alt lagres kun på denne enheten.', 'prof.name': 'Navn', 'prof.bw': 'Kroppsvekt (valgfritt)', 'prof.me': 'Meg', 'prof.about': 'Profil',
@@ -43,7 +43,7 @@
     'tip.skråbenk': 'Fra siden av benken i benkhøyde, så skulder, albue og hånd vises.',
     'tip.halvmark': 'Fra siden, hele kroppen i bildet.',
     'tip.roing': 'Fra siden eller skrått, med overkropp og armer i bildet.',
-    'n.armhevinger': 'Armhevinger', 'n.situps': 'Sit-ups', 'n.curl': 'EZ-curl',
+    'n.armhevinger': 'Armhevinger', 'n.situps': 'Sit-ups', 'n.vsitup': 'V-situp', 'tip.vsitup': 'Fra siden, i gulvhøyde, med hele kroppen (også føttene) i bildet.', 'n.curl': 'EZ-curl',
     'tip.armhevinger': 'Fra siden, i gulvhøyde, med hele kroppen i bildet.',
     'tip.situps': 'Fra siden, i gulvhøyde, med overkropp og knær i bildet.', 'tip.curl': 'Forfra eller skrått, med hele kroppen i bildet (stå stille, bare armene beveger seg).'
   };
@@ -57,7 +57,7 @@
     'home.empty': 'No sets today yet', 'home.emptySub': 'Tap “Start workout” and let the camera count your reps.', 'home.volume': 'Volume',
     'sets': '{n} sets', 'reps': '{n} reps', 'kg': '{n} kg', 'bw': 'Bodyweight', 'setsXreps': '{n} sets × {r} reps', 'setsRange': '{n} sets · {a}–{b} reps',
     'ex.title': 'Exercises', 'ex.active': 'Active', 'ex.auto': 'Recognized automatically – you can also pick manually during the workout.', 'ex.tip': 'Camera placement',
-    'hist.title': 'History', 'hist.empty': 'No workouts yet', 'hist.emptySub': 'Sets you log will show up here.', 'hist.editHint': 'Tap a set to edit it.',
+    'hist.title': 'History', 'hist.empty': 'No workouts yet', 'hist.emptySub': 'Sets you log will show up here.', 'hist.editHint': 'Tap a set to edit or delete it, or add a set at the bottom of the workout.', 'hist.addSet': 'Add set',
     'prof.title': 'Profile', 'prof.stats': '{s} workouts · {n} sets · {v} kg lifted', 'prof.look': 'Appearance', 'prof.light': '☀️ Light', 'prof.dark': '🌙 Dark', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto follows your phone setting.', 'prof.lang': 'Language', 'prof.langAuto': 'Automatic (phone language)', 'prof.data': 'Data', 'prof.export': '⬇️ Export data (JSON)',
     'prof.local': 'Everything is stored on this device only.', 'prof.name': 'Name', 'prof.bw': 'Bodyweight (optional)', 'prof.me': 'Me', 'prof.about': 'Profile',
@@ -87,7 +87,7 @@
     'tip.skråbenk': 'From the side of the bench at bench height, so shoulder, elbow and hand are visible.',
     'tip.halvmark': 'From the side, whole body in view.',
     'tip.roing': 'From the side or at an angle, with torso and arms in view.',
-    'n.armhevinger': 'Push-ups', 'n.situps': 'Sit-ups', 'n.curl': 'EZ-bar curl',
+    'n.armhevinger': 'Push-ups', 'n.situps': 'Sit-ups', 'n.vsitup': 'V-sit-up', 'tip.vsitup': 'From the side at floor level, whole body (feet too) in view.', 'n.curl': 'EZ-bar curl',
     'tip.armhevinger': 'From the side at floor level, whole body in view.',
     'tip.situps': 'From the side at floor level, with torso and knees in view.', 'tip.curl': 'From the front or at an angle, whole body in view (stand still, only the arms move).'
   };
@@ -101,7 +101,7 @@
     'home.empty': 'Heute noch keine Sätze', 'home.emptySub': 'Tippe auf „Training starten“ und lass die Kamera zählen.', 'home.volume': 'Volumen',
     'sets': '{n} Sätze', 'reps': '{n} Wdh.', 'kg': '{n} kg', 'bw': 'Körpergewicht', 'setsXreps': '{n} Sätze × {r} Wdh.', 'setsRange': '{n} Sätze · {a}–{b} Wdh.',
     'ex.title': 'Übungen', 'ex.active': 'Aktiv', 'ex.auto': 'Wird automatisch erkannt – du kannst sie im Training auch manuell wählen.', 'ex.tip': 'Kameraposition',
-    'hist.title': 'Verlauf', 'hist.empty': 'Noch keine Trainings', 'hist.emptySub': 'Protokollierte Sätze erscheinen hier.', 'hist.editHint': 'Tippe auf einen Satz, um ihn zu bearbeiten.',
+    'hist.title': 'Verlauf', 'hist.empty': 'Noch keine Trainings', 'hist.emptySub': 'Protokollierte Sätze erscheinen hier.', 'hist.editHint': 'Tippe auf einen Satz, um ihn zu ändern oder zu löschen, oder füge unten einen Satz hinzu.', 'hist.addSet': 'Satz hinzufügen',
     'prof.title': 'Profil', 'prof.stats': '{s} Trainings · {n} Sätze · {v} kg gehoben', 'prof.look': 'Darstellung', 'prof.light': '☀️ Hell', 'prof.dark': '🌙 Dunkel', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto folgt der Einstellung deines Telefons.', 'prof.lang': 'Sprache', 'prof.langAuto': 'Automatisch (Telefonsprache)', 'prof.data': 'Daten', 'prof.export': '⬇️ Daten exportieren (JSON)',
     'prof.local': 'Alles wird nur auf diesem Gerät gespeichert.', 'prof.name': 'Name', 'prof.bw': 'Körpergewicht (optional)', 'prof.me': 'Ich', 'prof.about': 'Profil',
@@ -131,7 +131,7 @@
     'tip.skråbenk': 'Seitlich der Bank auf Bankhöhe, sodass Schulter, Ellbogen und Hand sichtbar sind.',
     'tip.halvmark': 'Von der Seite, ganzer Körper im Bild.',
     'tip.roing': 'Von der Seite oder schräg, Oberkörper und Arme im Bild.',
-    'n.armhevinger': 'Flexiones', 'n.situps': 'Abdominales', 'n.curl': 'Curl con barra Z',
+    'n.armhevinger': 'Flexiones', 'n.situps': 'Abdominales', 'n.vsitup': 'V-sit-up', 'tip.vsitup': 'Von der Seite auf Bodenhöhe, ganzer Körper (auch die Füße) im Bild.', 'n.curl': 'Curl con barra Z',
     'tip.armhevinger': 'De lado, a ras de suelo, con todo el cuerpo en el encuadre.',
     'tip.situps': 'De lado, a ras de suelo, con el torso y las rodillas en el encuadre.', 'tip.curl': 'De frente o en diagonal, con todo el cuerpo en el encuadre.'
   };
@@ -145,7 +145,7 @@
     'home.empty': 'Aún no hay series hoy', 'home.emptySub': 'Pulsa «Empezar entreno» y deja que la cámara cuente.', 'home.volume': 'Volumen',
     'sets': '{n} series', 'reps': '{n} reps', 'kg': '{n} kg', 'bw': 'Peso corporal', 'setsXreps': '{n} series × {r} reps', 'setsRange': '{n} series · {a}–{b} reps',
     'ex.title': 'Ejercicios', 'ex.active': 'Activo', 'ex.auto': 'Se reconoce automáticamente; también puedes elegirlo manualmente en el entreno.', 'ex.tip': 'Posición de la cámara',
-    'hist.title': 'Historial', 'hist.empty': 'Aún no hay entrenos', 'hist.emptySub': 'Las series que registres aparecerán aquí.', 'hist.editHint': 'Toca una serie para editarla.',
+    'hist.title': 'Historial', 'hist.empty': 'Aún no hay entrenos', 'hist.emptySub': 'Las series que registres aparecerán aquí.', 'hist.editHint': 'Toca una serie para editarla o borrarla, o añade una serie al final del entrenamiento.', 'hist.addSet': 'Añadir serie',
     'prof.title': 'Perfil', 'prof.stats': '{s} entrenos · {n} series · {v} kg levantados', 'prof.look': 'Apariencia', 'prof.light': '☀️ Claro', 'prof.dark': '🌙 Oscuro', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto sigue el ajuste del teléfono.', 'prof.lang': 'Idioma', 'prof.langAuto': 'Automático (idioma del teléfono)', 'prof.data': 'Datos', 'prof.export': '⬇️ Exportar datos (JSON)',
     'prof.local': 'Todo se guarda solo en este dispositivo.', 'prof.name': 'Nombre', 'prof.bw': 'Peso corporal (opcional)', 'prof.me': 'Yo', 'prof.about': 'Perfil',
@@ -175,7 +175,7 @@
     'tip.skråbenk': 'Al lado del banco, a su altura, para ver hombro, codo y mano.',
     'tip.halvmark': 'De lado, todo el cuerpo visible.',
     'tip.roing': 'De lado o en diagonal, con torso y brazos a la vista.',
-    'n.armhevinger': 'Liegestütze', 'n.situps': 'Sit-ups', 'n.curl': 'SZ-Curls',
+    'n.armhevinger': 'Liegestütze', 'n.situps': 'Sit-ups', 'n.vsitup': 'V-sit-up', 'tip.vsitup': 'De lado, a ras de suelo, con todo el cuerpo (también los pies) en el encuadre.', 'n.curl': 'SZ-Curls',
     'tip.armhevinger': 'Von der Seite auf Bodenhöhe, ganzer Körper im Bild.',
     'tip.situps': 'Von der Seite auf Bodenhöhe, Oberkörper und Knie im Bild.', 'tip.curl': 'Von vorne oder schräg, ganzer Körper im Bild.'
   };
@@ -189,7 +189,7 @@
     'home.empty': 'Pas encore de séries aujourd’hui', 'home.emptySub': 'Touchez « Démarrer la séance » et laissez la caméra compter.', 'home.volume': 'Volume',
     'sets': '{n} séries', 'reps': '{n} rép.', 'kg': '{n} kg', 'bw': 'Poids du corps', 'setsXreps': '{n} séries × {r} rép.', 'setsRange': '{n} séries · {a}–{b} rép.',
     'ex.title': 'Exercices', 'ex.active': 'Actif', 'ex.auto': 'Reconnu automatiquement – vous pouvez aussi choisir manuellement pendant la séance.', 'ex.tip': 'Placement de la caméra',
-    'hist.title': 'Historique', 'hist.empty': 'Aucune séance', 'hist.emptySub': 'Les séries enregistrées apparaîtront ici.', 'hist.editHint': 'Touchez une série pour la modifier.',
+    'hist.title': 'Historique', 'hist.empty': 'Aucune séance', 'hist.emptySub': 'Les séries enregistrées apparaîtront ici.', 'hist.editHint': 'Touchez une série pour la modifier ou la supprimer, ou ajoutez une série en bas de la séance.', 'hist.addSet': 'Ajouter une série',
     'prof.title': 'Profil', 'prof.stats': '{s} séances · {n} séries · {v} kg soulevés', 'prof.look': 'Apparence', 'prof.light': '☀️ Clair', 'prof.dark': '🌙 Sombre', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto suit le réglage du téléphone.', 'prof.lang': 'Langue', 'prof.langAuto': 'Automatique (langue du téléphone)', 'prof.data': 'Données', 'prof.export': '⬇️ Exporter les données (JSON)',
     'prof.local': 'Tout est stocké uniquement sur cet appareil.', 'prof.name': 'Nom', 'prof.bw': 'Poids du corps (facultatif)', 'prof.me': 'Moi', 'prof.about': 'Profil',
@@ -219,7 +219,7 @@
     'tip.skråbenk': 'Sur le côté du banc, à sa hauteur, pour voir épaule, coude et main.',
     'tip.halvmark': 'De côté, tout le corps visible.',
     'tip.roing': 'De côté ou de biais, avec buste et bras visibles.',
-    'n.armhevinger': 'Pompes', 'n.situps': 'Redressements assis', 'n.curl': 'Curl barre EZ',
+    'n.armhevinger': 'Pompes', 'n.situps': 'Redressements assis', 'n.vsitup': 'V-sit-up', 'tip.vsitup': 'De côté, au ras du sol, corps entier (pieds compris) dans le cadre.', 'n.curl': 'Curl barre EZ',
     'tip.armhevinger': 'De côté, au ras du sol, tout le corps dans le cadre.',
     'tip.situps': 'De côté, au ras du sol, torse et genoux dans le cadre.', 'tip.curl': 'De face ou en biais, corps entier dans le cadre.'
   };
@@ -233,7 +233,7 @@
     'home.empty': 'Inga set idag än', 'home.emptySub': 'Tryck på ”Starta pass” och låt kameran räkna.', 'home.volume': 'Volym',
     'sets': '{n} set', 'reps': '{n} reps', 'kg': '{n} kg', 'bw': 'Kroppsvikt', 'setsXreps': '{n} set × {r} reps', 'setsRange': '{n} set · {a}–{b} reps',
     'ex.title': 'Övningar', 'ex.active': 'Aktiv', 'ex.auto': 'Känns igen automatiskt – du kan också välja manuellt under passet.', 'ex.tip': 'Kameraplacering',
-    'hist.title': 'Historik', 'hist.empty': 'Inga pass än', 'hist.emptySub': 'Set du loggar visas här.', 'hist.editHint': 'Tryck på ett set för att ändra det.',
+    'hist.title': 'Historik', 'hist.empty': 'Inga pass än', 'hist.emptySub': 'Set du loggar visas här.', 'hist.editHint': 'Tryck på ett set för att ändra eller ta bort det, eller lägg till ett set längst ner i passet.', 'hist.addSet': 'Lägg till set',
     'prof.title': 'Profil', 'prof.stats': '{s} pass · {n} set · {v} kg lyft', 'prof.look': 'Utseende', 'prof.light': '☀️ Ljus', 'prof.dark': '🌙 Mörk', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto följer telefonens inställning.', 'prof.lang': 'Språk', 'prof.langAuto': 'Automatiskt (telefonens språk)', 'prof.data': 'Data', 'prof.export': '⬇️ Exportera data (JSON)',
     'prof.local': 'Allt sparas bara på den här enheten.', 'prof.name': 'Namn', 'prof.bw': 'Kroppsvikt (valfritt)', 'prof.me': 'Jag', 'prof.about': 'Profil',
@@ -263,7 +263,7 @@
     'tip.skråbenk': 'Vid sidan av bänken i bänkhöjd, så axel, armbåge och hand syns.',
     'tip.halvmark': 'Från sidan, hela kroppen i bild.',
     'tip.roing': 'Från sidan eller snett, med överkropp och armar i bild.',
-    'n.armhevinger': 'Armhävningar', 'n.situps': 'Sit-ups', 'n.curl': 'EZ-curl',
+    'n.armhevinger': 'Armhävningar', 'n.situps': 'Sit-ups', 'n.vsitup': 'V-sit-up', 'tip.vsitup': 'Från sidan i golvhöjd, hela kroppen (även fötterna) i bild.', 'n.curl': 'EZ-curl',
     'tip.armhevinger': 'Från sidan i golvhöjd, hela kroppen i bild.',
     'tip.situps': 'Från sidan i golvhöjd, med överkropp och knän i bild.', 'tip.curl': 'Framifrån eller snett, med hela kroppen i bild.'
   };
@@ -277,7 +277,7 @@
     'home.empty': 'Ingen sæt i dag endnu', 'home.emptySub': 'Tryk på »Start træning«, og lad kameraet tælle.', 'home.volume': 'Volumen',
     'sets': '{n} sæt', 'reps': '{n} reps', 'kg': '{n} kg', 'bw': 'Kropsvægt', 'setsXreps': '{n} sæt × {r} reps', 'setsRange': '{n} sæt · {a}–{b} reps',
     'ex.title': 'Øvelser', 'ex.active': 'Aktiv', 'ex.auto': 'Genkendes automatisk – du kan også vælge manuelt under træningen.', 'ex.tip': 'Kameraplacering',
-    'hist.title': 'Historik', 'hist.empty': 'Ingen træninger endnu', 'hist.emptySub': 'Sæt du logger, vises her.', 'hist.editHint': 'Tryk på et sæt for at ændre det.',
+    'hist.title': 'Historik', 'hist.empty': 'Ingen træninger endnu', 'hist.emptySub': 'Sæt du logger, vises her.', 'hist.editHint': 'Tryk på et sæt for at ændre eller slette det, eller tilføj et sæt nederst i træningen.', 'hist.addSet': 'Tilføj sæt',
     'prof.title': 'Profil', 'prof.stats': '{s} træninger · {n} sæt · {v} kg løftet', 'prof.look': 'Udseende', 'prof.light': '☀️ Lys', 'prof.dark': '🌙 Mørk', 'prof.auto': '⚙️ Auto',
     'prof.autoNote': 'Auto følger telefonens indstilling.', 'prof.lang': 'Sprog', 'prof.langAuto': 'Automatisk (telefonens sprog)', 'prof.data': 'Data', 'prof.export': '⬇️ Eksportér data (JSON)',
     'prof.local': 'Alt gemmes kun på denne enhed.', 'prof.name': 'Navn', 'prof.bw': 'Kropsvægt (valgfrit)', 'prof.me': 'Mig', 'prof.about': 'Profil',
@@ -307,7 +307,7 @@
     'tip.skråbenk': 'Fra siden af bænken i bænkhøjde, så skulder, albue og hånd ses.',
     'tip.halvmark': 'Fra siden, hele kroppen i billedet.',
     'tip.roing': 'Fra siden eller skråt, med overkrop og arme i billedet.',
-    'n.armhevinger': 'Armstrækninger', 'n.situps': 'Mavebøjninger', 'n.curl': 'EZ-curl',
+    'n.armhevinger': 'Armstrækninger', 'n.situps': 'Mavebøjninger', 'n.vsitup': 'V-sit-up', 'tip.vsitup': 'Fra siden i gulvhøjde, hele kroppen (også fødderne) i billedet.', 'n.curl': 'EZ-curl',
     'tip.armhevinger': 'Fra siden i gulvhøjde, hele kroppen i billedet.',
     'tip.situps': 'Fra siden i gulvhøjde, med overkrop og knæ i billedet.', 'tip.curl': 'Forfra eller skråt, med hele kroppen i billedet.'
   };

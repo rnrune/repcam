@@ -25,7 +25,8 @@
   ],
   "label": "implicit",
   "notes": "head-on push-ups after kneeling setup; app 8.7 counted 8 (2 phantom reps paired at t=0.2 from pre-clip setup motion). Brief said GT 7; frame-by-frame review (4 fps) and the shoulder signal show 6 descents (bottoms ~4.3, 6.7, 9.0, 11.4, 13.7, 16.1 s) — Rune was unsure 7/8, re-check",
-  "must": true
+  "must": true,
+  "tier": "core"
  },
  {
   "id": "mvmtju2917da1c69",
@@ -52,7 +53,8 @@
   ],
   "label": "implicit",
   "notes": "head-on push-ups after walking back + kneeling down; app 8.7 picked halvmark x7 @25 kg (default kg of halvmark). GT from Rune: 5 push-ups, 0 kg",
-  "must": true
+  "must": true,
+  "tier": "core"
  },
  {
   "id": "mvnn4l651c1e1196",
@@ -89,7 +91,8 @@
   "labelReps": 13,
   "labelEx": "benkpress",
   "notes": "2026-10-25 session: bench 50kg x12 warm-up, side view, lies down ~90 s; 12 wrist-shoulder valleys 96.5-112.8 s",
-  "regress": true
+  "regress": true,
+  "tier": "core"
  },
  {
   "id": "mvnn5r2m4dcaaed1",
@@ -114,7 +117,8 @@
   "label": "implicit",
   "labelReps": 2,
   "labelEx": "knebøy",
-  "notes": "2026-10-25 session: FIRST HALF of bench 80kg x6: app locked knebøy on 2 setup reps and autosaved 9 s later mid-set (set split); 3 presses at ~18.9/20.6/22.5 s"
+  "notes": "2026-10-25 session: FIRST HALF of bench 80kg x6: app locked knebøy on 2 setup reps and autosaved 9 s later mid-set (set split); 3 presses at ~18.9/20.6/22.5 s",
+  "tier": "worst"
  },
  {
   "id": "mvnn63hcade41090",
@@ -141,7 +145,8 @@
   "labelReps": 6,
   "labelEx": "benkpress",
   "notes": "2026-10-25 session: second half of the split 80kg x6 set (Rune corrected the label to 6 — whole set); 3 presses in this clip",
-  "regress": true
+  "regress": true,
+  "tier": "core"
  },
  {
   "id": "mvnn79nr4e8f55a4",
@@ -168,7 +173,8 @@
   "label": "implicit",
   "labelReps": 4,
   "labelEx": "situps",
-  "notes": "2026-10-25 session: FIRST HALF of bench 100kg set 1 (app said situps 4); lies down ~37 s, presses at ~50/52/54 s then set split"
+  "notes": "2026-10-25 session: FIRST HALF of bench 100kg set 1 (app said situps 4); lies down ~37 s, presses at ~50/52/54 s then set split",
+  "tier": "worst"
  },
  {
   "id": "mvnn7o35d80c0438",
@@ -195,7 +201,8 @@
   "labelReps": 6,
   "labelEx": "benkpress",
   "notes": "2026-10-25 session: second half of 100kg set 1 (label corrected to 6 = whole set); 3 presses here",
-  "regress": true
+  "regress": true,
+  "tier": "pass"
  },
  {
   "id": "mvnnauvh327e01f6",
@@ -225,7 +232,8 @@
   "label": "implicit",
   "labelReps": 7,
   "labelEx": "benkpress",
-  "notes": "2026-10-25 session: bench 100kg set 2"
+  "notes": "2026-10-25 session: bench 100kg set 2",
+  "tier": "worst"
  },
  {
   "id": "mvnne20j922852c2",
@@ -256,7 +264,8 @@
   "labelReps": 7,
   "labelEx": "benkpress",
   "notes": "2026-10-25 session: bench 100kg set 3",
-  "regress": true
+  "regress": true,
+  "tier": "core"
  },
  {
   "id": "mvnnh70nea07ec8a",
@@ -286,7 +295,8 @@
   "labelReps": 6,
   "labelEx": "benkpress",
   "notes": "2026-10-25 session: bench 100kg set 4",
-  "regress": true
+  "regress": true,
+  "tier": "pass"
  },
  {
   "id": "mvnni53q2857159c",
@@ -313,7 +323,8 @@
   "label": "implicit",
   "labelReps": 4,
   "labelEx": "knebøy",
-  "notes": "2026-10-25 session: between bench and pull-ups (moving around, oblique); app logged knebøy 4 — not a set"
+  "notes": "2026-10-25 session: between bench and pull-ups (moving around, oblique); app logged knebøy 4 — not a set",
+  "tier": "pass"
  },
  {
   "id": "mvnnjow896196e28",
@@ -343,7 +354,8 @@
   "labelReps": 6,
   "labelEx": "pullups",
   "notes": "2026-10-25 session: pull-ups +10 kg set 1 (label corrected skråbenk -> pullups)",
-  "regress": true
+  "regress": true,
+  "tier": "core"
  },
  {
   "id": "mvnnmlyb8d46d904",
@@ -371,7 +383,8 @@
   "label": "implicit",
   "labelReps": 5,
   "labelEx": "pullups",
-  "notes": "2026-10-25 session: pull-ups +10 kg set 2"
+  "notes": "2026-10-25 session: pull-ups +10 kg set 2",
+  "tier": "worst"
  },
  {
   "id": "mvnnpi950c4573ee",
@@ -397,7 +410,8 @@
   "label": "implicit",
   "labelReps": 3,
   "labelEx": "knebøy",
-  "notes": "2026-10-25 session: pull-ups +10 kg set 3 at ~120-135 s; app said knebøy 3"
+  "notes": "2026-10-25 session: pull-ups +10 kg set 3 at ~120-135 s; app said knebøy 3",
+  "tier": "worst"
  },
  {
   "id": "mvnnso2aea1f27b0",
@@ -426,7 +440,8 @@
   "label": "implicit",
   "labelReps": 6,
   "labelEx": "pullups",
-  "notes": "2026-10-25 session: pull-ups +10 kg set 4 at ~124-137 s"
+  "notes": "2026-10-25 session: pull-ups +10 kg set 4 at ~124-137 s",
+  "tier": "worst"
  },
  {
   "id": "mvnnu10fd5aab31c",
@@ -455,7 +470,8 @@
   "label": "implicit",
   "labelReps": 6,
   "labelEx": "halvmark",
-  "notes": "2026-10-25 session: transition pull-ups -> incline (sitting/lying around); app logged halvmark 6 — not a set"
+  "notes": "2026-10-25 session: transition pull-ups -> incline (sitting/lying around); app logged halvmark 6 — not a set",
+  "tier": "worst"
  },
  {
   "id": "mvnnumk35bc1533f",
@@ -482,7 +498,8 @@
   "label": "implicit",
   "labelReps": 4,
   "labelEx": "roing",
-  "notes": "2026-10-25 session: setting up the incline bench; app logged roing 4 — not a set"
+  "notes": "2026-10-25 session: setting up the incline bench; app logged roing 4 — not a set",
+  "tier": "worst"
  },
  {
   "id": "mvnnvm4m78a14062",
@@ -517,7 +534,8 @@
   "labelReps": 11,
   "labelEx": "skråbenk",
   "notes": "2026-10-25 session: incline 80kg set 1, frontal view; 8 valleys 16.8-30 s",
-  "regress": true
+  "regress": true,
+  "tier": "core"
  },
  {
   "id": "mvnnyske91a727d2",
@@ -553,7 +571,8 @@
   "labelReps": 12,
   "labelEx": "skråbenk",
   "notes": "2026-10-25 session: incline 80kg set 2",
-  "regress": true
+  "regress": true,
+  "tier": "core"
  },
  {
   "id": "mvno21b4b03d0f8b",
@@ -586,7 +605,8 @@
   "labelReps": 9,
   "labelEx": "skråbenk",
   "notes": "2026-10-25 session: incline 80kg set 3",
-  "regress": true
+  "regress": true,
+  "tier": "pass"
  },
  {
   "id": "mvno2nrl20c2da02",
@@ -612,7 +632,8 @@
   "labelReps": 2,
   "labelEx": "halvmark",
   "notes": "2026-10-25 session: after incline, moving the phone; app logged halvmark 2 — not a set",
-  "regress": true
+  "regress": true,
+  "tier": "core"
  },
  {
   "id": "mvno4ocl012d89f9",
@@ -643,7 +664,8 @@
   "label": "implicit",
   "labelReps": 8,
   "labelEx": "dips",
-  "notes": "2026-10-25 session: standing row 100kg set 1 (torso ~25-50 deg, knees bent) ~27-50 s; app said dips 8"
+  "notes": "2026-10-25 session: standing row 100kg set 1 (torso ~25-50 deg, knees bent) ~27-50 s; app said dips 8",
+  "tier": "core"
  },
  {
   "id": "mvno6wnoab08c185",
@@ -679,7 +701,8 @@
   "label": "implicit",
   "labelReps": 13,
   "labelEx": "roing",
-  "notes": "2026-10-25 session: standing row 100kg set 2 ~74-92 s"
+  "notes": "2026-10-25 session: standing row 100kg set 2 ~74-92 s",
+  "tier": "core"
  },
  {
   "id": "mvnoa62be037036e",
@@ -706,7 +729,8 @@
   "label": "implicit",
   "labelReps": 4,
   "labelEx": "halvmark",
-  "notes": "2026-10-25 session: standing row 100kg set 3 ~114-131 s; app said halvmark 4"
+  "notes": "2026-10-25 session: standing row 100kg set 3 ~114-131 s; app said halvmark 4",
+  "tier": "pass"
  },
  {
   "id": "mvnoc4f7aa1e6640",
@@ -745,7 +769,8 @@
   "label": "implicit",
   "labelReps": 16,
   "labelEx": "dips",
-  "notes": "2026-10-25 session: dips +15 kg set 1"
+  "notes": "2026-10-25 session: dips +15 kg set 1",
+  "tier": "worst"
  },
  {
   "id": "mvnoctaf7a668445",
@@ -776,7 +801,8 @@
   "label": "implicit",
   "labelReps": 8,
   "labelEx": "roing",
-  "notes": "2026-10-25 session: between dips and curls (phone handled/laid down); app logged roing 8 — not a set"
+  "notes": "2026-10-25 session: between dips and curls (phone handled/laid down); app logged roing 8 — not a set",
+  "tier": "pass"
  },
  {
   "id": "mvnoe7jm75332b16",
@@ -819,7 +845,8 @@
   "label": "implicit",
   "labelReps": 20,
   "labelEx": "roing",
-  "notes": "2026-10-25 session: EZ curl 40kg set 1, standing frontal; wrist peaks ~11.8-36 s; app said roing 20"
+  "notes": "2026-10-25 session: EZ curl 40kg set 1, standing frontal; wrist peaks ~11.8-36 s; app said roing 20",
+  "tier": "worst"
  },
  {
   "id": "mvnogfwn500e341f",
@@ -855,7 +882,8 @@
   "label": "implicit",
   "labelReps": 13,
   "labelEx": "dips",
-  "notes": "2026-10-25 session: dips +15 kg set 2"
+  "notes": "2026-10-25 session: dips +15 kg set 2",
+  "tier": "worst"
  },
  {
   "id": "mvnohgsi2c916059",
@@ -888,7 +916,8 @@
   "labelReps": 9,
   "labelEx": "knebøy",
   "notes": "2026-10-25 session: EZ curl 40kg set 2, peaks ~5.5-27 s; app said knebøy 9",
-  "regress": true
+  "regress": true,
+  "tier": "core"
  },
  {
   "id": "mvnok2vt347693bc",
@@ -928,7 +957,8 @@
   "labelReps": 16,
   "labelEx": "dips",
   "notes": "2026-10-25 session: dips +15 kg set 3 (third curl set has no clip)",
-  "regress": true
+  "regress": true,
+  "tier": "core"
  },
  {
   "id": "rvmvp56r670f42e340",
@@ -961,7 +991,7 @@
   "labelReps": 3,
   "labelEx": "benkpress",
   "notes": "review mode wc-01 (Wikimedia), Rune: 3 benkpress",
-  "worst": true
+  "tier": "worst"
  },
  {
   "id": "rvmvp5852nf5306b2a",
@@ -989,7 +1019,8 @@
   "licence": "CC BY 3.0",
   "labelReps": 2,
   "labelEx": "skråbenk",
-  "notes": "review mode wc-03 (Wikimedia), Rune: 2 skråbenk"
+  "notes": "review mode wc-03 (Wikimedia), Rune: 2 skråbenk",
+  "tier": "worst"
  },
  {
   "id": "rvmvp58x3t552fc13b",
@@ -1021,7 +1052,7 @@
   "labelReps": 2,
   "labelEx": "knebøy",
   "notes": "review mode wc-04 (Wikimedia), Rune: 2 knebøy",
-  "worst": true
+  "tier": "worst"
  },
  {
   "id": "rvmvp59jkd18db8960",
@@ -1052,7 +1083,7 @@
   "labelReps": 2,
   "labelEx": "halvmark",
   "notes": "review mode wc-05 (Wikimedia), Rune: 2 halvmark",
-  "worst": true
+  "tier": "worst"
  },
  {
   "id": "rvmvp5bcd165fabef6",
@@ -1081,7 +1112,7 @@
   "labelReps": 6,
   "labelEx": "halvmark",
   "notes": "review mode wc-06 (Wikimedia), Rune: 6 halvmark",
-  "worst": true
+  "tier": "worst"
  },
  {
   "id": "rvmvp5cxw223f1866e",
@@ -1113,7 +1144,7 @@
   "labelReps": 2,
   "labelEx": "pullups",
   "notes": "review mode wc-07 (Wikimedia), Rune: 2 pullups",
-  "worst": true
+  "tier": "worst"
  },
  {
   "id": "rvmvp5ioxydabb4060",
@@ -1143,7 +1174,7 @@
   "labelReps": 6,
   "labelEx": "armhevinger",
   "notes": "review mode wc-09 (Wikimedia), Rune: 6 armhevinger — Ikke vanlige armhevinger, først demonsterer han 1 rep. Så tar han 5 repetisjoner etter hverandre",
-  "worst": true
+  "tier": "worst"
  },
  {
   "id": "rvmvp5llc7698e92dc",
@@ -1171,7 +1202,7 @@
   "labelReps": 12,
   "labelEx": "curl",
   "notes": "review mode wc-10 (Wikimedia), Rune: 12 curl — 12 ez bar curls etterfulgt av 4 straight bar curls",
-  "worst": true
+  "tier": "worst"
  },
  {
   "id": "rvmvp5n7j4e13f42bd",
@@ -1203,6 +1234,314 @@
   "labelReps": 2,
   "labelEx": "roing",
   "notes": "review mode wc-12 (Wikimedia), Rune: 2 roing — 2 fullstendige reps",
-  "worst": true
+  "tier": "worst"
+ },
+ {
+  "id": "mvr3cnad21805e00",
+  "exercise": "knebøy",
+  "gt": 12,
+  "kg": 20,
+  "realKg": 50,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:41:18.182Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 5,
+   "kg": 22.5,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "knebøy",
+  "labelReps": 12,
+  "notes": "knebøy 12x50 kg in a power rack (2026-10-27 session)",
+  "tier": "worst"
+ },
+ {
+  "id": "mvr3ehf7d7e3da93",
+  "exercise": "knebøy",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 80,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:42:43.891Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 1,
+   "kg": 50,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "knebøy",
+  "labelReps": 8,
+  "notes": "knebøy 8x80 kg in a power rack (2026-10-27 session)",
+  "tier": "worst"
+ },
+ {
+  "id": "mvr3gojt95bd64ea",
+  "exercise": "knebøy",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:44:26.441Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 3,
+   "kg": 80,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "knebøy",
+  "labelReps": 8,
+  "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session)",
+  "tier": "core"
+ },
+ {
+  "id": "mvr3k128fb810868",
+  "exercise": "knebøy",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:47:02.625Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 7,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "knebøy",
+  "labelReps": 8,
+  "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session)",
+  "tier": "worst"
+ },
+ {
+  "id": "mvr3naxy72228481",
+  "exercise": "knebøy",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:49:35.398Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "knebøy",
+  "labelReps": 8,
+  "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session)",
+  "tier": "core"
+ },
+ {
+  "id": "mvr3phm88e08d970",
+  "exercise": "halvmark",
+  "gt": 9,
+  "kg": 40,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:51:17.360Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 9,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "halvmark",
+  "labelReps": 9,
+  "notes": "romanian deadlift (RDL) 100 kg, start rep from the floor included",
+  "tier": "worst"
+ },
+ {
+  "id": "mvr3slr3ddbdbd01",
+  "exercise": "halvmark",
+  "gt": 9,
+  "kg": 40,
+  "realKg": 100,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:53:42.687Z",
+  "pred": {
+   "exercise": "situps",
+   "reps": 9,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "situps",
+  "labelReps": 9,
+  "notes": "RDL set 2; app 8.12 logged it as situps x9",
+  "tier": "core"
+ },
+ {
+  "id": "mvr3vtnn4fb621e5",
+  "exercise": "halvmark",
+  "gt": 9,
+  "kg": 40,
+  "realKg": 100,
+  "view": "side",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:56:12.899Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 9,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "halvmark",
+  "labelReps": 9,
+  "notes": "RDL set 3 after ~85 s of standing rest",
+  "tier": "core"
+ },
+ {
+  "id": "mvr3yc9wa4bdef61",
+  "exercise": "bulgarsk",
+  "gt": 8,
+  "kg": 0,
+  "realKg": 70,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:58:10.340Z",
+  "pred": {
+   "exercise": "dips",
+   "reps": 3,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "bulgarsk",
+  "labelReps": 8,
+  "notes": "barbell Bulgarian split squat, one leg (rear foot on bench), oblique; app 8.12 said dips x3",
+  "tier": "worst"
+ },
+ {
+  "id": "mvr3nq3e5c6cddac",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:49:55.034Z",
+  "pred": {
+   "exercise": "curl",
+   "reps": 2,
+   "kg": 20,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "curl",
+  "labelReps": 2,
+  "notes": "rigging/loading plates between sets (app 8.12: false curl x2)",
+  "tier": "worst"
+ },
+ {
+  "id": "mvr3o841cd8387e6",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:50:18.385Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 2,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "halvmark",
+  "labelReps": 2,
+  "notes": "rigging between sets (app 8.12: false halvmark x2)",
+  "tier": "pass"
+ },
+ {
+  "id": "mvr3rto36e8c9504",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:53:06.291Z",
+  "pred": {
+   "exercise": "curl",
+   "reps": 3,
+   "kg": 20,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "curl",
+  "labelReps": 3,
+  "notes": "rest: talking at phone, stretching, walking (app 8.12: false curl x3)",
+  "tier": "core"
+ },
+ {
+  "id": "mvr3x5c841129b1d",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "front",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:57:14.696Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 2,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "knebøy",
+  "labelReps": 2,
+  "notes": "rigging (app 8.12: false knebøy x2 @100)",
+  "tier": "pass"
+ },
+ {
+  "id": "mvr3ztyba5399299",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.12",
+  "created": "2026-10-27T19:59:19.907Z",
+  "pred": {
+   "exercise": "roing",
+   "reps": 2,
+   "kg": 30,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "roing",
+  "labelReps": 2,
+  "notes": "rest: sitting close to phone talking (app 8.12: false roing x2)",
+  "tier": "core"
  }
 ]

@@ -25,6 +25,12 @@ by eye from the frames.
 * Caveat: I set the GT while looking at the same signal plots that the tuning used. That gives the GT some potential bias toward
   the signal, although every count was checked against the thumbnails.
 
+## v8.13: real-clip benchmark tiers (`eval/real`)
+`node eval/real/run.js [--tier core|worst|pass]` replays Rune's own clips (landmarks only). **core** = a small stable set
+(2–3 clips per exercise + negatives) that must pass (exit 1 = regression); **worst** = the clips the app fails most — test a fix
+there first and move solved clips to core; **pass** = solved, not core. Add new session clips capped at ~5 per exercise.
+See `results-v8.13.md`.
+
 ## v8.2: strict counting + head-on push-ups (see `results-v8.2.md`)
 * **Strict counter (default):** a rep only counts when, during the rep, the needed landmarks are visible and the shoulders
   are inside the frame (≤50 % bad frames), the person is not travelling across the frame, the exercise posture holds

@@ -39,9 +39,9 @@
   // normalized by a body length so it is camera-distance independent.
   // ref = running reference torso length (max seen in set) so foreshortening during hinge shows up.
   const EX = {
-    knebøy: { minAmp: 0.22, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
+    knebøy: { minAmp: 0.22, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y, Math.max(g.kn[0].y, g.kn[1].y)) - g.hipM.y) / ref },
-    bulgarsk: { minAmp: 0.18, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
+    bulgarsk: { minAmp: 0.18, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       // front leg = knee closest to hip height
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref },
     pullups: { bodyMove: 0.25, minAmp: 0.25, minRep: 0.6, maxRep: 8, need: 'arms', posture: (g, ref) => g.wrM.y < g.shM.y + 0.3 * ref && g.torsoTilt < 50,
@@ -72,7 +72,8 @@
     // v8.8: standing hinge — legs visible (head-on push-ups hide them) and the hands not planted far below the hips
     halvmark: { minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso', posture: (g, ref) => g.legsVis > 0.4 && g.wrM.y - g.hipM.y < 0.8 * ref,
       signal: (g, ref) => (g.hipM.y - g.shM.y) / ref },
-     roing: { minAmp: 0.15, bigEdge: 1.25, minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
+     roing: { minAmp: 0.15, bigEdge: 1.25,
+      minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
     // push-up: wrists planted below the shoulders (rest = arms extended, body high). Same scalar family as dips, but the
     // recognizer tells them apart by torso orientation (push-up body horizontal, dips upright). bodyRef handles strong
@@ -89,6 +90,11 @@
     curl: { minAmp: 0.4, minRep: 0.8, maxRep: 8, need: 'arms', stillBody: 0.75,
       posture: g => g.torsoTilt < 30 && (g.legsVis < 0.4 || Math.min(g.knee[0] ?? 180, g.knee[1] ?? 180) > 120),
       signal: (g, ref) => (g.wr[g.arm].y - g.sh[g.arm].y) / ref },
+    // v8.13 V-situp (weighted V-up / jackknife): lying on the back, the torso AND the straight legs lift toward each other so
+    // the hip angle (shoulder–hip–ankle) closes from ~170° to ~60–90°. Rest (lying open) = high signal.
+    vsitup: { lying: true, minAmp: 0.22, minRep: 0.5, maxRep: 8, need: 'torso',
+      signal: g => { const a = g.leg != null && g.an[g.leg] && vis(g.an[g.leg]) > 0.3 ? g.an[g.leg] : g.kn[g.leg];
+        return a && vis(a) > 0.3 ? angle(g.shM, g.hipM, a) / 180 : null; } },
     situps: { lying: true, minAmp: 0.18, minRep: 0.55, maxRep: 12, need: 'torso',
       signal: (g, ref) => (g.shM.y - g.hipM.y) / ref }
   };
@@ -103,7 +109,7 @@
     const def = { ...EX[exId] || EX.knebøy, ...opts };
     const tau = def.tau ?? 0.12, topWin = def.topWin ?? 2, cntRatio = def.cntRatio ?? 0.5, overshoot = def.overshoot ?? 0.6;
     let s0T = null, repAmps = [], s, lastT, ref, refBuf, state, top, hist, lo, tDown, reps, amps, lastRepT, lastGood, repTimes, raw3, pend, auxLo, auxHi, aux2Lo, aux2Hi, onRep = opts.onRep;
-    let rejected = 0, qa = null, tents = [], camT = 0, topPose = [];
+    let bodyBuf = [], rejected = 0, qa = null, tents = [], camT = 0, topPose = [];
     function reset() { tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
     reset();
     const typAmp = () => { if (!amps.length) return null; const a = [...amps].sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; };
@@ -133,9 +139,12 @@
       if (!ok) return;
       // every rep-shaped movement feeds the adaptive thresholds exactly as in the non-strict engine; the strict gates
       // below only decide whether it is COUNTED
-      amps.push(p.amp); if (amps.length > 8) amps.shift(); p.inAmps = true;
-      if (!strict) return count(p);
-      const why = cleanRep(p); if (why) { rejected++; opts.onReject && opts.onReject(why, p); return; }
+      if (!strict) { amps.push(p.amp); if (amps.length > 8) amps.shift(); p.inAmps = true; return count(p); }
+      const why = cleanRep(p);
+      // v8.13: a movement made out of posture or out of view (unracking/walking out under the bar, glitchy frames) no longer
+      // sets the adaptive amplitude, so one huge setup excursion cannot make the set's real (smaller) reps look too shallow
+      if (!def.cleanAmps || (why !== 'pose' && why !== 'vis')) { amps.push(p.amp); if (amps.length > 8) amps.shift(); p.inAmps = true; }
+      if (why) { rejected++; opts.onReject && opts.onReject(why, p); return; }
       if (reps > 0) return count(p);
       if (p.q && p.q.topOk === false) { rejected++; opts.onReject && opts.onReject('setup', p); return; } // v8.8: no established top yet
       // pair with an earlier unconfirmed rep of similar amplitude and tempo (a half rep in between is skipped)
@@ -167,7 +176,12 @@
       const ok = g && (def.need === 'legs' ? g.legsVis > 0.4 : def.need === 'arms' ? g.armsVis > 0.4 : true);
       if (!ok) { if (qa) { qa.n++; qa.bad++; } checkPend(t, true); return out(false); }
       const body = def.bodyRef ? Math.max(g.torso, 1.25 * g.shW) : g.torso;
-      ref = Math.max(ref * Math.exp(-(lastT == null ? 0 : Math.max(0, t - lastT)) / 60), body); // slowly decaying max torso length
+      // v8.13: one-off pose glitches (bar/plates/rack occluding the hips: the torso collapses to under half its recent length
+      // for a frame or two; standing leg lifts: the torso flips upside down) are dropped as bad frames, so they cannot fake a huge rep that poisons the adaptive amplitude
+      if (def.glitch) { bodyBuf.push([t, g.torso]); while (bodyBuf[0][0] < t - 3) bodyBuf.shift();
+        if (bodyBuf.length >= 8) { const m = [...bodyBuf].map(p => p[1]).sort((x, y) => x - y)[Math.floor(bodyBuf.length / 2)];
+          if (g.torso < 0.6 * m || (def.need === 'legs' && g.torsoTilt > 120)) { if (qa) { qa.n++; qa.bad++; } return out(false); } } }
+      ref = Math.max(ref * Math.exp(-(lastT == null ? 0 : Math.max(0, t - lastT)) / (def.refTau && body < 0.9 * ref ? def.refTau : 60)), body); // slowly decaying max torso length (v8.13: refTau — faster decay once the body is clearly smaller, e.g. after walking up to the phone)
       if (def.refWin) { refBuf.push([t, body]); while (refBuf[0][0] < t - def.refWin) refBuf.shift(); }
       let raw = def.signal(g, def.refWin ? Math.max(...refBuf.map(p => p[1])) : ref);
       if (raw == null || !isFinite(raw) || (def.valid && !def.valid(raw, g, ref))) { if (qa) { qa.n++; qa.bad++; } checkPend(t, true); return out(false); }
@@ -293,7 +307,12 @@
     function update(lm, tMs, aspect = 1, camMoving = false) {
       const t = tMs / 1000, g = !camMoving && lm && geom(lm, aspect);
       if (camMoving) buf.length = 0; // features (travel, foot movement) mix camera and body motion: start over afterwards
-      if (g) buf.push({ t, g });
+      // v8.13: drop one-off pose glitches (torso collapses to <60 % of the window's median, or flips upside down while the
+      // window is upright) so they do not blow up tilt/hinge ranges (rack squats were read as rows)
+      let glitch = false;
+      if (g && buf.length >= 8) { const md = k => { const a = buf.map(k).sort((x, y) => x - y); return a[a.length >> 1]; };
+        glitch = md(b => b.g.torsoTilt) < 60 && g.legsVis > 0.4 && (g.torso < 0.6 * md(b => b.g.torso) || g.torsoTilt > 120); }
+      if (g && !glitch) buf.push({ t, g });
       while (buf.length && buf[0].t < t - win) buf.shift();
       return classify();
     }
@@ -323,7 +342,10 @@
         // hands grip the bars at hip height) and shoulder width relative to the visible torso (prone torso foreshortens)
         // v8.9: both hands on one bar (EZ curl) keep the wrists level; gesturing/dancing/stretching arms move independently
         wrDy: q(buf.map(b => Math.min(vis(b.g.wr[0]), vis(b.g.wr[1])) > 0.4 ? Math.abs(b.g.wr[0].y - b.g.wr[1].y) / ref : 1), 0.8),
-        wrHip: q(n(g => g.wrM.y - g.hipM.y), 0.5), shWt: q(buf.map(b => b.g.shW / b.g.torso), 0.5)
+        wrHip: q(n(g => g.wrM.y - g.hipM.y), 0.5),
+        // v8.13: feet lifting off the floor relative to the hips (V-situp) and how far the hip angle swings
+        legLift: rng(n(g => g.hipM.y - (vis(g.an[g.leg]) > 0.3 ? g.an[g.leg].y : g.kn[g.leg].y))),
+        hipAng: rng(buf.map(b => { const a = vis(b.g.an[b.g.leg]) > 0.3 ? b.g.an[b.g.leg] : b.g.kn[b.g.leg]; return angle(b.g.shM, b.g.hipM, a); })), shWt: q(buf.map(b => b.g.shW / b.g.torso), 0.5)
       };
       return f;
     }
@@ -371,7 +393,10 @@
         * bodyMoves * (1 - sig(f.wrMove / Math.max(0.05, f.shMove), 0.8, 1.5)) * Math.max(sig(f.knee, 115, 150), legsHidden, headOn);
       // sit-up: starts lying and rotates upright -> large tilt range and big torso-hinge swing; shoulders move far while the
       // hips stay; knees bent; hands not pressing. Separated from RDL (knees straight, stays standing).
-      S.situps = sig(f.shMove, 0.16, 0.4) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
+      // v8.13 V-situp: the shoulders AND the feet rise toward each other around still hips (sit-up: the feet stay planted)
+      S.vsitup = sig(f.shMove, 0.16, 0.4) * sig(f.legLift, 0.3, 0.55) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
+        * sig(f.tilt, 35, 50) * sig(f.hipAng, 50, 80) * (1 - sig(f.hipMove, 0.3, 0.5));
+      S.situps = (1 - sig(f.legLift, 0.3, 0.55)) * sig(f.shMove, 0.16, 0.4) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
         * sig(f.hinge, 0.25, 0.55) * (1 - sig(f.kneeMin, 110, 145)) * (0.35 + 0.65 * sig(f.tiltRange, 25, 55)) * (0.3 + 0.7 * sig(f.tilt, 38, 55)) * (1 - sig(f.hipMove, 0.3, 0.5));
       // v8.9 EZ curl: upright and steady torso, the wrists swing far relative to the shoulders while the shoulders barely move
       // (dips/pull-ups: hands fixed, shoulders travel), no hip drop (squat) or hinge (RDL), wrists stay below the shoulders
@@ -419,6 +444,11 @@
   function relock(cs, lock, pick, tSec, scores, atSave = false) {
     if (!lock || !cs[lock]) return lock;
     const lt = cs[lock].lastRepT ?? -Infinity;
+    // v8.13: the recognizer now clearly shows another exercise whose counter is counting the SAME reps (as many, the last one
+    // recent): the 2-rep lock came from an ambiguous start (an RDL picked up from the floor looked like a squat) — follow it
+    if (pick && pick !== lock && cs[pick] && cs[pick].reps >= Math.max(4, cs[lock].reps) && cs[pick].reps <= cs[lock].reps + 2 && tSec - (cs[pick].lastRepT ?? -Infinity) < 1.5
+      && cs[pick].repTimes.length && cs[pick].repTimes[0] <= (cs[lock].repTimes[1] ?? lt) + 1.5
+      && scores && (scores[pick] ?? 0) >= 1.5 * (scores[lock] ?? 0) + 0.1) return pick; // and the recognizer clearly prefers it now
     if (tSec - lt < 5 || cs[lock].reps > 3) return lock; // a real set (4+ reps) is never re-assigned
     const after = id => cs[id] ? cs[id].repTimes.filter(t => t > lt).length : 0;
     if (pick && pick !== lock && after(pick) >= 3) return pick;
@@ -510,6 +540,15 @@
       reset() { reps = 0; state = 'up'; cnt = 0; }, get reps() { return reps; }
     };
   }
-  const api = { angle, geom, EX, IDS, relock, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  // v8.13: an auto-saved short set (≤5 reps) must have a set's rhythm. Rigging/rest motion (loading plates, stretching, walking
+  // around the rack) produces a few sparse "reps" with long, uneven gaps (e.g. 7 s, 17 s, 19 s); a real set — even a slow heavy
+  // one — keeps its reps within a few seconds of each other.
+  function plausibleSet(times) {
+    if (!times || times.length < 2 || times.length > 5) return true;
+    const g = []; for (let i = 1; i < times.length; i++) g.push(times[i] - times[i - 1]);
+    const mx = Math.max(...g), mn = Math.min(...g), md = [...g].sort((a, b) => a - b)[(g.length - 1) >> 1];
+    return !(md > 5.5 || (mx > 6 && mx > 2 * mn));
+  }
+  const api = { angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

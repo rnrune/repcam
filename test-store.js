@@ -34,7 +34,7 @@ assert.equal(u.lastKg('dips'),10);assert.equal(u.lastKg('roing'),null);
 assert.equal(u.updateSet(a.timestamp,{reps:'7',kg:'12.5'}).reps,7);assert.equal(u.sets()[0].kg,12.5);
 u.updateSet(b.timestamp,{exercise:'pullups',kg:-5});assert.equal(u.sets()[1].exercise,'pullups');assert.equal(u.sets()[1].kg,0);assert.equal(u.lastKg('dips'),12.5);
 assert.equal(u.updateSet('nope',{reps:1}),null);
-assert.deepEqual(S.EX.map(e=>e.id),['knebøy','bulgarsk','pullups','dips','benkpress','skråbenk','halvmark','roing','armhevinger','situps','curl']);assert(S.EX.every(e=>e.active&&e.icon));
+assert.deepEqual(S.EX.map(e=>e.id),['knebøy','bulgarsk','pullups','dips','benkpress','skråbenk','halvmark','roing','armhevinger','situps','vsitup','curl']);assert(S.EX.every(e=>e.active&&e.icon));
 assert.equal(S.exInfo('benkpress').name,'Benkpress');assert(S.exInfo('benkpress').active);
 // bench press: last-weight memory is per exercise (bench vs incline kept apart)
 {const w=S.createStore(mem());w.addSet({exercise:'benkpress',reps:5,kg:80},new Date('2026-10-23T18:00:00Z'));w.addSet({exercise:'skråbenk',reps:8,kg:60},new Date('2026-10-23T18:10:00Z'));

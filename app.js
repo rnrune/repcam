@@ -17,11 +17,11 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.11';
+const APP_VERSION = '8.13';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
-const stravaResync = sid => { if (sid) strava.update(sid, liveSets(sid)); };
+const stravaResync = sid => { if (sid) { strava.update(sid, liveSets(sid)); setTimeout(() => stravaSync(), 0); } }; // v8.13: synced activities get their description rewritten
 const stravaFmt = () => ({ name: exName, kgf: L.kgf, title: L.t('st.actName') });
 let pending = false, landmarker, modelP, stream, facing = 'user', lastTs = -1, raf = 0, tick = 0;
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
@@ -114,6 +114,20 @@ function openEdit(ts, after) {
   $('eDel').onclick = async () => { if (await confirmDialog(L.t('del.title'), L.t('del.text'), L.t('del.ok'))) { fbLabel(ts, 'delete'); store.deleteSet(ts); stravaResync(sid); after?.(); } };
 }
 
+// v8.13: add a set to a finished session (Historikk). Defaults to the session's last set; Strava: pending sync gets the new
+// set, an existing activity gets its description block rewritten (stravaResync).
+function openAdd(sid, after) {
+  const mine = liveSets(sid), last = mine[mine.length - 1] || {}; let ex = last.exercise || 'knebøy';
+  openSheet(`<h3>${L.t('hist.addSet')}</h3>
+    <div class="muted small">${L.t('w.repsL')}</div>${stepper('eReps', +last.reps || 8, 1, x => String(x))}
+    <div class="muted small">${L.t('w.weight')} (kg · 0 = ${L.t('bw')})</div>${stepper('eKg', +last.kg || 0, 2.5, x => L.nf(x, 2))}
+    <div class="muted small">${L.t('edit.ex')}</div>${exGrid(ex, false)}
+    <div class="sheetfoot"><button class="grad" id="eSave">${L.t('edit.save')}</button><div class="btns"><button class="ghost" id="eNo">${L.t('edit.cancel')}</button></div></div>`);
+  const sh = $('sheet'); wireSteppers(sh);
+  sh.querySelectorAll('.exgrid button').forEach(b => b.onclick = () => { ex = b.dataset.ex; sh.querySelectorAll('.exgrid button').forEach(x => x.classList.toggle('on', x === b)); });
+  $('eSave').onclick = () => { const reps = parseNum($('eReps').value); if (reps > 0) { store.addSetTo(sid, { exercise: ex, reps, kg: parseNum($('eKg').value) }); stravaResync(sid); } closeSheet(); after?.(); };
+  $('eNo').onclick = closeSheet;
+}
 
 /* ---------- «Hjelp til å forbedre»: per-set clips + labels (feedback.js) ---------- */
 const fb = { rec: null, mime: '', repT: [], lm: [], lastLm: 0, lastTrim: 0, early: {}, cutting: {}, q: null };
@@ -250,11 +264,12 @@ function renderHist() {
     const d = L.date(s.start, { weekday: 'long', day: 'numeric', month: 'long' });
     if (d !== last) { out += `<div class="day">${esc(d)}</div>`; last = d; }
     out += `<div class="card"><div class="row"><b>${L.hm(s.start)}–${L.hm(s.end)}</b><span class="muted">${L.t('sets', { n: s.sets.length })} · ${L.nf(s.volume)} kg</span><button class="ghost sessdel" data-sdel="${esc(s.id)}" aria-label="${L.t('sdel.btn')}" title="${L.t('sdel.btn')}">🗑</button></div>` +
-      s.sets.map(x => `<div class="setrow" data-ts="${esc(x.timestamp)}" role="button" tabindex="0"><span>${icon(x.exercise)} ${esc(exName(x.exercise || 'knebøy'))} · <b>${L.t('reps', { n: x.reps })}</b> × ${L.kgf(x.kg)}</span><span class="muted">✎</span></div>`).join('') + '</div>';
+      s.sets.map(x => `<div class="setrow" data-ts="${esc(x.timestamp)}" role="button" tabindex="0"><span>${icon(x.exercise)} ${esc(exName(x.exercise || 'knebøy'))} · <b>${L.t('reps', { n: x.reps })}</b> × ${L.kgf(x.kg)}</span><span class="muted">✎</span></div>`).join('') +
+      (store.active()?.id === s.id ? '' : `<button class="ghost addset" data-sadd="${esc(s.id)}">＋ ${L.t('hist.addSet')}</button>`) + '</div>';
   }
   $('histList').innerHTML = out;
 }
-$('histList').onclick = e => { const d = e.target.closest('[data-sdel]'); if (d) return deleteSession(d.dataset.sdel); const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, renderHist); };
+$('histList').onclick = e => { const d = e.target.closest('[data-sdel]'); if (d) return deleteSession(d.dataset.sdel); const a = e.target.closest('[data-sadd]'); if (a) return openAdd(a.dataset.sadd, renderHist); const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, renderHist); };
 // "Slett hele økten": one confirmation, removes every set locally and cancels any pending Strava sync/auto-create. Never deletes on Strava.
 let sdelBusy = false;
 async function deleteSession(id) {
@@ -289,7 +304,7 @@ setInterval(() => { if (document.visibilityState === 'visible') stravaSync(); },
 const queueStrava = sum => strava.enqueue({ ...sum, sets: store.sets().filter(s => s.sessionId === sum.id) });
 let stravaBusy = false;
 async function stravaSync() {
-  if (stravaBusy || !strava.connected() || !strava.queue().some(x => x.status === 'waiting' || x.status === 'creating')) return;
+  if (stravaBusy || !strava.connected() || !strava.queue().some(x => x.status === 'waiting' || x.status === 'creating' || x.descDirty)) return;
   stravaBusy = true; try { await strava.process(stravaFmt()); } catch (e) { console.warn('strava', e); } stravaBusy = false;
   if (cur === 'profil') renderStrava(); if (cur === 'home') renderStravaNote();
 }
@@ -371,7 +386,7 @@ const motion = { state: 'off', gyro: 0, acc: 0, last: 0,
   // readings since the previous frame; null when there is no live sensor (no events for 1 s)
   read() { if (motion.state !== 'on' || performance.now() - motion.last > 1000) { motion.gyro = motion.acc = 0; return null; } const r = { gyro: motion.gyro, acc: motion.acc }; motion.gyro = motion.acc = 0; return r; } };
 let lastRepWall = 0, lastActivity = Date.now(), shownReps = -1, toastT = 0, lastFrameT = null;
-const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30, armhevinger: 0, situps: 0, curl: 20 };
+const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30, armhevinger: 0, situps: 0, vsitup: 15, curl: 20 };
 function kgFor(ex) { const x = LS.getItem('repcam.kg.' + ex); if (x != null) return +x; const l = store.lastKg(ex); return l != null ? l : (DEFAULT_KG[ex] ?? 0); }
 function setKgFor(ex, x) { LS.setItem('repcam.kg.' + ex, Math.max(0, Math.round(x * 100) / 100)); }
 const curEx = () => manualEx || lockEx || autoEx;
@@ -409,7 +424,7 @@ $('exChip').onclick = () => {
 function finishPending() {
   // v8.9: last-chance re-lock — the set was locked on setup motion while another exercise's counter holds the real set
   if (lockEx && !manualEx && lastFrameT != null) { const nl = Reps.relock(counters, lockEx, null, lastFrameT, null, true); if (nl !== lockEx) lockEx = nl; }
-  const r = currentReps(); if (r >= MIN_AUTO_REPS) return saveSet(); if (r > 0) { const e = curEx(); counters[e] = Reps.createCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
+  const r = currentReps(), ce = curEx(); if (r >= MIN_AUTO_REPS && (manualEx || !ce || Reps.plausibleSet(counters[ce].repTimes))) return saveSet(); /* v8.13: sparse rigging 'reps' are not a set */ if (r > 0) { const e = ce; counters[e] = Reps.createCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
 function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;

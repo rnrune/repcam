@@ -14,6 +14,7 @@
     { id: 'roing', name: 'Stående roing', icon: '🚣', active: true },
     { id: 'armhevinger', name: 'Armhevinger', icon: '💥', active: true },
     { id: 'situps', name: 'Sit-ups', icon: '🙇', active: true },
+    { id: 'vsitup', name: 'V-situp', icon: '🔺', active: true },
     { id: 'curl', name: 'EZ-curl', icon: '💪', active: true }
   ];
   const LEGACY = [
@@ -120,6 +121,15 @@
         const s = api.sets().filter(x => !(x && gone.has(x.timestamp) && (!x.sessionId || x.sessionId === id)));
         const n = api.sets().length - s.length; api.save(SETS, s);
         api.save(SESS, api.meta().filter(m => m.id !== id)); return n;
+      },
+      // v8.13: add a set to a FINISHED session (edited afterwards from Historikk). It gets a fresh, unique timestamp right
+      // after the session's last set (so it sorts last and the session's time window barely moves). Returns the record or null.
+      addSetTo(sessionId, set) {
+        const mine = normalize(api.sets()).filter(x => x.sessionId === sessionId); if (!mine.length) return null;
+        const s = api.sets(); let ms = Math.max(...mine.map(t)) + 1000;
+        while (s.some(x => x && x.timestamp === new Date(ms).toISOString())) ms++;
+        const rec = { exercise: 'knebøy', reps: 0, kg: 0, ...set, timestamp: new Date(ms).toISOString(), sessionId, added: true };
+        s.push(rec); api.save(SETS, s); return rec;
       },
       sessionOf(timestamp) { const x = normalize(api.sets()).find(y => y.timestamp === timestamp); return x ? x.sessionId : null; },
       // Patch a logged set (reps, kg, exercise). Returns the updated record or null.

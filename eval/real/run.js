@@ -6,7 +6,7 @@
 const fs = require('fs'), path = require('path');
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const R = require(path.resolve(arg('--reps', path.join(__dirname, '..', '..', 'reps.js'))));
-const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30, armhevinger: 0, situps: 0, curl: 20 };
+const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30, armhevinger: 0, situps: 0, vsitup: 15, curl: 20 };
 function upsample(F, hz) { const o = []; for (let i = 0; i + 1 < F.length; i++) { const a = F[i], b = F[i + 1], dt = b[0] - a[0];
   const n = dt > 0.5 ? 1 : Math.max(1, Math.round(dt * hz)); for (let k = 0; k < n; k++) o.push(a.map((x, j) => x + (b[j] - x) * k / n)); } o.push(F[F.length - 1]); return o; }
 // v8.9: also replays the app's autosave (app.js finishPending, AUTOSAVE_MS = 9 s after the shown count last changed): a stray
@@ -29,13 +29,14 @@ function replay(d, hz) {
     for (const id of R.IDS) if (id !== ex && cs[id].reps > 0 && a[0] - cs[id].lastRepT > AUTOSAVE_S && cs[id].forget) cs[id].forget();
     if (n !== shown) { shown = n; shownT = a[0]; }
     if (n > 0 && a[0] - shownT > AUTOSAVE_S && lock && R.relock && R.relock(cs, lock, p, a[0], rc.scores, true) !== lock) { lock = R.relock(cs, lock, p, a[0], rc.scores, true); shown = cs[lock].reps; shownT = a[0]; }
-    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) {  if (n >= 2) { keep(res(ex)); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
+    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) {  if (n >= 2 && (!R.plausibleSet || R.plausibleSet(cs[ex].repTimes))) { keep(res(ex)); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
   // the clip ends where the app saved the set: same last-chance re-lock as at an autosave
   if (lock && R.relock) lock = R.relock(cs, lock, null, F[F.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto;
-  if (ex && cs[ex].reps >= 2) keep(res(ex));
+  if (ex && cs[ex].reps >= 2 && (!R.plausibleSet || R.plausibleSet(cs[ex].repTimes))) keep(res(ex));
   if (saved) return saved;
-  return ex ? res(ex) : { ex: null, reps: 0, kg: 0, times: [] };
+  if (ex) { const r = res(ex); if (!R.plausibleSet || R.plausibleSet(r.times)) return r; return { ...r, reps: 0, times: [] }; }
+  return { ex: null, reps: 0, kg: 0, times: [] };
 }
 module.exports = { replay, man: () => JSON.parse(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8')), load: id => JSON.parse(fs.readFileSync(path.join(__dirname, id + '.lm.json'), 'utf8')) };
 // Scoring: a clip is exact when exercise + reps (+ default kg) match; negatives (exercise null, gt 0) pass when nothing is logged.
@@ -44,12 +45,17 @@ module.exports = { replay, man: () => JSON.parse(fs.readFileSync(path.join(__dir
 if (require.main === module) {
   const hz = +arg('--hz', 0) || 0; let bad = 0, n = 0, exact = 0, exOk = 0, pos = 0, ae = 0, neg = 0, falseSets = 0;
   console.log('| Clip | GT | Pred | Exercise (GT → pred) | kg | Rep times (s) |\n|---|---|---|---|---|---|');
-  for (const e of module.exports.man()) { const r = replay(module.exports.load(e.id), hz); n++;
+  // v8.13 benchmark tiers (manifest `tier`): core = small stable set that must pass (regression guard), worst = clips the app
+  // fails most (test fixes here first, move solved ones to core), pass = solved but not core. --tier core|worst|pass filters.
+  const tier = arg('--tier', null), T = {};
+  for (const e of module.exports.man().filter(x => !tier || x.tier === tier)) { const r = replay(module.exports.load(e.id), hz); n++;
     let ok;
-    if (!e.exercise) { neg++; ok = r.reps === 0; if (!ok) falseSets++; }
+    if (!e.exercise) { neg++; ok = r.reps < 2; /* v8.13: the app drops a stray single rep (autosave needs 2) */ if (!ok) falseSets++; }
     else { pos++; const exm = r.ex === e.exercise; if (exm) exOk++; ok = exm && r.reps === e.gt && r.kg === e.kg; ae += exm ? Math.abs(r.reps - e.gt) : e.gt; }
-    if (ok) exact++; else if (e.must || e.regress) bad++;
-    console.log(`| ${ok ? '✓' : '✗'}${e.must || e.regress ? '!' : ''} ${e.id} | ${e.gt} | ${r.reps} | ${e.exercise} → ${r.ex} | ${r.kg} | ${r.times.join(', ')} |`); }
-  console.log(`\nexact ${exact}/${n} · exercise ${exOk}/${pos} · rep MAE ${(ae / Math.max(1, pos)).toFixed(2)} (wrong exercise = all reps missed) · false sets ${falseSets}/${neg} · must-fail ${bad}`);
+    const tt = T[e.tier || '-'] ||= { n: 0, ok: 0 }; tt.n++; if (ok) tt.ok++;
+    if (ok) exact++; else if (e.must || e.regress || e.tier === 'core') bad++;
+    console.log(`| ${ok ? '✓' : '✗'}${e.must || e.regress || e.tier === 'core' ? '!' : ''} ${e.id} | ${e.gt} | ${r.reps} | ${e.exercise} → ${r.ex} | ${r.kg} | ${r.times.join(', ')} |`); }
+  console.log('\ntiers: ' + Object.entries(T).map(([k, v]) => `${k} ${v.ok}/${v.n}`).join(' · '));
+  console.log(`exact ${exact}/${n} · exercise ${exOk}/${pos} · rep MAE ${(ae / Math.max(1, pos)).toFixed(2)} (wrong exercise = all reps missed) · false sets ${falseSets}/${neg} · must-fail ${bad}`);
   process.exit(bad ? 1 : 0);
 }

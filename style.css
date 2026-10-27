@@ -118,3 +118,4 @@ a.avatar{text-decoration:none;flex:none}
 #fbCard .row{cursor:pointer}#fbCard input.sw{width:24px;height:24px;accent-color:#ff2d87;flex:0 0 auto}
 /* v8.9: tappable set log (edit any set of the session) */
 #log .logrow{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:4px 0;min-height:28px;cursor:pointer}
+.addset{width:100%;margin-top:8px}
