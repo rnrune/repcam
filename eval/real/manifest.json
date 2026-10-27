@@ -1277,7 +1277,7 @@
   "label": "corrected",
   "labelEx": "knebøy",
   "labelReps": 8,
-  "notes": "knebøy 8x80 kg in a power rack (2026-10-27 session)",
+  "notes": "knebøy 8x80 kg in a power rack (2026-10-27 session) · Rune review: confirmed 8 (no comment)",
   "tier": "worst"
  },
  {
@@ -1321,7 +1321,7 @@
   "label": "corrected",
   "labelEx": "knebøy",
   "labelReps": 8,
-  "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session)",
+  "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session) · Rune review: confirmed 8 (no comment on the 133–139 s gap)",
   "tier": "worst"
  },
  {
@@ -1415,7 +1415,7 @@
  {
   "id": "mvr3yc9wa4bdef61",
   "exercise": "bulgarsk",
-  "gt": 8,
+  "gt": 16,
   "kg": 0,
   "realKg": 70,
   "view": "oblique",
@@ -1431,7 +1431,7 @@
   "label": "corrected",
   "labelEx": "bulgarsk",
   "labelReps": 8,
-  "notes": "barbell Bulgarian split squat, one leg (rear foot on bench), oblique; app 8.12 said dips x3",
+  "notes": "Bulgarian split squat 70 kg, BOTH legs in this clip (Rune review 2026-10-27: «8 rep per bein. 16 totalt»); oblique, legs hidden behind the bench",
   "tier": "worst"
  },
  {
@@ -1543,5 +1543,55 @@
   "labelReps": 2,
   "notes": "rest: sitting close to phone talking (app 8.12: false roing x2)",
   "tier": "core"
+ },
+ {
+  "id": "mvr4g3o2db25cd16-s2",
+  "exercise": "vsitup",
+  "kg": 15,
+  "realKg": 15,
+  "view": "front",
+  "facing": "user",
+  "app": "8.11",
+  "created": "2026-10-27T20:11:58.994Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 12,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "none-yet",
+  "lm": "mvr4g3o2db25cd16",
+  "tier": "worst",
+  "gt": 20,
+  "win": [
+   140,
+   200
+  ],
+  "notes": "V-situp set 2 (20 × 15 kg plate), side view on the floor; the app saved NO set for it (one 349 s recording holds sets 2 and 3)"
+ },
+ {
+  "id": "mvr4g3o2db25cd16-s3",
+  "exercise": "vsitup",
+  "kg": 15,
+  "realKg": 15,
+  "view": "front",
+  "facing": "user",
+  "app": "8.11",
+  "created": "2026-10-27T20:11:58.994Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 12,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "none-yet",
+  "lm": "mvr4g3o2db25cd16",
+  "tier": "worst",
+  "gt": 12,
+  "win": [
+   300,
+   349
+  ],
+  "notes": "V-situp set 3 (12 × 15 kg); app 8.11 logged benkpress 12 × 100"
  }
 ]

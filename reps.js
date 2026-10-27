@@ -371,8 +371,10 @@
       const incline = Math.max(sig(f.tilt, 20, 30) * (1 - sig(f.tilt, 64, 72)) * sig(f.dyShW, 0.9, 1.05),
         (1 - sig(f.tilt, 20, 30)) * sig(f.dyShW, 1.8, 2.2));
       const proneHoriz = Math.max(sig(f.tilt, 45, 66) * (1 - sig(f.tiltRange, 38, 60)), sig(-f.wrUp, 0.8, 1.2) * (1 - sig(f.dyShW, 1.1, 1.6)), headOn);
-      S.skråbenk = press * incline;
-      S.benkpress = press * (1 - incline);
+      // v8.14: on a bench the feet stay down; V-situps (plate held up above the chest) swing the legs up to the hands
+      const legsSwing = sig(f.legLift ?? 0, 1.0, 1.2);
+      S.skråbenk = press * incline * (1 - legsSwing);
+      S.benkpress = press * (1 - incline) * (1 - legsSwing);
       // v8.9: shallow "standing" rows (torso ~20-30° from vertical, knees soft) count too; a torso past ~80° is lying, not rowing
       S.roing = sig(f.wrDist, 0.1, 0.3) * sig(f.wrMove / Math.max(0.05, f.shMove), 0.6, 1.1) * sig(f.tilt, 14, 24) * (1 - sig(f.tilt, 72, 85)) * (1 - sig(f.tiltRange, 25, 45)) * (1 - sig(f.wrUp, -0.4, 0)) * (1 - sig(f.hinge, 0.35, 0.6));
       // v8.8: a standing hinge shows the legs; a prone body (push-up, esp. head-on with hidden legs) is never an RDL
@@ -394,7 +396,8 @@
       // sit-up: starts lying and rotates upright -> large tilt range and big torso-hinge swing; shoulders move far while the
       // hips stay; knees bent; hands not pressing. Separated from RDL (knees straight, stays standing).
       // v8.13 V-situp: the shoulders AND the feet rise toward each other around still hips (sit-up: the feet stay planted)
-      S.vsitup = sig(f.shMove, 0.16, 0.4) * sig(f.legLift, 0.3, 0.55) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
+      // v8.14 (real clip): with a plate held up the shoulders only curl a little (shMove ~0.13–0.22) while the feet swing far
+      S.vsitup = sig(f.shMove, 0.06, 0.16) * sig(f.legLift, 0.9, 1.15) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
         * sig(f.tilt, 35, 50) * sig(f.hipAng, 50, 80) * (1 - sig(f.hipMove, 0.3, 0.5));
       S.situps = (1 - sig(f.legLift, 0.3, 0.55)) * sig(f.shMove, 0.16, 0.4) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
         * sig(f.hinge, 0.25, 0.55) * (1 - sig(f.kneeMin, 110, 145)) * (0.35 + 0.65 * sig(f.tiltRange, 25, 55)) * (0.3 + 0.7 * sig(f.tilt, 38, 55)) * (1 - sig(f.hipMove, 0.3, 0.5));
