@@ -397,7 +397,7 @@
       // hips stay; knees bent; hands not pressing. Separated from RDL (knees straight, stays standing).
       // v8.13 V-situp: the shoulders AND the feet rise toward each other around still hips (sit-up: the feet stay planted)
       // v8.14 (real clip): with a plate held up the shoulders only curl a little (shMove ~0.13–0.22) while the feet swing far
-      S.vsitup = sig(f.shMove, 0.06, 0.16) * sig(f.legLift, 0.9, 1.15) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
+      S.vsitup = Math.max(sig(f.shMove, 0.16, 0.4) * sig(f.legLift, 0.3, 0.55), sig(f.shMove, 0.06, 0.16) * sig(f.legLift, 0.9, 1.15)) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
         * sig(f.tilt, 35, 50) * sig(f.hipAng, 50, 80) * (1 - sig(f.hipMove, 0.3, 0.5));
       S.situps = (1 - sig(f.legLift, 0.3, 0.55)) * sig(f.shMove, 0.16, 0.4) * (1 - sig(f.hipMove / Math.max(0.04, f.shMove), 0.45, 0.85))
         * sig(f.hinge, 0.25, 0.55) * (1 - sig(f.kneeMin, 110, 145)) * (0.35 + 0.65 * sig(f.tiltRange, 25, 55)) * (0.3 + 0.7 * sig(f.tilt, 38, 55)) * (1 - sig(f.hipMove, 0.3, 0.5));
