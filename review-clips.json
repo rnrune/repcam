@@ -1,92 +1,52 @@
 [
-  {
-    "id": "wc-01",
-    "title": "Bench press - exercise demonstration video",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-    "page": "https://commons.wikimedia.org/wiki/File:Bench_press_-_exercise_demonstration_video.webm",
-    "source": "Wikimedia Commons",
-    "licence": "CC BY 3.0",
-    "author": "FitnessScape",
-    "expected": "benkpress"
-  },
-  {
-    "id": "wc-03",
-    "title": "Incline press - exercise demonstration video",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/8/80/Incline_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-    "page": "https://commons.wikimedia.org/wiki/File:Incline_press_-_exercise_demonstration_video.webm",
-    "source": "Wikimedia Commons",
-    "licence": "CC BY 3.0",
-    "author": "FitnessScape",
-    "expected": "skråbenk"
-  },
-  {
-    "id": "wc-04",
-    "title": "Squat - exercise demonstration video",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Squat_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-    "page": "https://commons.wikimedia.org/wiki/File:Squat_-_exercise_demonstration_video.webm",
-    "source": "Wikimedia Commons",
-    "licence": "CC BY 3.0",
-    "author": "FitnessScape",
-    "expected": "knebøy"
-  },
-  {
-    "id": "wc-05",
-    "title": "Deadlift - exercise demonstration video",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/6/62/Deadlift_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-    "page": "https://commons.wikimedia.org/wiki/File:Deadlift_-_exercise_demonstration_video.webm",
-    "source": "Wikimedia Commons",
-    "licence": "CC BY 3.0",
-    "author": "FitnessScape",
-    "expected": "halvmark"
-  },
-  {
-    "id": "wc-06",
-    "title": "Army Combat Fitness Test- 3 Repetition Maximum Deadlift (MDL) (Event 1)",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Army_Combat_Fitness_Test-_3_Repetition_Maximum_Deadlift_%28MDL%29_%28Event_1%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-    "page": "https://commons.wikimedia.org/wiki/File:Army_Combat_Fitness_Test-_3_Repetition_Maximum_Deadlift_(MDL)_(Event_1).webm",
-    "source": "Wikimedia Commons",
-    "licence": "Public domain",
-    "author": "Army Combat Fitness Test",
-    "expected": "halvmark"
-  },
-  {
-    "id": "wc-07",
-    "title": "Pull-ups - exercise demonstration video",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Pull-ups_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-    "page": "https://commons.wikimedia.org/wiki/File:Pull-ups_-_exercise_demonstration_video.webm",
-    "source": "Wikimedia Commons",
-    "licence": "CC BY 3.0",
-    "author": "FitnessScape",
-    "expected": "pullups"
-  },
-  {
-    "id": "wc-09",
-    "title": "Army Combat Fitness Test- Hand-Release Push-Up (HRP) (Event 3)",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Army_Combat_Fitness_Test-_Hand-Release_Push-Up_%28HRP%29_%28Event_3%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-    "page": "https://commons.wikimedia.org/wiki/File:Army_Combat_Fitness_Test-_Hand-Release_Push-Up_(HRP)_(Event_3).webm",
-    "source": "Wikimedia Commons",
-    "licence": "Public domain",
-    "author": "Army Combat Fitness Test",
-    "expected": "armhevinger"
-  },
-  {
-    "id": "wc-10",
-    "title": "Video of EZ Bar Curl and Straight Bar Curl",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Video_of_EZ_Bar_Curl_and_Straight_Bar_Curl.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-    "page": "https://commons.wikimedia.org/wiki/File:Video_of_EZ_Bar_Curl_and_Straight_Bar_Curl.webm",
-    "source": "Wikimedia Commons",
-    "licence": "CC BY 3.0",
-    "author": "Colossus Fitness",
-    "expected": "curl"
-  },
-  {
-    "id": "wc-12",
-    "title": "Bent-over row - exercise demonstration video",
-    "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Bent-over_row_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-    "page": "https://commons.wikimedia.org/wiki/File:Bent-over_row_-_exercise_demonstration_video.webm",
-    "source": "Wikimedia Commons",
-    "licence": "CC BY 3.0",
-    "author": "FitnessScape",
-    "expected": "roing"
-  }
+ {
+  "id": "wc-01",
+  "title": "Bench press - exercise demonstration video",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "page": "https://commons.wikimedia.org/wiki/File:Bench_press_-_exercise_demonstration_video.webm",
+  "source": "Wikimedia Commons",
+  "licence": "CC BY 3.0",
+  "author": "FitnessScape",
+  "expected": "benkpress"
+ },
+ {
+  "id": "wc-04",
+  "title": "Squat - exercise demonstration video",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Squat_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "page": "https://commons.wikimedia.org/wiki/File:Squat_-_exercise_demonstration_video.webm",
+  "source": "Wikimedia Commons",
+  "licence": "CC BY 3.0",
+  "author": "FitnessScape",
+  "expected": "knebøy"
+ },
+ {
+  "id": "wc-05",
+  "title": "Deadlift - exercise demonstration video",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/6/62/Deadlift_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "page": "https://commons.wikimedia.org/wiki/File:Deadlift_-_exercise_demonstration_video.webm",
+  "source": "Wikimedia Commons",
+  "licence": "CC BY 3.0",
+  "author": "FitnessScape",
+  "expected": "halvmark"
+ },
+ {
+  "id": "wc-07",
+  "title": "Pull-ups - exercise demonstration video",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Pull-ups_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "page": "https://commons.wikimedia.org/wiki/File:Pull-ups_-_exercise_demonstration_video.webm",
+  "source": "Wikimedia Commons",
+  "licence": "CC BY 3.0",
+  "author": "FitnessScape",
+  "expected": "pullups"
+ },
+ {
+  "id": "wc-12",
+  "title": "Bent-over row - exercise demonstration video",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Bent-over_row_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+  "page": "https://commons.wikimedia.org/wiki/File:Bent-over_row_-_exercise_demonstration_video.webm",
+  "source": "Wikimedia Commons",
+  "licence": "CC BY 3.0",
+  "author": "FitnessScape",
+  "expected": "roing"
+ }
 ]

@@ -19,3 +19,21 @@ Changes:
 Still open:
 - yc9w bulgarsk (legs hidden behind the bench, pose unusable) → roing 12.
 - V-situp sets 1 and bulgarsk sets 2–3 never uploaded.
+
+## Eval prune after Rune's full review (no engine change)
+
+Rune's new rule: keep only clips that clearly show the exercise, in one continuous take, with no change of camera, angle or distance.
+
+Removed or excluded:
+- Deleted wc-06, wc-09, wc-10 (Rune: «Dette klippet kan du fjerne»).
+- Tier `excluded` (kept in the manifest but not scored):
+  - wc-01/04/05/07/12: Rune answered 2 reps each (wc-01 comment: «Starter og slutter midt i»). These are edited demo videos: the replayed rep times jump back, which means looped or cut footage.
+  - wc-03: an edited demo with angle changes (13 landmark jumps), never reviewed.
+  - yc9w bulgarsk: the legs are hidden behind the bench.
+- run.js skips the `excluded` tier unless you run it with `--tier excluded`.
+
+Other updates:
+- RDL phm8, slr3 and vtnn: Rune confirmed 9 × 100 kg in the app (stored as `kgTrue`; the scored `kg` stays at the app default).
+
+Result: core 19/19 · worst 1/18 · pass 8/8 · exact 28/45 · exercise 34/35 · MAE 0.86 · false sets 3/10.
+Before the prune: worst 1/28, exact 28/55, exercise 40/45, MAE 1.91.
