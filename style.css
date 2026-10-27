@@ -119,3 +119,11 @@ a.avatar{text-decoration:none;flex:none}
 /* v8.9: tappable set log (edit any set of the session) */
 #log .logrow{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:4px 0;min-height:28px;cursor:pointer}
 .addset{width:100%;margin-top:8px}
+
+/* v8.15 session summary cards */
+details.sess>summary{list-style:none;cursor:pointer}details.sess>summary::-webkit-details-marker{display:none}
+.sess .row{display:flex;align-items:center;gap:8px}.sess .chev{margin-left:auto;font-size:22px;transition:transform .2s;color:var(--mut,#888)}
+details.sess[open] .chev{transform:rotate(90deg)}
+.sxl{display:flex;flex-direction:column;gap:4px;margin:8px 0}.sx{font-size:15px}
+.sbadge{font-size:13px;padding:3px 8px;border-radius:10px;background:var(--chip)}.sbadge.st-on{color:#fc4c02;font-weight:700}
+.sdet{margin-top:10px;border-top:1px solid var(--line);padding-top:6px}.sdet .addset{flex:1;margin-top:8px}.sdet .sessdel{margin-top:8px}

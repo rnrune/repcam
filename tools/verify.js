@@ -3,6 +3,7 @@
 //   node tools/verify.js doctor
 //   node tools/verify.js replay <caseId...> | --tier core|worst|pass|excluded
 //   node tools/verify.js app <caseId|clip.y4m> [--url URL] [--secs N] [--dry-run]
+//   node tools/verify.js ui [--url URL]   (screenshots of Hjem + Historikk with seeded sessions)
 const fs = require('fs'), path = require('path'), cp = require('child_process'), http = require('http');
 const ROOT = path.join(__dirname, '..'), TEST = '/workspace/repcam-test', OUT = '/workspace/repcam-shots/verify/';
 const CHROME = process.env.CHROME || '/usr/bin/google-chrome';
@@ -36,7 +37,7 @@ function replay() {
   let ok = 0;
   for (const e of man) {
     const d = R.load(e.lm || e.id), data = e.win ? { ...d, frames: d.frames.filter(a => a[0] >= e.win[0] && a[0] <= e.win[1]) } : d;
-    const r = R.replay(data, 10), good = r.reps === e.gt && (r.ex || null) === (e.exercise || null); if (good) ok++;
+    const r = R.replay(data, 10), good = e.exercise ? r.ex === e.exercise && r.reps === e.gt && r.kg === e.kg : r.reps < 2; if (good) ok++; // same rule as eval/real/run.js
     console.log(`${good ? 'PASS' : 'FAIL'} ${e.id} [${e.tier}] truth ${e.exercise || 'none'} ${e.gt} | pred ${r.ex || 'none'} ${r.reps} @${r.kg} kg | reps at ${r.times.join(', ')}`);
   }
   console.log(`${ok}/${man.length} exact`); process.exit(ok === man.length ? 0 : 1);
@@ -88,4 +89,28 @@ async function app() {
   } finally { await b.close(); srv?.close(); }
 }
 
-({ doctor, replay, app }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();
+async function ui() { // screenshots of Hjem + Historikk with a seeded history (collapsed and one card opened)
+  if (has('--dry-run')) { console.log('dry-run: would screenshot Hjem/Historikk to ' + OUT); return; }
+  fs.mkdirSync(OUT, { recursive: true });
+  const srv = flag('--url', null) ? null : await serve(), URL0 = flag('--url', null) || `http://127.0.0.1:${srv.address().port}/`;
+  const { chromium, devices } = pw(), b = await chromium.launch({ executablePath: CHROME, headless: true }), errs = [];
+  try {
+    const now = Date.now(), iso = x => new Date(x).toISOString(), sets = [], sess = [];
+    const add = (id, h, list) => { const t0 = now - h * 3600e3; list.forEach((r, i) => sets.push({ exercise: r[2], reps: r[0], kg: r[1], timestamp: iso(t0 + i * 240e3), sessionId: id })); sess.push({ id, start: iso(t0 - 300e3), end: iso(t0 + list.length * 240e3) }); };
+    add('s-today', 1.5, [[8, 100, 'knebøy'], [8, 100, 'knebøy'], [8, 100, 'knebøy'], [9, 100, 'halvmark'], [9, 100, 'halvmark'], [20, 15, 'vsitup']]);
+    add('s-2', 50, [[12, 100, 'benkpress'], [10, 100, 'benkpress'], [6, 0, 'pullups'], [10, 30, 'roing']]);
+    add('s-3', 98, [[16, 70, 'bulgarsk'], [16, 70, 'bulgarsk'], [12, 0, 'dips']]);
+    const seed = { 'repcam.sets': JSON.stringify(sets), 'repcam.sessions': JSON.stringify(sess), 'repcam.onboarded': '1', 'repcam.profile': '{"name":"Rune"}', 'repcam.lang': 'nb' };
+    const ctx = await b.newContext({ ...devices['iPhone 13'] });
+    await ctx.addInitScript(d => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); for (const k in d) localStorage.setItem(k, d[k]); } }, seed);
+    const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
+    const shot = async n => { const f = OUT + 'ui-' + n + '.png'; await p.screenshot({ path: f, fullPage: true }); console.log('shot ' + f); };
+    await p.goto(URL0); await p.waitForSelector('#view-home.on'); await p.waitForTimeout(400); await shot('hjem');
+    await p.click('#todayList details.sess > summary'); await p.waitForTimeout(300); await shot('hjem-open');
+    await p.goto(URL0 + '#/historikk'); await p.waitForSelector('#view-historikk.on'); await p.waitForTimeout(400); await shot('historikk');
+    await p.click('#histList details.sess[data-sid="s-2"] > summary'); await p.waitForTimeout(300); await shot('historikk-open');
+    console.log('page errors: ' + (errs.join(' | ') || 'none'));
+  } finally { await b.close(); srv?.close(); }
+}
+
+({ doctor, replay, app, ui }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();

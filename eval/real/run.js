@@ -13,14 +13,15 @@ function upsample(F, hz) { const o = []; for (let i = 0; i + 1 < F.length; i++) 
 // rep is dropped (only that exercise's counter is reset), 2+ reps are saved as a set and counting starts over. The clip ends with the set the app
 // logged; when the replay produces several sets (setup junk before/after) the biggest one is reported (the clip's real set).
 const AUTOSAVE_S = 9;
-function replay(d, hz) {
+function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gate (shadow: verdicts only; active: counters wait for READY)
+  const G = opt.rest ? require(path.join(__dirname, '..', '..', 'rest.js')).createRestGate(opt.rest.cfg) : null, verdicts = [];
   const F = hz ? upsample(d.frames, hz) : d.frames, asp = d.w / d.h, rec = R.createRecognizer(), pick = R.createPicker(), gate = R.createCameraGate();
-  let cs, auto = null, lock = null, shown = 0, shownT = 0, saved = null; const keep = r => { if (!saved || r.reps > saved.reps) saved = r; };
+  let cs, auto = null, lock = null, shown = 0, shownT = 0, saved = null; const keep = r => { if (G) { const v = G.verdict((r.times[0] ?? 0) * 1000 - 1); verdicts.push({ t: r.times[0], ex: r.ex, reps: r.reps, v }); G.rest(F[i0][0] * 1000); if (opt.rest.active && v === 'would-suppress') return; } if (!saved || r.reps > saved.reps) saved = r; };
   const reset = () => { cs = {}; for (const id of R.IDS) cs[id] = R.createCounter(id); lock = null; shown = 0; };
   const res = ex => { const reps = cs[ex].flush(); return { ex, reps, kg: DEFAULT_KG[ex] ?? 0, times: cs[ex].repTimes.map(t => +t.toFixed(1)) }; };
-  reset();
-  for (const a of F) { const lm = []; for (let i = 0; i < 33; i++) lm.push({ x: a[1 + 3 * i], y: a[2 + 3 * i], visibility: a[3 + 3 * i] });
-    const ms = a[0] * 1000, cam = !gate.update(lm, ms, asp).ok; for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
+  reset(); let i0 = 0; if (G) G.rest(F[0][0] * 1000 - 1e9);
+  for (const a of F) { i0 = F.indexOf(a, i0); const lm = []; for (let i = 0; i < 33; i++) lm.push({ x: a[1 + 3 * i], y: a[2 + 3 * i], visibility: a[3 + 3 * i] });
+    const ms = a[0] * 1000; let cam = !gate.update(lm, ms, asp).ok; if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
     const rc = rec.update(lm, ms, asp, cam), p = pick.update(rc, ms); if (!lock && p) auto = p;
     if (auto && !lock && cs[auto].reps >= 2) lock = auto; else if (lock && R.relock) lock = R.relock(cs, lock, p, a[0], rc.scores);
     const ex = lock || auto, n = ex ? cs[ex].reps : 0;
@@ -34,6 +35,7 @@ function replay(d, hz) {
   if (lock && R.relock) lock = R.relock(cs, lock, null, F[F.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto;
   if (ex && cs[ex].reps >= 2 && (!R.plausibleSet || R.plausibleSet(cs[ex].repTimes))) keep(res(ex));
+  if (G) { const ret = saved || { ex: null, reps: 0, kg: 0, times: [] }; ret.restVerdicts = verdicts; if (opt.rest.active) return ret; }
   if (saved) return saved;
   if (ex) { const r = res(ex); if (!R.plausibleSet || R.plausibleSet(r.times)) return r; return { ...r, reps: 0, times: [] }; }
   return { ex: null, reps: 0, kg: 0, times: [] };

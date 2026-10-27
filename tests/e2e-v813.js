@@ -12,6 +12,7 @@ const seed = { 'repcam.sets': JSON.stringify(sets), 'repcam.sessions': JSON.stri
   await ctx.addInitScript(d => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); for (const k in d) localStorage.setItem(k, d[k]); } }, seed);
   const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
   await p.goto(URL0 + '#/historikk'); await p.waitForSelector('#view-historikk.on'); await p.waitForTimeout(400);
+  await p.click('details.sess[data-sid="s-27"] > summary'); // v8.15: session card is collapsed
   ok(await p.locator('[data-sadd="s-27"]').count() === 1, 'add-set button on the finished session');
   await p.click('[data-sadd="s-27"]'); await p.waitForSelector('#eSave');
   await p.click('#sheet .exgrid button[data-ex="vsitup"]'); await p.fill('#eReps', '12'); await p.fill('#eKg', '15'); await p.click('#eSave'); await p.waitForTimeout(400);

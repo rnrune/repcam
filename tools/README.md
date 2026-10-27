@@ -12,6 +12,7 @@ node tools/verify.js replay --tier core     # a whole tier (core|worst|pass|excl
 node tools/verify.js app mvr3gojt           # real app in headless iPhone 13, case landmarks fed into the app pipeline
 node tools/verify.js app squat.y4m          # real app with fake camera video (MediaPipe runs on it), waits for the autosave toast
 node tools/verify.js app <x> --url https://rnrune.github.io/repcam/   # live site instead of the built-in local server
+node tools/verify.js ui                     # Hjem + Historikk screenshots (seeded sessions, collapsed + one opened)
 node tools/verify.js app <x> --dry-run      # print what would happen, touch nothing
 ```
 

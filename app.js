@@ -17,12 +17,13 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.14';
+const APP_VERSION = '8.15';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
 const stravaResync = sid => { if (sid) { strava.update(sid, liveSets(sid)); setTimeout(() => stravaSync(), 0); } }; // v8.13: synced activities get their description rewritten
 const stravaFmt = () => ({ name: exName, kgf: L.kgf, title: L.t('st.actName') });
+const restGate = Rest.createRestGate(); // v8.15 (rest.js, REST_CFG)
 let pending = false, landmarker, modelP, stream, facing = 'user', lastTs = -1, raf = 0, tick = 0;
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -159,13 +160,13 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) return;
-  const repT = fb.repT, lmAll = fb.lm; fb.repT = []; fb.lm = [];
+  const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow; fb.repT = []; fb.lm = []; fb.restShadow = null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) return;
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    restShadow, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
     landmarks: { hz: 10, layout: 't,(x,y,vis)*33', frames: lm },
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -233,17 +234,38 @@ function groupLabel(g) {
   const reps = g.sets.map(s => +s.reps || 0), same = reps.every(r => r === reps[0]);
   return same ? L.t('setsXreps', { n: g.count, r: reps[0] }) : L.t('setsRange', { n: g.count, a: Math.min(...reps), b: Math.max(...reps) });
 }
+// v8.15: one collapsed summary card per workout session (Hjem + Historikk); tap to open all sets with edit / add / delete
+function stravaBadge(id) {
+  if (!strava.connected()) return '';
+  const st = (strava.queue().find(x => x.id === id) || {}).status;
+  const k = st === 'synced' || st === 'created' ? 'on' : st === 'creating' ? 'up' : st === 'waiting' ? 'wait' : st === 'nomatch' ? 'none' : null;
+  return k ? `<span class="sbadge st-${k}">${L.t('sess.st.' + k)}</span>` : '';
+}
+const openSess = new Set(JSON.parse(sessionStorage.getItem('repcam.openSess') || '[]')); // cards stay open across re-renders/reload (this tab)
+document.addEventListener('toggle', e => { const d = e.target; if (!d.matches?.('details.sess')) return; d.open ? openSess.add(d.dataset.sid) : openSess.delete(d.dataset.sid); sessionStorage.setItem('repcam.openSess', JSON.stringify([...openSess])); }, true);
+function sessionCard(s, opts = {}) {
+  const live = store.active()?.id === s.id, mins = Math.max(1, Math.round((new Date(live ? Date.now() : s.end) - new Date(s.start)) / 60e3));
+  const groups = Store.groupByExercise(s.sets);
+  const exLine = groups.map(g => `<span class="sx">${g.icon} ${esc(exName(g.id))} <b>${L.t('sets', { n: g.count })}</b> · ${L.t('reps', { n: g.sets.reduce((a, x) => a + (+x.reps || 0), 0) })}${g.topKg ? ' · ' + L.t('sess.top', { kg: L.kgf(g.topKg) }) : ''}</span>`).join('');
+  const day = L.date(s.start, { weekday: 'short', day: 'numeric', month: 'short' });
+  return `<details class="card sess"${opts.open || openSess.has(s.id) ? ' open' : ''} data-sid="${esc(s.id)}"><summary><div class="row"><b>${opts.noDay ? '' : esc(day) + ' · '}${L.hm(s.start)}–${live ? '…' : L.hm(s.end)}</b><span class="muted">${L.t('sess.min', { n: mins })} · ${L.nf(s.volume)} kg</span><span class="chev">›</span></div>
+    <div class="sxl">${exLine}</div><div class="row small">${stravaBadge(s.id)}<span class="muted" style="margin-left:auto">${L.t('sets', { n: s.sets.length })}</span></div></summary>
+    <div class="sdet">${opts.spark ? groups.map(g => `<div class="ex-foot"><div><b>${g.icon} ${esc(exName(g.id))}</b><div class="muted small" style="margin:0">${groupLabel(g)} · ${L.nf(g.volume)} kg</div></div>${spark(Store.kgHistory(opts.all, g.id))}</div>`).join('') : ''}
+    ${s.sets.map(x => `<div class="setrow" data-ts="${esc(x.timestamp)}" role="button" tabindex="0"><span>${icon(x.exercise)} ${esc(exName(x.exercise || 'knebøy'))} · <b>${L.t('reps', { n: x.reps })}</b> × ${L.kgf(x.kg)}</span><span class="muted">✎</span></div>`).join('')}
+    ${live ? '' : `<div class="row"><button class="ghost addset" data-sadd="${esc(s.id)}">＋ ${L.t('hist.addSet')}</button><button class="ghost sessdel" data-sdel="${esc(s.id)}" aria-label="${L.t('sdel.btn')}" title="${L.t('sdel.btn')}">🗑</button></div>`}</div></details>`;
+}
+function sessClick(e, rerender) { const d = e.target.closest('[data-sdel]'); if (d) return deleteSession(d.dataset.sdel); const a = e.target.closest('[data-sadd]'); if (a) return openAdd(a.dataset.sadd, rerender); const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, rerender); }
 function renderHome() {
   const h = new Date().getHours(), name = profile().name;
   const g = L.t(h < 5 ? 'greet.night' : h < 10 ? 'greet.morning' : h < 17 ? 'greet.day' : h < 23 ? 'greet.evening' : 'greet.night');
   $('greet').textContent = name ? g + ', ' + name : g;
   $('avatar').textContent = (name || '🙂')[0].toUpperCase();
   $('title').textContent = L.t(h < 12 ? 'title.morning' : h < 17 ? 'title.day' : 'title.evening');
-  const all = store.sets(), today = Store.todaySets(all), groups = Store.groupByExercise(today);
+  const all = store.sets(), today = Store.todaySets(all);
   $('todayVol').textContent = today.length ? L.t('home.total', { v: L.nf(Store.volume(today)) }) : '';
   renderStravaNote();
-  $('todayList').innerHTML = groups.length ? groups.map(g => `<div class="card"><div class="ex"><div class="ex-ic">${g.icon}</div><div class="ex-main"><b>${esc(exName(g.id))}</b><span class="muted">${groupLabel(g)}</span></div><span class="badge">${L.kgf(g.topKg)}</span></div>
-    <div class="ex-foot"><div><div class="muted small" style="margin:0">${L.t('home.volume')}</div><b>${L.nf(g.volume)} kg</b></div>${spark(Store.kgHistory(all, g.id))}</div></div>`).join('')
+  const todayS = store.sessions().filter(s => Store.todaySets(s.sets).length || store.active()?.id === s.id);
+  $('todayList').innerHTML = todayS.length ? todayS.map(s => sessionCard(s, { noDay: true, spark: true, all })).join('')
     : `<div class="card empty"><div class="e">🌱</div><b>${L.t('home.empty')}</b>${L.t('home.emptySub')}</div>`;
   const w = Store.weekly(all);
   $('weekTotal').textContent = L.nf(w.total) + ' kg';
@@ -263,13 +285,12 @@ function renderHist() {
   for (const s of ss) {
     const d = L.date(s.start, { weekday: 'long', day: 'numeric', month: 'long' });
     if (d !== last) { out += `<div class="day">${esc(d)}</div>`; last = d; }
-    out += `<div class="card"><div class="row"><b>${L.hm(s.start)}–${L.hm(s.end)}</b><span class="muted">${L.t('sets', { n: s.sets.length })} · ${L.nf(s.volume)} kg</span><button class="ghost sessdel" data-sdel="${esc(s.id)}" aria-label="${L.t('sdel.btn')}" title="${L.t('sdel.btn')}">🗑</button></div>` +
-      s.sets.map(x => `<div class="setrow" data-ts="${esc(x.timestamp)}" role="button" tabindex="0"><span>${icon(x.exercise)} ${esc(exName(x.exercise || 'knebøy'))} · <b>${L.t('reps', { n: x.reps })}</b> × ${L.kgf(x.kg)}</span><span class="muted">✎</span></div>`).join('') +
-      (store.active()?.id === s.id ? '' : `<button class="ghost addset" data-sadd="${esc(s.id)}">＋ ${L.t('hist.addSet')}</button>`) + '</div>';
+    out += sessionCard(s, { noDay: true });
   }
   $('histList').innerHTML = out;
 }
-$('histList').onclick = e => { const d = e.target.closest('[data-sdel]'); if (d) return deleteSession(d.dataset.sdel); const a = e.target.closest('[data-sadd]'); if (a) return openAdd(a.dataset.sadd, renderHist); const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, renderHist); };
+$('histList').onclick = e => sessClick(e, renderHist);
+$('todayList').onclick = e => sessClick(e, renderHome);
 // "Slett hele økten": one confirmation, removes every set locally and cancels any pending Strava sync/auto-create. Never deletes on Strava.
 let sdelBusy = false;
 async function deleteSession(id) {
@@ -431,6 +452,10 @@ function saveSet() {
   const rec = store.addSet({ exercise: ex, reps, kg: kgFor(ex) });
   // v8.8: feedback repTimes = each rep's own time from the counter (a paired first rep used to get the confirmation time twice)
   if (fb.rec) fb.repT = counters[ex].repTimes.map(t => t * 1000);
+  // v8.15 rest gate, SHADOW mode: log what it would have done; the old logic still decides
+  { const first = (counters[ex].repTimes[0] ?? lastFrameT ?? 0) * 1000, v = restGate.verdict(first - 1);
+    fb.restShadow = { v, mode: restGate.cfg.mode, readyAt: restGate.readyAt == null ? null : +((restGate.readyAt - first) / 1000).toFixed(2), ex, reps, auto: !manualEx };
+    console.info('[restShadow]', v, ex, reps, fb.restShadow); restGate.rest((lastFrameT ?? 0) * 1000); }
   fbCut({ exercise: ex, reps, kg: rec.kg, auto: !manualEx }, rec.timestamp);
   resetCounters(); navigator.vibrate?.([40, 60, 40]);
   showToast(L.t('w.saved', { ex: exName(ex), r: reps, kg: L.kgf(rec.kg) }), rec.timestamp);
@@ -454,7 +479,7 @@ function hideToast() { $('toast').classList.remove('on'); setToast = null; }
 $('confirm').onclick = () => { saveSet(); };
 function enterWorkout() {
   const resumed = !!store.active();
-  const a = store.startSession(); resetCounters(); recognizer.reset(); picker.reset(); camGate.reset(); camPaused = false; motion.resume(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();
+  const a = store.startSession(); resetCounters(); recognizer.reset(); picker.reset(); camGate.reset(); restGate.rest(-1e12); camPaused = false; motion.resume(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();
   wake.on();
   if (!stream && !pending) { setStartUI(resumed); if (resumed) runCam(getCam(facing), true); }
   clearInterval(tick); tick = setInterval(() => {
@@ -578,6 +603,7 @@ function loop() {
 function processFrame(lm, ts, asp, sensor) {
   // v8.7: while the phone itself moves a lot (and briefly after), frames are ignored — no rep, no set start, no exercise switch
   const cg = camGate.update(lm, ts, asp, sensor), cam = !cg.ok;
+  restGate.update(lm, ts, asp); // v8.15 shadow only: does not affect counting
   if (cam !== camPaused) { camPaused = cam; $('hint').textContent = L.t(cam ? 'w.camMoving' : 'w.hint'); }
   let tracking = false;
   for (const id in counters) { const r = counters[id].update(lm, ts, asp, cam); if (id === curEx()) tracking = r.tracking; }
