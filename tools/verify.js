@@ -67,7 +67,7 @@ async function app() {
     await ctx.addInitScript(([as]) => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); Object.entries({ 'repcam.onboarded': '1', 'repcam.profile': '{"name":"Verify"}', 'repcam.lang': 'nb', 'repcam.feedback': '0', 'repcam.autosaveMs': as }).forEach(([k, v]) => localStorage.setItem(k, v)); }
       const rn = Date.now; window.__vt = 0; Date.now = () => rn() + window.__vt; }, [isY4m ? '4000' : '9000']);
     await ctx.route(u => /dropbox|strava\.com/i.test(u.hostname), r => r.abort()); // never upload feedback / touch Strava
-    const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message)); p.on('console', m => m.type() === 'error' && errs.push(m.text()));
+    const shadow = []; const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); else if (/^\[(bar|rest)Shadow\]/.test(m.text())) shadow.push(m.text()); });
     await p.goto(URL0); await p.waitForSelector('#view-home.on', { timeout: 20000 }).catch(async x => { await p.screenshot({ path: OUT + 'fail.png' }); throw new Error('home not shown: ' + errs.join(' | ') + ' hash=' + await p.evaluate(() => location.hash)); }); await p.click('#startOkt');
     await p.waitForSelector('#start', { state: 'hidden', timeout: 120000 });
     if (e) { // feed the case's landmarks straight into the app pipeline (same frames the eval replays), virtual time
@@ -82,9 +82,10 @@ async function app() {
     } else await p.waitForSelector('#toast.on', { timeout: +flag('--secs', 60) * 1000 }).catch(() => {});
     await p.waitForTimeout(500);
     const st = await p.evaluate(() => ({ version: window.__repcam.APP_VERSION, chip: document.getElementById('exName')?.textContent, repsShown: document.getElementById('reps')?.textContent, toast: document.getElementById('toast').classList.contains('on') ? document.getElementById('toastTx').textContent : null, sets: JSON.parse(localStorage.getItem('repcam.sets') || '[]') }));
-    const proof = { tool: 'tools/verify.js app', at: new Date().toISOString(), url: URL0, input: e ? { case: e.id, tier: e.tier, truth: { exercise: e.exercise, reps: e.gt } } : { y4m }, ...st, pageErrors: errs };
+    const proof = { tool: 'tools/verify.js app', at: new Date().toISOString(), url: URL0, input: e ? { case: e.id, tier: e.tier, truth: { exercise: e.exercise, reps: e.gt } } : { y4m }, ...st, shadowLogs: shadow, pageErrors: errs };
     await p.screenshot({ path: OUT + tag + '.png' }); fs.writeFileSync(OUT + tag + '.json', JSON.stringify(proof, null, 1));
     console.log(`app ${st.version} · sets logged: ${st.sets.map(s => `${s.exercise} ${s.reps}×${s.kg}`).join(', ') || 'none'} · toast: ${st.toast || '-'}${e ? ` · truth ${e.exercise || 'none'} ${e.gt}` : ''} · errors ${errs.length}`);
+    for (const l of shadow) console.log('log ' + l.slice(0, 300));
     console.log('proof ' + OUT + tag + '.png / .json');
   } finally { await b.close(); srv?.close(); }
 }

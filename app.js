@@ -17,13 +17,23 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.15';
+const APP_VERSION = '8.16';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
 const stravaResync = sid => { if (sid) { strava.update(sid, liveSets(sid)); setTimeout(() => stravaSync(), 0); } }; // v8.13: synced activities get their description rewritten
 const stravaFmt = () => ({ name: exName, kgf: L.kgf, title: L.t('st.actName') });
 const restGate = Rest.createRestGate(); // v8.15 (rest.js, REST_CFG)
+// v8.16 bar/plate tracker, SHADOW only (bar.js, BAR_CFG; kill switch BAR_CFG.enabled or localStorage repcam.barOff=1).
+// Runs at BAR_CFG.hz on a tiny gray copy of the frame, only while the current exercise is a barbell one. Never affects counting.
+const barTr = window.Bar && LS.getItem('repcam.barOff') !== '1' ? Bar.createBarTracker() : null;
+let barCv = null, barCtx = null;
+function barFrame(lm, ts) {
+  if (!barTr || !barTr.cfg.enabled || !barTr.due(ts / 1000) || !barTr.cfg.exercises.includes(curEx()) || !v.videoWidth) return;
+  try { const W = barTr.cfg.frameW, H = Math.round(W * v.videoHeight / v.videoWidth);
+    if (!barCv || barCv.height !== H) { barCv = document.createElement('canvas'); barCv.width = W; barCv.height = H; barCtx = barCv.getContext('2d', { willReadFrequently: true }); }
+    barCtx.drawImage(v, 0, 0, W, H); barTr.frame(ts / 1000, Bar.toGray(barCtx.getImageData(0, 0, W, H).data, W, H), W, H, lm);
+  } catch (e) { /* shadow: never break the camera loop */ } }
 let pending = false, landmarker, modelP, stream, facing = 'user', lastTs = -1, raf = 0, tick = 0;
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -160,13 +170,13 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) return;
-  const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow; fb.repT = []; fb.lm = []; fb.restShadow = null;
+  const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) return;
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    restShadow, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    restShadow, barShadow, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
     landmarks: { hz: 10, layout: 't,(x,y,vis)*33', frames: lm },
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -456,6 +466,10 @@ function saveSet() {
   { const first = (counters[ex].repTimes[0] ?? lastFrameT ?? 0) * 1000, v = restGate.verdict(first - 1);
     fb.restShadow = { v, mode: restGate.cfg.mode, readyAt: restGate.readyAt == null ? null : +((restGate.readyAt - first) / 1000).toFixed(2), ex, reps, auto: !manualEx };
     console.info('[restShadow]', v, ex, reps, fb.restShadow); restGate.rest((lastFrameT ?? 0) * 1000); }
+  // v8.16 bar tracker, SHADOW: summary over this set (first rep − 4 s … now); bar times relative to the first pose rep
+  if (barTr && barTr.cfg.exercises.includes(ex)) { try { const rt = counters[ex].repTimes, f = rt[0] ?? lastFrameT ?? 0, s = barTr.summary(f - 4, (lastFrameT ?? f) + 1, reps);
+    s.repTimes = s.repTimes.map(t => +(t - f).toFixed(2)); fb.barShadow = { ...s, ex, poseReps: reps }; console.info('[barShadow]', ex, 'pose', reps, 'bar', s.reps, fb.barShadow); } catch (e) {} }
+  if (barTr) barTr.reset();
   fbCut({ exercise: ex, reps, kg: rec.kg, auto: !manualEx }, rec.timestamp);
   resetCounters(); navigator.vibrate?.([40, 60, 40]);
   showToast(L.t('w.saved', { ex: exName(ex), r: reps, kg: L.kgf(rec.kg) }), rec.timestamp);
@@ -604,6 +618,7 @@ function processFrame(lm, ts, asp, sensor) {
   // v8.7: while the phone itself moves a lot (and briefly after), frames are ignored — no rep, no set start, no exercise switch
   const cg = camGate.update(lm, ts, asp, sensor), cam = !cg.ok;
   restGate.update(lm, ts, asp); // v8.15 shadow only: does not affect counting
+  barFrame(lm, ts); // v8.16 shadow only
   if (cam !== camPaused) { camPaused = cam; $('hint').textContent = L.t(cam ? 'w.camMoving' : 'w.hint'); }
   let tracking = false;
   for (const id in counters) { const r = counters[id].update(lm, ts, asp, cam); if (id === curEx()) tracking = r.tracking; }
@@ -645,4 +660,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
