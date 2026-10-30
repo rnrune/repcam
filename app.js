@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.16';
+const APP_VERSION = '8.17';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -523,8 +523,28 @@ function onShow() {
   if (away && Date.now() - lastActivity > AWAY_END_MS) { endAt = new Date(Date.now() - away); endedByIdle = true; location.hash = '#/'; return; }
   lastActivity += away; // time away doesn't count toward the on-screen idle rule
   store.touchActive({ seen: Date.now() });
-  resumeCam();
+  resumeCam(); fitStageSoon(true);
 }
+// v8.17 bug: back from the app switcher (iOS PWA/Safari) the camera view could come back much smaller, framed by black.
+// iOS can resume with a stale layout: the viewport scale/size from while the app was hidden (rotated or resized in the
+// background, no resize event delivered) and a video layer that keeps its old geometry after the camera stream is
+// restarted. On every resume/resize: reset the viewport meta (forces scale 1), re-layout the stage, re-bind the stream to
+// the <video> (WebKit then re-computes object-fit) and let the loop re-size the canvas. Kill switch: localStorage repcam.fitOff=1.
+const FIT_CFG = { enabled: LS.getItem('repcam.fitOff') !== '1', delaysMs: [0, 250, 1000] };
+let fitTimers = [];
+function fitStage(rebind) {
+  if (!FIT_CFG.enabled) return;
+  try {
+    const m = document.querySelector('meta[name=viewport]'); if (m) { const c0 = m.content; m.content = c0 + ',maximum-scale=1'; m.content = c0; }
+    const st = $('stage'); if (st) { st.style.display = 'none'; void st.offsetHeight; st.style.display = ''; }
+    if (rebind && stream && v.srcObject === stream) { v.srcObject = null; v.srcObject = stream; v.play().catch(() => {}); }
+    c.width = 0; // loop() re-sizes the canvas to the (possibly new) stream resolution on the next frame
+  } catch (e) { console.warn('fitStage', e); }
+}
+function fitStageSoon(rebind) { fitTimers.forEach(clearTimeout); fitTimers = FIT_CFG.delaysMs.map((d, i) => setTimeout(() => fitStage(rebind && i === 0), d)); }
+addEventListener('resize', () => fitStageSoon(false)); addEventListener('orientationchange', () => fitStageSoon(false));
+window.visualViewport?.addEventListener('resize', () => fitStageSoon(false));
+v.addEventListener('resize', () => fitStageSoon(false)); // the stream's resolution/orientation changed
 function resumeCam() {
   if (pending || cur !== 'okt') return;
   motion.resume();
@@ -570,7 +590,7 @@ async function attach(s) {
   stream?.getTracks().forEach(t => t.stop());
   stream = s; v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('autoplay', '');
   s.getVideoTracks().forEach(t => t.addEventListener('ended', () => { if (stream === s && document.visibilityState === 'visible') setTimeout(resumeCam, 300); }));
-  v.srcObject = s; await v.play();
+  v.srcObject = s; await v.play(); fitStageSoon(false);
   if (cur === 'okt') fbStart();
   [v, c].forEach(el => el.classList.toggle('mirror', facing === 'user'));
 }
@@ -660,4 +680,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

@@ -114,4 +114,44 @@ async function ui() { // screenshots of Hjem + Historikk with a seeded history (
   } finally { await b.close(); srv?.close(); }
 }
 
-({ doctor, replay, app, ui }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();
+// v8.17: app switch / resume proof. Starts a workout on a fake camera, then simulates what iOS does on an app switch:
+// visibility hidden + pagehide, the camera track killed, the viewport rotated/resized while hidden, then visible + pageshow.
+// Checks that #stage, <video> and <canvas> fill the viewport again (and the video content covers it) and screenshots before/after.
+async function resume() {
+  if (has('--dry-run')) { console.log('dry-run: would screenshot before/after a simulated app switch to ' + OUT); return; }
+  fs.mkdirSync(OUT, { recursive: true });
+  const y4m = path.join(TEST, pos[0] || 'squat.y4m'), stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const srv = flag('--url', null) ? null : await serve(), URL0 = flag('--url', null) || `http://127.0.0.1:${srv.address().port}/`;
+  const { chromium, devices } = pw(), errs = [];
+  const b = await chromium.launch({ executablePath: CHROME, headless: true, args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=' + y4m, '--enable-unsafe-swiftshader'] });
+  try {
+    const dev = devices['iPhone 13'], ctx = await b.newContext({ ...dev, permissions: ['camera'] });
+    await ctx.addInitScript(() => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); Object.entries({ 'repcam.onboarded': '1', 'repcam.profile': '{"name":"Verify"}', 'repcam.lang': 'nb', 'repcam.feedback': '0' }).forEach(([k, v]) => localStorage.setItem(k, v)); }
+      let vis = 'visible'; Object.defineProperty(document, 'visibilityState', { get: () => vis, configurable: true }); Object.defineProperty(document, 'hidden', { get: () => vis !== 'visible', configurable: true });
+      window.__setVis = x => { vis = x; document.dispatchEvent(new Event('visibilitychange')); window.dispatchEvent(new Event(x === 'visible' ? 'pageshow' : 'pagehide')); }; });
+    await ctx.route(u => /dropbox|strava\.com/i.test(u.hostname), r => r.abort());
+    const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
+    await p.goto(URL0); await p.waitForSelector('#view-home.on', { timeout: 20000 }); await p.click('#startOkt');
+    await p.waitForSelector('#start', { state: 'hidden', timeout: 120000 }); await p.waitForTimeout(1500);
+    const measure = () => p.evaluate(() => { const r = id => { const b = document.getElementById(id).getBoundingClientRect(); return [Math.round(b.left), Math.round(b.top), Math.round(b.width), Math.round(b.height)]; };
+      const v = document.getElementById('v'), W = innerWidth, H = innerHeight, vb = v.getBoundingClientRect(), fit = getComputedStyle(v).objectFit;
+      const k = (fit === 'cover' ? Math.max : Math.min)(vb.width / (v.videoWidth || 1), vb.height / (v.videoHeight || 1)); // rendered video content size
+      const cw = v.videoWidth * k, ch = v.videoHeight * k;
+      return { viewport: [W, H], stage: r('stage'), video: r('v'), canvas: r('c'), objectFit: fit, stream: [v.videoWidth, v.videoHeight], canvasPx: [document.getElementById('c').width, document.getElementById('c').height],
+        contentCovers: cw >= vb.width - 1 && ch >= vb.height - 1, fills: ['stage', 'v', 'c'].every(id => { const b = document.getElementById(id).getBoundingClientRect(); return Math.abs(b.width - W) < 2 && Math.abs(b.height - H) < 2 && Math.abs(b.left) < 2 && Math.abs(b.top) < 2; }) }; });
+    const before = await measure(); await p.screenshot({ path: OUT + `resume-before-${stamp}.png` });
+    // app switch: hidden, iOS kills the camera, the phone is rotated / the viewport changes while away
+    await p.evaluate(() => { window.__setVis('hidden'); window.__repcam && document.getElementById('v').srcObject?.getVideoTracks().forEach(t => t.stop()); });
+    await p.setViewportSize({ width: dev.viewport.height, height: dev.viewport.width }); await p.waitForTimeout(300);
+    await p.setViewportSize(dev.viewport); await p.waitForTimeout(200);
+    await p.evaluate(() => window.__setVis('visible')); await p.waitForTimeout(2500);
+    const after = await measure(); await p.screenshot({ path: OUT + `resume-after-${stamp}.png` });
+    const ok = before.fills && after.fills && after.contentCovers && after.stream[0] > 0 && !errs.length;
+    const proof = { tool: 'tools/verify.js resume', at: new Date().toISOString(), version: await p.evaluate(() => window.__repcam.APP_VERSION), before, after, ok, pageErrors: errs };
+    fs.writeFileSync(OUT + `resume-${stamp}.json`, JSON.stringify(proof, null, 1));
+    console.log(JSON.stringify({ before, after }, null, 0)); console.log(`${ok ? 'PASS' : 'FAIL'} resume · proof ${OUT}resume-{before,after}-${stamp}.png / resume-${stamp}.json`);
+    process.exitCode = ok ? 0 : 1;
+  } finally { await b.close(); srv?.close(); }
+}
+
+({ doctor, replay, app, ui, resume }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();

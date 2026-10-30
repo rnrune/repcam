@@ -64,7 +64,7 @@ body.workout #tabs{display:none}
 .danger{background:var(--bad)}
 .btns{display:flex;gap:10px}.btns>*{flex:1}
 /* workout */
-#view-okt{padding:0;max-width:none;position:fixed;inset:0;background:#000;color:#fff}
+#view-okt{padding:0;max-width:none;position:fixed;inset:0;background:#000;color:#fff}#view-okt.on{animation:none} /* v8.17: no transform on the fixed stage's ancestor */
 #view-okt.lightui{--ov:rgba(255,255,255,.7);--ovtx:#14151a}
 #stage{position:fixed;inset:0}#stage video,#stage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .mirror{transform:scaleX(-1)}

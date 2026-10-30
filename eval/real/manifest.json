@@ -1509,5 +1509,98 @@
    349
   ],
   "notes": "V-situp set 3 (12 × 15 kg); app 8.11 logged benkpress 12 × 100"
+ },
+ {
+  "id": "mvveg0gceee8b71a",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "pred": {
+   "exercise": "bulgarsk",
+   "reps": 6,
+   "kg": 70,
+   "auto": true
+  },
+  "appRepTimes": [
+   52.59,
+   58.42,
+   61.99,
+   68.95,
+   72.6,
+   75.42
+  ],
+  "notes": "30 Oct: loading plates / rigging the bench before set 1 (walks to phone, bends over). App 8.16 saved a false bulgarsk x6. Negative. v8.17: fixed (flipMax), moved to core.",
+  "tier": "core",
+  "view": "front",
+  "facing": "user",
+  "app": "8.16",
+  "label": "implicit"
+ },
+ {
+  "id": "mvvelxx5-bench",
+  "lm": "mvvelxx5526d7df0",
+  "win": [
+   0,
+   95
+  ],
+  "exercise": "benkpress",
+  "gt": 12,
+  "kg": 20,
+  "pred": {
+   "exercise": null,
+   "reps": 0
+  },
+  "notes": "30 Oct: benk 80 kg set 1 (12 reps, 52-73 s) after a face close-up at the phone (0-15 s). App 8.16 saved NOTHING for this set: the close-up inflated the bench body-size reference (ref 0.65 vs 0.23, 60 s decay) so the real reps looked too shallow. v8.17: fixed (refTau/refTauBelow on benkpress), moved to core.",
+  "tier": "core",
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.16",
+  "label": "implicit"
+ },
+ {
+  "id": "mvvelxx5-rest",
+  "lm": "mvvelxx5526d7df0",
+  "win": [
+   95,
+   190
+  ],
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "pred": {
+   "exercise": "dips",
+   "reps": 3,
+   "kg": 0,
+   "auto": true
+  },
+  "appRepTimes": [
+   173.4,
+   176.63,
+   179.31
+  ],
+  "notes": "30 Oct: rest after benk set, standing/walking near the rack. App 8.16 saved a false dips x3. Negative.",
+  "tier": "worst",
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.16",
+  "label": "implicit"
+ },
+ {
+  "id": "mvvehvtk67c340d1",
+  "exercise": "benkpress",
+  "gt": 15,
+  "kg": 20,
+  "view": "front",
+  "facing": "user",
+  "app": "8.16",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 15,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "corrected",
+  "notes": "30 Oct: benk 50 kg x15, app exact (kg corrected 100->50). Excluded only because benkpress is over the ~5 clip cap; landmarks kept.",
+  "tier": "excluded"
  }
 ]

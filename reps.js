@@ -39,9 +39,9 @@
   // normalized by a body length so it is camera-distance independent.
   // ref = running reference torso length (max seen in set) so foreshortening during hinge shows up.
   const EX = {
-    knebøy: { minAmp: 0.22, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
+    knebøy: { minAmp: 0.22, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y, Math.max(g.kn[0].y, g.kn[1].y)) - g.hipM.y) / ref },
-    bulgarsk: { minAmp: 0.18, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
+    bulgarsk: { minAmp: 0.18, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       // front leg = knee closest to hip height
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref },
     pullups: { bodyMove: 0.25, minAmp: 0.25, minRep: 0.6, maxRep: 8, need: 'arms', posture: (g, ref) => g.wrM.y < g.shM.y + 0.3 * ref && g.torsoTilt < 50,
@@ -55,7 +55,7 @@
       signal: (g, ref) => (g.wrM.y - g.shM.y) / ref },
     // flat bench: wrist-to-shoulder distance; body size = max(torso, 1.25 x shoulder width) because the torso is
     // strongly foreshortened when filmed from the feet or head end of the bench
-    benkpress: { lying: true, poseMin: 0.4, minAmp: 0.2,
+    benkpress: { lying: true, poseMin: 0.4, minAmp: 0.2, refTau: 12, refTauBelow: 0.5, // v8.17: a face close-up at the phone must not shrink the set's reps for a minute
       // lying on the bench: torso horizontal (side views) or foreshortened (feet/head-end views), or the bar held above the
       // shoulders (elevated feet-end views make the torso look upright) — not standing with the hands down (loading plates);
       // an upside-down torso (head-end view) must show the shoulder width, a narrow one is a misdetected close-up
@@ -65,7 +65,7 @@
       auxOk: (lo, hi, ref, lo2, hi2) => lo == null || hi - lo < 0.4 * ref || !(hi2 - lo2 > 30),
      
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
-    skråbenk: { lying: true, minAmp: 0.2,
+    skråbenk: { lying: true, minAmp: 0.2, refTau: 12, refTauBelow: 0.5,
       // reclined on the bench: torso tilted back, or (frontal view) seated with bent knees / legs hidden by the bench
       posture: g => g.torsoTilt > 18 || g.legsVis < 0.4 || Math.min(g.knee[0] ?? 180, g.knee[1] ?? 180) < 150, minRep: 0.5, maxRep: 8, need: 'arms', trimLead: 0.7,
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
@@ -128,6 +128,8 @@
       const drift = 0.3 * (p.dur || 0);
       if (!def.lying && (Math.abs(q.x1 - q.x0) > 0.8 + drift || q.xMax - q.xMin > 1.5 + drift)) return 'travel';
       if (def.posture && q.pose / q.n < (def.poseMin ?? 0.5)) return 'pose';
+      // v8.17: the pose flipped upside down repeatedly during the 'rep' (bending over at the frame edge, loading plates): not a squat
+      if (def.flipMax != null && (q.flip || 0) / q.n > def.flipMax) return 'flip';
       // body-weight moves (pull-ups, dips, push-ups): the SHOULDERS travel while the hands stay planted; waving the arms
       // around while standing moves only the wrists
       if (def.bodyMove && !(q.syMax - q.syMin >= def.bodyMove * p.amp)) return 'still'; // not in the exercise posture
@@ -180,8 +182,8 @@
       // for a frame or two; standing leg lifts: the torso flips upside down) are dropped as bad frames, so they cannot fake a huge rep that poisons the adaptive amplitude
       if (def.glitch) { bodyBuf.push([t, g.torso]); while (bodyBuf[0][0] < t - 3) bodyBuf.shift();
         if (bodyBuf.length >= 8) { const m = [...bodyBuf].map(p => p[1]).sort((x, y) => x - y)[Math.floor(bodyBuf.length / 2)];
-          if (g.torso < 0.6 * m || (def.need === 'legs' && g.torsoTilt > 120)) { if (qa) { qa.n++; qa.bad++; } return out(false); } } }
-      ref = Math.max(ref * Math.exp(-(lastT == null ? 0 : Math.max(0, t - lastT)) / (def.refTau && body < 0.9 * ref ? def.refTau : 60)), body); // slowly decaying max torso length (v8.13: refTau — faster decay once the body is clearly smaller, e.g. after walking up to the phone)
+          if (g.torso < 0.6 * m || (def.need === 'legs' && g.torsoTilt > 120)) { if (qa) { qa.n++; qa.bad++; if (g.torsoTilt > 120) qa.flip = (qa.flip || 0) + 1; } return out(false); } } }
+      ref = Math.max(ref * Math.exp(-(lastT == null ? 0 : Math.max(0, t - lastT)) / (def.refTau && body < (def.refTauBelow ?? 0.9) * ref ? def.refTau : 60)), body); // slowly decaying max torso length (v8.13: refTau — faster decay once the body is clearly smaller, e.g. after walking up to the phone)
       if (def.refWin) { refBuf.push([t, body]); while (refBuf[0][0] < t - def.refWin) refBuf.shift(); }
       let raw = def.signal(g, def.refWin ? Math.max(...refBuf.map(p => p[1])) : ref);
       if (raw == null || !isFinite(raw) || (def.valid && !def.valid(raw, g, ref))) { if (qa) { qa.n++; qa.bad++; } checkPend(t, true); return out(false); }

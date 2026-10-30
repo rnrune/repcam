@@ -8,7 +8,7 @@ const Bar = require('../../bar.js'), R = require('./run.js');
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const DIR = arg('--dir', '/workspace/repcam-feedback-clips/b89d9b01e2c6002b7dca5922'), cfg = JSON.parse(arg('--cfg', '{}')), DBG = arg('--debug', null);
 // Rune's truth for the 27 Oct session (barbell sets only)
-const CASES = [['mvr3cnad21805e00', 'knebøy', 12], ['mvr3ehf7d7e3da93', 'knebøy', 8], ['mvr3gojt95bd64ea', 'knebøy', 8], ['mvr3k128fb810868', 'knebøy', 8],
+const CASES = arg('--cases', null) ? JSON.parse(arg('--cases')) : [['mvr3cnad21805e00', 'knebøy', 12], ['mvr3ehf7d7e3da93', 'knebøy', 8], ['mvr3gojt95bd64ea', 'knebøy', 8], ['mvr3k128fb810868', 'knebøy', 8],
   ['mvr3naxy72228481', 'knebøy', 8], ['mvr3o841cd8387e6', 'halvmark', 9], ['mvr3phm88e08d970', 'halvmark', 9], ['mvr3vtnn4fb621e5', 'halvmark', 9]];
 const c = Object.assign({}, Bar.BAR_CFG, cfg), rows = [];
 for (const [id, ex, truth] of CASES) {
