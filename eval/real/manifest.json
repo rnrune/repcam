@@ -1782,5 +1782,41 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected"
+ },
+ {
+  "id": "mvvfb0fq2671c83e",
+  "exercise": "skråbenk",
+  "gt": 10,
+  "kg": 20,
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 10,
+   "kg": 70,
+   "auto": true
+  },
+  "notes": "30 Oct (2): incline 70 kg set 3, app exact. Excluded: incline at the clip cap.",
+  "tier": "excluded",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvvfd85j87a47b4b",
+  "exercise": "roing",
+  "gt": 10,
+  "kg": 30,
+  "pred": {
+   "exercise": "roing",
+   "reps": 4,
+   "kg": 30,
+   "auto": true
+  },
+  "notes": "30 Oct (2): standing row 90 kg set 1 (~70-86 s, far from the camera after long rigging), Rune 10. App roing 4; replay 10 Hz dips 5, 30 Hz nothing.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
  }
 ]
