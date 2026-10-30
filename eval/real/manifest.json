@@ -1650,7 +1650,7 @@
    "kg": 10,
    "auto": true
   },
-  "notes": "30 Oct (2): pull-ups set 1, Rune: 8. App/replay 7: the last pull is lowered only ~55 % before dropping off the bar (95 s), so it never completes.",
+  "notes": "30 Oct (2): pull-ups set 1, Rune: 8. App/replay 7: the last pull is lowered only ~55 % before dropping off the bar (95 s), so it never completes. v8.18 recount from video (Rune: a rep = fully up): 8 full tops, the last one followed by a half lowering and release, so the app (counts on the way down) misses it.",
   "tier": "worst",
   "view": "front",
   "facing": "user",
@@ -1668,7 +1668,7 @@
    "kg": 0,
    "auto": true
   },
-  "notes": "30 Oct (2): pull-ups set 2, Rune 8, app 7. Excluded: pull-up cap.",
+  "notes": "30 Oct (2): pull-ups set 2, Rune 8, app 7. Excluded: pull-up cap. v8.18 recount from video (Rune: a rep = fully up): 8 full tops, the last one followed by a half lowering and release, so the app (counts on the way down) misses it.",
   "tier": "excluded",
   "view": "front",
   "facing": "user",
@@ -1678,7 +1678,7 @@
  {
   "id": "mvvez2adbd7812a5",
   "exercise": "pullups",
-  "gt": 8,
+  "gt": 7,
   "kg": 0,
   "pred": {
    "exercise": "pullups",
@@ -1686,7 +1686,7 @@
    "kg": 0,
    "auto": true
   },
-  "notes": "30 Oct (2): pull-ups set 3 (truth 8 from Rune's plan, no label uploaded), app 6. Excluded: pull-up cap.",
+  "notes": "30 Oct (2): pull-ups set 3 (truth 8 from Rune's plan, no label uploaded), app 6. Excluded: pull-up cap. v8.18 recount from video (Rune: a rep = fully up): 7 full tops (129.7-139.5 s); 141.9 s is the release, not a top.",
   "tier": "excluded",
   "view": "front",
   "facing": "user",
@@ -1704,7 +1704,7 @@
    "kg": 0,
    "auto": true
   },
-  "notes": "30 Oct (2): pull-ups set 4, Rune 8, app 7. Excluded: pull-up cap.",
+  "notes": "30 Oct (2): pull-ups set 4, Rune 8, app 7. Excluded: pull-up cap. v8.18 recount from video (Rune: a rep = fully up): 8 full tops, the last one followed by a half lowering and release, so the app (counts on the way down) misses it.",
   "tier": "excluded",
   "view": "front",
   "facing": "user",
@@ -1818,5 +1818,41 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected"
+ },
+ {
+  "id": "mvvffzgp433b4511",
+  "exercise": "roing",
+  "gt": 10,
+  "kg": 30,
+  "pred": {
+   "exercise": "roing",
+   "reps": 10,
+   "kg": 90,
+   "auto": true
+  },
+  "label": "confirmed",
+  "notes": "30 Oct: standing row 90 kg set 2, app exact.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.16"
+ },
+ {
+  "id": "mvvfl1ka048fe127",
+  "exercise": "roing",
+  "gt": 10,
+  "kg": 30,
+  "pred": {
+   "exercise": "dips",
+   "reps": 13,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "corrected",
+  "notes": "30 Oct: standing row 90 kg set 3. App dips 13 (row read as dips), replay dips 12.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.16"
  }
 ]
