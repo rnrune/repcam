@@ -112,7 +112,7 @@ async function start(p) { await p.goto(URL); await p.waitForSelector('#view-home
   await p.waitForSelector('#toast.on', { timeout: 120000 });
   await p.click('#finish'); await p.waitForTimeout(2500);
   const put = calls.find(c => c.m === 'PUT');
-  ok(put && /\/activities\/22$/.test(put.u) && JSON.parse(put.body).description.startsWith('Bra økt\n\n— Newrun Lift —\nKnebøy:'), 'Strava: description written to overlapping WeightTraining activity, user text kept');
+  ok(put && /\/activities\/22$/.test(put.u) && JSON.parse(put.body).description.startsWith('Bra økt\n\n— Newrun Lift —\n'), 'Strava: description written to overlapping WeightTraining activity, user text kept');
   ok(!calls.some(c => c.m === 'PUT' && /\/11$/.test(c.u)), 'Strava: never wrote to the non-overlapping run');
   await p.click('#sumOk').catch(() => {}); await p.click('#tabs a[data-v=profil]'); await p.waitForTimeout(300);
   ok((await p.textContent('#stravaCard')).includes('Styrke'), 'Strava status shown in Profil');

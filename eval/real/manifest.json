@@ -1854,5 +1854,77 @@
   "view": "front",
   "facing": "user",
   "app": "8.16"
+ },
+ {
+  "id": "mvvfo3h7de7ad609",
+  "exercise": "dips",
+  "gt": 12,
+  "kg": 0,
+  "pred": {
+   "exercise": "dips",
+   "reps": 7,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "corrected",
+  "notes": "30 Oct: dips set (truth dips BW 12 / EZ curl 30 kg 12, alternating). App dips 7.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.16"
+ },
+ {
+  "id": "mvvfp3sp39090326",
+  "exercise": "curl",
+  "gt": 12,
+  "kg": 30,
+  "pred": {
+   "exercise": "curl",
+   "reps": 12,
+   "kg": 30,
+   "auto": true
+  },
+  "label": "implicit",
+  "notes": "30 Oct: curl set (truth dips BW 12 / EZ curl 30 kg 12, alternating). App curl 12.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.16"
+ },
+ {
+  "id": "mvvfrgoaeb40e212",
+  "exercise": "curl",
+  "gt": null,
+  "kg": 30,
+  "pred": {
+   "exercise": "dips",
+   "reps": 2,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "corrected",
+  "notes": "30 Oct: 21 s fragment, walking close-up; app dips 2; label curl 12 (likely wrong card). Truth unknown, ask Rune.",
+  "tier": "excluded",
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.16"
+ },
+ {
+  "id": "mvvfsawp67eb0973",
+  "exercise": "curl",
+  "gt": 12,
+  "kg": 30,
+  "pred": {
+   "exercise": "curl",
+   "reps": 14,
+   "kg": 30,
+   "auto": true
+  },
+  "label": "corrected",
+  "notes": "30 Oct: EZ curl 30 kg (video clearly curl). Label says dips 12 (probably set on the wrong card); gt 12. App curl 14.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.16"
  }
 ]
