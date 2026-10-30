@@ -1602,5 +1602,185 @@
   "label": "corrected",
   "notes": "30 Oct: benk 50 kg x15, app exact (kg corrected 100->50). Excluded only because benkpress is over the ~5 clip cap; landmarks kept.",
   "tier": "excluded"
+ },
+ {
+  "id": "mvven1et4abb932d",
+  "exercise": "benkpress",
+  "gt": 12,
+  "kg": 20,
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 12,
+   "kg": 50,
+   "auto": true
+  },
+  "notes": "30 Oct (2): benk 80 kg set 2, app exact. Excluded: benkpress over the clip cap.",
+  "tier": "excluded",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvveorge55a3f902",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "pred": {
+   "exercise": "dips",
+   "reps": 5,
+   "kg": 0,
+   "auto": true
+  },
+  "notes": "30 Oct (2): NO bench in clip: Rune talking into the phone (face close-up 0-27 s), then walking. App saved false dips 5; Rune relabelled it as benk 12 to fill the missing 3rd bench set (that set was never recorded/saved). Negative.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvvesvuf8b56e08a",
+  "exercise": "pullups",
+  "gt": 8,
+  "kg": 0,
+  "pred": {
+   "exercise": "pullups",
+   "reps": 7,
+   "kg": 10,
+   "auto": true
+  },
+  "notes": "30 Oct (2): pull-ups set 1, Rune: 8. App/replay 7: the last pull is lowered only ~55 % before dropping off the bar (95 s), so it never completes.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvvevvpuf7cf26c0",
+  "exercise": "pullups",
+  "gt": 8,
+  "kg": 0,
+  "pred": {
+   "exercise": "pullups",
+   "reps": 7,
+   "kg": 0,
+   "auto": true
+  },
+  "notes": "30 Oct (2): pull-ups set 2, Rune 8, app 7. Excluded: pull-up cap.",
+  "tier": "excluded",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvvez2adbd7812a5",
+  "exercise": "pullups",
+  "gt": 8,
+  "kg": 0,
+  "pred": {
+   "exercise": "pullups",
+   "reps": 6,
+   "kg": 0,
+   "auto": true
+  },
+  "notes": "30 Oct (2): pull-ups set 3 (truth 8 from Rune's plan, no label uploaded), app 6. Excluded: pull-up cap.",
+  "tier": "excluded",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvvf26hgc6ccdffd",
+  "exercise": "pullups",
+  "gt": 8,
+  "kg": 0,
+  "pred": {
+   "exercise": "pullups",
+   "reps": 7,
+   "kg": 0,
+   "auto": true
+  },
+  "notes": "30 Oct (2): pull-ups set 4, Rune 8, app 7. Excluded: pull-up cap.",
+  "tier": "excluded",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvvf3dw609eb9629",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 3,
+   "kg": 100,
+   "auto": true
+  },
+  "notes": "30 Oct (2): rigging between pull-ups and incline. App false halvmark 3 @100. Negative.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvvf3zaq7389345d",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "pred": {
+   "exercise": "roing",
+   "reps": 5,
+   "kg": 30,
+   "auto": true
+  },
+  "notes": "30 Oct (2): setting up the incline bench, sits down at the end. App false roing 5; Rune relabelled it skråbenk 12 (shifted labels). Negative.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvvf4x3931b8aeeb",
+  "exercise": "skråbenk",
+  "gt": 12,
+  "kg": 20,
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 12,
+   "kg": 20,
+   "auto": true
+  },
+  "notes": "30 Oct (2): incline 70 kg set 1: 12 reps counted from the wrist-shoulder signal (Rune labelled 10 because his labels shifted by one). App 12 exact, replay 11.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
+ },
+ {
+  "id": "mvvf7yz657e4bbcc",
+  "exercise": "skråbenk",
+  "gt": 10,
+  "kg": 20,
+  "pred": {
+   "exercise": "roing",
+   "reps": 11,
+   "kg": 30,
+   "auto": true
+  },
+  "notes": "30 Oct (2): incline 70 kg set 2: 10 reps. App roing 11 (30 Hz replay also roing), 10 Hz replay skråbenk 10.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.17",
+  "label": "corrected"
  }
 ]
