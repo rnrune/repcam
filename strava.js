@@ -2,6 +2,8 @@
 // Strava's OAuth has no PKCE, so the client_secret lives in a tiny Cloudflare Worker (worker/strava-worker.js) that only does
 // code→token exchange and token refresh. Everything else (reading activities, writing the description) goes browser → Strava directly.
 (function (root) {
+  // Strava moves the V3 base URL to https://api-v3.strava.com (available 4 Jan 2027, old host retired 1 Jun 2027). Keep the old host
+  // until the new one is live; tokens already go in the Authorization header as required. v8.18: switch to the new host after 4 Jan 2027.
   const API = 'https://www.strava.com/api/v3';
   const TOL = 15 * 60e3;                  // allowed gap between RepCam session and activity
   const RETRY_FOR = 24 * 3600e3;          // keep retrying a failing auto-create this long, then fall back to the manual button
@@ -238,8 +240,30 @@
       it = fresh(it); if (!it) return { id: null, status: 'cancelled' };
       const r = await create(it, fmt); return { ...r, id: r.activityId };
     }
+    // v8.18 «Oppdater i Strava»: find the activity this session belongs to — the stored activityId (auto-created / matched
+    // earlier) or else the best start-time overlap (pickActivity) — without changing anything. Returns null if none exists.
+    async function locate(sess) {
+      const it = queue().find(x => x.id === sess.id), id = it && it.activityId;
+      if (id) { try { const a = await api('/activities/' + id); return { activityId: String(a.id), name: a.name, ours: it.status === 'created', stored: true }; } catch (e) { if (e.status !== 404) throw e; } }
+      const m = await matchFor(sess); return m ? { activityId: String(m.activity.id), name: m.activity.name, ours: false, stored: false } : null;
+    }
+    // Overwrite the Newrun Lift block of that activity's description with the session's current sets (text before the block, e.g. a
+    // watch's notes, is kept). The name is only changed on activities the app created itself. PUT /activities/{id} can change
+    // name, description, sport_type, gear, trainer/commute, hide_from_home — NOT start time, duration, distance or the structured
+    // sets of an uploaded strength file. Call only after the user confirmed.
+    async function refresh(sess, loc, fmt = {}) {
+      const sets = slim(sess.sets || []), full = await api('/activities/' + loc.activityId);
+      const body = { description: mergeDescription(full.description, describe(sets, fmt.name, fmt.kgf)) };
+      if (loc.ours && fmt.title) body.name = fmt.title;
+      await api('/activities/' + loc.activityId, { method: 'PUT', body: JSON.stringify(body) });
+      const q = queue(), it = q.find(x => x.id === sess.id), rec = { id: sess.id, start: sess.start, end: sess.end, sets, status: loc.ours ? 'created' : 'synced', activityId: loc.activityId, activityName: full.name, descDirty: false, at: now() };
+      save(K.q, it ? q.map(x => x.id === sess.id ? { ...x, ...rec } : x) : [...q, rec].slice(-20));
+      return { status: 'updated', activityId: loc.activityId, name: body.name || full.name };
+    }
+    // No activity found: queue the session (if needed) and create one.
+    async function createFor(sess, fmt = {}) { if (!queue().find(x => x.id === sess.id)) enqueue(sess); setItem(sess.id, { status: 'nomatch' }); return createManual(sess.id, fmt); }
     function disconnect() { ls.removeItem(K.tok); ls.removeItem(K.q); }
-    return { configured, connected, authUrl, handleRedirect, token, enqueue, process, createManual, queue, cancel, update, disconnect, athlete: () => (read(K.tok, {}) || {}).athlete };
+    return { configured, connected, authUrl, handleRedirect, token, enqueue, process, createManual, locate, refresh, createFor, queue, cancel, update, disconnect, athlete: () => (read(K.tok, {}) || {}).athlete };
   }
   const lib = { parseState, pickActivity, queryWindow, describe, mergeDescription, strengthFile, exerciseType, createClient, TOL, RETRY_FOR, AUTO_CREATE_AFTER, KEYS: K };
   if (typeof module !== 'undefined') module.exports = lib; else root.Strava = lib;

@@ -4,6 +4,12 @@
   const KEYS = { on: 'repcam.fb.on', inst: 'repcam.fb.install', tok: 'repcam.fb.token', stats: 'repcam.fb.stats' };
   const MIMES = ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
   const MAX_BYTES = 48 * 1024 * 1024;
+  // v8.18 upload safety net (reviewable config). Every clip + meta + label lives in IndexedDB until the Worker confirmed it
+  // (HTTP 2xx); only then the local video blob is dropped. Retries: on load, 'online', foreground/pageshow and every periodMs
+  // while visible, with backoff capped at maxBackoffMs. Kill switch for automatic retries: localStorage repcam.fb.retryOff=1
+  // (manual «Send nå» still works). New clips are not recorded once unsent local video exceeds maxLocalBytes.
+  const QUEUE_CFG = { retry: true, maxBackoffMs: 5 * 60e3, periodMs: 30e3, maxLocalBytes: 400 * 1024 * 1024,
+    timeoutMs: 45e3, minBps: 50e3, stuckMs: 10 * 60e3 }; // per request: 45 s + size at 50 kB/s; a run older than stuckMs is abandoned
   function pickMime(isSupported) { for (const m of MIMES) { try { if (isSupported(m)) return m; } catch {} } return ''; }
   function rid(n, rnd) { const b = new Uint8Array(n); rnd(b); return [...b].map(x => x.toString(16).padStart(2, '0')).join(''); }
   // Ground truth from what the user did with the set. Undo/delete = not a set; edit = corrected values; untouched = confirmed implicitly.
@@ -16,9 +22,12 @@
   }
   // Queue over an async kv store {all(), get(id), put(rec), del(id)} (IndexedDB in the browser, Map in tests).
   // rec: { id, setTs, blob, mime, meta, label, clipDone, metaDone, labelDirty, tries, next }
-  function createQueue({ kv, send, now = () => Date.now() }) {
-    let running = null, again = false, forceNext = false;
-    const backoff = t => Math.min(30 * 60e3, 15e3 * 2 ** Math.min(t, 7));
+  // v8.18: requests in flight, so a forced «Send nå» can abort a stalled one and retry at once instead of waiting on it
+  const INFLIGHT = new Set();
+  function abortInflight() { for (const a of INFLIGHT) { try { a.abort(); } catch {} } INFLIGHT.clear(); }
+  function createQueue({ kv, send, now = () => Date.now(), maxBackoffMs = 30 * 60e3 }) {
+    let running = null, runAt = 0, again = false, forceNext = false, lastErr = null;
+    const backoff = t => Math.min(maxBackoffMs, 15e3 * 2 ** Math.min(t, 7));
     // Every read-modify-write runs under one lock: IndexedDB ops are separate transactions, so an upload's bookkeeping
     // must never interleave with a label change (that would resurrect the old label).
     let chain = Promise.resolve();
@@ -45,8 +54,9 @@
       // and makes another pass, and the caller gets the result of that complete run.
       process({ force } = {}) {
         again = true; if (force) forceNext = true;
-        if (running) return running;
-        running = (async () => {
+        if (running && force) abortInflight(); // the aborted item fails, the loop makes another (forced) pass and retries it right away
+        if (running && !(force && now() - runAt > QUEUE_CFG.stuckMs)) return running; // a run that is stuck anyway is abandoned
+        runAt = now(); const mine = (async () => {
           let ok = 0, fail = 0, auth = false;
           try {
             while (again && !auth) {
@@ -55,13 +65,13 @@
                 if (r.clipDone && r.metaDone && !r.labelDirty) continue;
                 if (!f && (r.next || 0) > now()) continue;
                 seen.add(r.id);
-                try { await step(r); ok++; } catch (e) { fail++; await patch(r.id, c => { c.tries = (c.tries || 0) + 1; c.next = now() + backoff(c.tries); }); if (e && e.status === 401) { auth = true; break; } }
+                try { await step(r); ok++; } catch (e) { fail++; lastErr = (e && e.message) || 'error'; await patch(r.id, c => { c.tries = (c.tries || 0) + 1; c.next = now() + backoff(c.tries); }); if (e && e.status === 401) { auth = true; break; } }
               }
             }
-          } finally { running = null; }
-          return { ok, fail };
+          } finally { if (running === mine) running = null; }
+          return { ok, fail, error: lastErr };
         })();
-        return running;
+        running = mine; return mine;
       },
       // Earliest time a pending record becomes due again (for scheduling a retry timer), or null if nothing is pending.
       async nextDue() { let t = null; for (const r of await kv.all()) if (!(r.clipDone && r.metaDone && !r.labelDirty)) t = t == null ? (r.next || 0) : Math.min(t, r.next || 0); return t; }
@@ -75,7 +85,12 @@
   }
   function httpSender({ base, inst, tok, fetch }) {
     return async (kind, id, body, type) => {
-      const r = await fetch(base + '/fb/' + kind + '/' + id, { method: 'PUT', body, headers: { 'Content-Type': type, 'X-Install': inst, 'X-Token': tok } });
+      // v8.18: a request that never settles (iOS suspended the app mid-upload, Wi-Fi stalls) used to hang the whole queue forever.
+      // Every request now aborts after timeoutMs + size / minBps; the item gets a normal backoff and the loop moves on.
+      const size = (body && (body.size || body.length)) || 0, ms_ = QUEUE_CFG.timeoutMs + size / QUEUE_CFG.minBps * 1000;
+      const ac = typeof AbortController !== 'undefined' ? new AbortController() : null, tm = ac && setTimeout(() => ac.abort(), ms_); if (ac) INFLIGHT.add(ac);
+      let r; try { r = await fetch(base + '/fb/' + kind + '/' + id, { method: 'PUT', body, headers: { 'Content-Type': type, 'X-Install': inst, 'X-Token': tok }, ...(ac ? { signal: ac.signal } : {}) }); }
+      catch (e) { throw Object.assign(new Error(ac && ac.signal.aborted ? 'timeout' : 'network'), { status: 0 }); } finally { if (tm) clearTimeout(tm); if (ac) INFLIGHT.delete(ac); }
       if (!r.ok) throw Object.assign(new Error('upload ' + r.status), { status: r.status });
     };
   }
@@ -104,6 +119,6 @@
       async stop() { stopped = true; return end(); }
     };
   }
-  const api = { KEYS, MIMES, MAX_BYTES, pickMime, rid, labelFrom, createQueue, idbKV, httpSender, createRecorder };
+  const api = { KEYS, MIMES, MAX_BYTES, QUEUE_CFG, abortInflight, pickMime, rid, labelFrom, createQueue, idbKV, httpSender, createRecorder };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Feedback = api;
 })(typeof self !== 'undefined' ? self : this);

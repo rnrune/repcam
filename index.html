@@ -5,10 +5,10 @@
 <meta name="theme-color" content="#f5f6fa" id="tc"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
 <title>Newrun Lift</title>
 <script>(function(){var t=localStorage.getItem('repcam.theme')||'auto';var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';})()</script>
-<link rel="stylesheet" href="style.css?v=8.17">
+<link rel="stylesheet" href="style.css?v=8.18">
 </head><body>
 <main id="app">
-<section class="view" id="view-home">
+<section class="view" id="view-home"><span class="fbPend" id="fbPendHome" style="display:none"></span>
   <header class="top"><div><div class="greet" id="greet"></div><h1 id="title"></h1></div><a class="avatar" id="avatar" href="#/profil">R</a></header>
   <button class="hero" id="startOkt"><span class="hero-ic"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
     <span class="hero-tx"><b data-i="home.start"></b><small data-i="home.startSub"></small></span><span class="hero-arrow">›</span></button>
@@ -39,7 +39,7 @@
 <section class="view" id="view-okt">
   <div id="stage"><video id="v" playsinline muted autoplay></video><canvas id="c"></canvas></div>
   <button id="close" class="glass circ" data-ia="a.close">✕</button>
-  <button class="chip glass" id="exChip"><span id="exIc">✨</span> <b id="exName"></b> · <span id="elapsed">0:00</span> ▾</button>
+  <button class="chip glass" id="exChip"><span id="exIc">✨</span> <b id="exName"></b> · <span id="elapsed">0:00</span> ▾</button><span class="fbPend" id="fbPendOkt" style="display:none"></span>
   <button id="flip" class="glass circ" data-ia="a.flip">⟲</button>
   <div id="ringwrap"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="7"/><circle id="ring" cx="50" cy="50" r="44" fill="none" stroke="url(#gr)" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"/><defs><linearGradient id="gr"><stop offset="0" stop-color="#ff8a00"/><stop offset="1" stop-color="#ff2d87"/></linearGradient></defs></svg><div id="reps">0</div></div>
   <div id="hint" data-i="w.hint"></div>
@@ -62,14 +62,14 @@
 <div id="sheetBg" class="sheet-bg"></div>
 <div id="sheet" class="sheet" role="dialog" aria-modal="true"></div>
 <script>if (/[?&]review=1/.test(location.search)) location.replace('review.html');</script>
-<script src="i18n.js?v=8.17"></script>
-<script src="reps.js?v=8.17"></script>
-<script src="rest.js?v=8.17"></script>
-<script src="bar.js?v=8.17"></script>
-<script src="store.js?v=8.17"></script>
-<script src="strava-config.js?v=8.17"></script>
-<script src="strava.js?v=8.17"></script>
-<script src="wake.js?v=8.17"></script>
-<script src="feedback.js?v=8.17"></script>
-<script type="module" src="app.js?v=8.17"></script>
+<script src="i18n.js?v=8.18"></script>
+<script src="reps.js?v=8.18"></script>
+<script src="rest.js?v=8.18"></script>
+<script src="bar.js?v=8.18"></script>
+<script src="store.js?v=8.18"></script>
+<script src="strava-config.js?v=8.18"></script>
+<script src="strava.js?v=8.18"></script>
+<script src="wake.js?v=8.18"></script>
+<script src="feedback.js?v=8.18"></script>
+<script type="module" src="app.js?v=8.18"></script>
 </body></html>

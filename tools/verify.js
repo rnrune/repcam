@@ -154,4 +154,76 @@ async function resume() {
   } finally { await b.close(); srv?.close(); }
 }
 
-({ doctor, replay, app, ui, resume }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();
+// v8.18: upload safety net proof. A clip is queued while the upload HANGS (no response; v8.18 times it out), the «⇡ n» badge shows it is
+// kept locally; then the Worker recovers, the queue drains on the 'online' event, the badge disappears and the local blob is dropped.
+async function queue() {
+  if (has('--dry-run')) { console.log('dry-run: would simulate a failed then recovered feedback upload, screenshots to ' + OUT); return; }
+  fs.mkdirSync(OUT, { recursive: true }); const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const srv = await serve(), URL0 = `http://127.0.0.1:${srv.address().port}/`, { chromium, devices } = pw(), errs = [], got = [];
+  const b = await chromium.launch({ executablePath: CHROME, headless: true });
+  try {
+    const ctx = await b.newContext({ ...devices['iPhone 13'] }); let up = false;
+    await ctx.addInitScript(() => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); Object.entries({ 'repcam.onboarded': '1', 'repcam.profile': '{"name":"Verify"}', 'repcam.lang': 'nb', 'repcam.fb.on': '1' }).forEach(([k, v]) => localStorage.setItem(k, v)); } });
+    await ctx.route(u => /workers\.dev|dropbox|strava\.com/i.test(u.hostname), r => { const u = r.request().url(); if (!/\/fb\//.test(u)) return r.abort(); if (!up) return; /* v8.18: never answer = a hung upload (as on iOS); the app must time out and keep the clip */ got.push(u.replace(/.*\/fb\//, '')); return r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }); });
+    const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
+    await p.goto(URL0); await p.waitForSelector('#view-home.on', { timeout: 20000 });
+    await p.evaluate(async () => { const S = window.__repcam; Feedback.QUEUE_CFG.timeoutMs = 1500; Feedback.QUEUE_CFG.minBps = 1e12; await S.fbQueue().add({ id: 'verifyclip01', setTs: new Date().toISOString(), blob: new Blob([new Uint8Array(200000)], { type: 'video/mp4' }), mime: 'video/mp4', meta: { id: 'verifyclip01' }, label: { kind: 'implicit' }, created: Date.now() }); await S.fbUpload(true); });
+    await p.waitForTimeout(300);
+    const st1 = await p.evaluate(async () => ({ stats: await window.__repcam.fbQueue().stats(), badge: document.getElementById('fbPendHome').textContent }));
+    await p.screenshot({ path: OUT + `queue-failed-${stamp}.png` });
+    // reload (app killed by iOS): the clip must still be there
+    await p.reload(); await p.waitForSelector('#view-home.on'); await p.waitForTimeout(2500);
+    const st2 = await p.evaluate(async () => ({ stats: await window.__repcam.fbQueue().stats(), badge: document.getElementById('fbPendHome').textContent }));
+    up = true; await p.evaluate(() => window.dispatchEvent(new Event('online'))); await p.waitForTimeout(1500);
+    const st3 = await p.evaluate(async () => ({ stats: await window.__repcam.fbQueue().stats(), badge: document.getElementById('fbPendHome').textContent }));
+    await p.screenshot({ path: OUT + `queue-recovered-${stamp}.png` });
+    const ok = st1.stats.pending === 1 && st1.badge.includes('1') && st2.stats.pending === 1 && st3.stats.pending === 0 && st3.stats.bytes === 0 && !st3.badge && got.length === 3 && !errs.length;
+    const proof = { tool: 'tools/verify.js queue', at: new Date().toISOString(), failed: st1, afterReload: st2, recovered: st3, uploads: got, ok, pageErrors: errs };
+    fs.writeFileSync(OUT + `queue-${stamp}.json`, JSON.stringify(proof, null, 1));
+    console.log(JSON.stringify(proof)); console.log(`${ok ? 'PASS' : 'FAIL'} queue · proof ${OUT}queue-{failed,recovered}-${stamp}.png / queue-${stamp}.json`); process.exitCode = ok ? 0 : 1;
+  } finally { await b.close(); srv.close(); }
+}
+
+// v8.18: «Oppdater i Strava» proof with Strava fully MOCKED (no request leaves the box; real activities are never touched).
+// Case A: stored activityId → confirm → one PUT /activities/{id} with the merged description (watch text kept), no POST.
+// Case B: no stored id, nothing overlapping → «create?» dialog shown (cancelled here) → nothing written.
+async function stravaup() {
+  if (has('--dry-run')) { console.log('dry-run: would test Oppdater i Strava against a mocked Strava API'); return; }
+  fs.mkdirSync(OUT, { recursive: true }); const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const srv = await serve(), URL0 = `http://127.0.0.1:${srv.address().port}/`, { chromium, devices } = pw(), errs = [], calls = [];
+  const b = await chromium.launch({ executablePath: CHROME, headless: true });
+  try {
+    const now = Date.now(), iso = x => new Date(x).toISOString(), t0 = now - 3 * 3600e3;
+    const sets = [[12, 70, 'skråbenk'], [10, 70, 'skråbenk'], [12, 0, 'dips'], [12, 30, 'curl']].map((r, i) => ({ exercise: r[2], reps: r[0], kg: r[1], timestamp: iso(t0 + (i + 1) * 300e3), sessionId: 'sA' }));
+    const sets2 = [{ exercise: 'pullups', reps: 8, kg: 0, timestamp: iso(t0 - 86400e3), sessionId: 'sB' }];
+    const seed = { 'repcam.sets': JSON.stringify([...sets, ...sets2]), 'repcam.sessions': JSON.stringify([{ id: 'sA', start: iso(t0), end: iso(t0 + 1500e3) }, { id: 'sB', start: iso(t0 - 86400e3 - 300e3), end: iso(t0 - 86400e3 + 300e3) }]),
+      'repcam.onboarded': '1', 'repcam.profile': '{"name":"Rune"}', 'repcam.lang': 'nb',
+      'repcam.strava.tok': JSON.stringify({ access_token: 'MOCK', refresh_token: 'MOCK', expires_at: Math.floor(now / 1000) + 6 * 3600, athlete: 'Rune' }),
+      'repcam.strava.queue': JSON.stringify([{ id: 'sA', start: iso(t0), end: iso(t0 + 1500e3), sets: [], status: 'created', activityId: '111', at: now }]) };
+    const ctx = await b.newContext({ ...devices['iPhone 13'] });
+    await ctx.addInitScript(d => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); for (const k in d) localStorage.setItem(k, d[k]); } }, seed);
+    await ctx.route(u => /strava\.com|workers\.dev|dropbox/i.test(u.hostname), r => { const q = r.request(), u = new URL(q.url()); calls.push(q.method() + ' ' + u.pathname + u.search + (q.method() === 'PUT' ? ' ' + q.postData() : ''));
+      if (!/strava\.com$/.test(u.hostname)) return r.abort();
+      if (q.method() === 'GET' && u.pathname.endsWith('/activities/111')) return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 111, name: 'Styrke (Newrun Lift)', description: 'Godt pass!\n\n— Newrun Lift —\ngammel blokk' }) });
+      if (q.method() === 'PUT') return r.fulfill({ status: 200, contentType: 'application/json', body: '{"id":111}' });
+      if (u.pathname.endsWith('/athlete/activities')) return r.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+      return r.fulfill({ status: 404, body: '{}' }); });
+    const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
+    await p.goto(URL0 + '#/historikk'); await p.waitForSelector('#view-historikk.on'); await p.waitForTimeout(500);
+    await p.click('#histList details.sess[data-sid="sA"] > summary'); await p.waitForTimeout(200);
+    await p.click('[data-supd="sA"]'); await p.waitForSelector('#dYes', { timeout: 5000 }); await p.waitForTimeout(300);
+    const dlgA = await p.evaluate(() => document.querySelector('.sheet.on')?.innerText); await p.screenshot({ path: OUT + `stravaup-confirm-${stamp}.png` });
+    await p.click('#dYes'); await p.waitForTimeout(800); await p.screenshot({ path: OUT + `stravaup-done-${stamp}.png` });
+    const putsA = calls.filter(c => c.startsWith('PUT')), postsA = calls.filter(c => c.startsWith('POST'));
+    await p.click('#histList details.sess[data-sid="sB"] > summary'); await p.waitForTimeout(200);
+    await p.click('[data-supd="sB"]'); await p.waitForSelector('#dYes', { timeout: 5000 }); await p.waitForTimeout(300);
+    const dlgB = await p.evaluate(() => document.querySelector('.sheet.on')?.innerText); await p.screenshot({ path: OUT + `stravaup-none-${stamp}.png` }); await p.click('#dNo'); await p.waitForTimeout(300);
+    const desc = putsA[0] ? JSON.parse(putsA[0].slice(putsA[0].indexOf(' {') + 1)).description : '';
+    const ok = putsA.length === 1 && /\/activities\/111 /.test(putsA[0]) && desc.startsWith('Godt pass!') && /Skråbenk: 12 × 70 kg/i.test(desc) && !/gammel blokk/.test(desc) && !postsA.length && /Opprette/.test(dlgB || '') && calls.filter(c => c.startsWith('PUT')).length === 1 && !errs.length;
+    const proof = { tool: 'tools/verify.js stravaup', at: new Date().toISOString(), confirmText: dlgA, noneText: dlgB, calls, description: desc, ok, pageErrors: errs };
+    fs.writeFileSync(OUT + `stravaup-${stamp}.json`, JSON.stringify(proof, null, 1)); console.log(JSON.stringify(proof, null, 1));
+    console.log(`${ok ? 'PASS' : 'FAIL'} stravaup · proof ${OUT}stravaup-{confirm,done,none}-${stamp}.png / stravaup-${stamp}.json`); process.exitCode = ok ? 0 : 1;
+  } finally { await b.close(); srv.close(); }
+}
+
+({ doctor, replay, app, ui, resume, queue, stravaup }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();

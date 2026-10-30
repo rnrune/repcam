@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.17';
+const APP_VERSION = '8.18';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -148,7 +148,8 @@ function fbQueue() {
   const rnd = b => crypto.getRandomValues(b);
   if (!LS.getItem(Feedback.KEYS.inst)) { LS.setItem(Feedback.KEYS.inst, Feedback.rid(12, rnd)); LS.setItem(Feedback.KEYS.tok, Feedback.rid(32, rnd)); }
   const send = Feedback.httpSender({ base: window.REPCAM_STRAVA.workerUrl, inst: LS.getItem(Feedback.KEYS.inst), tok: LS.getItem(Feedback.KEYS.tok), fetch: (...x) => fetch(...x) });
-  return fb.q = Feedback.createQueue({ kv: Feedback.idbKV(), send });
+  try { navigator.storage?.persist?.(); } catch {} // v8.18: ask iOS not to evict the local clip queue
+  return fb.q = Feedback.createQueue({ kv: Feedback.idbKV(), send, maxBackoffMs: Feedback.QUEUE_CFG.maxBackoffMs });
 }
 function fbStart() {
   fbStop(true);
@@ -180,6 +181,7 @@ async function fbCut1(pred, setTs, label) {
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
     landmarks: { hz: 10, layout: 't,(x,y,vis)*33', frames: lm },
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
+  try { const st = await fbQueue().stats(); if (st.bytes + seg.blob.size > Feedback.QUEUE_CFG.maxLocalBytes) { console.warn('fb: local queue full, clip skipped'); return; } } catch {}
   const lab = fb.early[setTs] || label || Feedback.labelFrom(pred, 'implicit'); delete fb.early[setTs];
   try { await fbQueue().add({ id, setTs, blob: seg.blob, mime: seg.blob.type.split(';')[0], meta, label: lab, created: Date.now() }); } catch (e) { console.warn('fb add', e); }
   fbUpload();
@@ -196,13 +198,22 @@ async function fbLabel(ts, action, val) {
 // an upload runs is picked up by the same loop. Retries are timed to the earliest backoff, and the queue is drained on
 // start, on returning to the foreground and on pageshow (iOS resumes/reloads PWAs on its own schedule).
 let fbTimer = 0;
+const fbAuto = () => Feedback.QUEUE_CFG.retry && LS.getItem('repcam.fb.retryOff') !== '1';
 async function fbUpload(force) {
-  if (!LS.getItem(Feedback.KEYS.inst) || !navigator.onLine) return;
-  try { await fbQueue().process({ force: force === true }); } catch (e) { console.warn('fb up', e); }
-  try { const t = await fbQueue().nextDue(); clearTimeout(fbTimer); if (t != null) fbTimer = setTimeout(fbUpload, Math.max(2e3, t - Date.now() + 50)); } catch {}
-  if (cur === 'profil') renderFb();
+  if (!LS.getItem(Feedback.KEYS.inst)) return;
+  if (force !== true && !fbAuto()) return fbPending();
+  // navigator.onLine is only a hint (iOS reports true on dead gym Wi-Fi, and navigator.connection is missing): a forced try runs anyway
+  if (navigator.onLine !== false || force === true) { try { await fbQueue().process({ force: force === true }); } catch (e) { console.warn('fb up', e); } }
+  try { const t = await fbQueue().nextDue(); clearTimeout(fbTimer); if (t != null && fbAuto()) fbTimer = setTimeout(fbUpload, Math.max(2e3, t - Date.now() + 50)); } catch {}
+  fbPending(); if (cur === 'profil') renderFb();
 }
-addEventListener('online', () => fbUpload(true)); setInterval(() => { if (document.visibilityState === 'visible') fbUpload(); }, 60e3);
+// v8.18: small «⇡ n» badge (home + workout) while clips are waiting to be sent
+async function fbPending() {
+  let n = 0; try { if (LS.getItem(Feedback.KEYS.inst)) n = (await fbQueue().stats()).pending; } catch {}
+  document.querySelectorAll('.fbPend').forEach(el => { el.textContent = n ? '⇡ ' + n : ''; el.style.display = n ? '' : 'none'; el.title = n ? L.t('fb.stats', { p: n, u: '', mb: '' }) : ''; });
+  return n;
+}
+addEventListener('online', () => fbUpload(true)); setInterval(() => { if (document.visibilityState === 'visible') fbUpload(); }, Feedback.QUEUE_CFG.periodMs);
 addEventListener('pageshow', () => fbUpload()); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fbUpload(true); });
 setTimeout(() => fbUpload(true), 1500);
 async function renderFb() {
@@ -214,7 +225,9 @@ async function renderFb() {
     <div class="muted small" id="fbStats">${L.t('fb.stats', { p: st.pending, u: st.uploaded, mb: L.nf(Math.round(st.bytes / 1e5) / 10, 1) })}</div>
     ${st.pending ? `<div class="btns"><button class="ghost" id="fbSend">${L.t('fb.send')}</button><button class="ghost" id="fbDel">${L.t('fb.del')}</button></div>` : ''}`;
   $('fbOn').onchange = () => { LS.setItem(Feedback.KEYS.on, $('fbOn').checked ? '1' : '0'); if ($('fbOn').checked) fbQueue(); renderFb(); };
-  if ($('fbSend')) $('fbSend').onclick = () => fbUpload(true);
+  if ($('fbSend')) $('fbSend').onclick = async () => { const b = $('fbSend'); b.disabled = true; b.textContent = '…'; // v8.18: visible feedback
+    let r = null; try { r = await fbQueue().process({ force: true }); } catch (e) { r = { error: e.message }; }
+    await fbUpload(); const n = await fbPending(); showToastGlobal(n ? `⇡ ${n} · ${r && r.error ? r.error : ''}` : '✓'); renderFb(); };
   if ($('fbDel')) $('fbDel').onclick = async () => { if (await confirmDialog(L.t('fb.del'), L.t('fb.delText'), L.t('del.ok'))) { await fbQueue().clearPending(); } renderFb(); };
 }
 
@@ -262,9 +275,9 @@ function sessionCard(s, opts = {}) {
     <div class="sxl">${exLine}</div><div class="row small">${stravaBadge(s.id)}<span class="muted" style="margin-left:auto">${L.t('sets', { n: s.sets.length })}</span></div></summary>
     <div class="sdet">${opts.spark ? groups.map(g => `<div class="ex-foot"><div><b>${g.icon} ${esc(exName(g.id))}</b><div class="muted small" style="margin:0">${groupLabel(g)} · ${L.nf(g.volume)} kg</div></div>${spark(Store.kgHistory(opts.all, g.id))}</div>`).join('') : ''}
     ${s.sets.map(x => `<div class="setrow" data-ts="${esc(x.timestamp)}" role="button" tabindex="0"><span>${icon(x.exercise)} ${esc(exName(x.exercise || 'knebøy'))} · <b>${L.t('reps', { n: x.reps })}</b> × ${L.kgf(x.kg)}</span><span class="muted">✎</span></div>`).join('')}
-    ${live ? '' : `<div class="row"><button class="ghost addset" data-sadd="${esc(s.id)}">＋ ${L.t('hist.addSet')}</button><button class="ghost sessdel" data-sdel="${esc(s.id)}" aria-label="${L.t('sdel.btn')}" title="${L.t('sdel.btn')}">🗑</button></div>`}</div></details>`;
+    ${live ? '' : `<div class="row"><button class="ghost addset" data-sadd="${esc(s.id)}">＋ ${L.t('hist.addSet')}</button>${strava.connected() ? `<button class="ghost supd" data-supd="${esc(s.id)}">⟳ ${L.t('sup.btn')}</button>` : ''}<button class="ghost sessdel" data-sdel="${esc(s.id)}" aria-label="${L.t('sdel.btn')}" title="${L.t('sdel.btn')}">🗑</button></div>`}</div></details>`;
 }
-function sessClick(e, rerender) { const d = e.target.closest('[data-sdel]'); if (d) return deleteSession(d.dataset.sdel); const a = e.target.closest('[data-sadd]'); if (a) return openAdd(a.dataset.sadd, rerender); const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, rerender); }
+function sessClick(e, rerender) { const u = e.target.closest('[data-supd]'); if (u) return stravaRefresh(u.dataset.supd, u, rerender); const d = e.target.closest('[data-sdel]'); if (d) return deleteSession(d.dataset.sdel); const a = e.target.closest('[data-sadd]'); if (a) return openAdd(a.dataset.sadd, rerender); const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, rerender); }
 function renderHome() {
   const h = new Date().getHours(), name = profile().name;
   const g = L.t(h < 5 ? 'greet.night' : h < 10 ? 'greet.morning' : h < 17 ? 'greet.day' : h < 23 ? 'greet.evening' : 'greet.night');
@@ -317,6 +330,18 @@ async function deleteSession1(id) {
 function renderStravaNote() {
   const nm = strava.connected() ? strava.queue().filter(x => x.status === 'nomatch') : [];
   $('stravaNote').innerHTML = nm.map(x => `<div class="card"><div class="muted">${L.t('st.nomatch', { d: esc(L.date(x.start, { weekday: 'short', day: 'numeric', month: 'short' }) + ' ' + L.hm(x.start)) })}</div><button class="btn" data-create="${esc(x.id)}">${L.t('st.create')}</button></div>`).join('');
+}
+// v8.18 «Oppdater i Strava»: update the session's existing activity (stored id, else time overlap) after a confirmation; never a duplicate.
+async function stravaRefresh(id, btn, rerender) {
+  const ss = store.sessions().find(x => x.id === id); if (!ss || !strava.connected()) return;
+  const sess = { ...ss, sets: ss.sets }; if (btn) btn.disabled = true;
+  try {
+    const loc = await strava.locate(sess);
+    if (!loc) { if (await confirmDialog(L.t('sup.btn'), L.t('sup.none'), L.t('sup.create'))) { await strava.createFor(sess, stravaFmt()); showToastGlobal(L.t('st.created')); } return; }
+    if (!(await confirmDialog(L.t('sup.title'), L.t('sup.text', { a: esc(loc.name || loc.activityId), n: loc.ours ? L.t('sup.name') : '' }), L.t('sup.ok')))) return;
+    const r = await strava.refresh(sess, loc, stravaFmt()); showToastGlobal(L.t('sup.done', { a: r.name || r.activityId }));
+  } catch (e) { console.warn('strava refresh', e); showToastGlobal(e.message); }
+  finally { if (btn) btn.disabled = false; rerender && rerender(); }
 }
 async function stravaCreate(id) { try { await strava.createManual(id, stravaFmt()); showToastGlobal(L.t('st.created')); } catch (e) { showToastGlobal(e.message); } renderStravaNote(); renderStrava(); }
 document.addEventListener('click', e => { const b = e.target.closest('[data-create]'); if (b) { b.disabled = true; stravaCreate(b.dataset.create); } });
@@ -680,4 +705,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
