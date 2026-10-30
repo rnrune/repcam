@@ -1678,7 +1678,7 @@
  {
   "id": "mvvez2adbd7812a5",
   "exercise": "pullups",
-  "gt": 7,
+  "gt": 8,
   "kg": 0,
   "pred": {
    "exercise": "pullups",
@@ -1686,7 +1686,7 @@
    "kg": 0,
    "auto": true
   },
-  "notes": "30 Oct (2): pull-ups set 3 (truth 8 from Rune's plan, no label uploaded), app 6. Excluded: pull-up cap. v8.18 recount from video (Rune: a rep = fully up): 7 full tops (129.7-139.5 s); 141.9 s is the release, not a top.",
+  "notes": "30 Oct (2): pull-ups set 3 (truth 8 from Rune's plan, no label uploaded), app 6. Excluded: pull-up cap. v8.18 recount from video (Rune: a rep = fully up): 7 full tops (129.7-139.5 s); 141.9 s is the release, not a top. Rune 30 Oct 22:33: \"8,8,8 og 8\" -> truth back to 8 (final top hard to see on video).",
   "tier": "excluded",
   "view": "front",
   "facing": "user",

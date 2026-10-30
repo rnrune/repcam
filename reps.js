@@ -44,7 +44,7 @@
     bulgarsk: { minAmp: 0.18, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       // front leg = knee closest to hip height
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref },
-    pullups: { bodyMove: 0.25, minAmp: 0.25, minRep: 0.6, maxRep: 8, need: 'arms', posture: (g, ref) => g.wrM.y < g.shM.y + 0.3 * ref && g.torsoTilt < 50,
+    pullups: { bodyMove: 0.25, minAmp: 0.25, countAtTop: 0.8, barHold: 0.4, barDrop: 0.5, /* v8.19, countAtTop null = off */ minRep: 0.6, maxRep: 8, need: 'arms', posture: (g, ref) => g.wrM.y < g.shM.y + 0.3 * ref && g.torsoTilt < 50,
       signal: (g, ref) => (g.shM.y - g.wrM.y) / ref,
       valid: raw => raw > -0.5, // wrists well below shoulders = not hanging from the bar
       // knee height relative to hip; hanging leg raises bring the knees up to/above the hips
@@ -208,12 +208,18 @@
       const thrDown = Math.max(def.minAmp * 0.5, ta ? 0.35 * ta : 0);
       if (pend) { if (s > pend.pk) { pend.pk = s; pend.tPk = t; } checkPend(t, false); }
       if (def.topHold) { topPose.push([t, !def.posture || def.posture(g, ref)]); while (topPose[0][0] < t - 3) topPose.shift(); }
-      if (state === 'top') {
+      if (state === 'top') { if (def.countAtTop) wyTop = Math.min(wyTop ?? g.wrM.y, g.wrM.y); // hands on the bar while hanging
         top.push([t, s]); while (top.length && top[0][0] < t - topWin) top.shift();
         const hi = hiNow();
-        if (hi - s > thrDown) { if (pend) checkPend(t, true); state = 'down'; lo = s; tDown = t; qa = { n: 0, bad: 0, pose: 0, xMin: Infinity, xMax: -Infinity, topOk: topHeld(t) }; top0 = hi; auxLo = aux; auxHi = aux; aux2Lo = aux2; aux2Hi = aux2; }
+        if (hi - s > thrDown) { if (pend) checkPend(t, true); state = 'down'; lo = s; tDown = t; wy0 = wyTop ?? g.wrM.y; topHit = null; qa = { n: 0, bad: 0, pose: 0, xMin: Infinity, xMax: -Infinity, topOk: topHeld(t) }; top0 = hi; auxLo = aux; auxHi = aux; aux2Lo = aux2; aux2Hi = aux2; }
       } else {
         if (s < lo) lo = s;
+        // v8.19 pull-ups (countAtTop): remember that the FULL top was reached (deep enough, hands still on the bar). If the hands then
+        // leave the bar without a return (final top → half lowering → release), that top is the set's last rep.
+        if (def.countAtTop) { const ta1 = typAmp(), hands = (g.wrM.y - wy0) / ref;
+          if (!topHit && top0 - s >= Math.max(def.minAmp, ta1 ? def.countAtTop * ta1 : 0) && hands < def.barHold) topHit = { t, amp: top0 - s, q: qa };
+          else if (topHit && !pend && hands > def.barDrop && t - tDown >= def.minRep * 0.5) {
+            pend = { t, amp: topHit.amp, start: top0, lo, pk: s, tPk: t, dur: Math.max(0.2, t - tDown), q: qa || topHit.q, atTop: true }; topHit = null; qa = null; state = 'top'; top = [[t, s]]; checkPend(t, true); return out(true); } }
         if (aux != null) { auxLo = auxLo == null ? aux : Math.min(auxLo, aux); auxHi = auxHi == null ? aux : Math.max(auxHi, aux); }
         if (aux2 != null) { aux2Lo = aux2Lo == null ? aux2 : Math.min(aux2Lo, aux2); aux2Hi = aux2Hi == null ? aux2 : Math.max(aux2Hi, aux2); }
         const amp = top0 - lo;
@@ -230,12 +236,12 @@
             pend = { t, amp, start: top0, lo, pk: s, tPk: t, dur: Math.max(0.2, t - tDown), q: qa };
           }
           qa = null;
-          state = 'top'; top = [[t, s]];
+          state = 'top'; top = [[t, s]]; wyTop = null;
         }
       }
       return out(true);
     }
-    let top0 = 0;
+    let top0 = 0, wy0 = 0, wyTop = null, topHit = null;
     // v8.8: was the exercise posture held (≥80 % of frames) during the top right before this descent? A set that starts
     // tracking at the top (no history yet) passes; only a top seen OUT of posture (kneeling, lowering to the floor) fails.
     function topHeld(t) { if (!def.topHold) return true; const w = topPose.filter(p => p[0] >= t - def.topHold - 0.3 && p[0] < t);
