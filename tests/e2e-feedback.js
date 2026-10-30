@@ -1,4 +1,4 @@
-// E2E «Hjelp til å forbedre»: fake camera (squat video) → set recorded → user corrects reps → second set undone → missed-set flag
+// E2E «Hjelp til å forbedre»: fake camera (Rune bench video) → set recorded → user corrects reps → second set undone → missed-set flag
 // → background upload to the worker (Dropbox) → eval/feedback/pull.sh downloads clips + labels → manifest entries carry the ground truth.
 // Env: URL (app, default http://localhost:8766/), FB_URL (worker, default local `wrangler dev` at :8797), VIDEO.
 const { chromium, devices } = require('playwright-core');
@@ -7,7 +7,7 @@ const URL = process.env.URL || 'http://localhost:8766/', FB_URL = process.env.FB
 const SH = process.env.SHOTS || '/workspace/repcam-shots/feedback/'; fs.mkdirSync(SH, { recursive: true });
 const errors = [], fails = []; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails.push(m); };
 (async () => {
-  const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=' + (process.env.VIDEO || '/workspace/repcam-test/squat.y4m'), '--enable-unsafe-swiftshader'] });
+  const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=' + (process.env.VIDEO || '/workspace/repcam-test/rune-bench.y4m'), '--enable-unsafe-swiftshader'] });
   const ctx = await b.newContext({ ...devices['iPhone 13'], permissions: ['camera'] });
   // Live worker only accepts the real origin: serve the local checkout under https://rnrune.github.io/repcam/ (SERVE_DIR).
   if (process.env.SERVE_DIR) await ctx.route('https://rnrune.github.io/repcam/**', r => { let f = new globalThis.URL(r.request().url()).pathname.replace(/^\/repcam\//, '') || 'index.html'; f = path.join(process.env.SERVE_DIR, f); if (!fs.existsSync(f)) return r.fulfill({ status: 404, body: '' }); const ext = path.extname(f).slice(1); r.fulfill({ body: fs.readFileSync(f), contentType: { html: 'text/html', js: 'text/javascript', css: 'text/css', png: 'image/png', webmanifest: 'application/manifest+json', mp4: 'video/mp4', ico: 'image/x-icon', wasm: 'application/wasm', json: 'application/json' }[ext] || 'application/octet-stream' }); });

@@ -46,7 +46,7 @@ async function workout(p, tag, expectEx, minReps) {
 }
 (async () => {
   // ---------- EN, squat video
-  let b = await browser('/workspace/repcam-test/squat.y4m');
+  let b = await browser('/workspace/repcam-test/rune-bench.y4m');
   let p = await mk(b, 'en', seed({ 'repcam.lang': 'en', 'repcam.autosaveMs': '4000' }));
   await p.goto(URL); await p.waitForSelector('#view-home.on'); await p.waitForTimeout(400);
   ok(/^Good (morning|afternoon|evening|night), Rune$/.test(await p.textContent('#greet')), 'en: greeting translated');
@@ -103,7 +103,7 @@ async function workout(p, tag, expectEx, minReps) {
   await p.context().close(); await b.close();
 
   // ---------- DE, pull-up video; manual override + undo
-  b = await browser('/workspace/repcam-test/pullups.y4m');
+  b = await browser('/workspace/repcam-test/rune-pullups.y4m');
   p = await mk(b, 'de', seed({ 'repcam.lang': 'de', 'repcam.autosaveMs': '4000' }));
   await p.goto(URL); await p.waitForSelector('#view-home.on'); await p.waitForTimeout(400);
   ok((await p.textContent('#tabs')).includes('Verlauf') && (await p.textContent('#startOkt')).includes('Training starten'), 'de: UI translated');

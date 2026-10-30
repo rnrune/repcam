@@ -16,14 +16,13 @@ function doctor() {
   c(+process.versions.node.split('.')[0] >= 18, 'node ' + process.version);
   let p = null; try { p = pw(); } catch {} c(!!p, 'playwright-core');
   c(fs.existsSync(CHROME), 'chrome ' + CHROME);
-  for (const y of ['squat.y4m', 'pullups.y4m', 'bench-color.y4m']) c(fs.existsSync(path.join(TEST, y)), 'fake camera ' + y);
+  for (const y of ['rune-bench.y4m', 'rune-pullups.y4m']) c(fs.existsSync(path.join(TEST, y)), 'fake camera ' + y);
   const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'eval/real/manifest.json')));
   const miss = man.filter(e => !fs.existsSync(path.join(ROOT, 'eval/real', (e.lm || e.id) + '.lm.json')));
   c(!miss.length, `eval/real: ${man.length} cases, landmarks ${miss.length ? 'missing ' + miss.map(e => e.id) : 'all present'}`);
   const v = (fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8').match(/APP_VERSION = '([\d.]+)'/) || [])[1];
   const iv = [...new Set(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').match(/\?v=[\d.]+/g))];
   c(iv.length === 1 && iv[0] === '?v=' + v, `APP_VERSION ${v}, index.html cache-bust ${iv}`);
-  c(fs.existsSync('/workspace/repcam-eval/lm'), 'stock eval landmarks /workspace/repcam-eval/lm (only for node eval/eval.js)');
   try { fs.mkdirSync(OUT, { recursive: true }); fs.accessSync(OUT, fs.constants.W_OK); c(true, 'output ' + OUT); } catch { c(false, 'output ' + OUT); }
   const st = cp.spawnSync('git', ['-C', ROOT, 'status', '--porcelain'], { encoding: 'utf8' }).stdout.trim();
   console.log('info git: ' + (st ? st.split('\n').length + ' uncommitted change(s)' : 'clean'));
@@ -53,7 +52,7 @@ function serve() { // tiny static server for the repo (no deps)
 
 async function app() {
   const target = pos[0]; if (!target) { console.error('usage: app <caseId|clip.y4m>'); process.exit(2); }
-  const isY4m = /\.y4m$/.test(target), y4m = isY4m ? (fs.existsSync(target) ? target : path.join(TEST, target)) : path.join(TEST, 'squat.y4m');
+  const isY4m = /\.y4m$/.test(target), y4m = isY4m ? (fs.existsSync(target) ? target : path.join(TEST, target)) : path.join(TEST, 'rune-bench.y4m');
   let e = null; if (!isY4m) { const R = require(path.join(ROOT, 'eval/real/run.js')); e = R.man().find(x => x.id === target || x.id.startsWith(target)); if (!e) { console.error('unknown case ' + target); process.exit(2); } }
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19), tag = (e ? e.id : path.basename(y4m, '.y4m')) + '-' + stamp;
   if (has('--dry-run')) { console.log(`dry-run: would serve ${flag('--url', 'local repo')} with fake camera ${y4m}${e ? ', feed landmarks of ' + e.id : ''}, write ${OUT}${tag}.png/.json. Uses a throwaway browser profile; nothing is uploaded (feedback upload disabled).`); return; }
@@ -120,7 +119,7 @@ async function ui() { // screenshots of Hjem + Historikk with a seeded history (
 async function resume() {
   if (has('--dry-run')) { console.log('dry-run: would screenshot before/after a simulated app switch to ' + OUT); return; }
   fs.mkdirSync(OUT, { recursive: true });
-  const y4m = path.join(TEST, pos[0] || 'squat.y4m'), stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const y4m = path.join(TEST, pos[0] || 'rune-bench.y4m'), stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
   const srv = flag('--url', null) ? null : await serve(), URL0 = flag('--url', null) || `http://127.0.0.1:${srv.address().port}/`;
   const { chromium, devices } = pw(), errs = [];
   const b = await chromium.launch({ executablePath: CHROME, headless: true, args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=' + y4m, '--enable-unsafe-swiftshader'] });

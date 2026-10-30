@@ -60,12 +60,12 @@
           let ok = 0, fail = 0, auth = false;
           try {
             while (again && !auth) {
-              again = false; const f = forceNext; forceNext = false; const seen = new Set();
+              again = false; let f = forceNext; forceNext = false; const seen = new Set();
               for (const r of await kv.all()) {
                 if (r.clipDone && r.metaDone && !r.labelDirty) continue;
                 if (!f && (r.next || 0) > now()) continue;
                 seen.add(r.id);
-                try { await step(r); ok++; } catch (e) { fail++; lastErr = (e && e.message) || 'error'; await patch(r.id, c => { c.tries = (c.tries || 0) + 1; c.next = now() + backoff(c.tries); }); if (e && e.status === 401) { auth = true; break; } }
+                try { await step(r); ok++; if (!f) { f = true; again = true; } } /* v8.19.1: one success = network ok, items in backoff go now too */ catch (e) { fail++; lastErr = (e && e.message) || 'error'; await patch(r.id, c => { c.tries = (c.tries || 0) + 1; c.next = now() + backoff(c.tries); }); if (e && e.status === 401) { auth = true; break; } }
               }
             }
           } finally { if (running === mine) running = null; }

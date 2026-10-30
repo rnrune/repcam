@@ -1,5 +1,5 @@
 // RepCam v5 e2e: wake lock (+ video fallback), background/foreground resume, iOS camera kill, persistence across reload,
-// away-time idle rule, and Strava sync against a mocked API. Fake camera = real squat video.
+// away-time idle rule, and Strava sync against a mocked API. Fake camera = Rune bench video.
 const { chromium, devices } = require('playwright-core');
 const SH = '/workspace/repcam-shots/v5/', URL = process.env.URL || 'http://localhost:8765/';
 require('fs').mkdirSync(SH, { recursive: true });
@@ -33,7 +33,7 @@ const nsets = p => p.evaluate(() => (JSON.parse(localStorage.getItem('repcam.set
 async function start(p) { await p.goto(URL); await p.waitForSelector('#view-home.on'); await p.click('#startOkt'); await p.waitForSelector('#start', { state: 'hidden', timeout: 120000 }); }
 (async () => {
   const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true,
-    args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=/workspace/repcam-test/squat.y4m', '--enable-unsafe-swiftshader'] });
+    args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=/workspace/repcam-test/rune-bench.y4m', '--enable-unsafe-swiftshader'] });
 
   // ---- 1. wake lock + hide/show resume + pending set saved on hide + iOS camera kill
   let p = await mk(b, 'wake', base);
