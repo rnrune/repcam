@@ -56,10 +56,10 @@ if (require.main === module) {
   console.log('| Clip | GT | Pred | Exercise (GT → pred) | kg | Rep times (s) |\n|---|---|---|---|---|---|');
   // v8.13 benchmark tiers (manifest `tier`): core = small stable set that must pass (regression guard), worst = clips the app
   // fails most (test fixes here first, move solved ones to core), pass = solved but not core. --tier core|worst|pass filters.
-  const tier = arg('--tier', null), T = {};
+  const tier = arg('--tier', null), T = {}; const ALL = process.argv.includes('--all'); // v8.32: archive tier = retired duplicates, run with --all (full regression pass before each push)
   // v8.14: one recording can hold several sets — `lm` names the landmark file, `win: [t0, t1]` the set's time window
   const loadE = e => { const d = module.exports.load(e.lm || e.id); return e.win ? { ...d, frames: d.frames.filter(a => a[0] >= e.win[0] && a[0] <= e.win[1]) } : d; };
-  const ids = arg('--ids', null); for (const e of module.exports.man().filter(x => ids ? ids.split(',').includes(x.id) : tier ? x.tier === tier : x.tier !== 'excluded')) { const r = replay(loadE(e), hz); n++;
+  const ids = arg('--ids', null); for (const e of module.exports.man().filter(x => ids ? ids.split(',').includes(x.id) : tier ? x.tier === tier : x.tier !== 'excluded' && (ALL || x.tier !== 'archive'))) { const r = replay(loadE(e), hz); n++;
     let ok;
     if (!e.exercise) { neg++; ok = r.reps < 2; /* v8.13: the app drops a stray single rep (autosave needs 2) */ if (!ok) falseSets++; }
     else { pos++; const exm = r.ex === e.exercise; if (exm) exOk++; ok = exm && r.reps === e.gt && r.kg === e.kg; ae += exm ? Math.abs(r.reps - e.gt) : e.gt; }

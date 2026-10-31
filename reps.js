@@ -72,7 +72,7 @@
     // v8.8: standing hinge — legs visible (head-on push-ups hide them) and the hands not planted far below the hips
     halvmark: { minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso', posture: (g, ref) => g.legsVis > 0.4 && g.wrM.y - g.hipM.y < 0.8 * ref,
       signal: (g, ref) => (g.hipM.y - g.shM.y) / ref },
-     roing: { minAmp: 0.15, bigEdge: 1.25,
+     roing: { minAmp: 0.15, bigEdge: 1.25, leadGap: { ratio: 1.8, min: 1.8, mode: 'on' }, /* v8.32: bar lifted into position before the first row */
       minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
     // push-up: wrists planted below the shoulders (rest = arms extended, body high). Same scalar family as dips, but the
@@ -309,6 +309,12 @@
       if (!tailDropped) topDrop(); // after trimming a far-off trailing group the real last rep is checked too
       // v8.10: rows — the setup lift (bar from floor/rack to the hang, hinging over) and putting it back are one big, slow
       // excursion at an edge of the set: drop an edge rep much bigger than the set's median AND slower than its rhythm
+      // v8.32 lead-in (def.leadGap, null = off; mode 'shadow' = log via opts.onLead only): the first 'rep' sits far before the set's
+      // steady rhythm (row: lifting the bar into position, then a pause before rowing) -> dropped. ratio x median gap of the rest.
+      if (def.leadGap && reps >= 6) { const gs = []; for (let i = 2; i < repTimes.length; i++) gs.push(repTimes[i] - repTimes[i - 1]); gs.sort((x, y) => x - y);
+        const gm = gs[(gs.length - 1) >> 1], g0 = repTimes[1] - repTimes[0], hit = g0 > def.leadGap.ratio * gm && g0 >= def.leadGap.min;
+        if (opts.onLead) opts.onLead({ t: repTimes[0], gap: g0, medGap: gm, hit, mode: def.leadGap.mode });
+        if (hit && def.leadGap.mode !== 'shadow') { reps--; repTimes.shift(); repAmps.shift(); } }
       if (def.bigEdge && reps >= 6) {
         const big = () => { const a = [...repAmps].sort((x, y) => x - y)[Math.floor(repAmps.length / 2)];
           const g = []; for (let i = 1; i < repTimes.length; i++) g.push(repTimes[i] - repTimes[i - 1]); const gm = [...g].sort((x, y) => x - y)[Math.floor(g.length / 2)];
