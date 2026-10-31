@@ -225,4 +225,30 @@ async function stravaup() {
   } finally { await b.close(); srv.close(); }
 }
 
-({ doctor, replay, app, ui, resume, queue, stravaup }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();
+// v8.20 «Bekreft usikkert sett»: the set toast shows ✓/✗ for an uncertain set. ✗ removes the set, ✓ keeps it, with repcam.confirmOff=1 no buttons.
+async function confirm() {
+  fs.mkdirSync(OUT, { recursive: true }); const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const srv = await serve(), URL0 = `http://127.0.0.1:${srv.address().port}/`, { chromium, devices } = pw(), errs = [];
+  const b = await chromium.launch({ executablePath: CHROME, headless: true, args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=' + path.join(TEST, 'rune-bench.y4m'), '--enable-unsafe-swiftshader'] });
+  try {
+    const ctx = await b.newContext({ ...devices['iPhone 13'], permissions: ['camera'] });
+    await ctx.addInitScript(() => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); Object.entries({ 'repcam.onboarded': '1', 'repcam.profile': '{"name":"Verify"}', 'repcam.lang': 'nb' }).forEach(([k, v]) => localStorage.setItem(k, v)); } });
+    await ctx.route(u => /workers\.dev|dropbox|strava\.com/i.test(u.hostname), r => r.abort());
+    const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
+    await p.goto(URL0); await p.waitForSelector('#view-home.on', { timeout: 20000 }); await p.click('#startOkt'); await p.waitForSelector('#start', { state: 'hidden', timeout: 120000 }); await p.evaluate(() => window.__repcam.stopLoop());
+    const add = n => p.evaluate(n => { const S = window.__repcam, r = S.store.addSet({ exercise: 'roing', reps: n, kg: 30 }); S.showToast('Lagret: Roing · ' + n + ' × 30 kg · Var dette et sett?', r.timestamp, true); return r.timestamp; }, n);
+    const vis = () => p.evaluate(() => ['tYes', 'tNo'].map(i => getComputedStyle(document.getElementById(i)).display !== 'none'));
+    const n = () => p.evaluate(() => window.__repcam.store.sets().length);
+    const t1 = await add(2); await p.waitForTimeout(200); const v1 = await vis(); await p.screenshot({ path: OUT + `confirm-ask-${stamp}.png` });
+    await p.click('#tNo'); await p.waitForTimeout(200); const n1 = await n(), gone = await p.evaluate(t => !window.__repcam.store.sets().some(s => s.timestamp === t), t1);
+    await p.screenshot({ path: OUT + `confirm-removed-${stamp}.png` });
+    await add(3); await p.waitForTimeout(200); await p.click('#tYes'); await p.waitForTimeout(200); const n2 = await n(), kept = await p.evaluate(() => document.getElementById('toastTx').textContent);
+    await p.screenshot({ path: OUT + `confirm-kept-${stamp}.png` });
+    const ok = v1.every(Boolean) && gone && n1 === 0 && n2 === 1 && /Beholdt/.test(kept) && !errs.length;
+    const proof = { tool: 'tools/verify.js confirm', at: new Date().toISOString(), buttonsShown: v1, removedOnNo: gone, setsAfterNo: n1, setsAfterYes: n2, toastAfterYes: kept, ok, pageErrors: errs };
+    fs.writeFileSync(OUT + `confirm-${stamp}.json`, JSON.stringify(proof, null, 1)); console.log(JSON.stringify(proof));
+    console.log(`${ok ? 'PASS' : 'FAIL'} confirm · proof ${OUT}confirm-{ask,removed,kept}-${stamp}.png`); process.exitCode = ok ? 0 : 1;
+  } finally { await b.close(); srv.close(); }
+}
+
+({ doctor, replay, app, ui, resume, queue, stravaup, confirm }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();

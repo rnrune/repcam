@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.20';
+const APP_VERSION = '8.21';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -488,6 +488,7 @@ function finishPending() {
 function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
+  const tsh = fb.tempoShadow, slowNow = !!(tsh && tsh.slow && tsh.ex === ex);
   const rec = store.addSet({ exercise: ex, reps, kg: kgFor(ex) });
   // v8.8: feedback repTimes = each rep's own time from the counter (a paired first rep used to get the confirmation time twice)
   if (fb.rec) fb.repT = counters[ex].repTimes.map(t => t * 1000);
@@ -500,13 +501,21 @@ function saveSet() {
     s.repTimes = s.repTimes.map(t => +(t - f).toFixed(2)); fb.barShadow = { ...s, ex, poseReps: reps }; console.info('[barShadow]', ex, 'pose', reps, 'bar', s.reps, fb.barShadow); } catch (e) {} }
   if (barTr) barTr.reset();
   fbCut({ exercise: ex, reps, kg: rec.kg, auto: !manualEx }, rec.timestamp);
-  resetCounters(); navigator.vibrate?.([40, 60, 40]);
-  showToast(L.t('w.saved', { ex: exName(ex), r: reps, kg: L.kgf(rec.kg) }), rec.timestamp);
+  if (!fb.rec) fb.tempoShadow = null; resetCounters(); navigator.vibrate?.([40, 60, 40]);
+  // v8.20 «Bekreft usikkert sett»: an auto set the tempo gate calls slow (or with few reps) asks ✓/✗ in the toast.
+  // ✓ = confirmed label, ✗ = removed + 'notASet' label, no answer = kept. Kill switch localStorage repcam.confirmOff=1.
+  const unsure = !manualEx && LS.getItem('repcam.confirmOff') !== '1' && (slowNow || reps <= CONFIRM_MAX_REPS);
+  showToast(L.t('w.saved', { ex: exName(ex), r: reps, kg: L.kgf(rec.kg) }) + (unsure ? ' · ' + L.t('w.unsure') : ''), rec.timestamp, unsure);
   renderWorkout(); return rec;
 }
-function showToast(text, ts) {
+const CONFIRM_MAX_REPS = 3; // v8.20: auto sets with this few reps count as uncertain
+function showToast(text, ts, ask) {
   $('toastTx').textContent = text; $('toast').classList.add('on');
+  $('tYes').style.display = $('tNo').style.display = ask && ts ? '' : 'none';
+  $('tYes').onclick = () => { const r = store.sets().find(x => x.timestamp === ts); fbLabel(ts, 'edit', r ? { reps: r.reps, kg: r.kg, exercise: r.exercise } : undefined); hideToast(); showToast(L.t('w.kept')); };
+  $('tNo').onclick = () => $('tUndo').onclick();
   $('tUndo').style.display = $('tEdit').style.display = ts ? '' : 'none';
+  if (ask && ts) $('tUndo').style.display = 'none'; // ✗ does the same as Angre
   $('tUndo').onclick = () => { fbLabel(ts, 'delete'); const sid = store.sessionOf(ts); store.deleteSet(ts); stravaResync(sid); hideToast(); showToast(L.t('w.undone')); renderWorkout(); };
   $('tEdit').onclick = () => { hideToast(); openEdit(ts, renderWorkout); };
   // v8.9: a saved set's toast (Angre/Endre) stays until the NEXT set has started, and at least SET_TOAST_MIN_MS (60 s);
@@ -709,4 +718,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, showToast, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

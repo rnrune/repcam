@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#f5f6fa" id="tc"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
 <title>Newrun Lift</title>
 <script>(function(){var t=localStorage.getItem('repcam.theme')||'auto';var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light';})()</script>
-<link rel="stylesheet" href="style.css?v=8.20">
+<link rel="stylesheet" href="style.css?v=8.21">
 </head><body>
 <main id="app">
 <section class="view" id="view-home"><span class="fbPend" id="fbPendHome" style="display:none"></span>
@@ -43,7 +43,7 @@
   <button id="flip" class="glass circ" data-ia="a.flip">⟲</button>
   <div id="ringwrap"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="7"/><circle id="ring" cx="50" cy="50" r="44" fill="none" stroke="url(#gr)" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"/><defs><linearGradient id="gr"><stop offset="0" stop-color="#ff8a00"/><stop offset="1" stop-color="#ff2d87"/></linearGradient></defs></svg><div id="reps">0</div></div>
   <div id="hint" data-i="w.hint"></div>
-  <div id="toast" class="toast" role="status"><span id="toastTx"></span><button id="tUndo" data-i="w.undo"></button><button id="tEdit" data-i="w.edit"></button></div>
+  <div id="toast" class="toast" role="status"><span id="toastTx"></span><button id="tYes" class="tq" aria-label="✓" style="display:none">✓</button><button id="tNo" class="tq" aria-label="✗" style="display:none">✗</button><button id="tUndo" data-i="w.undo"></button><button id="tEdit" data-i="w.edit"></button></div>
   <div class="wcard glass"><div class="row"><div><div id="setno" class="b22">Sett 1</div><div class="muted small tight" data-i="w.autosave"></div></div>
     <div class="kg"><button id="minus" data-ia="a.less">−</button><span id="kg" role="button" tabindex="0">20 kg</span><button id="plus" data-ia="a.more">+</button></div></div>
     <div class="btns"><button class="ghost" id="confirm" data-i="w.saveNow"></button><button class="ghost" id="finish" data-i="w.finish"></button><button class="ghost fbmiss" id="fbMiss" data-ia="fb.missed" style="display:none">⚑</button></div><div id="log"></div></div>
@@ -62,14 +62,14 @@
 <div id="sheetBg" class="sheet-bg"></div>
 <div id="sheet" class="sheet" role="dialog" aria-modal="true"></div>
 <script>if (/[?&]review=1/.test(location.search)) location.replace('review.html');</script>
-<script src="i18n.js?v=8.20"></script>
-<script src="reps.js?v=8.20"></script>
-<script src="rest.js?v=8.20"></script>
-<script src="bar.js?v=8.20"></script>
-<script src="store.js?v=8.20"></script>
-<script src="strava-config.js?v=8.20"></script>
-<script src="strava.js?v=8.20"></script>
-<script src="wake.js?v=8.20"></script>
-<script src="feedback.js?v=8.20"></script>
-<script type="module" src="app.js?v=8.20"></script>
+<script src="i18n.js?v=8.21"></script>
+<script src="reps.js?v=8.21"></script>
+<script src="rest.js?v=8.21"></script>
+<script src="bar.js?v=8.21"></script>
+<script src="store.js?v=8.21"></script>
+<script src="strava-config.js?v=8.21"></script>
+<script src="strava.js?v=8.21"></script>
+<script src="wake.js?v=8.21"></script>
+<script src="feedback.js?v=8.21"></script>
+<script type="module" src="app.js?v=8.21"></script>
 </body></html>

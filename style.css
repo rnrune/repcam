@@ -128,3 +128,5 @@ details.sess[open] .chev{transform:rotate(90deg)}
 .sbadge{font-size:13px;padding:3px 8px;border-radius:10px;background:var(--chip)}.sbadge.st-on{color:#fc4c02;font-weight:700}
 .sdet{margin-top:10px;border-top:1px solid var(--line);padding-top:6px}.sdet .addset{flex:1;margin-top:8px}.sdet .sessdel{margin-top:8px}
 .fbPend{position:fixed;top:calc(env(safe-area-inset-top) + 62px);right:14px;z-index:7;font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;background:rgba(20,20,24,.75);color:#fff} /* v8.18 pending uploads */
+
+.toast .tq{min-width:44px;font-weight:700}
