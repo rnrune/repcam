@@ -51,3 +51,9 @@ mvvesvuf pullups→dips; curl wrists-level 0.3/0.2: breaks core mvnohgsi; pull-u
 - Cause 1 (real frame-count dependency): median-of-3-FRAMES spike filter. Time-based (FILTER_CFG.medWin) makes hold@30 = 49/60 ≈ rec, but costs core curl mvnohgsi at rec (20/21); tried 0.27 and 0.3 s → kept OFF (medWin null).
 - Cause 2: camera gate window span = win + 1 frame (10 Hz sees ~15 % more displacement). Span normalization (opts.normSpan) + minDisp 0.43: rec neutral, 30 Hz 41/60 → kept OFF.
 - Remaining 30 Hz gap is mostly a linear-upsampling artifact (1-frame spikes become 200 ms ramps that survive filtering); glitch-step upsampling (--jump) did not close it. No engine change shipped.
+
+## v8.27 — full-rate pose log
+- App logs every processed pose frame (real per-frame timestamps) when feedback recording is on; kill switch localStorage `repcam.lmFull=0` (or Feedback.LM_CFG.full=false) → old 100 ms throttle + plain frames.
+- Encoding `i16b64` (x,y int16 ×5000, vis uint8 ×100, t as ms deltas): 224 B/frame vs 524 before, max error 0.0001. ≈330 KB/min at 25 Hz, ≈400 KB/min at 30 Hz.
+- Worker MAX_JSON 2 MB unchanged: client halves frames (marked `decimated`) if packed data > 1.8 MB (≈5 min at 25 Hz). Upload timeout already scales with size (45 s + size/50 kB/s).
+- Eval loader (run.js normLm) reads old {frames} and new packed clips; replays recorded timestamps as-is. tools/meta-to-lm.js converts pulled metas.

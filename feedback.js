@@ -120,6 +120,24 @@
       async stop() { stopped = true; return end(); }
     };
   }
-  const api = { KEYS, MIMES, MAX_BYTES, QUEUE_CFG, abortInflight, pickMime, rid, labelFrom, createQueue, idbKV, httpSender, createRecorder };
+  /* v8.27: full-rate pose log. LM_CFG.full = every processed frame (kill switch: localStorage repcam.lmFull=0 -> 100 ms throttle).
+     Compact encoding i16b64: t = ms deltas, d = base64 of per frame 33 x (int16 x*5e3, int16 y*5e3, uint8 vis*100) = 165 B/frame. */
+  const LM_CFG = { full: true, throttleMs: 100, maxFrames: 30000, maxJson: 1.8e6 };
+  const b64e = u => { if (typeof btoa === 'function') { let s = ''; for (let i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192)); return btoa(s); } return Buffer.from(u).toString('base64'); };
+  const b64d = s => { if (typeof atob === 'function') { const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; } return new Uint8Array(Buffer.from(s, 'base64')); };
+  function packLm(frames, extra = {}) { /* frames: [tSec, x, y, vis]*33 */
+    const n = frames.length, buf = new ArrayBuffer(n * 165), dv = new DataView(buf), t = []; let prev = 0, o = 0;
+    const c16 = v => Math.max(-32768, Math.min(32767, Math.round(v * 5e3)));
+    for (const a of frames) { const ms = Math.round(a[0] * 1000); t.push(ms - prev); prev = ms;
+      for (let i = 0; i < 33; i++) { dv.setInt16(o, c16(a[1 + 3 * i]), true); dv.setInt16(o + 2, c16(a[2 + 3 * i]), true); dv.setUint8(o + 4, Math.max(0, Math.min(255, Math.round((a[3 + 3 * i] || 0) * 100)))); o += 5; } }
+    return { enc: 'i16b64', layout: 't,(x,y,vis)*33', n, t, d: b64e(new Uint8Array(buf)), ...extra };
+  }
+  function unpackLm(L) { /* accepts {frames} (old, throttled) or packed {enc:'i16b64'}; returns [tSec, x, y, vis...] frames */
+    if (!L) return []; if (Array.isArray(L)) return L; if (!L.enc) return L.frames || [];
+    const u = b64d(L.d), dv = new DataView(u.buffer, u.byteOffset, u.byteLength), out = []; let ms = 0, o = 0;
+    for (let k = 0; k < L.n; k++) { ms += L.t[k]; const a = [ms / 1000]; for (let i = 0; i < 33; i++) { a.push(dv.getInt16(o, true) / 5e3, dv.getInt16(o + 2, true) / 5e3, dv.getUint8(o + 4) / 100); o += 5; } out.push(a); }
+    return out;
+  }
+  const api = { LM_CFG, packLm, unpackLm, KEYS, MIMES, MAX_BYTES, QUEUE_CFG, abortInflight, pickMime, rid, labelFrom, createQueue, idbKV, httpSender, createRecorder };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Feedback = api;
 })(typeof self !== 'undefined' ? self : this);

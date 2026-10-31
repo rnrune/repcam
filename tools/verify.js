@@ -71,7 +71,7 @@ async function app() {
     await p.waitForSelector('#start', { state: 'hidden', timeout: 120000 });
     if (e) { // feed the case's landmarks straight into the app pipeline (same frames the eval replays), virtual time
       await p.evaluate(() => window.__repcam.stopLoop());
-      const d = JSON.parse(fs.readFileSync(path.join(ROOT, 'eval/real', (e.lm || e.id) + '.lm.json'))), fr = e.win ? d.frames.filter(a => a[0] >= e.win[0] && a[0] <= e.win[1]) : d.frames;
+      const d = require(path.join(ROOT, 'eval/real/run.js')).load(e.lm || e.id), fr = e.win ? d.frames.filter(a => a[0] >= e.win[0] && a[0] <= e.win[1]) : d.frames;
       await p.evaluate(({ fr, asp }) => { const t0 = fr[0][0], w0 = performance.now(), d0 = Date.now(); const S = window.__repcam;
         for (const a of fr) { const t = a[0] - t0; window.__vt += Math.max(0, d0 + t * 1000 - Date.now());
           const lm = a.length > 3 ? Array.from({ length: 33 }, (_, i) => ({ x: a[1 + 3 * i], y: a[2 + 3 * i], z: 0, visibility: a[3 + 3 * i] })) : undefined;

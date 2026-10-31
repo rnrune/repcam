@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.26';
+const APP_VERSION = '8.27';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -158,10 +158,14 @@ function fbStart() {
   catch (e) { console.warn('fb rec', e); fb.rec = null; }
 }
 function fbStop(discard) { const r = fb.rec; fb.rec = null; if (r) r.stop().catch(() => {}); }
+function fbLmPack(lm, poseRate) { /* v8.27: full-rate frames packed; over LM_CFG.maxJson every other frame is dropped (marked decimated) */
+  if (!fb.lmFull) return { hz: 10, layout: 't,(x,y,vis)*33', frames: lm };
+  let f = lm, dec = 1, p; for (;;) { p = Feedback.packLm(f, { full: true, decimated: dec, hz: poseRate ? poseRate.hz : null }); if (p.d.length < Feedback.LM_CFG.maxJson || f.length < 100) return p; f = f.filter((_, i) => i % 2 === 0); dec *= 2; }
+}
 function fbSample(lm, ts) {
-  if (!fb.rec || !lm || ts - fb.lastLm < 100) return; fb.lastLm = ts;
+  const full = Feedback.LM_CFG.full && LS.getItem('repcam.lmFull') !== '0'; /* v8.27 kill switch */ if (!fb.rec || !lm || (!full && ts - fb.lastLm < Feedback.LM_CFG.throttleMs)) return; fb.lastLm = ts; fb.lmFull = full;
   const a = [Math.round(ts)]; for (const p of lm) a.push(+p.x.toFixed(3), +p.y.toFixed(3), +(p.visibility ?? 0).toFixed(2));
-  fb.lm.push(a); if (fb.lm.length > 3000) fb.lm.splice(0, 600);
+  fb.lm.push(a); const cap = fb.lmFull ? Feedback.LM_CFG.maxFrames : 3000; if (fb.lm.length > cap) fb.lm.splice(0, cap / 5 | 0);
 }
 function fbViewHint(lm) { // rough camera angle: shoulder width relative to torso height
   const fr = lm.slice(-50); if (!fr.length) return null;
@@ -179,7 +183,7 @@ async function fbCut1(pred, setTs, label) {
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
     restShadow, barShadow, tempoShadow, poseRate, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
-    landmarks: { hz: 10, layout: 't,(x,y,vis)*33', frames: lm },
+    landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
   try { const st = await fbQueue().stats(); if (st.bytes + seg.blob.size > Feedback.QUEUE_CFG.maxLocalBytes) { console.warn('fb: local queue full, clip skipped'); return; } } catch {}
   const lab = fb.early[setTs] || label || Feedback.labelFrom(pred, 'implicit'); delete fb.early[setTs];

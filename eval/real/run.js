@@ -45,7 +45,9 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
   if (ex) { const r = res(ex); if (plaus(ex, r.times)) return r; return { ...r, reps: 0, times: [] }; }
   return { ex: null, reps: 0, kg: 0, times: [] };
 }
-module.exports = { replay, man: () => JSON.parse(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8')), load: id => JSON.parse(fs.readFileSync(path.join(__dirname, id + '.lm.json'), 'utf8')) };
+// v8.27: old clips {w,h,frames} (≈10 Hz throttled) and new full-rate clips {w,h,landmarks:{enc:'i16b64',…}} or packed `frames` load alike; timestamps as recorded
+function normLm(d) { const FB = require(path.join(__dirname, '..', '..', 'feedback.js')); const L = d.landmarks || (d.frames && !Array.isArray(d.frames) ? d.frames : null); return L ? { ...d, frames: FB.unpackLm(L), full: !!L.full } : d; }
+module.exports = { normLm, replay, man: () => JSON.parse(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8')), load: id => normLm(JSON.parse(fs.readFileSync(path.join(__dirname, id + '.lm.json'), 'utf8'))) };
 // Scoring: a clip is exact when exercise + reps (+ default kg) match; negatives (exercise null, gt 0) pass when nothing is logged.
 // Only clips marked `must` (v8.8, also checked at 30 Hz in test-v88) or `regress` (v8.9 clips the engine gets right) fail
 // the run (exit 1); the rest are tracked as a score (exact / exercise / MAE / false sets).
