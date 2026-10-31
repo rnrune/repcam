@@ -26,3 +26,9 @@ mvvesvuf pullups→dips; curl wrists-level 0.3/0.2: breaks core mvnohgsi; pull-u
 * pull-ups `edgeGapTail` 4.5 (was 4): slow last rep kept: mvvf26hg 7 → 8 ✓. mvvez2ad stays 6/8 (its last two "reps" are out-of-pose dismount frames; video already deleted, could not inspect).
 * Rolled back: roing set-posture gate (torso tilt > 15°, frac 0.75 with 1.5 s lead → broke core mvno4ocl; frac 0.6 no lead → no gain).
 * 10 Hz, `--tempo on`: exact 47/64, exercise 48/49, MAE 0.84. 30 Hz: core 18/21 (same 3 pre-existing misses).
+
+## v8.23 (31 Oct) — after Rune's manual review (clean data)
+* Review applied: mvr3phm8 → last 6 reps (31.9–52.9 s), mvnnso2a → 122.1–134.6 s, truth 5 ("5 rene reps"), mvnoc4f7 → 57.9–85 s, mvvfd85j removed. mvr3cnad/ehf7/k128 skipped (unchanged, still in the review queue).
+* dips `tailDrop {amp 0.75, gap 1.25}`: a last rep shallower than 0.75× the set median AND later than 1.25× the median gap (stepping off the bars) is dropped: mvvfl1ka-dips 13 → 12. mvnogfwn still 13.
+* Rolled back: roing edgeGap 2.0 / 2.2 (no effect on mvvfl1ka-row 11/10).
+* 10 Hz: tempo off exact 44/61, false sets 5/13; tempo on exact 50/61, false sets 0/13, MAE 0.29, exercise 48/48, core 21/21. Tempo on loses no clip that is correct with it off.

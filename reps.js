@@ -50,7 +50,7 @@
       // knee height relative to hip; hanging leg raises bring the knees up to/above the hips
       aux: (g, ref) => g.legsVis > 0.4 ? (Math.max(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref : null,
       auxOk: (lo) => lo == null || lo > 0.0 },
-    dips: { bodyMove: 0.25, cntRatio: 0.45, /* v8.21: was 0.5 (default); first deep dips after mounting were below 0.5 x a setup excursion */ poseMin: 0.3, minAmp: 0.15, minRep: 0.5, maxRep: 8, need: 'arms',
+    dips: { bodyMove: 0.25, tailDrop: { amp: 0.75, gap: 1.25 }, /* v8.23, null = off */ cntRatio: 0.45, /* v8.21: was 0.5 (default); first deep dips after mounting were below 0.5 x a setup excursion */ poseMin: 0.3, minAmp: 0.15, minRep: 0.5, maxRep: 8, need: 'arms',
       posture: (g, ref) => g.wrM.y > g.shM.y - 0.4 * ref && g.wrM.y < g.hipM.y + 0.35 * ref && g.torsoTilt < 65, // upright, supported on the hands (at hip height, not hanging by the sides)
       signal: (g, ref) => (g.wrM.y - g.shM.y) / ref },
     // flat bench: wrist-to-shoulder distance; body size = max(torso, 1.25 x shoulder width) because the torso is
@@ -272,6 +272,10 @@
       }
       // v8.9: tempo outliers at either end of the set — a "rep" far slower to follow (lead) or to arrive (tail) than the
       // set's own rhythm is setup/re-racking motion (lying down onto the bench, sitting up, reaching for the bar), not a rep
+      // v8.23 dips dismount: a last 'rep' clearly shallower than the set AND arriving late (stepping down off the bars) is dropped
+      if (def.tailDrop && reps >= 6) { const am = [...repAmps.slice(0, -1)].sort((x, y) => x - y)[(repAmps.length - 2) >> 1];
+        const gs = []; for (let i = 1; i < repTimes.length - 1; i++) gs.push(repTimes[i] - repTimes[i - 1]); gs.sort((x, y) => x - y); const gm = gs[(gs.length - 1) >> 1];
+        const L = repTimes.length - 1; if (repAmps[L] < def.tailDrop.amp * am && repTimes[L] - repTimes[L - 1] > def.tailDrop.gap * gm) { reps--; repTimes.pop(); repAmps.pop(); } }
       if (def.edgeTrim ?? true) {
         // split the set where a gap is far longer than its typical rep-to-rep time (40th percentile, so slow junk at the
         // edges does not inflate it) (L); an edge group is dropped while ≥4
