@@ -1176,8 +1176,8 @@
   "label": "corrected",
   "labelEx": "knebøy",
   "labelReps": 12,
-  "notes": "knebøy 12x50 kg in a power rack (2026-10-27 session)",
-  "tier": "worst"
+  "notes": "knebøy 12x50 kg in a power rack (2026-10-27 session) | Rune review 31 Oct: removed from test data.",
+  "tier": "excluded"
  },
  {
   "id": "mvr3ehf7d7e3da93",
@@ -1198,8 +1198,12 @@
   "label": "corrected",
   "labelEx": "knebøy",
   "labelReps": 8,
-  "notes": "knebøy 8x80 kg in a power rack (2026-10-27 session) · Rune review: confirmed 8 (no comment)",
-  "tier": "worst"
+  "notes": "knebøy 8x80 kg in a power rack (2026-10-27 session) · Rune review: confirmed 8 (no comment) | Rune review 31 Oct: use data from 51 s, truth 8.",
+  "tier": "worst",
+  "win": [
+   51,
+   1000000000.0
+  ]
  },
  {
   "id": "mvr3gojt95bd64ea",
@@ -1226,7 +1230,7 @@
  {
   "id": "mvr3k128fb810868",
   "exercise": "knebøy",
-  "gt": 8,
+  "gt": 4,
   "kg": 20,
   "realKg": 100,
   "view": "front",
@@ -1242,8 +1246,12 @@
   "label": "corrected",
   "labelEx": "knebøy",
   "labelReps": 8,
-  "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session) · Rune review: confirmed 8 (no comment on the 133–139 s gap)",
-  "tier": "worst"
+  "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session) · Rune review: confirmed 8 (no comment on the 133–139 s gap) | Rune review 31 Oct: use 118–133.3 s, truth 4.",
+  "tier": "worst",
+  "win": [
+   118,
+   133.3
+  ]
  },
  {
   "id": "mvr3naxy72228481",

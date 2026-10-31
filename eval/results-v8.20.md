@@ -32,3 +32,9 @@ mvvesvuf pullups→dips; curl wrists-level 0.3/0.2: breaks core mvnohgsi; pull-u
 * dips `tailDrop {amp 0.75, gap 1.25}`: a last rep shallower than 0.75× the set median AND later than 1.25× the median gap (stepping off the bars) is dropped: mvvfl1ka-dips 13 → 12. mvnogfwn still 13.
 * Rolled back: roing edgeGap 2.0 / 2.2 (no effect on mvvfl1ka-row 11/10).
 * 10 Hz: tempo off exact 44/61, false sets 5/13; tempo on exact 50/61, false sets 0/13, MAE 0.29, exercise 48/48, core 21/21. Tempo on loses no clip that is correct with it off.
+
+## v8.24 (31 Oct) — tempo rule ON by default
+* Rune's review of the last 3: mvr3cnad removed, mvr3ehf7 from 51 s (truth 8, now exact), mvr3k128 118–133.3 s truth 4 (replay 3: rep 4 completes at 133.4 s, just after the cut).
+* `TEMPO_CFG.mode = 'on'`: a slow set is saved and asked «Ser ikke ut som et sett – ✓ for å beholde»; ✓/Endre keeps, ✗ removes (notASet), no answer → removed when the toast goes (label kind `tempoRemoved`, not ground truth). Log in localStorage `repcam.tempo.log` + feedback meta. `repcam.tempo=off` kill switch, `=shadow` log only.
+* Eval (tempo on): exact 50/60, MAE 0.21, exercise 47/47, false sets 0/13, core 21/21. Tempo off: 45/60, false sets 5/13.
+* Bar tracker (shadow, live summaries in feedback meta; offline re-run impossible — videos deleted): benk 13/15, 10/12; skråbenk 5/12, 4/10; roing 2/10; 0/7 sets exact. Keep shadow, do not enable.

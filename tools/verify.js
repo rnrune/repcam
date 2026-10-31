@@ -244,8 +244,16 @@ async function confirm() {
     await p.screenshot({ path: OUT + `confirm-removed-${stamp}.png` });
     await add(3); await p.waitForTimeout(200); await p.click('#tYes'); await p.waitForTimeout(200); const n2 = await n(), kept = await p.evaluate(() => document.getElementById('toastTx').textContent);
     await p.screenshot({ path: OUT + `confirm-kept-${stamp}.png` });
-    const ok = v1.every(Boolean) && gone && n1 === 0 && n2 === 1 && /Beholdt/.test(kept) && !errs.length;
-    const proof = { tool: 'tools/verify.js confirm', at: new Date().toISOString(), buttonsShown: v1, removedOnNo: gone, setsAfterNo: n1, setsAfterYes: n2, toastAfterYes: kept, ok, pageErrors: errs };
+    // v8.24 tempo rule ON: a slow set that gets no answer is removed when the toast goes away; ✓ keeps it
+    const t3 = await p.evaluate(() => { const S = window.__repcam, r = S.store.addSet({ exercise: 'roing', reps: 4, kg: 30 }); S.showToast('Lagret: Roing · 4 × 30 kg · Ser ikke ut som et sett – ✓ for å beholde', r.timestamp, true); S.tempoPendSet({ ts: r.timestamp, ex: 'roing', reps: 4 }); return r.timestamp; });
+    await p.waitForTimeout(200); await p.screenshot({ path: OUT + `confirm-tempo-${stamp}.png` });
+    await p.evaluate(() => window.__repcam.hideToast()); await p.waitForTimeout(200);
+    const tempoGone = await p.evaluate(t => !window.__repcam.store.sets().some(s => s.timestamp === t), t3), tlog = await p.evaluate(() => JSON.parse(localStorage.getItem('repcam.tempo.log') || '[]'));
+    const t4 = await p.evaluate(() => { const S = window.__repcam, r = S.store.addSet({ exercise: 'roing', reps: 5, kg: 30 }); S.showToast('x', r.timestamp, true); S.tempoPendSet({ ts: r.timestamp, ex: 'roing', reps: 5 }); return r.timestamp; });
+    await p.click('#tYes'); await p.waitForTimeout(200); await p.evaluate(() => window.__repcam.hideToast());
+    const tempoKept = await p.evaluate(t => window.__repcam.store.sets().some(s => s.timestamp === t), t4);
+    const ok = v1.every(Boolean) && gone && n1 === 0 && n2 === 1 && /Beholdt/.test(kept) && tempoGone && tempoKept && tlog.some(x => x.outcome === 'removed-noanswer') && !errs.length;
+    const proof = { tool: 'tools/verify.js confirm', at: new Date().toISOString(), buttonsShown: v1, removedOnNo: gone, setsAfterNo: n1, setsAfterYes: n2, toastAfterYes: kept, tempoRemovedNoAnswer: tempoGone, tempoKeptOnYes: tempoKept, ok, pageErrors: errs };
     fs.writeFileSync(OUT + `confirm-${stamp}.json`, JSON.stringify(proof, null, 1)); console.log(JSON.stringify(proof));
     console.log(`${ok ? 'PASS' : 'FAIL'} confirm · proof ${OUT}confirm-{ask,removed,kept}-${stamp}.png`); process.exitCode = ok ? 0 : 1;
   } finally { await b.close(); srv.close(); }
@@ -262,8 +270,9 @@ async function review() {
     await ctx.route(u => /workers\.dev|dropbox|strava\.com/i.test(u.hostname), r => { const q = r.request(); if (/\/fb\/(meta|label)\//.test(q.url())) { sent.push({ u: q.url().replace(/.*\/fb\//, ''), body: q.postData() }); return r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }); } return r.abort(); });
     await ctx.route('**/strava-config.js*', r => r.fulfill({ contentType: 'text/javascript', body: "window.REPCAM_STRAVA={clientId:'1',workerUrl:'https://mock.workers.dev'}" }));
     const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
-    await p.goto(URL0 + 'review.html'); await p.waitForFunction(() => /reps/.test(document.getElementById('det').textContent), null, { timeout: 20000 });
+    await p.goto(URL0 + 'review.html'); await p.waitForFunction(() => /igjen/.test(document.getElementById('left').textContent) && (/reps/.test(document.getElementById('det').textContent) || /Alle klipp/.test(document.getElementById('info').textContent)), null, { timeout: 20000 });
     const left = await p.textContent('#left'), info = await p.textContent('#info');
+    if (/^\(0 igjen\)/.test(left)) { const ok = /Alle klipp er gjennomgått/.test(info) && !errs.length; await p.screenshot({ path: OUT + `review-${stamp}.png` }); console.log(JSON.stringify({ left, info, ok, pageErrors: errs })); console.log(`${ok ? 'PASS' : 'FAIL'} review (queue empty) · proof ${OUT}review-${stamp}.png`); process.exitCode = ok ? 0 : 1; return; }
     await p.evaluate(() => { const s = document.getElementById('seek'); s.value = 100.9; s.dispatchEvent(new Event('input')); document.getElementById('play').click(); });
     await p.waitForTimeout(400); await p.click('#tStart'); await p.evaluate(() => { const s = document.getElementById('seek'); s.value = 112; s.dispatchEvent(new Event('input')); }); await p.click('#tEnd');
     await p.fill('#comment', 'verify-test'); await p.waitForTimeout(300);

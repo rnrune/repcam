@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.23';
+const APP_VERSION = '8.24';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -484,7 +484,7 @@ function finishPending() {
   // v8.20 tempo gate (Reps.TEMPO_CFG): shadow by default, verdict goes into feedback meta. localStorage repcam.tempo = on | off (kill switch)
   const tMode = LS.getItem('repcam.tempo') || Reps.TEMPO_CFG.mode, tSlow = !!(ce && !manualEx && tMode !== 'off' && Reps.tempoSlow(ce, counters[ce].repTimes));
   fb.tempoShadow = { slow: tSlow, mode: tMode, ex: ce, reps: r }; if (tSlow) console.info('[tempoShadow] slow', ce, r, tMode);
-  if (r >= MIN_AUTO_REPS && (manualEx || !ce || (Reps.plausibleSet(counters[ce].repTimes) && !(tSlow && tMode === 'on')))) return saveSet(); /* v8.13: sparse rigging 'reps' are not a set */ if (r > 0) { const e = ce; counters[e] = Reps.createCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
+  if (r >= MIN_AUTO_REPS && (manualEx || !ce || Reps.plausibleSet(counters[ce].repTimes))) return saveSet(); /* v8.24: a tempo-rejected set is saved and ASKED (✓ keeps, ✗ or no answer removes), see saveSet */ /* v8.13: sparse rigging 'reps' are not a set */ fb.tempoShadow = null; if (r > 0) { const e = ce; counters[e] = Reps.createCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
 function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
@@ -504,20 +504,22 @@ function saveSet() {
   if (!fb.rec) fb.tempoShadow = null; resetCounters(); navigator.vibrate?.([40, 60, 40]);
   // v8.20 «Bekreft usikkert sett»: an auto set the tempo gate calls slow (or with few reps) asks ✓/✗ in the toast.
   // ✓ = confirmed label, ✗ = removed + 'notASet' label, no answer = kept. Kill switch localStorage repcam.confirmOff=1.
-  const unsure = !manualEx && LS.getItem('repcam.confirmOff') !== '1' && (slowNow || reps <= CONFIRM_MAX_REPS);
-  showToast(L.t('w.saved', { ex: exName(ex), r: reps, kg: L.kgf(rec.kg) }) + (unsure ? ' · ' + L.t('w.unsure') : ''), rec.timestamp, unsure);
+  const tOn = slowNow && (tsh.mode === 'on'); // v8.24 tempo rule ON: the set must be confirmed, otherwise it is removed
+  const unsure = !manualEx && (tOn || (LS.getItem('repcam.confirmOff') !== '1' && (slowNow || reps <= CONFIRM_MAX_REPS)));
+  tempoPend = tOn && !manualEx ? { ts: rec.timestamp, ex, reps } : null; if (tOn) tempoLog(ex, reps, 'asked');
+  showToast(L.t('w.saved', { ex: exName(ex), r: reps, kg: L.kgf(rec.kg) }) + (tempoPend ? ' · ' + L.t('w.tempoQ') : unsure ? ' · ' + L.t('w.unsure') : ''), rec.timestamp, unsure);
   renderWorkout(); return rec;
 }
 const CONFIRM_MAX_REPS = 3; // v8.20: auto sets with this few reps count as uncertain
 function showToast(text, ts, ask) {
   $('toastTx').textContent = text; $('toast').classList.add('on');
   $('tYes').style.display = $('tNo').style.display = ask && ts ? '' : 'none';
-  $('tYes').onclick = () => { const r = store.sets().find(x => x.timestamp === ts); fbLabel(ts, 'edit', r ? { reps: r.reps, kg: r.kg, exercise: r.exercise } : undefined); hideToast(); showToast(L.t('w.kept')); };
+  $('tYes').onclick = () => { if (tempoPend && tempoPend.ts === ts) { tempoLog(tempoPend.ex, tempoPend.reps, 'kept'); tempoPend = null; } const r = store.sets().find(x => x.timestamp === ts); fbLabel(ts, 'edit', r ? { reps: r.reps, kg: r.kg, exercise: r.exercise } : undefined); hideToast(); showToast(L.t('w.kept')); };
   $('tNo').onclick = () => $('tUndo').onclick();
   $('tUndo').style.display = $('tEdit').style.display = ts ? '' : 'none';
   if (ask && ts) $('tUndo').style.display = 'none'; // ✗ does the same as Angre
-  $('tUndo').onclick = () => { fbLabel(ts, 'delete'); const sid = store.sessionOf(ts); store.deleteSet(ts); stravaResync(sid); hideToast(); showToast(L.t('w.undone')); renderWorkout(); };
-  $('tEdit').onclick = () => { hideToast(); openEdit(ts, renderWorkout); };
+  $('tUndo').onclick = () => { if (tempoPend && tempoPend.ts === ts) { tempoLog(tempoPend.ex, tempoPend.reps, 'removed-user'); tempoPend = null; } fbLabel(ts, 'delete'); const sid = store.sessionOf(ts); store.deleteSet(ts); stravaResync(sid); hideToast(); showToast(L.t('w.undone')); renderWorkout(); };
+  $('tEdit').onclick = () => { if (tempoPend && tempoPend.ts === ts) { tempoLog(tempoPend.ex, tempoPend.reps, 'edited'); tempoPend = null; } hideToast(); openEdit(ts, renderWorkout); };
   // v8.9: a saved set's toast (Angre/Endre) stays until the NEXT set has started, and at least SET_TOAST_MIN_MS (60 s);
   // it used to vanish after 7 s. Plain notices still disappear after 2.5 s.
   clearTimeout(toastT); setToast = ts ? { at: Date.now() } : null; toastT = setTimeout(hideToast, ts ? SET_TOAST_MAX_MS : 2500);
@@ -527,7 +529,11 @@ let setToast = null;
 // called every frame: hide the set toast once the next set is under way (a rep counted) and the minimum time has passed
 function setToastTick() { if (setToast && currentReps() > 0 && Date.now() - setToast.at >= SET_TOAST_MIN_MS) hideToast(); }
 $('fbMiss').onclick = () => { fbCut({ exercise: curEx(), reps: currentReps(), kg: kgFor(curEx() || 'knebøy') }, null, Feedback.labelFrom({}, 'missed')); showToast(L.t('fb.missedOk')); };
-function hideToast() { $('toast').classList.remove('on'); setToast = null; }
+function hideToast() { $('toast').classList.remove('on'); setToast = null;
+  if (tempoPend) { const p = tempoPend; tempoPend = null; if (store.sets().some(x => x.timestamp === p.ts)) { fbLabel(p.ts, 'tempo'); const sid = store.sessionOf(p.ts); store.deleteSet(p.ts); stravaResync(sid); tempoLog(p.ex, p.reps, 'removed-noanswer'); renderWorkout(); } } }
+// v8.24 tempo decisions, kept locally for measuring the rule after a session (also in each clip's feedback meta)
+let tempoPend = null;
+function tempoLog(ex, reps, outcome) { try { const a = JSON.parse(LS.getItem('repcam.tempo.log') || '[]'); a.push({ at: new Date().toISOString(), ex, reps, outcome }); LS.setItem('repcam.tempo.log', JSON.stringify(a.slice(-200))); } catch {} console.info('[tempo]', outcome, ex, reps); }
 $('confirm').onclick = () => { saveSet(); };
 function enterWorkout() {
   const resumed = !!store.active();
@@ -718,4 +724,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, showToast, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

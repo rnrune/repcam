@@ -563,7 +563,7 @@
   // one — keeps its reps within a few seconds of each other.
   // v8.20 tempo gate: rigging / rest / phone handling gives 'reps' far slower than a real set of that exercise. Median gap
   // between reps above maxMedGap[ex] (s) = not a set. mode 'shadow' = only reported (app logs it in feedback meta), 'on' = enforced.
-  const TEMPO_CFG = { mode: 'shadow', maxMedGap: { roing: 1.7, curl: 3, dips: 2.5, halvmark: 4 } };
+  const TEMPO_CFG = { mode: 'on', /* v8.24: on by default (Rune 31 Oct); localStorage repcam.tempo=off = kill switch, =shadow = log only */ maxMedGap: { roing: 1.7, curl: 3, dips: 2.5, halvmark: 4 } };
   function tempoSlow(ex, times) {
     const lim = TEMPO_CFG.maxMedGap[ex]; if (!lim || !times || times.length < 2) return false;
     const g = []; for (let i = 1; i < times.length; i++) g.push(times[i] - times[i - 1]); g.sort((a, b) => a - b);

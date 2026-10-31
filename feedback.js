@@ -15,6 +15,7 @@
   // Ground truth from what the user did with the set. Undo/delete = not a set; edit = corrected values; untouched = confirmed implicitly.
   function labelFrom(pred, action, val) {
     if (action === 'missed') return { kind: 'missed', exercise: null, reps: null, kg: null, notASet: false, missed: true };
+    if (action === 'tempo') return { kind: 'tempoRemoved', exercise: pred.exercise, reps: pred.reps, kg: pred.kg, notASet: null, missed: false }; // v8.24: removed by the tempo rule, no user answer — not ground truth
     if (action === 'delete') return { kind: 'notASet', exercise: pred.exercise, reps: 0, kg: pred.kg, notASet: true, missed: false };
     const v = { ...pred, ...(val || {}) };
     const changed = ['exercise', 'reps', 'kg'].filter(k => String(v[k]) !== String(pred[k]));
