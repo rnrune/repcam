@@ -254,17 +254,26 @@ async function confirm() {
 // v8.22 review page: Rune's own clip as stick figure + rep timeline (review.html, review-own.json). Seeks into the first orange band.
 async function review() {
   fs.mkdirSync(OUT, { recursive: true }); const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  const srv = await serve(), URL0 = `http://127.0.0.1:${srv.address().port}/`, { chromium, devices } = pw(), errs = [];
+  const srv = await serve(), URL0 = `http://127.0.0.1:${srv.address().port}/`, { chromium, devices } = pw(), errs = [], sent = [];
   const b = await chromium.launch({ executablePath: CHROME, headless: true });
   try {
-    const ctx = await b.newContext({ ...devices['iPhone 13'] }); await ctx.route(u => /workers\.dev|dropbox|strava\.com/i.test(u.hostname), r => r.abort());
+    const ctx = await b.newContext({ ...devices['iPhone 13'] });
+    // the Worker is MOCKED: answers are captured here, nothing reaches Dropbox
+    await ctx.route(u => /workers\.dev|dropbox|strava\.com/i.test(u.hostname), r => { const q = r.request(); if (/\/fb\/(meta|label)\//.test(q.url())) { sent.push({ u: q.url().replace(/.*\/fb\//, ''), body: q.postData() }); return r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }); } return r.abort(); });
+    await ctx.route('**/strava-config.js*', r => r.fulfill({ contentType: 'text/javascript', body: "window.REPCAM_STRAVA={clientId:'1',workerUrl:'https://mock.workers.dev'}" }));
     const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
     await p.goto(URL0 + 'review.html'); await p.waitForFunction(() => /reps/.test(document.getElementById('det').textContent), null, { timeout: 20000 });
-    const t = await p.evaluate(() => { const own = document.getElementById('info').textContent; const s = document.getElementById('seek'); s.value = 141.5; s.dispatchEvent(new Event('input')); document.getElementById('play').click(); return own; });
-    await p.waitForTimeout(500); const det = await p.textContent('#det');
+    const left = await p.textContent('#left'), info = await p.textContent('#info');
+    await p.evaluate(() => { const s = document.getElementById('seek'); s.value = 100.9; s.dispatchEvent(new Event('input')); document.getElementById('play').click(); });
+    await p.waitForTimeout(400); await p.click('#tStart'); await p.evaluate(() => { const s = document.getElementById('seek'); s.value = 112; s.dispatchEvent(new Event('input')); }); await p.click('#tEnd');
+    await p.fill('#comment', 'verify-test'); await p.waitForTimeout(300);
     await p.screenshot({ path: OUT + `review-${stamp}.png`, fullPage: true });
-    const ok = /mvvez2ad|Pull-ups sett 3/.test(t) && /Pull-ups|pullups/i.test(det) && !errs.length;
-    console.log(JSON.stringify({ info: t.slice(0, 160), det, ok, pageErrors: errs })); console.log(`${ok ? 'PASS' : 'FAIL'} review · proof ${OUT}review-${stamp}.png`); process.exitCode = ok ? 0 : 1;
+    await p.click('#ok'); await p.waitForTimeout(800); const left2 = await p.textContent('#left'), info2 = await p.textContent('#info');
+    await p.screenshot({ path: OUT + `review-next-${stamp}.png`, fullPage: true });
+    const lab = sent.find(x => x.u.startsWith('label/')), L = lab ? JSON.parse(lab.body) : {};
+    const ok = /7 igjen/.test(left) && /Knebøy/.test(info) && /Problem:/.test(info) && L.clipId === 'mvr3cnad21805e00' && L.useFrom === 100.9 && L.useTo === 112 && L.reps === 12 && L.comment === 'verify-test' && /6 igjen/.test(left2) && !errs.length;
+    console.log(JSON.stringify({ left, info: info.slice(0, 200), label: { clipId: L.clipId, reps: L.reps, useFrom: L.useFrom, useTo: L.useTo, removeFromTest: L.removeFromTest, comment: L.comment }, left2, next: info2.slice(0, 80), ok, pageErrors: errs }));
+    console.log(`${ok ? 'PASS' : 'FAIL'} review · proof ${OUT}review-${stamp}.png / review-next-${stamp}.png`); process.exitCode = ok ? 0 : 1;
   } finally { await b.close(); srv.close(); }
 }
 

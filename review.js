@@ -52,6 +52,7 @@ function drawTl() {
   const F = cur.frames, a = F[0][0], b = F[F.length - 1][0], X = t => (t - a) / (b - a) * W;
   g.fillStyle = '#222'; g.fillRect(0, 0, W, H);
   for (const m of cur.marks || []) { g.fillStyle = 'rgba(255,152,0,.55)'; g.fillRect(X(m.t0), 0, Math.max(3, X(m.t1) - X(m.t0)), H); }
+  const uf = $('tFrom').value, ut = $('tTo').value; g.fillStyle = 'rgba(0,0,0,.7)'; if (uf !== '') g.fillRect(0, 0, X(+uf), H); if (ut !== '') g.fillRect(X(+ut), 0, W - X(+ut), H);
   g.fillStyle = '#7f7'; det.times.forEach((t, i) => { g.fillRect(X(t) - 2, 8, 4, H - 16); g.font = '20px system-ui'; g.fillText(String(i + 1), X(t) + 4, 24); });
   g.fillStyle = '#fff'; g.fillRect(X(sk.t) - 1, 0, 3, H);
 }
@@ -71,12 +72,12 @@ function show(final) {
 }
 function next() {
   const d = done(), left = clips.filter(x => !d.includes(x.id)); $('left').textContent = `(${left.length} igjen)`;
-  $('comment').value = '';
+  $('comment').value = ''; $('tFrom').value = $('tTo').value = '';
   cur = left[0]; lm = []; lastT = -1; lastLog = -1; sk = null; skelUi(false);
   if (!cur) { $('info').textContent = 'Alle klipp er gjennomgått 🎉'; v.removeAttribute('src'); return; }
   if (cur.frames) { // own clip: stick figure from landmarks, Rune's own question
     const a = cur.app || {}, dur = cur.frames[cur.frames.length - 1][0];
-    $('info').innerHTML = `<b>Ditt klipp (usikkert)</b> · ${cur.title}<br>Appen ${a.version || ''} logget: ${NAMES[a.exercise] || a.exercise} × ${a.reps}${a.label && a.label.kind === 'corrected' ? ` · du rettet til ${a.label.reps} × ${a.label.kg} kg` : ''}<br><b>Spørsmål:</b> ${cur.question}`;
+    $('info').innerHTML = `<b>Ditt klipp (usikkert)</b> · ${cur.title}<br>Appen ${a.version || ''} logget: ${NAMES[a.exercise] || a.exercise} × ${a.reps}${a.label && a.label.kind === 'corrected' ? ` · du rettet til ${a.label.reps} × ${a.label.kg} kg` : ''}${cur.issue ? `<br><b>Problem:</b> ${cur.issue}` : ''}<br><b>Spørsmål:</b> ${cur.question}`;
     c.width = 360; c.height = Math.round(360 * cur.h / cur.w); skelUi(true); $('seek').min = cur.frames[0][0]; $('seek').max = dur; $('seek').value = cur.frames[0][0];
     sk = { t0: performance.now(), t: cur.frames[0][0], playing: true, speed: +$('speed').value || 1 };
     $('ex').value = cur.expected || ''; $('reps').value = cur.expectedReps ?? ''; show(false); return; }
@@ -104,6 +105,8 @@ async function submit(action) {
     detected: { exercise: det.ex, reps: det.reps, repTimes: det.times },
     exercise: action === 'notASet' ? null : ex, reps: action === 'notASet' ? 0 : reps, kg: null, notASet: action === 'notASet', missed: false,
     comment: $('comment').value.trim() || null,
+    // v8.22 manual review of own clips: keep only data from useFrom to useTo (s), or drop the clip from the test data
+    useFrom: $('tFrom').value === '' ? null : +$('tFrom').value, useTo: $('tTo').value === '' ? null : +$('tTo').value, removeFromTest: action === 'remove', currentTruth: cur.expectedReps ?? null,
     changed: ['exercise', 'reps'].filter(k => String(k === 'exercise' ? ex : reps) !== String(k === 'exercise' ? det.ex : det.reps)), at: new Date().toISOString() };
   if (action !== 'skip') {
     if (!cfg.workerUrl) { $('st').textContent = 'Mangler workerUrl'; return; }
@@ -121,7 +124,8 @@ async function submit(action) {
   } else $('st').textContent = 'Hoppet over ' + cur.id;
   LS.setItem(DONE, JSON.stringify([...done(), cur.id])); next();
 }
-$('ok').onclick = () => submit('corrected'); $('skip').onclick = () => submit('skip'); $('none').onclick = () => submit('notASet');
+$('ok').onclick = () => submit('corrected'); $('rm').onclick = () => submit('remove');
+$('tStart').onclick = () => { if (sk) { $('tFrom').value = sk.t.toFixed(1); drawTl(); } }; $('tEnd').onclick = () => { if (sk) { $('tTo').value = sk.t.toFixed(1); drawTl(); } }; $('tClr').onclick = () => { $('tFrom').value = $('tTo').value = ''; drawTl(); }; $('skip').onclick = () => submit('skip'); $('none').onclick = () => submit('notASet');
 $('reset').onclick = e => { e.preventDefault(); LS.removeItem(DONE); next(); };
 // own uncertain clips first, then the web clips
 const own = await fetch('review-own.json?v=8.22').then(r => r.ok ? r.json() : []).catch(() => []);
