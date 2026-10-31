@@ -265,7 +265,7 @@
    136.97,
    138.76
   ],
-  "durationS": 148.49,
+  "durationS": 140.3,
   "video": {
    "mime": "video/mp4; codecs=avc1.42000a",
    "bytes": 16518643,
@@ -276,7 +276,7 @@
   "label": {
    "kind": "corrected",
    "exercise": "pullups",
-   "reps": 8,
+   "reps": 6,
    "kg": 0,
    "notASet": false,
    "missed": false,
@@ -285,7 +285,8 @@
    ],
    "setTs": "2026-10-30T20:17:44.525Z",
    "at": "2026-10-30T21:40:50.942Z",
-   "_received": "2026-10-30T21:40:51.416Z"
+   "_received": "2026-10-30T21:40:51.416Z",
+   "note": "Rune 31 Oct: only data up to rep 6 is valid (tracking failed after); truth 6. Landmarks trimmed at 140.3 s."
   }
  },
  "mvvf26hgc6ccdffd": {
