@@ -1938,5 +1938,41 @@
   "view": "front",
   "facing": "user",
   "app": "8.16"
+ },
+ {
+  "id": "mvw6fsc9ea28c668",
+  "exercise": "knebøy",
+  "gt": 8,
+  "kg": 20,
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "corrected",
+  "notes": "31 Oct: squat 50 kg x8 (Rune confirmed 31 Oct; app label kg 80 was wrong too). First full-rate (v8.27+) clip, 1610 frames ~40 Hz. App 8.29 counted 8. Sent manually (Send nå).",
+  "tier": "pass",
+  "view": "front",
+  "facing": "user",
+  "app": "8.29"
+ },
+ {
+  "id": "mvvfr0478a996584",
+  "exercise": "dips",
+  "gt": 12,
+  "kg": 0,
+  "pred": {
+   "exercise": "dips",
+   "reps": 4,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "corrected",
+  "notes": "30 Oct 21:39: one set of 12 dips (Rune confirmed 31 Oct). App 8.16 counted 4; engine 8.29 8 native / 6 at 30 Hz. 10 Hz throttled log. Cause (31 Oct): a standing arm movement at 22.8 s (rejected 'still', amp 1.15) still sets the adaptive amplitude, so the first 4 real dips (44-48 s) are below cntRatio. Excluding/ageing that amp fixes this clip (12) but breaks mvvfo3h7 (12→13) — not shipped.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.16"
  }
 ]

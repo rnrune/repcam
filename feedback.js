@@ -27,7 +27,7 @@
   const INFLIGHT = new Set();
   function abortInflight() { for (const a of INFLIGHT) { try { a.abort(); } catch {} } INFLIGHT.clear(); }
   function createQueue({ kv, send, now = () => Date.now(), maxBackoffMs = 30 * 60e3 }) {
-    let running = null, runAt = 0, again = false, forceNext = false, lastErr = null;
+    let running = null, runAt = 0, again = false, forceNext = false, lastErr = null, ctx = null;
     const backoff = t => Math.min(maxBackoffMs, 15e3 * 2 ** Math.min(t, 7));
     // Every read-modify-write runs under one lock: IndexedDB ops are separate transactions, so an upload's bookkeeping
     // must never interleave with a label change (that would resurrect the old label).
@@ -36,7 +36,7 @@
     const patch = (id, f) => mut(async () => { const c = await kv.get(id); if (c) { f(c); await kv.put(c); } return c; });
     async function step(r) {
       if (!r.clipDone && r.blob) { await send('clip', r.id, r.blob, r.mime); r.clipDone = true; await patch(r.id, c => { c.clipDone = true; c.blob = null; }); }
-      if (!r.metaDone) { await send('meta', r.id, JSON.stringify(r.meta), 'application/json'); r.metaDone = true; await patch(r.id, c => { c.metaDone = true; }); }
+      if (!r.metaDone) { await send('meta', r.id, JSON.stringify(ctx ? { ...r.meta, upload: ctx } : r.meta), 'application/json'); /* v8.30: how/where it went up */ r.metaDone = true; await patch(r.id, c => { c.metaDone = true; }); }
       const cur = await kv.get(r.id);
       if (cur && cur.labelDirty) {
         const l = JSON.stringify(cur.label || null);
@@ -53,8 +53,8 @@
       // One upload loop at a time. A call that arrives while the loop runs (a clip enqueued mid-upload, a label edit,
       // the app coming back to the foreground) is never dropped: it marks the loop dirty, the loop re-reads the store
       // and makes another pass, and the caller gets the result of that complete run.
-      process({ force } = {}) {
-        again = true; if (force) forceNext = true;
+      process({ force, upload } = {}) {
+        if (upload) ctx = upload; again = true; if (force) forceNext = true;
         if (running && force) abortInflight(); // the aborted item fails, the loop makes another (forced) pass and retries it right away
         if (running && !(force && now() - runAt > QUEUE_CFG.stuckMs)) return running; // a run that is stuck anyway is abandoned
         runAt = now(); const mine = (async () => {
@@ -132,12 +132,15 @@
       for (let i = 0; i < 33; i++) { dv.setInt16(o, c16(a[1 + 3 * i]), true); dv.setInt16(o + 2, c16(a[2 + 3 * i]), true); dv.setUint8(o + 4, Math.max(0, Math.min(255, Math.round((a[3 + 3 * i] || 0) * 100)))); o += 5; } }
     return { enc: 'i16b64', layout: 't,(x,y,vis)*33', n, t, d: b64e(new Uint8Array(buf)), ...extra };
   }
+  /* v8.30: pose rate of the logged clip frames = mean step (frames-1)/span; medMs/p90Ms of the steps for context */
+  function clipRate(lm) { if (!lm || lm.length < 2) return null; const d = []; for (let i = 1; i < lm.length; i++) d.push(lm[i][0] - lm[i - 1][0]); const span = lm[lm.length - 1][0] - lm[0][0]; if (!(span > 0)) return null;
+    d.sort((x, y) => x - y); const q = p => +(d[Math.floor(p * (d.length - 1))] * 1000).toFixed(1); return { n: lm.length, spanS: +span.toFixed(2), meanMs: +(span / (lm.length - 1) * 1000).toFixed(1), medMs: q(0.5), p90Ms: q(0.9), hz: +((lm.length - 1) / span).toFixed(1) }; }
   function unpackLm(L) { /* accepts {frames} (old, throttled) or packed {enc:'i16b64'}; returns [tSec, x, y, vis...] frames */
     if (!L) return []; if (Array.isArray(L)) return L; if (!L.enc) return L.frames || [];
     const u = b64d(L.d), dv = new DataView(u.buffer, u.byteOffset, u.byteLength), out = []; let ms = 0, o = 0;
     for (let k = 0; k < L.n; k++) { ms += L.t[k]; const a = [ms / 1000]; for (let i = 0; i < 33; i++) { a.push(dv.getInt16(o, true) / 5e3, dv.getInt16(o + 2, true) / 5e3, dv.getUint8(o + 4) / 100); o += 5; } out.push(a); }
     return out;
   }
-  const api = { LM_CFG, packLm, unpackLm, KEYS, MIMES, MAX_BYTES, QUEUE_CFG, abortInflight, pickMime, rid, labelFrom, createQueue, idbKV, httpSender, createRecorder };
+  const api = { LM_CFG, packLm, unpackLm, clipRate, KEYS, MIMES, MAX_BYTES, QUEUE_CFG, abortInflight, pickMime, rid, labelFrom, createQueue, idbKV, httpSender, createRecorder };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Feedback = api;
 })(typeof self !== 'undefined' ? self : this);

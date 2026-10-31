@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.29';
+const APP_VERSION = '8.30';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -160,7 +160,7 @@ function fbStart() {
 function fbStop(discard) { const r = fb.rec; fb.rec = null; if (r) r.stop().catch(() => {}); }
 function fbLmPack(lm, poseRate) { /* v8.27: full-rate frames packed; over LM_CFG.maxJson every other frame is dropped (marked decimated) */
   if (!fb.lmFull) return { hz: 10, layout: 't,(x,y,vis)*33', frames: lm };
-  let f = lm, dec = 1, p; for (;;) { p = Feedback.packLm(f, { full: true, decimated: dec, hz: poseRate ? poseRate.hz : null }); if (p.d.length < Feedback.LM_CFG.maxJson || f.length < 100) return p; f = f.filter((_, i) => i % 2 === 0); dec *= 2; }
+  let f = lm, dec = 1, p; for (;;) { p = Feedback.packLm(f, { full: true, decimated: dec, hz: poseRate ? +(poseRate.hz / dec).toFixed(1) : null }); if (p.d.length < Feedback.LM_CFG.maxJson || f.length < 100) return p; f = f.filter((_, i) => i % 2 === 0); dec *= 2; }
 }
 function fbSample(lm, ts) {
   const full = Feedback.LM_CFG.full && LS.getItem('repcam.lmFull') !== '0'; /* v8.27 kill switch */ if (!fb.rec || !lm || (!full && ts - fb.lastLm < Feedback.LM_CFG.throttleMs)) return; fb.lastLm = ts; fb.lmFull = full;
@@ -175,13 +175,14 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) return;
-  const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRate = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
+  const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) return;
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
+  const poseRate = Feedback.clipRate(lm); /* v8.30: rate of THIS clip's logged frames (mean step); poseRateSeg = detector step stats since the last cut (median-based, was `poseRate` ≤8.29) */
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    restShadow, barShadow, tempoShadow, poseRate, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    restShadow, barShadow, tempoShadow, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -225,7 +226,7 @@ async function fbUpload(force) {
   if (force !== 'user') { fbNetOkLast = await fbNetOk(force === true); if (!fbNetOkLast) return fbPending(); }
   if (force !== true && force !== 'user' && !fbAuto()) return fbPending();
   // navigator.onLine is only a hint (iOS reports true on dead gym Wi-Fi, and navigator.connection is missing): a forced try runs anyway
-  if (navigator.onLine !== false || force) { try { await fbQueue().process({ force: !!force }); } catch (e) { console.warn('fb up', e); } }
+  if (navigator.onLine !== false || force) { try { await fbQueue().process({ force: !!force, upload: { mode: force === 'user' ? 'manual' : 'auto', net: fbNetType(), trusted: !!fbNetSt.trusted, wifiOnly: fbWifiOnly(), online: navigator.onLine !== false, at: new Date().toISOString() } }); } catch (e) { console.warn('fb up', e); } }
   try { const t = await fbQueue().nextDue(); clearTimeout(fbTimer); if (t != null && fbAuto() && fbNetOkLast) fbTimer = setTimeout(fbUpload, Math.max(2e3, t - Date.now() + 50)); } catch {}
   fbPending(); if (cur === 'profil') renderFb();
 }
