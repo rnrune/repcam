@@ -251,4 +251,21 @@ async function confirm() {
   } finally { await b.close(); srv.close(); }
 }
 
-({ doctor, replay, app, ui, resume, queue, stravaup, confirm }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();
+// v8.22 review page: Rune's own clip as stick figure + rep timeline (review.html, review-own.json). Seeks into the first orange band.
+async function review() {
+  fs.mkdirSync(OUT, { recursive: true }); const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const srv = await serve(), URL0 = `http://127.0.0.1:${srv.address().port}/`, { chromium, devices } = pw(), errs = [];
+  const b = await chromium.launch({ executablePath: CHROME, headless: true });
+  try {
+    const ctx = await b.newContext({ ...devices['iPhone 13'] }); await ctx.route(u => /workers\.dev|dropbox|strava\.com/i.test(u.hostname), r => r.abort());
+    const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
+    await p.goto(URL0 + 'review.html'); await p.waitForFunction(() => /reps/.test(document.getElementById('det').textContent), null, { timeout: 20000 });
+    const t = await p.evaluate(() => { const own = document.getElementById('info').textContent; const s = document.getElementById('seek'); s.value = 141.5; s.dispatchEvent(new Event('input')); document.getElementById('play').click(); return own; });
+    await p.waitForTimeout(500); const det = await p.textContent('#det');
+    await p.screenshot({ path: OUT + `review-${stamp}.png`, fullPage: true });
+    const ok = /mvvez2ad|Pull-ups sett 3/.test(t) && /Pull-ups|pullups/i.test(det) && !errs.length;
+    console.log(JSON.stringify({ info: t.slice(0, 160), det, ok, pageErrors: errs })); console.log(`${ok ? 'PASS' : 'FAIL'} review · proof ${OUT}review-${stamp}.png`); process.exitCode = ok ? 0 : 1;
+  } finally { await b.close(); srv.close(); }
+}
+
+({ doctor, replay, app, ui, resume, queue, stravaup, confirm, review }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();

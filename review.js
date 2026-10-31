@@ -43,7 +43,19 @@ function drawSkel() {
   const hd = P(0); if (hd[2] >= 0.3) { ctx.fillStyle = '#eee'; ctx.beginPath(); ctx.arc(hd[0], hd[1], W / 40, 0, 7); ctx.fill(); }
   const n = det.times.filter(x => x <= sk.t + 0.05).length, flash = det.times.some(x => Math.abs(x - sk.t) < 0.3);
   ctx.fillStyle = flash ? '#7f7' : '#eee'; ctx.font = `${Math.round(W / 12)}px system-ui`; ctx.fillText(`${sk.t.toFixed(1)} s · rep ${n}`, W / 30, W / 10);
+  const mk = (cur.marks || []).find(m => sk.t >= m.t0 && sk.t <= m.t1); if (mk) { ctx.fillStyle = '#ffb74d'; ctx.font = `${Math.round(W / 18)}px system-ui`; ctx.fillText(mk.label, W / 30, W / 10 + W / 12); }
+  drawTl();
 }
+// v8.22 timeline under the stick figure: green tick = rep the engine counts, orange band = segment the question is about; tap to seek
+function drawTl() {
+  const T = $('tl'); if (!T || !cur || !cur.frames) return; const g = T.getContext('2d'), W = T.width = T.clientWidth * 2, H = T.height = 56;
+  const F = cur.frames, a = F[0][0], b = F[F.length - 1][0], X = t => (t - a) / (b - a) * W;
+  g.fillStyle = '#222'; g.fillRect(0, 0, W, H);
+  for (const m of cur.marks || []) { g.fillStyle = 'rgba(255,152,0,.55)'; g.fillRect(X(m.t0), 0, Math.max(3, X(m.t1) - X(m.t0)), H); }
+  g.fillStyle = '#7f7'; det.times.forEach((t, i) => { g.fillRect(X(t) - 2, 8, 4, H - 16); g.font = '20px system-ui'; g.fillText(String(i + 1), X(t) + 4, 24); });
+  g.fillStyle = '#fff'; g.fillRect(X(sk.t) - 1, 0, 3, H);
+}
+$('tl').onclick = e => { if (!sk || !cur || !cur.frames) return; const r = $('tl').getBoundingClientRect(), F = cur.frames, a = F[0][0], b = F[F.length - 1][0]; sk.t = a + (e.clientX - r.left) / r.width * (b - a); $('seek').value = sk.t; rebase(); };
 function skelUi(on) { v.style.display = on ? 'none' : ''; c.style.position = on ? 'static' : ''; $('skc').style.display = on ? '' : 'none'; }
 $('play').onclick = () => { if (!sk) return; sk.playing = !sk.playing; if (sk.playing) { if (sk.t >= +$('seek').max) sk.t = cur.frames[0][0]; sk.t0 = performance.now() - (sk.t - cur.frames[0][0]) * 1000 / sk.speed; } };
 const rebase = () => { sk.t0 = performance.now() - (sk.t - cur.frames[0][0]) * 1000 / sk.speed; };
@@ -112,8 +124,8 @@ async function submit(action) {
 $('ok').onclick = () => submit('corrected'); $('skip').onclick = () => submit('skip'); $('none').onclick = () => submit('notASet');
 $('reset').onclick = e => { e.preventDefault(); LS.removeItem(DONE); next(); };
 // own uncertain clips first, then the web clips
-const own = await fetch('review-own.json?v=8.13').then(r => r.ok ? r.json() : []).catch(() => []);
-clips = [...own, ...await (await fetch('review-clips.json?v=8.13')).json()]; next(); loop();
+const own = await fetch('review-own.json?v=8.22').then(r => r.ok ? r.json() : []).catch(() => []);
+clips = [...own, ...await (await fetch('review-clips.json?v=8.22')).json()]; next(); loop();
 const { PoseLandmarker, FilesetResolver } = await import(VISION);
 const fs = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
 const opts = d => ({ baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task", delegate: d }, runningMode: "VIDEO", numPoses: 1 });

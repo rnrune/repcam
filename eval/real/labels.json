@@ -165,47 +165,6 @@
    "_received": "2026-10-30T21:06:32.875Z"
   }
  },
- "mvveorge55a3f902": {
-  "setTs": "2026-10-30T20:09:43.884Z",
-  "app": "8.16",
-  "pred": {
-   "exercise": "dips",
-   "reps": 5,
-   "kg": 0,
-   "auto": true
-  },
-  "repTimes": [
-   15.06,
-   21.74,
-   26.95,
-   29.9,
-   30.59
-  ],
-  "durationS": 51.46,
-  "video": {
-   "mime": "video/mp4; codecs=avc1.42000a",
-   "bytes": 5746822,
-   "w": 720,
-   "h": 1280,
-   "bps": 1000000
-  },
-  "label": {
-   "kind": "corrected",
-   "exercise": "benkpress",
-   "reps": 12,
-   "kg": 80,
-   "notASet": false,
-   "missed": false,
-   "changed": [
-    "exercise",
-    "reps",
-    "kg"
-   ],
-   "setTs": "2026-10-30T20:09:43.884Z",
-   "at": "2026-10-30T21:06:46.074Z",
-   "_received": "2026-10-30T21:06:47.409Z"
-  }
- },
  "mvvesvuf8b56e08a": {
   "setTs": "2026-10-30T20:12:56.240Z",
   "app": "8.16",
@@ -402,47 +361,6 @@
    "setTs": "2026-10-30T20:21:06.194Z",
    "at": "2026-10-30T21:18:46.978Z",
    "_received": "2026-10-30T21:18:48.471Z"
-  }
- },
- "mvvf3zaq7389345d": {
-  "setTs": "2026-10-30T20:21:33.934Z",
-  "app": "8.16",
-  "pred": {
-   "exercise": "roing",
-   "reps": 5,
-   "kg": 30,
-   "auto": true
-  },
-  "repTimes": [
-   4.77,
-   9.26,
-   11.28,
-   13.13,
-   17.29
-  ],
-  "durationS": 27.74,
-  "video": {
-   "mime": "video/mp4; codecs=avc1.42000a",
-   "bytes": 3058162,
-   "w": 720,
-   "h": 1280,
-   "bps": 1000000
-  },
-  "label": {
-   "kind": "corrected",
-   "exercise": "skråbenk",
-   "reps": 12,
-   "kg": 70,
-   "notASet": false,
-   "missed": false,
-   "changed": [
-    "exercise",
-    "reps",
-    "kg"
-   ],
-   "setTs": "2026-10-30T20:21:33.934Z",
-   "at": "2026-10-30T21:18:51.191Z",
-   "_received": "2026-10-30T21:18:52.505Z"
   }
  },
  "mvvf4x3931b8aeeb": {

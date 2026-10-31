@@ -1622,24 +1622,6 @@
   "label": "corrected"
  },
  {
-  "id": "mvveorge55a3f902",
-  "exercise": null,
-  "gt": 0,
-  "kg": 0,
-  "pred": {
-   "exercise": "dips",
-   "reps": 5,
-   "kg": 0,
-   "auto": true
-  },
-  "notes": "30 Oct (2): NO bench in clip: Rune talking into the phone (face close-up 0-27 s), then walking. App saved false dips 5; Rune relabelled it as benk 12 to fill the missing 3rd bench set (that set was never recorded/saved). Negative.",
-  "tier": "worst",
-  "view": "front",
-  "facing": "user",
-  "app": "8.17",
-  "label": "corrected"
- },
- {
   "id": "mvvesvuf8b56e08a",
   "exercise": "pullups",
   "gt": 8,
@@ -1723,24 +1705,6 @@
    "auto": true
   },
   "notes": "30 Oct (2): rigging between pull-ups and incline. App false halvmark 3 @100. Negative.",
-  "tier": "worst",
-  "view": "front",
-  "facing": "user",
-  "app": "8.17",
-  "label": "corrected"
- },
- {
-  "id": "mvvf3zaq7389345d",
-  "exercise": null,
-  "gt": 0,
-  "kg": 0,
-  "pred": {
-   "exercise": "roing",
-   "reps": 5,
-   "kg": 30,
-   "auto": true
-  },
-  "notes": "30 Oct (2): setting up the incline bench, sits down at the end. App false roing 5; Rune relabelled it skråbenk 12 (shifted labels). Negative.",
   "tier": "worst",
   "view": "front",
   "facing": "user",
