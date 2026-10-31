@@ -1838,7 +1838,7 @@
   "app": "8.16"
  },
  {
-  "id": "mvvfl1ka048fe127",
+  "id": "mvvfl1ka-row",
   "exercise": "roing",
   "gt": 10,
   "kg": 30,
@@ -1849,11 +1849,39 @@
    "auto": true
   },
   "label": "corrected",
-  "notes": "30 Oct: standing row 90 kg set 3. App dips 13 (row read as dips), replay dips 12.",
+  "notes": "30 Oct: standing row 90 kg set 3 (t 117-131 s). Same recording continues into dips set 1 (see mvvfl1ka-dips); the app saved only \"dips 13\" and Rune corrected that card to row 10.",
   "tier": "worst",
   "view": "front",
   "facing": "user",
-  "app": "8.16"
+  "app": "8.16",
+  "lm": "mvvfl1ka048fe127",
+  "win": [
+   0,
+   190
+  ]
+ },
+ {
+  "id": "mvvfl1ka-dips",
+  "exercise": "dips",
+  "gt": 12,
+  "kg": 0,
+  "pred": {
+   "exercise": "dips",
+   "reps": 13,
+   "kg": 0,
+   "auto": true
+  },
+  "label": "corrected",
+  "notes": "30 Oct: dips BW set 1 (video at 210 s: feet off the floor on the bars), truth 12 (Rune: dips 12x3). App dips 13 = right exercise; the \"row read as dips\" was this set.",
+  "tier": "worst",
+  "view": "front",
+  "facing": "user",
+  "app": "8.16",
+  "lm": "mvvfl1ka048fe127",
+  "win": [
+   190,
+   236
+  ]
  },
  {
   "id": "mvvfo3h7de7ad609",
@@ -1867,7 +1895,7 @@
    "auto": true
   },
   "label": "corrected",
-  "notes": "30 Oct: dips set (truth dips BW 12 / EZ curl 30 kg 12, alternating). App dips 7.",
+  "notes": "30 Oct: dips BW set 2 (set 1 is mvvfl1ka-dips), truth 12. App dips 7.",
   "tier": "worst",
   "view": "front",
   "facing": "user",
