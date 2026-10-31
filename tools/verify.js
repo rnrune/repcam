@@ -4,6 +4,7 @@
 //   node tools/verify.js replay <caseId...> | --tier core|worst|pass|excluded
 //   node tools/verify.js app <caseId|clip.y4m> [--url URL] [--secs N] [--dry-run]
 //   node tools/verify.js ui [--url URL]   (screenshots of Hjem + Historikk with seeded sessions)
+//   node tools/verify.js camera [--url URL]   (v8.33 camera position picker + per-set angle override)
 const fs = require('fs'), path = require('path'), cp = require('child_process'), http = require('http');
 const ROOT = path.join(__dirname, '..'), TEST = '/workspace/repcam-test', OUT = '/workspace/repcam-shots/verify/';
 const CHROME = process.env.CHROME || '/usr/bin/google-chrome';
@@ -318,4 +319,36 @@ async function review() {
   } finally { await b.close(); srv.close(); }
 }
 
-({ doctor, replay, app, ui, resume, queue, stravaup, confirm, review }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();
+
+// v8.33: camera position picker (once per session) + derived angle on a logged set + per-set override in the edit sheet
+async function camera() {
+  const srv = flag('--url', null) ? null : await serve(), URL0 = flag('--url', null) || `http://127.0.0.1:${srv.address().port}/`;
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19), y4m = path.join(TEST, 'rune-bench.y4m');
+  const { chromium, devices } = pw(), errs = [];
+  const b = await chromium.launch({ executablePath: CHROME, headless: true, args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=' + y4m, '--enable-unsafe-swiftshader'] });
+  try {
+    const ctx = await b.newContext({ ...devices['iPhone 13'], permissions: ['camera'] });
+    await ctx.addInitScript(() => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); Object.entries({ 'repcam.onboarded': '1', 'repcam.profile': '{"name":"Verify"}', 'repcam.lang': 'nb', 'repcam.feedback': '0' }).forEach(([k, v]) => localStorage.setItem(k, v)); }
+      const rn = Date.now; window.__vt = 0; Date.now = () => rn() + window.__vt; });
+    await ctx.route(u => /dropbox|strava\.com/i.test(u.hostname), r => r.abort());
+    const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+    await p.goto(URL0); await p.waitForSelector('#view-home.on', { timeout: 20000 }); await p.click('#startOkt'); await p.waitForSelector('#start', { state: 'hidden', timeout: 120000 });
+    await p.evaluate(() => window.__repcam.stopLoop()); const btn0 = await p.textContent('#camBtn');
+    await p.click('#camBtn'); await p.waitForSelector('#camOk');
+    await p.click('.camgrid[data-k="dir"] button[data-v="rear"]'); await p.click('.camgrid[data-k="deg"] button[data-v="45"]');
+    await p.screenshot({ path: OUT + `camera-picker-${stamp}.png` }); await p.click('#camOk'); await p.waitForTimeout(300); const btn1 = await p.textContent('#camBtn');
+    const R = require(path.join(ROOT, 'eval/real/run.js')), e = R.man().find(x => x.id === 'mvnok2vt347693bc'), d = R.load(e.id);
+    await p.evaluate(({ fr, asp }) => { const t0 = fr[0][0], w0 = performance.now(), d0 = Date.now(); const S = window.__repcam;
+      for (const a of fr) { const t = a[0] - t0; window.__vt += Math.max(0, d0 + t * 1000 - Date.now()); S.processFrame(Array.from({ length: 33 }, (_, i) => ({ x: a[1 + 3 * i], y: a[2 + 3 * i], z: 0, visibility: a[3 + 3 * i] })), w0 + t * 1000, asp, null); }
+      for (let k = 0; k < 120; k++) { window.__vt += 100; S.processFrame(undefined, w0 + (fr.at(-1)[0] - t0) * 1000 + 100 * (k + 1), asp, null); } }, { fr: d.frames, asp: d.w / d.h });
+    await p.waitForTimeout(500); const set1 = await p.evaluate(() => { const s = JSON.parse(localStorage.getItem('repcam.sets') || '[]'); return s[s.length - 1]; });
+    await p.click('#log .logrow'); await p.waitForSelector('#eCam'); await p.click('#eCam button[data-a="side"]');
+    await p.screenshot({ path: OUT + `camera-edit-${stamp}.png`, fullPage: true }); await p.click('#eSave'); await p.waitForTimeout(300);
+    const set2 = await p.evaluate(ts => JSON.parse(localStorage.getItem('repcam.sets') || '[]').find(x => x.timestamp === ts), set1 && set1.timestamp);
+    const ok = /velg kameraposisjon/.test(btn0) && /Bakfra 45°/.test(btn1) && set1 && set1.exercise === 'dips' && set1.camera && set1.camera.angle === 'rear45' && set1.camera.overridden === false && set2 && set2.camera.angle === 'side' && set2.camera.overridden === true && set2.camera.derivedAngle === 'rear45' && !errs.length;
+    console.log(JSON.stringify({ btn0, btn1, set1: set1 && { ex: set1.exercise, reps: set1.reps, camera: set1.camera }, set2: set2 && set2.camera, pageErrors: errs }));
+    console.log(`${ok ? 'PASS' : 'FAIL'} camera · proof ${OUT}camera-picker-${stamp}.png / camera-edit-${stamp}.png`); process.exitCode = ok ? 0 : 1;
+  } finally { await b.close(); if (srv) srv.close(); }
+}
+
+({ doctor, replay, app, ui, resume, queue, stravaup, confirm, review, camera }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();

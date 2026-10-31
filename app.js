@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.32';
+const APP_VERSION = '8.33';
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
 /* v8.32 row lead-in kill switch: localStorage repcam.rowLead = off | shadow */
@@ -112,6 +112,24 @@ function wireSteppers(root, onChange) {
 function exGrid(sel, withAuto) {
   return `<div class="exgrid">${withAuto ? `<button class="wide ${sel == null ? 'on' : ''}" data-ex=""><b>${L.t('w.autoPick')}</b><div class="muted small" style="margin:0">${L.t('w.autoPickSub')}</div></button>` : ''}${Store.EX.map(e => `<button data-ex="${e.id}" class="${sel === e.id ? 'on' : ''}">${e.icon} ${esc(exName(e.id))}</button>`).join('')}</div>`;
 }
+// v8.33 camera position per session (Rune): direction/angle/side once per workout, angle per exercise derived (camera.js)
+const camPos = () => (store.active() || {}).camera || null;
+const camName = a => L.t('cam.a.' + (a || 'none'));
+function camPosLabel(p) { if (!p) return L.t('cam.none'); const b = Camera.base(p); return camName(b) + (b === 'side' && p.side ? ' · ' + L.t('cam.' + p.side) : ''); }
+function openCamPicker(after) {
+  let p = { dir: 'rear', deg: 45, side: null, ...(camPos() || JSON.parse(LS.getItem('repcam.cam.last') || 'null') || {}) };
+  const grp = (k, opts) => `<div class="camgrid" data-k="${k}">${opts.map(([v, t]) => `<button data-v="${v}" class="${String(p[k]) === String(v) ? 'on' : ''}">${t}</button>`).join('')}</div>`;
+  openSheet(`<h3>${L.t('cam.title')}</h3><div class="muted small">${L.t('cam.sub')}</div>
+    <div class="muted small">${L.t('cam.dir')}</div>${grp('dir', [['front', L.t('cam.front')], ['rear', L.t('cam.rear')], ['side', L.t('cam.sideDir')]])}
+    <div class="muted small">${L.t('cam.deg')}</div>${grp('deg', [[0, '0°'], [45, '45°'], [90, '90°']])}
+    <div class="muted small">${L.t('cam.side')}</div>${grp('side', [['left', L.t('cam.left')], ['right', L.t('cam.right')]])}
+    <div class="sheetfoot"><button class="grad" id="camOk">${L.t('edit.save')}</button><div class="btns"><button class="ghost" id="camClear">${L.t('cam.clear')}</button><button class="ghost" id="camNo">${L.t('edit.cancel')}</button></div></div>`);
+  const sh = $('sheet');
+  sh.querySelectorAll('.camgrid').forEach(g => g.querySelectorAll('button').forEach(b => b.onclick = () => { const k = g.dataset.k; p[k] = k === 'deg' ? +b.dataset.v : (p[k] === b.dataset.v && k === 'side' ? null : b.dataset.v); g.querySelectorAll('button').forEach(x => x.classList.toggle('on', String(p[k]) === x.dataset.v)); }));
+  $('camOk').onclick = () => { store.startSession(); store.touchActive({ camera: p }); LS.setItem('repcam.cam.last', JSON.stringify(p)); closeSheet(); after?.(); };
+  $('camClear').onclick = () => { store.touchActive({ camera: null }); closeSheet(); after?.(); };
+  $('camNo').onclick = closeSheet;
+}
 // Edit a logged set (reps, kg, exercise). Used from the "saved" toast and from Historikk.
 function openEdit(ts, after) {
   const s = store.sets().find(x => x.timestamp === ts); if (!s) return;
@@ -120,11 +138,13 @@ function openEdit(ts, after) {
     <div class="muted small">${L.t('w.repsL')}</div>${stepper('eReps', +s.reps || 0, 1, x => String(x))}
     <div class="muted small">${L.t('w.weight')} (kg · 0 = ${L.t('bw')})</div>${stepper('eKg', +s.kg || 0, 2.5, x => L.nf(x, 2))}
     <div class="muted small">${L.t('edit.ex')}</div>${exGrid(ex, false)}
+    <div class="muted small">${L.t('cam.angle')}${s.camera && !s.camera.overridden ? ' (' + L.t('cam.auto') + ')' : ''}</div><div class="camgrid" id="eCam">${[...Camera.CAM_CFG.angles, ''].map(a => `<button data-a="${a}" class="${(s.camera ? s.camera.angle || '' : '') === a ? 'on' : ''}">${camName(a)}</button>`).join('')}</div>
     <div class="sheetfoot"><button class="grad" id="eSave">${L.t('edit.save')}</button><div class="btns"><button class="ghost" id="eDel">${L.t('edit.delete')}</button><button class="ghost" id="eNo">${L.t('edit.cancel')}</button></div></div>`);
   const sh = $('sheet'); wireSteppers(sh);
   sh.querySelectorAll('.exgrid button').forEach(b => b.onclick = () => { ex = b.dataset.ex; sh.querySelectorAll('.exgrid button').forEach(x => x.classList.toggle('on', x === b)); });
+  let cam = s.camera || null; sh.querySelectorAll('#eCam button').forEach(b => b.onclick = () => { cam = Camera.override(s.camera, b.dataset.a || null); sh.querySelectorAll('#eCam button').forEach(x => x.classList.toggle('on', x === b)); });
   const sid = s.sessionId || store.sessionOf(ts);
-  $('eSave').onclick = () => { fbLabel(ts, 'edit', { reps: parseNum($('eReps').value), kg: parseNum($('eKg').value), exercise: ex }); store.updateSet(ts, { reps: parseNum($('eReps').value), kg: parseNum($('eKg').value), exercise: ex }); setKgFor(ex, parseNum($('eKg').value)); stravaResync(sid); closeSheet(); after?.(); };
+  $('eSave').onclick = () => { if (cam && !cam.overridden && cam.sessionPos && ex !== s.exercise) cam = Camera.forSet(cam.sessionPos, ex); /* exercise changed: re-derive unless set by hand */ fbLabel(ts, 'edit', { reps: parseNum($('eReps').value), kg: parseNum($('eKg').value), exercise: ex, ...(cam ? { camera: cam } : {}) }); store.updateSet(ts, { reps: parseNum($('eReps').value), kg: parseNum($('eKg').value), exercise: ex, camera: cam }); setKgFor(ex, parseNum($('eKg').value)); stravaResync(sid); closeSheet(); after?.(); };
   $('eNo').onclick = closeSheet;
   $('eDel').onclick = async () => { if (await confirmDialog(L.t('del.title'), L.t('del.text'), L.t('del.ok'))) { fbLabel(ts, 'delete'); store.deleteSet(ts); stravaResync(sid); after?.(); } };
 }
@@ -179,14 +199,14 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) return;
-  const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
+  const camera = fb.camera || null; fb.camera = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) return;
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
   const poseRate = Feedback.clipRate(lm); /* v8.30: rate of THIS clip's logged frames (mean step); poseRateSeg = detector step stats since the last cut (median-based, was `poseRate` ≤8.29) */
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    restShadow, barShadow, tempoShadow, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    camera, restShadow, barShadow, tempoShadow, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -494,6 +514,7 @@ function renderWorkout() {
   $('exIc').textContent = ex ? icon(ex) : '✨';
   $('exName').textContent = ex ? (manualEx ? '' : L.t('w.auto') + ': ') + exName(ex) : L.t('w.detecting');
   $('kg').textContent = L.kgf(kgFor(ex || 'knebøy'));
+  { const p = camPos(), a = p && ex ? Camera.derive(p, ex) : null; $('camBtn').textContent = '📷 ' + L.t('cam.btn', { p: camPosLabel(p) }) + (a && a !== Camera.base(p) ? ' → ' + exName(ex) + ': ' + camName(a) : ''); }
   // v8.9: every set of this session stays editable — tap a line in the log (newest first)
   $('log').innerHTML = mine.slice(-3).reverse().map(x => `<button class="logrow" data-ts="${esc(x.timestamp)}">${L.hm(x.timestamp)} · ${esc(exName(x.exercise))} · ${L.t('reps', { n: x.reps })} × ${L.kgf(x.kg)}${x.unsure ? ' · ' + L.t('w.unsureTag') : ''} ✎</button>`).join('');
   $('log').querySelectorAll('.logrow').forEach(b => b.onclick = () => openEdit(b.dataset.ts, renderWorkout));
@@ -528,7 +549,8 @@ function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
   const tsh = fb.tempoShadow, slowNow = !!(tsh && tsh.slow && tsh.ex === ex);
-  const rec = store.addSet({ exercise: ex, reps, kg: kgFor(ex) });
+  const cam = Camera.forSet(camPos(), ex); /* v8.33 */
+  const rec = store.addSet({ exercise: ex, reps, kg: kgFor(ex), ...(cam ? { camera: cam } : {}) }); fb.camera = cam;
   // v8.8: feedback repTimes = each rep's own time from the counter (a paired first rep used to get the confirmation time twice)
   if (fb.rec) fb.repT = counters[ex].repTimes.map(t => t * 1000);
   // v8.15 rest gate, SHADOW mode: log what it would have done; the old logic still decides
@@ -575,6 +597,7 @@ function hideToast() { $('toast').classList.remove('on'); setToast = null;
 let tempoPend = null;
 function tempoLog(ex, reps, outcome) { try { const a = JSON.parse(LS.getItem('repcam.tempo.log') || '[]'); a.push({ at: new Date().toISOString(), ex, reps, outcome }); LS.setItem('repcam.tempo.log', JSON.stringify(a.slice(-200))); } catch {} console.info('[tempo]', outcome, ex, reps); }
 $('confirm').onclick = () => { saveSet(); };
+$('camBtn').onclick = () => openCamPicker(renderWorkout);
 function enterWorkout() {
   const resumed = !!store.active();
   const a = store.startSession(); resetCounters(); recognizer.reset(); picker.reset(); camGate.reset(); restGate.rest(-1e12); camPaused = false; motion.resume(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();

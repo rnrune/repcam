@@ -19,7 +19,7 @@
     if (action === 'delete') return { kind: 'notASet', exercise: pred.exercise, reps: 0, kg: pred.kg, notASet: true, missed: false };
     const v = { ...pred, ...(val || {}) };
     const changed = ['exercise', 'reps', 'kg'].filter(k => String(v[k]) !== String(pred[k]));
-    return { kind: action === 'edit' ? (changed.length ? 'corrected' : 'confirmed') : 'implicit', exercise: v.exercise, reps: +v.reps, kg: +v.kg, notASet: false, missed: false, changed };
+    return { kind: action === 'edit' ? (changed.length ? 'corrected' : 'confirmed') : 'implicit', exercise: v.exercise, reps: +v.reps, kg: +v.kg, notASet: false, missed: false, changed, ...(v.camera ? { camera: v.camera } : {}) }; /* v8.33: camera angle travels with the label */
   }
   // Queue over an async kv store {all(), get(id), put(rec), del(id)} (IndexedDB in the browser, Map in tests).
   // rec: { id, setTs, blob, mime, meta, label, clipDone, metaDone, labelDirty, tries, next }

@@ -140,6 +140,7 @@
         if (patch.reps != null) p.reps = Math.max(0, Math.round(+patch.reps || 0));
         if (patch.kg != null) p.kg = Math.max(0, Math.round((+patch.kg || 0) * 100) / 100);
         if (patch.exercise) p.exercise = patch.exercise;
+        if ('camera' in patch) p.camera = patch.camera || null; // v8.33 {sessionPos, derivedAngle, angle, overridden}
         // v8.25 'usikker' marker (tempo rule, no answer): set explicitly, cleared by any edit of the set
         if (patch.unsure != null) p.unsure = !!patch.unsure; else if (Object.keys(p).length) p.unsure = false;
         s[i] = { ...s[i], ...p }; api.save(SETS, s); return s[i];
