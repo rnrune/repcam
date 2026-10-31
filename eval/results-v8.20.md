@@ -38,3 +38,8 @@ mvvesvuf pullups→dips; curl wrists-level 0.3/0.2: breaks core mvnohgsi; pull-u
 * `TEMPO_CFG.mode = 'on'`: a slow set is saved and asked «Ser ikke ut som et sett – ✓ for å beholde»; ✓/Endre keeps, ✗ removes (notASet), no answer → removed when the toast goes (label kind `tempoRemoved`, not ground truth). Log in localStorage `repcam.tempo.log` + feedback meta. `repcam.tempo=off` kill switch, `=shadow` log only.
 * Eval (tempo on): exact 50/60, MAE 0.21, exercise 47/47, false sets 0/13, core 21/21. Tempo off: 45/60, false sets 5/13.
 * Bar tracker (shadow, live summaries in feedback meta; offline re-run impossible — videos deleted): benk 13/15, 10/12; skråbenk 5/12, 4/10; roing 2/10; 0/7 sets exact. Keep shadow, do not enable.
+
+## v8.25
+- Tempo: unanswered ✓/✗ now keeps the set, marked "usikker" (set card + history), not logged as truth; only ✗ removes.
+- mvr3k128 trim end 134.0 s (gt 4) → 4 ✓.
+- 10 Hz tempo on: exact 51/60, MAE 0.19, exercise 47/47, false sets 0/13, core 21/21.

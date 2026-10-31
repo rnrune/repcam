@@ -247,13 +247,13 @@ async function confirm() {
     // v8.24 tempo rule ON: a slow set that gets no answer is removed when the toast goes away; ✓ keeps it
     const t3 = await p.evaluate(() => { const S = window.__repcam, r = S.store.addSet({ exercise: 'roing', reps: 4, kg: 30 }); S.showToast('Lagret: Roing · 4 × 30 kg · Ser ikke ut som et sett – ✓ for å beholde', r.timestamp, true); S.tempoPendSet({ ts: r.timestamp, ex: 'roing', reps: 4 }); return r.timestamp; });
     await p.waitForTimeout(200); await p.screenshot({ path: OUT + `confirm-tempo-${stamp}.png` });
-    await p.evaluate(() => window.__repcam.hideToast()); await p.waitForTimeout(200);
-    const tempoGone = await p.evaluate(t => !window.__repcam.store.sets().some(s => s.timestamp === t), t3), tlog = await p.evaluate(() => JSON.parse(localStorage.getItem('repcam.tempo.log') || '[]'));
+    await p.evaluate(() => window.__repcam.hideToast()); await p.waitForTimeout(200); await p.screenshot({ path: OUT + `confirm-unsure-${stamp}.png` });
+    const tempoGone = await p.evaluate(t => { const x = window.__repcam.store.sets().find(s => s.timestamp === t); return !!(x && x.unsure === true); }, t3), /* v8.25: no answer keeps the set, marked usikker */ logTxt = await p.evaluate(() => document.getElementById('log').textContent), tlog = await p.evaluate(() => JSON.parse(localStorage.getItem('repcam.tempo.log') || '[]'));
     const t4 = await p.evaluate(() => { const S = window.__repcam, r = S.store.addSet({ exercise: 'roing', reps: 5, kg: 30 }); S.showToast('x', r.timestamp, true); S.tempoPendSet({ ts: r.timestamp, ex: 'roing', reps: 5 }); return r.timestamp; });
     await p.click('#tYes'); await p.waitForTimeout(200); await p.evaluate(() => window.__repcam.hideToast());
-    const tempoKept = await p.evaluate(t => window.__repcam.store.sets().some(s => s.timestamp === t), t4);
-    const ok = v1.every(Boolean) && gone && n1 === 0 && n2 === 1 && /Beholdt/.test(kept) && tempoGone && tempoKept && tlog.some(x => x.outcome === 'removed-noanswer') && !errs.length;
-    const proof = { tool: 'tools/verify.js confirm', at: new Date().toISOString(), buttonsShown: v1, removedOnNo: gone, setsAfterNo: n1, setsAfterYes: n2, toastAfterYes: kept, tempoRemovedNoAnswer: tempoGone, tempoKeptOnYes: tempoKept, ok, pageErrors: errs };
+    const tempoKept = await p.evaluate(t => { const x = window.__repcam.store.sets().find(s => s.timestamp === t); return !!(x && !x.unsure); }, t4);
+    const ok = v1.every(Boolean) && gone && n1 === 0 && n2 === 1 && /Beholdt/.test(kept) && tempoGone && tempoKept && tlog.some(x => x.outcome === 'kept-noanswer') && /usikker/.test(logTxt) && !errs.length;
+    const proof = { tool: 'tools/verify.js confirm', at: new Date().toISOString(), buttonsShown: v1, removedOnNo: gone, setsAfterNo: n1, setsAfterYes: n2, toastAfterYes: kept, tempoKeptUnsureNoAnswer: tempoGone, logRow: logTxt, tempoKeptOnYes: tempoKept, ok, pageErrors: errs };
     fs.writeFileSync(OUT + `confirm-${stamp}.json`, JSON.stringify(proof, null, 1)); console.log(JSON.stringify(proof));
     console.log(`${ok ? 'PASS' : 'FAIL'} confirm · proof ${OUT}confirm-{ask,removed,kept}-${stamp}.png`); process.exitCode = ok ? 0 : 1;
   } finally { await b.close(); srv.close(); }

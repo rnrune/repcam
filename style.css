@@ -130,3 +130,4 @@ details.sess[open] .chev{transform:rotate(90deg)}
 .fbPend{position:fixed;top:calc(env(safe-area-inset-top) + 62px);right:14px;z-index:7;font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;background:rgba(20,20,24,.75);color:#fff} /* v8.18 pending uploads */
 
 .toast .tq{min-width:44px;font-weight:700}
+.unsure{background:#ffb74d;color:#111;border-radius:6px;padding:0 6px;font-size:12px;font-weight:600}

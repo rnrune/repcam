@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.24';
+const APP_VERSION = '8.25';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -274,7 +274,7 @@ function sessionCard(s, opts = {}) {
   return `<details class="card sess"${opts.open || openSess.has(s.id) ? ' open' : ''} data-sid="${esc(s.id)}"><summary><div class="row"><b>${opts.noDay ? '' : esc(day) + ' · '}${L.hm(s.start)}–${live ? '…' : L.hm(s.end)}</b><span class="muted">${L.t('sess.min', { n: mins })} · ${L.nf(s.volume)} kg</span><span class="chev">›</span></div>
     <div class="sxl">${exLine}</div><div class="row small">${stravaBadge(s.id)}<span class="muted" style="margin-left:auto">${L.t('sets', { n: s.sets.length })}</span></div></summary>
     <div class="sdet">${opts.spark ? groups.map(g => `<div class="ex-foot"><div><b>${g.icon} ${esc(exName(g.id))}</b><div class="muted small" style="margin:0">${groupLabel(g)} · ${L.nf(g.volume)} kg</div></div>${spark(Store.kgHistory(opts.all, g.id))}</div>`).join('') : ''}
-    ${s.sets.map(x => `<div class="setrow" data-ts="${esc(x.timestamp)}" role="button" tabindex="0"><span>${icon(x.exercise)} ${esc(exName(x.exercise || 'knebøy'))} · <b>${L.t('reps', { n: x.reps })}</b> × ${L.kgf(x.kg)}</span><span class="muted">✎</span></div>`).join('')}
+    ${s.sets.map(x => `<div class="setrow" data-ts="${esc(x.timestamp)}" role="button" tabindex="0"><span>${icon(x.exercise)} ${esc(exName(x.exercise || 'knebøy'))} · <b>${L.t('reps', { n: x.reps })}</b> × ${L.kgf(x.kg)}${x.unsure ? ` <span class="unsure">${L.t('w.unsureTag')}</span>` : ''}</span><span class="muted">✎</span></div>`).join('')}
     ${live ? '' : `<div class="row"><button class="ghost addset" data-sadd="${esc(s.id)}">＋ ${L.t('hist.addSet')}</button>${strava.connected() ? `<button class="ghost supd" data-supd="${esc(s.id)}">⟳ ${L.t('sup.btn')}</button>` : ''}<button class="ghost sessdel" data-sdel="${esc(s.id)}" aria-label="${L.t('sdel.btn')}" title="${L.t('sdel.btn')}">🗑</button></div>`}</div></details>`;
 }
 function sessClick(e, rerender) { const u = e.target.closest('[data-supd]'); if (u) return stravaRefresh(u.dataset.supd, u, rerender); const d = e.target.closest('[data-sdel]'); if (d) return deleteSession(d.dataset.sdel); const a = e.target.closest('[data-sadd]'); if (a) return openAdd(a.dataset.sadd, rerender); const r = e.target.closest('.setrow'); if (r) openEdit(r.dataset.ts, rerender); }
@@ -456,7 +456,7 @@ function renderWorkout() {
   $('exName').textContent = ex ? (manualEx ? '' : L.t('w.auto') + ': ') + exName(ex) : L.t('w.detecting');
   $('kg').textContent = L.kgf(kgFor(ex || 'knebøy'));
   // v8.9: every set of this session stays editable — tap a line in the log (newest first)
-  $('log').innerHTML = mine.slice(-3).reverse().map(x => `<button class="logrow" data-ts="${esc(x.timestamp)}">${L.hm(x.timestamp)} · ${esc(exName(x.exercise))} · ${L.t('reps', { n: x.reps })} × ${L.kgf(x.kg)} ✎</button>`).join('');
+  $('log').innerHTML = mine.slice(-3).reverse().map(x => `<button class="logrow" data-ts="${esc(x.timestamp)}">${L.hm(x.timestamp)} · ${esc(exName(x.exercise))} · ${L.t('reps', { n: x.reps })} × ${L.kgf(x.kg)}${x.unsure ? ' · ' + L.t('w.unsureTag') : ''} ✎</button>`).join('');
   $('log').querySelectorAll('.logrow').forEach(b => b.onclick = () => openEdit(b.dataset.ts, renderWorkout));
   $('reps').textContent = currentReps();
 }
@@ -514,7 +514,7 @@ const CONFIRM_MAX_REPS = 3; // v8.20: auto sets with this few reps count as unce
 function showToast(text, ts, ask) {
   $('toastTx').textContent = text; $('toast').classList.add('on');
   $('tYes').style.display = $('tNo').style.display = ask && ts ? '' : 'none';
-  $('tYes').onclick = () => { if (tempoPend && tempoPend.ts === ts) { tempoLog(tempoPend.ex, tempoPend.reps, 'kept'); tempoPend = null; } const r = store.sets().find(x => x.timestamp === ts); fbLabel(ts, 'edit', r ? { reps: r.reps, kg: r.kg, exercise: r.exercise } : undefined); hideToast(); showToast(L.t('w.kept')); };
+  $('tYes').onclick = () => { if (tempoPend && tempoPend.ts === ts) { tempoLog(tempoPend.ex, tempoPend.reps, 'kept'); tempoPend = null; } store.updateSet(ts, { unsure: false }); const r = store.sets().find(x => x.timestamp === ts); fbLabel(ts, 'edit', r ? { reps: r.reps, kg: r.kg, exercise: r.exercise } : undefined); hideToast(); showToast(L.t('w.kept')); };
   $('tNo').onclick = () => $('tUndo').onclick();
   $('tUndo').style.display = $('tEdit').style.display = ts ? '' : 'none';
   if (ask && ts) $('tUndo').style.display = 'none'; // ✗ does the same as Angre
@@ -530,7 +530,8 @@ let setToast = null;
 function setToastTick() { if (setToast && currentReps() > 0 && Date.now() - setToast.at >= SET_TOAST_MIN_MS) hideToast(); }
 $('fbMiss').onclick = () => { fbCut({ exercise: curEx(), reps: currentReps(), kg: kgFor(curEx() || 'knebøy') }, null, Feedback.labelFrom({}, 'missed')); showToast(L.t('fb.missedOk')); };
 function hideToast() { $('toast').classList.remove('on'); setToast = null;
-  if (tempoPend) { const p = tempoPend; tempoPend = null; if (store.sets().some(x => x.timestamp === p.ts)) { fbLabel(p.ts, 'tempo'); const sid = store.sessionOf(p.ts); store.deleteSet(p.ts); stravaResync(sid); tempoLog(p.ex, p.reps, 'removed-noanswer'); renderWorkout(); } } }
+  // v8.25 (Rune): no answer KEEPS the set, marked 'usikker' in the log/history to fix later; no label is sent (not ground truth), Strava keeps it
+  if (tempoPend) { const p = tempoPend; tempoPend = null; if (store.sets().some(x => x.timestamp === p.ts)) { store.updateSet(p.ts, { unsure: true }); tempoLog(p.ex, p.reps, 'kept-noanswer'); renderWorkout(); } } }
 // v8.24 tempo decisions, kept locally for measuring the rule after a session (also in each clip's feedback meta)
 let tempoPend = null;
 function tempoLog(ex, reps, outcome) { try { const a = JSON.parse(LS.getItem('repcam.tempo.log') || '[]'); a.push({ at: new Date().toISOString(), ex, reps, outcome }); LS.setItem('repcam.tempo.log', JSON.stringify(a.slice(-200))); } catch {} console.info('[tempo]', outcome, ex, reps); }
