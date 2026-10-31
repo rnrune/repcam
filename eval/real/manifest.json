@@ -1877,7 +1877,7 @@
   "id": "mvvfp3sp39090326",
   "exercise": "curl",
   "gt": 12,
-  "kg": 30,
+  "kg": 20,
   "pred": {
    "exercise": "curl",
    "reps": 12,
@@ -1913,7 +1913,7 @@
   "id": "mvvfsawp67eb0973",
   "exercise": "curl",
   "gt": 12,
-  "kg": 30,
+  "kg": 20,
   "pred": {
    "exercise": "curl",
    "reps": 14,

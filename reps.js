@@ -554,12 +554,20 @@
   // v8.13: an auto-saved short set (≤5 reps) must have a set's rhythm. Rigging/rest motion (loading plates, stretching, walking
   // around the rack) produces a few sparse "reps" with long, uneven gaps (e.g. 7 s, 17 s, 19 s); a real set — even a slow heavy
   // one — keeps its reps within a few seconds of each other.
+  // v8.20 tempo gate: rigging / rest / phone handling gives 'reps' far slower than a real set of that exercise. Median gap
+  // between reps above maxMedGap[ex] (s) = not a set. mode 'shadow' = only reported (app logs it in feedback meta), 'on' = enforced.
+  const TEMPO_CFG = { mode: 'shadow', maxMedGap: { roing: 2.5, curl: 3, dips: 2.5, halvmark: 4 } };
+  function tempoSlow(ex, times) {
+    const lim = TEMPO_CFG.maxMedGap[ex]; if (!lim || !times || times.length < 2) return false;
+    const g = []; for (let i = 1; i < times.length; i++) g.push(times[i] - times[i - 1]); g.sort((a, b) => a - b);
+    return g[(g.length - 1) >> 1] > lim;
+  }
   function plausibleSet(times) {
     if (!times || times.length < 2 || times.length > 5) return true;
     const g = []; for (let i = 1; i < times.length; i++) g.push(times[i] - times[i - 1]);
     const mx = Math.max(...g), mn = Math.min(...g), md = [...g].sort((a, b) => a - b)[(g.length - 1) >> 1];
     return !(md > 5.5 || (mx > 6 && mx > 2 * mn));
   }
-  const api = { angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

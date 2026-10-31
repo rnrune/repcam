@@ -13,6 +13,8 @@ function upsample(F, hz) { const o = []; for (let i = 0; i + 1 < F.length; i++) 
 // rep is dropped (only that exercise's counter is reset), 2+ reps are saved as a set and counting starts over. The clip ends with the set the app
 // logged; when the replay produces several sets (setup junk before/after) the biggest one is reported (the clip's real set).
 const AUTOSAVE_S = 9;
+if (arg('--tempo', null)) R.TEMPO_CFG.mode = arg('--tempo'); // v8.20: --tempo on|shadow
+const plaus = (ex, t) => (!R.plausibleSet || R.plausibleSet(t)) && !(R.TEMPO_CFG && R.TEMPO_CFG.mode === 'on' && R.tempoSlow(ex, t));
 function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gate (shadow: verdicts only; active: counters wait for READY)
   const G = opt.rest ? require(path.join(__dirname, '..', '..', 'rest.js')).createRestGate(opt.rest.cfg) : null, verdicts = [];
   const F = hz ? upsample(d.frames, hz) : d.frames, asp = d.w / d.h, rec = R.createRecognizer(), pick = R.createPicker(), gate = R.createCameraGate();
@@ -30,14 +32,14 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     for (const id of R.IDS) if (id !== ex && cs[id].reps > 0 && a[0] - cs[id].lastRepT > AUTOSAVE_S && cs[id].forget) cs[id].forget();
     if (n !== shown) { shown = n; shownT = a[0]; }
     if (n > 0 && a[0] - shownT > AUTOSAVE_S && lock && R.relock && R.relock(cs, lock, p, a[0], rc.scores, true) !== lock) { lock = R.relock(cs, lock, p, a[0], rc.scores, true); shown = cs[lock].reps; shownT = a[0]; }
-    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) {  if (n >= 2 && (!R.plausibleSet || R.plausibleSet(cs[ex].repTimes))) { keep(res(ex)); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
+    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) {  if (n >= 2 && plaus(ex, cs[ex].repTimes)) { keep(res(ex)); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
   // the clip ends where the app saved the set: same last-chance re-lock as at an autosave
   if (lock && R.relock) lock = R.relock(cs, lock, null, F[F.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto;
-  if (ex && cs[ex].reps >= 2 && (!R.plausibleSet || R.plausibleSet(cs[ex].repTimes))) keep(res(ex));
+  if (ex && cs[ex].reps >= 2 && plaus(ex, cs[ex].repTimes)) keep(res(ex));
   if (G) { const ret = saved || { ex: null, reps: 0, kg: 0, times: [] }; ret.restVerdicts = verdicts; if (opt.rest.active) return ret; }
   if (saved) return saved;
-  if (ex) { const r = res(ex); if (!R.plausibleSet || R.plausibleSet(r.times)) return r; return { ...r, reps: 0, times: [] }; }
+  if (ex) { const r = res(ex); if (plaus(ex, r.times)) return r; return { ...r, reps: 0, times: [] }; }
   return { ex: null, reps: 0, kg: 0, times: [] };
 }
 module.exports = { replay, man: () => JSON.parse(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8')), load: id => JSON.parse(fs.readFileSync(path.join(__dirname, id + '.lm.json'), 'utf8')) };

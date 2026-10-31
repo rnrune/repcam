@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.19.1';
+const APP_VERSION = '8.20';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -171,13 +171,13 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) return;
-  const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
+  const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) return;
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    restShadow, barShadow, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    restShadow, barShadow, tempoShadow, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
     landmarks: { hz: 10, layout: 't,(x,y,vis)*33', frames: lm },
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -480,7 +480,11 @@ $('exChip').onclick = () => {
 function finishPending() {
   // v8.9: last-chance re-lock — the set was locked on setup motion while another exercise's counter holds the real set
   if (lockEx && !manualEx && lastFrameT != null) { const nl = Reps.relock(counters, lockEx, null, lastFrameT, null, true); if (nl !== lockEx) lockEx = nl; }
-  const r = currentReps(), ce = curEx(); if (r >= MIN_AUTO_REPS && (manualEx || !ce || Reps.plausibleSet(counters[ce].repTimes))) return saveSet(); /* v8.13: sparse rigging 'reps' are not a set */ if (r > 0) { const e = ce; counters[e] = Reps.createCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
+  const r = currentReps(), ce = curEx();
+  // v8.20 tempo gate (Reps.TEMPO_CFG): shadow by default, verdict goes into feedback meta. localStorage repcam.tempo = on | off (kill switch)
+  const tMode = LS.getItem('repcam.tempo') || Reps.TEMPO_CFG.mode, tSlow = !!(ce && !manualEx && tMode !== 'off' && Reps.tempoSlow(ce, counters[ce].repTimes));
+  fb.tempoShadow = { slow: tSlow, mode: tMode, ex: ce, reps: r }; if (tSlow) console.info('[tempoShadow] slow', ce, r, tMode);
+  if (r >= MIN_AUTO_REPS && (manualEx || !ce || (Reps.plausibleSet(counters[ce].repTimes) && !(tSlow && tMode === 'on')))) return saveSet(); /* v8.13: sparse rigging 'reps' are not a set */ if (r > 0) { const e = ce; counters[e] = Reps.createCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
 function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
