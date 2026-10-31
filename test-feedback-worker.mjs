@@ -70,6 +70,22 @@ const adm = (p, m = 'GET', s = 'adminsecret') => new Request('https://w.test' + 
     // auth: other token for same install rejected
     r = await H(req('/fb/meta/clip0001', { body: '{}', tok: 'y'.repeat(40) })); ok(r.status === 401, 'wrong token 401');
     r = await H(req('/fb/clip/clip0002', { body: 'abc', h: { 'Content-Type': 'text/plain', 'Content-Length': '3' } })); ok(r.status === 415, 'type');
+    { // v8.29 trusted networks
+      const net = (path, ip, body, inst) => H(req('/fb/net/' + path, { method: 'POST', body: JSON.stringify(body || {}), inst, h: { 'CF-Connecting-IP': ip } })).then(x => x.json());
+      let j = await net('check', '84.20.1.5'); ok(j.trusted === false, 'net: unknown ip untrusted');
+      j = await net('trust', '84.20.1.5', { label: 'Hjemme' }); ok(j.ok && j.nets.length === 1 && j.nets[0].label === 'Hjemme' && j.nets[0].current, 'net: trust');
+      ok(d.files.has((root + '/nets/inst0001.json').toLowerCase()), 'net: stored');
+      ok(![...d.files.values()].some(v => Buffer.from(v.b).toString().includes('84.20.1.5')), 'net: raw ip never stored');
+      j = await net('check', '84.20.1.5'); ok(j.trusted === true && j.label === 'Hjemme', 'net: same ip trusted');
+      j = await net('check', '84.20.1.6'); ok(j.trusted === false, 'net: other ip (cellular) untrusted');
+      j = await net('trust', '2a01:799:1:2:aaaa::1'); j = await net('check', '2a01:799:1:2:bbbb:cccc:dddd:eeee'); ok(j.trusted === true, 'net: ipv6 same /64 trusted');
+      j = await net('check', '2a01:799:1:3::1'); ok(j.trusted === false, 'net: ipv6 other /64');
+      j = await net('check', '84.20.1.5', {}, 'inst0002'); ok(j.trusted === false, 'net: per install');
+      j = await net('list', '1.1.1.1'); ok(j.nets.length === 2 && !j.nets.some(n => n.h), 'net: list without hashes');
+      j = await net('forget', '1.1.1.1', { id: j.nets[0].id }); ok(j.nets.length === 1, 'net: forget');
+      j = await net('check', '84.20.1.5'); ok(j.trusted === false, 'net: forgotten ip untrusted');
+      r = await H(req('/fb/net/check', { method: 'POST', body: '{}', tok: 'y'.repeat(40), h: { 'CF-Connecting-IP': '84.20.1.5' } })); ok(r.status === 401, 'net: auth');
+    }
     r = await H(req('/fb/clip/clip0002', { body: 'abc', h: { 'Content-Type': 'video/mp4', 'Content-Length': '' + (60 << 20) } })); ok(r.status === 413, 'size');
     r = await H(new Request('https://w.test/fb/meta/clip0001', { method: 'PUT', body: '{}', headers: { Origin: 'https://evil.test', 'X-Install': INST, 'X-Token': TOK } })); ok(r.status === 403, 'origin');
     // admin

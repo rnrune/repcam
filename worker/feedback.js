@@ -6,7 +6,7 @@
 // see anything else. DROPBOX_ROOT (var, default "") is prepended to every path; only needed for a full-Dropbox app.
 const MAX_CLIP = 50 * 1024 * 1024, MAX_JSON = 2 * 1024 * 1024, MAX_PER_DAY = 300;
 const ID = /^[A-Za-z0-9_-]{6,64}$/;
-const KEY = /^(clips\/[A-Za-z0-9_-]{6,64}\/[A-Za-z0-9_-]{6,64}\.(mp4|webm|meta\.json|label\.json)|installs\/[A-Za-z0-9_-]{6,64}\.json)$/;
+const KEY = /^(clips\/[A-Za-z0-9_-]{6,64}\/[A-Za-z0-9_-]{6,64}\.(mp4|webm|meta\.json|label\.json)|installs\/[A-Za-z0-9_-]{6,64}\.json|nets\/[A-Za-z0-9_-]{6,64}\.json)$/;
 const hex = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
 const sha = async s => hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)));
 const eq = (a, b) => a.length === b.length && [...a].reduce((d, c, i) => d | (c.charCodeAt(0) ^ b.charCodeAt(i)), 0) === 0;
@@ -87,6 +87,9 @@ async function auth(req, st) {
   if (rec.day !== day) { rec.day = day; rec.n = 0; }
   return { inst, rec, key };
 }
+export function netKey(ip) { ip = String(ip).trim(); if (/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return '4:' + ip;
+  if (ip.includes(':')) { const [l, r = ''] = ip.split('::'), L = l ? l.split(':') : [], R = r ? r.split(':') : [], g = [...L, ...Array(Math.max(0, 8 - L.length - R.length)).fill('0'), ...R].map(x => (parseInt(x || '0', 16) || 0).toString(16)); return '6:' + g.slice(0, 4).join(':'); }
+  return null; }
 async function bump(st, a) { a.rec.n++; await st.put(a.key, JSON.stringify(a.rec)); }
 
 export async function handleFeedback(req, env, cors, fetchFn) {
@@ -116,6 +119,24 @@ async function route(req, env, cors, fetchFn) {
   if (!allowed.includes(origin)) return json({ error: 'forbidden' }, 403, cors);
   const a = await auth(req, st); if (a.err) return json({ error: 'auth' }, 401, cors);
   if (a.rec.n >= MAX_PER_DAY) return json({ error: 'rate' }, 429, cors);
+  // v8.29 learned trusted networks (iOS cannot tell wifi from cellular): the app asks whether its current public IP is one
+  // Rune marked as his wifi. Only a per-install salted SHA-256 of the IP is stored (IPv6: the /64 network prefix, which stays
+  // stable on one wifi while iOS rotates the interface part). nets/<install>.json = { nets: [{ id, h, label, added, last }] }.
+  if (p.startsWith('/fb/net/')) {
+    if (req.method !== 'POST') return json({ error: 'not found' }, 404, cors);
+    const ip = netKey(req.headers.get('CF-Connecting-IP') || ''); if (!ip) return json({ error: 'no ip' }, 400, cors);
+    const h = await sha('net:' + a.inst + ':' + ip), nk = 'nets/' + a.inst + '.json';
+    const o = await st.get(nk); const rec = o ? await o.json() : { nets: [] }; const cur = rec.nets.find(n => n.h === h);
+    const now = new Date().toISOString(), pub = n => ({ id: n.id, label: n.label, added: n.added, last: n.last, current: n.h === h });
+    let body = {}; try { body = JSON.parse(await req.text() || '{}'); } catch {}
+    if (p === '/fb/net/check') { if (cur && (!cur.last || now.slice(0, 10) !== cur.last.slice(0, 10))) { cur.last = now; await st.put(nk, JSON.stringify(rec)); } return json({ trusted: !!cur, id: cur ? cur.id : null, label: cur ? cur.label : null }, 200, cors); }
+    if (p === '/fb/net/list') return json({ nets: rec.nets.map(pub) }, 200, cors);
+    if (p === '/fb/net/trust') { if (!cur) { if (rec.nets.length >= 20) rec.nets.shift(); rec.nets.push({ id: h.slice(0, 12), h, label: String(body.label || '').slice(0, 40) || 'Wifi', added: now, last: now }); }
+      else if (body.label) cur.label = String(body.label).slice(0, 40);
+      await st.put(nk, JSON.stringify(rec)); if (!o && !a.stored) await st.put(a.key, JSON.stringify(a.rec)); return json({ ok: true, trusted: true, nets: rec.nets.map(pub) }, 200, cors); }
+    if (p === '/fb/net/forget') { rec.nets = rec.nets.filter(n => n.id !== body.id); await st.put(nk, JSON.stringify(rec)); return json({ ok: true, nets: rec.nets.map(pub) }, 200, cors); }
+    return json({ error: 'not found' }, 404, cors);
+  }
   const m = p.match(/^\/fb\/(clip|meta|label)\/([A-Za-z0-9_-]{6,64})$/);
   if (!m || (req.method !== 'PUT' && req.method !== 'POST')) return json({ error: 'not found' }, 404, cors);
   const [, kind, id] = m, base = 'clips/' + a.inst + '/' + id;

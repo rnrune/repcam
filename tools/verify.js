@@ -161,9 +161,9 @@ async function queue() {
   const srv = await serve(), URL0 = `http://127.0.0.1:${srv.address().port}/`, { chromium, devices } = pw(), errs = [], got = [];
   const b = await chromium.launch({ executablePath: CHROME, headless: true });
   try {
-    const ctx = await b.newContext({ ...devices['iPhone 13'] }); let up = false;
+    const ctx = await b.newContext({ ...devices['iPhone 13'] }); let up = false; const netIp = { v: '84.20.1.5' }, netTrusted = new Map(); /* v8.29 mock: public IP → trusted */
     await ctx.addInitScript(() => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); Object.entries({ 'repcam.onboarded': '1', 'repcam.profile': '{"name":"Verify"}', 'repcam.lang': 'nb', 'repcam.fb.on': '1', 'repcam.fb.netTest': 'wifi' }).forEach(([k, v]) => localStorage.setItem(k, v)); } });
-    await ctx.route(u => /workers\.dev|dropbox|strava\.com/i.test(u.hostname), r => { const u = r.request().url(); if (!/\/fb\//.test(u)) return r.abort(); if (!up) return; /* v8.18: never answer = a hung upload (as on iOS); the app must time out and keep the clip */ got.push(u.replace(/.*\/fb\//, '')); return r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }); });
+    await ctx.route(u => /workers\.dev|dropbox|strava\.com/i.test(u.hostname), r => { const u = r.request().url(); if (!/\/fb\//.test(u)) return r.abort(); if (/\/fb\/net\//.test(u)) { const b = JSON.parse(r.request().postData() || '{}'), h = 'h' + netIp.v, w = u.replace(/.*\/fb\/net\//, ''); if (w === 'trust') netTrusted.set(h, b.label || 'Wifi'); if (w === 'forget') for (const k of [...netTrusted.keys()]) if (k.slice(0, 12) === b.id) netTrusted.delete(k); const nets = [...netTrusted].map(([k, l]) => ({ id: k.slice(0, 12), label: l, added: '2026-10-31', current: k === h })); return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(w === 'check' ? { trusted: netTrusted.has(h), label: netTrusted.get(h) || null } : { ok: true, nets }) }); } if (!up) return; /* v8.18: never answer = a hung upload (as on iOS); the app must time out and keep the clip */ got.push(u.replace(/.*\/fb\//, '')); return r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' }); });
     const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
     await p.goto(URL0); await p.waitForSelector('#view-home.on', { timeout: 20000 });
     await p.evaluate(async () => { const S = window.__repcam; Feedback.QUEUE_CFG.timeoutMs = 1500; Feedback.QUEUE_CFG.minBps = 1e12; await S.fbQueue().add({ id: 'verifyclip01', setTs: new Date().toISOString(), blob: new Blob([new Uint8Array(200000)], { type: 'video/mp4' }), mime: 'video/mp4', meta: { id: 'verifyclip01' }, label: { kind: 'implicit' }, created: Date.now() }); await S.fbUpload(true); });
@@ -176,28 +176,38 @@ async function queue() {
     up = true; await p.evaluate(() => window.dispatchEvent(new Event('online'))); await p.waitForTimeout(1500);
     const st3 = await p.evaluate(async () => ({ stats: await window.__repcam.fbQueue().stats(), badge: document.getElementById('fbPendHome').textContent }));
     await p.screenshot({ path: OUT + `queue-recovered-${stamp}.png` });
-    // v8.28 Kun wifi: cellular + unknown (iPhone) never auto-upload, clip stays queued; «Send nå» uploads; mobile data allowed when toggled off; wifi auto
+    // v8.29 wifi rule: learned trusted networks (iOS: connection.type unknown) + connection.type where present; «Send nå» always sends
     const add = id => p.evaluate(async id => { await window.__repcam.fbQueue().add({ id, setTs: new Date().toISOString(), blob: new Blob([new Uint8Array(1000)], { type: 'video/mp4' }), mime: 'video/mp4', meta: { id }, label: { kind: 'implicit' }, created: Date.now() }); }, id);
-    const trig = () => p.evaluate(async () => { window.dispatchEvent(new Event('online')); await window.__repcam.fbUpload(true); });
+    const trig = () => p.evaluate(async () => { await window.__repcam.fbUpload(true); });
     const pend = () => p.evaluate(async () => (await window.__repcam.fbQueue().stats()).pending);
-    const W = {}; const n0 = got.length;
-    await p.evaluate(() => localStorage.setItem('repcam.fb.netTest', 'cellular')); await add('wificlip01'); await trig(); await p.waitForTimeout(400);
-    W.cellular = { pending: await pend(), uploads: got.length - n0, badgeTitle: await p.evaluate(() => document.getElementById('fbPendHome').title) };
-    await p.evaluate(() => localStorage.setItem('repcam.fb.netTest', 'unknown')); await p.reload(); await p.waitForSelector('#view-home.on'); await p.waitForTimeout(2500); await trig(); await p.waitForTimeout(400);
-    W.unknownAfterReload = { pending: await pend(), uploads: got.length - n0 };
-    await p.goto(URL0 + '#/profil'); await p.waitForSelector('#fbWifi', { timeout: 10000 }); await p.waitForTimeout(300);
-    W.profile = { wifiOnlyChecked: await p.isChecked('#fbWifi'), waitText: await p.evaluate(() => (document.getElementById('fbWifiWait') || {}).textContent || '') };
-    await p.screenshot({ path: OUT + `queue-wifiwait-${stamp}.png` });
-    await p.click('#fbSend'); await p.waitForTimeout(1200);
-    W.sendNow = { pending: await pend(), uploads: got.length - n0 };
-    await p.evaluate(() => localStorage.setItem('repcam.fb.netTest', 'cellular')); await p.click('#fbWifi'); await add('wificlip02'); await trig(); await p.waitForTimeout(800);
-    W.mobileDataAllowed = { wifiOnly: await p.evaluate(() => localStorage.getItem('repcam.fb.wifiOnly')), pending: await pend(), uploads: got.length - n0 };
-    await p.evaluate(() => { localStorage.setItem('repcam.fb.wifiOnly', '1'); localStorage.setItem('repcam.fb.netTest', 'wifi'); }); await add('wificlip03'); await trig(); await p.waitForTimeout(800);
-    W.wifiAuto = { pending: await pend(), uploads: got.length - n0 };
-    const wOk = W.cellular.pending === 1 && W.cellular.uploads === 0 && /venter på wifi/.test(W.cellular.badgeTitle) && W.unknownAfterReload.pending === 1 && W.unknownAfterReload.uploads === 0
-      && W.profile.wifiOnlyChecked && /venter på wifi/.test(W.profile.waitText) && W.sendNow.pending === 0 && W.sendNow.uploads === 3
-      && W.mobileDataAllowed.wifiOnly === '0' && W.mobileDataAllowed.pending === 0 && W.mobileDataAllowed.uploads === 6 && W.wifiAuto.pending === 0 && W.wifiAuto.uploads === 9;
-    const ok = wOk && st1.stats.pending === 1 && st1.badge.includes('1') && st2.stats.pending === 1 && st3.stats.pending === 0 && st3.stats.bytes === 0 && !st3.badge && got.length === 12 && !errs.length;
+    const setNet = v => p.evaluate(v => localStorage.setItem('repcam.fb.netTest', v), v);
+    const prof = async () => { await p.goto(URL0 + '#/profil'); await p.waitForSelector('#fbAny', { timeout: 10000 }); await p.waitForTimeout(400); };
+    const txt = sel => p.evaluate(s => (document.querySelector(s) || {}).textContent || '', sel);
+    const W = {}, up0 = () => got.filter(u => /^clip\//.test(u)).length; let c0;
+    await setNet('unknown'); netIp.v = '84.20.1.5'; c0 = up0(); await add('wificlip01'); await trig(); await p.waitForTimeout(300);
+    W.untrusted = { pending: await pend(), clips: up0() - c0, badgeTitle: await p.evaluate(() => document.getElementById('fbPendHome').title) };
+    await p.reload(); await p.waitForSelector('#view-home.on'); await p.waitForTimeout(2500); W.untrustedAfterReload = { pending: await pend(), clips: up0() - c0 };
+    await prof(); W.profile = { anyNetChecked: await p.isChecked('#fbAny'), now: await txt('#fbNetNow'), wait: await txt('#fbWifiWait'), nets: await txt('#fbNets') };
+    await p.screenshot({ path: OUT + `queue-wifiwait-${stamp}.png`, fullPage: true });
+    await p.click('#fbSend'); await p.waitForTimeout(1200); W.manual = { pending: await pend(), clips: up0() - c0, offer: !!(await p.$('#fbRemember')) };
+    await p.click('#fbRemember'); await p.waitForTimeout(800); W.remembered = { trustedHashes: netTrusted.size, nets: await txt('#fbNets'), now: await txt('#fbNetNow') };
+    await p.screenshot({ path: OUT + `queue-trusted-${stamp}.png`, fullPage: true });
+    c0 = up0(); await add('wificlip02'); await trig(); await p.waitForTimeout(800); W.trustedAuto = { pending: await pend(), clips: up0() - c0 };
+    netIp.v = '84.20.9.9'; c0 = up0(); await add('wificlip03'); await trig(); await p.waitForTimeout(500); W.ipChanged = { pending: await pend(), clips: up0() - c0 };
+    netIp.v = '84.20.1.5'; await trig(); await p.waitForTimeout(800); W.backHome = { pending: await pend(), clips: up0() - c0 };
+    await setNet('cellular'); c0 = up0(); await add('wificlip04'); await trig(); await p.waitForTimeout(500); W.cellularType = { pending: await pend(), clips: up0() - c0 };
+    await setNet('wifi'); await trig(); await p.waitForTimeout(800); W.wifiType = { pending: await pend(), clips: up0() - c0 };
+    await setNet('cellular'); await prof(); await p.click('#fbAny'); c0 = up0(); await add('wificlip05'); await trig(); await p.waitForTimeout(800);
+    W.anyNet = { wifiOnly: await p.evaluate(() => localStorage.getItem('repcam.fb.wifiOnly')), pending: await pend(), clips: up0() - c0 };
+    await p.evaluate(() => localStorage.setItem('repcam.fb.wifiOnly', '1')); await setNet('unknown'); await prof(); await p.click('.fbForget'); await p.waitForTimeout(600);
+    c0 = up0(); await add('wificlip06'); await trig(); await p.waitForTimeout(500); W.forgotten = { trustedHashes: netTrusted.size, pending: await pend(), clips: up0() - c0 };
+    const wOk = W.untrusted.pending === 1 && W.untrusted.clips === 0 && /venter på kjent wifi/.test(W.untrusted.badgeTitle) && W.untrustedAfterReload.pending === 1 && W.untrustedAfterReload.clips === 0
+      && !W.profile.anyNetChecked && /ukjent nett/.test(W.profile.now) && /Send nå for å sende likevel/.test(W.profile.wait)
+      && W.manual.pending === 0 && W.manual.clips === 1 && W.manual.offer && W.remembered.trustedHashes === 1 && /kjent wifi/.test(W.remembered.now)
+      && W.trustedAuto.pending === 0 && W.trustedAuto.clips === 1 && W.ipChanged.pending === 1 && W.ipChanged.clips === 0 && W.backHome.pending === 0 && W.backHome.clips === 1
+      && W.cellularType.pending === 1 && W.cellularType.clips === 0 && W.wifiType.pending === 0 && W.wifiType.clips === 1
+      && W.anyNet.wifiOnly === '0' && W.anyNet.pending === 0 && W.anyNet.clips === 1 && W.forgotten.trustedHashes === 0 && W.forgotten.pending === 1 && W.forgotten.clips === 0;
+    const ok = wOk && st1.stats.pending === 1 && st1.badge.includes('1') && st2.stats.pending === 1 && st3.stats.pending === 0 && st3.stats.bytes === 0 && !st3.badge && got.length === 3 + 3 * 5 && !errs.length;
     const proof = { tool: 'tools/verify.js queue', at: new Date().toISOString(), failed: st1, afterReload: st2, recovered: st3, wifi: W, uploads: got, ok, pageErrors: errs };
     fs.writeFileSync(OUT + `queue-${stamp}.json`, JSON.stringify(proof, null, 1));
     console.log(JSON.stringify(proof)); console.log(`${ok ? 'PASS' : 'FAIL'} queue · proof ${OUT}queue-{failed,recovered}-${stamp}.png / queue-${stamp}.json`); process.exitCode = ok ? 0 : 1;
