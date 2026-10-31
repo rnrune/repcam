@@ -27,7 +27,8 @@
   "notes": "head-on push-ups after kneeling setup; app 8.7 counted 8 (2 phantom reps paired at t=0.2 from pre-clip setup motion). Brief said GT 7; frame-by-frame review (4 fps) and the shoulder signal show 6 descents (bottoms ~4.3, 6.7, 9.0, 11.4, 13.7, 16.1 s) — Rune was unsure 7/8, re-check",
   "must": true,
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvmtju2917da1c69",
@@ -56,7 +57,8 @@
   "notes": "head-on push-ups after walking back + kneeling down; app 8.7 picked halvmark x7 @25 kg (default kg of halvmark). GT from Rune: 5 push-ups, 0 kg",
   "must": true,
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnn4l651c1e1196",
@@ -95,7 +97,8 @@
   "notes": "2026-10-25 session: bench 50kg x12 warm-up, side view, lies down ~90 s; 12 wrist-shoulder valleys 96.5-112.8 s",
   "regress": true,
   "tier": "core",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnn5r2m4dcaaed1",
@@ -122,8 +125,9 @@
   "labelEx": "knebøy",
   "notes": "2026-10-25 session: FIRST HALF of bench 80kg x6: app locked knebøy on 2 setup reps and autosaved 9 s later mid-set (set split); 3 presses at ~18.9/20.6/22.5 s Rune review 31 Oct: remove from test data (half set split by autosave).",
   "tier": "excluded",
-  "angle": null,
-  "review": "2026-10-31"
+  "angle": "front45",
+  "review": "2026-10-31",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnn63hcade41090",
@@ -152,7 +156,8 @@
   "notes": "2026-10-25 session: second half of the split 80kg x6 set (Rune corrected the label to 6 — whole set); 3 presses in this clip",
   "regress": true,
   "tier": "core",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnn79nr4e8f55a4",
@@ -181,8 +186,9 @@
   "labelEx": "situps",
   "notes": "2026-10-25 session: FIRST HALF of bench 100kg set 1 (app said situps 4); lies down ~37 s, presses at ~50/52/54 s then set split Rune review 31 Oct: remove from test data (half set split by autosave).",
   "tier": "excluded",
-  "angle": null,
-  "review": "2026-10-31"
+  "angle": "front45",
+  "review": "2026-10-31",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnn7o35d80c0438",
@@ -211,8 +217,9 @@
   "notes": "2026-10-25 session: second half of 100kg set 1 (label corrected to 6 = whole set); 3 presses here",
   "regress": true,
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "pass"
+  "angle": "front45",
+  "archivedFrom": "pass",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnauvh327e01f6",
@@ -244,12 +251,13 @@
   "labelEx": "benkpress",
   "notes": "2026-10-25 session: bench 100kg set 2 Rune review 31 Oct: reps 121.7-134.1 s, truth 6 (the 121.6 s movement is the rack-out).",
   "tier": "worst",
-  "angle": null,
+  "angle": "front45",
   "win": [
    121.7,
    134.1
   ],
-  "review": "2026-10-31"
+  "review": "2026-10-31",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnne20j922852c2",
@@ -282,7 +290,8 @@
   "notes": "2026-10-25 session: bench 100kg set 3",
   "regress": true,
   "tier": "core",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnh70nea07ec8a",
@@ -314,8 +323,9 @@
   "notes": "2026-10-25 session: bench 100kg set 4",
   "regress": true,
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "pass"
+  "angle": "front45",
+  "archivedFrom": "pass",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnni53q2857159c",
@@ -344,8 +354,9 @@
   "labelEx": "knebøy",
   "notes": "2026-10-25 session: between bench and pull-ups (moving around, oblique); app logged knebøy 4 — not a set",
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "pass"
+  "angle": "rear45",
+  "archivedFrom": "pass",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnjow896196e28",
@@ -377,7 +388,8 @@
   "notes": "2026-10-25 session: pull-ups +10 kg set 1 (label corrected skråbenk -> pullups)",
   "regress": true,
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnmlyb8d46d904",
@@ -407,8 +419,9 @@
   "labelEx": "pullups",
   "notes": "2026-10-25 session: pull-ups +10 kg set 2",
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnpi950c4573ee",
@@ -436,8 +449,9 @@
   "labelEx": "knebøy",
   "notes": "2026-10-25 session: pull-ups +10 kg set 3 at ~120-135 s; app said knebøy 3 Rune review 31 Oct: truth 6; the app misses the last rep at ~135.1 s.",
   "tier": "worst",
-  "angle": null,
-  "review": "2026-10-31"
+  "angle": "rear45",
+  "review": "2026-10-31",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnso2aea1f27b0",
@@ -472,8 +486,9 @@
    122.1,
    134.6
   ],
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnu10fd5aab31c",
@@ -504,8 +519,9 @@
   "labelEx": "halvmark",
   "notes": "2026-10-25 session: transition pull-ups -> incline (sitting/lying around); app logged halvmark 6 — not a set",
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnumk35bc1533f",
@@ -534,8 +550,9 @@
   "labelEx": "roing",
   "notes": "2026-10-25 session: setting up the incline bench; app logged roing 4 — not a set",
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnvm4m78a14062",
@@ -572,7 +589,8 @@
   "notes": "2026-10-25 session: incline 80kg set 1, frontal view; 8 valleys 16.8-30 s",
   "regress": true,
   "tier": "core",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnnyske91a727d2",
@@ -610,7 +628,8 @@
   "notes": "2026-10-25 session: incline 80kg set 2",
   "regress": true,
   "tier": "core",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvno21b4b03d0f8b",
@@ -645,8 +664,9 @@
   "notes": "2026-10-25 session: incline 80kg set 3",
   "regress": true,
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "pass"
+  "angle": "front45",
+  "archivedFrom": "pass",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvno2nrl20c2da02",
@@ -674,7 +694,8 @@
   "notes": "2026-10-25 session: after incline, moving the phone; app logged halvmark 2 — not a set",
   "regress": true,
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvno4ocl012d89f9",
@@ -707,7 +728,8 @@
   "labelEx": "dips",
   "notes": "2026-10-25 session: standing row 100kg set 1 (torso ~25-50 deg, knees bent) ~27-50 s; app said dips 8",
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvno6wnoab08c185",
@@ -745,7 +767,8 @@
   "labelEx": "roing",
   "notes": "2026-10-25 session: standing row 100kg set 2 ~74-92 s",
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnoa62be037036e",
@@ -774,8 +797,9 @@
   "labelEx": "halvmark",
   "notes": "2026-10-25 session: standing row 100kg set 3 ~114-131 s; app said halvmark 4",
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "pass"
+  "angle": "rear45",
+  "archivedFrom": "pass",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnoc4f7aa1e6640",
@@ -820,8 +844,9 @@
    57.9,
    85
   ],
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnoctaf7a668445",
@@ -854,7 +879,8 @@
   "labelEx": "roing",
   "notes": "2026-10-25 session: between dips and curls (phone handled/laid down); app logged roing 8 — not a set",
   "tier": "pass",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnoe7jm75332b16",
@@ -899,8 +925,9 @@
   "labelEx": "roing",
   "notes": "2026-10-25 session: EZ curl 40kg set 1, standing frontal; wrist peaks ~11.8-36 s; app said roing 20 Rune review 31 Oct: remove from test data.",
   "tier": "excluded",
-  "angle": null,
-  "review": "2026-10-31"
+  "angle": "rear45",
+  "review": "2026-10-31",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnogfwn500e341f",
@@ -938,8 +965,9 @@
   "labelEx": "dips",
   "notes": "2026-10-25 session: dips +15 kg set 2 Rune review 31 Oct: dismount starts 92.5 s, 12 reps before it (the 94.0 s 'rep' is the dismount).",
   "tier": "worst",
-  "angle": null,
-  "review": "2026-10-31"
+  "angle": "rear45",
+  "review": "2026-10-31",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnohgsi2c916059",
@@ -974,7 +1002,8 @@
   "notes": "2026-10-25 session: EZ curl 40kg set 2, peaks ~5.5-27 s; app said knebøy 9",
   "regress": true,
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvnok2vt347693bc",
@@ -1016,7 +1045,8 @@
   "notes": "2026-10-25 session: dips +15 kg set 3 (third curl set has no clip)",
   "regress": true,
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "rvmvp56r670f42e340",
@@ -1050,7 +1080,8 @@
   "labelEx": "benkpress",
   "notes": "review mode wc-01 (Wikimedia), Rune: 3 benkpress · Rune review: 2 (comment «Starter og slutter midt i») · excluded v8.14 prune: edited web demo (replay rep times jump back = looped/cut footage), not one continuous take",
   "tier": "excluded",
-  "angle": null
+  "angle": null,
+  "angleNote": "web clip, not Rune's own — angle not set"
  },
  {
   "id": "rvmvp5852nf5306b2a",
@@ -1080,7 +1111,8 @@
   "labelEx": "skråbenk",
   "notes": "review mode wc-03 (Wikimedia), Rune: 2 skråbenk · excluded v8.14: edited demo, cuts/angle changes (13 landmark jumps), not reviewed",
   "tier": "excluded",
-  "angle": null
+  "angle": null,
+  "angleNote": "web clip, not Rune's own — angle not set"
  },
  {
   "id": "rvmvp58x3t552fc13b",
@@ -1113,7 +1145,8 @@
   "labelEx": "knebøy",
   "notes": "review mode wc-04 (Wikimedia), Rune: 2 knebøy · Rune review: 2 · excluded v8.14 prune: edited web demo (replay rep times jump back = looped/cut footage), not one continuous take",
   "tier": "excluded",
-  "angle": null
+  "angle": null,
+  "angleNote": "web clip, not Rune's own — angle not set"
  },
  {
   "id": "rvmvp59jkd18db8960",
@@ -1145,7 +1178,8 @@
   "labelEx": "halvmark",
   "notes": "review mode wc-05 (Wikimedia), Rune: 2 halvmark · Rune review: 2 · excluded v8.14 prune: edited web demo (replay rep times jump back = looped/cut footage), not one continuous take",
   "tier": "excluded",
-  "angle": null
+  "angle": null,
+  "angleNote": "web clip, not Rune's own — angle not set"
  },
  {
   "id": "rvmvp5cxw223f1866e",
@@ -1178,7 +1212,8 @@
   "labelEx": "pullups",
   "notes": "review mode wc-07 (Wikimedia), Rune: 2 pullups · Rune review: 2 · excluded v8.14 prune: edited web demo (replay rep times jump back = looped/cut footage), not one continuous take",
   "tier": "excluded",
-  "angle": null
+  "angle": null,
+  "angleNote": "web clip, not Rune's own — angle not set"
  },
  {
   "id": "rvmvp5n7j4e13f42bd",
@@ -1211,7 +1246,8 @@
   "labelEx": "roing",
   "notes": "review mode wc-12 (Wikimedia), Rune: 2 roing — 2 fullstendige reps · Rune review: «2 komplette reps» · excluded v8.14 prune: edited web demo (replay rep times jump back = looped/cut footage), not one continuous take",
   "tier": "excluded",
-  "angle": null
+  "angle": null,
+  "angleNote": "web clip, not Rune's own — angle not set"
  },
  {
   "id": "mvr3cnad21805e00",
@@ -1234,7 +1270,8 @@
   "labelReps": 12,
   "notes": "knebøy 12x50 kg in a power rack (2026-10-27 session) | Rune review 31 Oct: removed from test data.",
   "tier": "excluded",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3ehf7d7e3da93",
@@ -1261,8 +1298,9 @@
    51,
    1000000000.0
   ],
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3gojt95bd64ea",
@@ -1285,7 +1323,8 @@
   "labelReps": 8,
   "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session)",
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3k128fb810868",
@@ -1312,7 +1351,8 @@
    118,
    134.0
   ],
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3naxy72228481",
@@ -1335,7 +1375,8 @@
   "labelReps": 8,
   "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session)",
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3phm88e08d970",
@@ -1363,7 +1404,8 @@
    31.9,
    52.9
   ],
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3slr3ddbdbd01",
@@ -1387,7 +1429,8 @@
   "notes": "RDL set 2; app 8.12 logged it as situps x9 · Rune in-app: 9 × 100 kg",
   "tier": "core",
   "kgTrue": 100,
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3vtnn4fb621e5",
@@ -1411,7 +1454,8 @@
   "notes": "RDL set 3 after ~85 s of standing rest · Rune in-app: 9 × 100 kg",
   "tier": "core",
   "kgTrue": 100,
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3yc9wa4bdef61",
@@ -1434,7 +1478,8 @@
   "labelReps": 8,
   "notes": "Bulgarian split squat 70 kg, BOTH legs in this clip (Rune review 2026-10-27: «8 rep per bein. 16 totalt»); oblique, legs hidden behind the bench · excluded: legs hidden behind bench, exercise not clearly visible",
   "tier": "excluded",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3nq3e5c6cddac",
@@ -1457,8 +1502,9 @@
   "labelReps": 2,
   "notes": "rigging/loading plates between sets (app 8.12: false curl x2)",
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3o841cd8387e6",
@@ -1481,8 +1527,9 @@
   "labelReps": 2,
   "notes": "rigging between sets (app 8.12: false halvmark x2)",
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "pass"
+  "angle": "rear45",
+  "archivedFrom": "pass",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3rto36e8c9504",
@@ -1505,7 +1552,8 @@
   "labelReps": 3,
   "notes": "rest: talking at phone, stretching, walking (app 8.12: false curl x3)",
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3x5c841129b1d",
@@ -1528,8 +1576,9 @@
   "labelReps": 2,
   "notes": "rigging (app 8.12: false knebøy x2 @100)",
   "tier": "archive",
-  "angle": null,
-  "archivedFrom": "pass"
+  "angle": "rear45",
+  "archivedFrom": "pass",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr3ztyba5399299",
@@ -1552,7 +1601,8 @@
   "labelReps": 2,
   "notes": "rest: sitting close to phone talking (app 8.12: false roing x2)",
   "tier": "core",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr4g3o2db25cd16-s2",
@@ -1578,7 +1628,9 @@
    200
   ],
   "notes": "V-situp set 2 (20 × 15 kg plate), side view on the floor; the app saved NO set for it (one 349 s recording holds sets 2 and 3)",
-  "angle": null
+  "angle": "side",
+  "angleNote": "≈10° off side",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvr4g3o2db25cd16-s3",
@@ -1604,8 +1656,10 @@
    338.3
   ],
   "notes": "V-situp set 3 (12 × 15 kg); app 8.11 logged benkpress 12 × 100 Rune review 31 Oct: reps 316.5-338.3 s, truth 12 (341.8 s is not a rep).",
-  "angle": null,
-  "review": "2026-10-31"
+  "angle": "side",
+  "review": "2026-10-31",
+  "angleNote": "≈10° off side",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvveg0gceee8b71a",
@@ -1632,7 +1686,8 @@
   "facing": "user",
   "app": "8.16",
   "label": "implicit",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvelxx5-bench",
@@ -1654,7 +1709,8 @@
   "facing": "user",
   "app": "8.16",
   "label": "implicit",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvelxx5-rest",
@@ -1683,7 +1739,8 @@
   "facing": "user",
   "app": "8.16",
   "label": "implicit",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvehvtk67c340d1",
@@ -1702,7 +1759,8 @@
   "label": "corrected",
   "notes": "30 Oct: benk 50 kg x15, app exact (kg corrected 100->50). Excluded only because benkpress is over the ~5 clip cap; landmarks kept.",
   "tier": "excluded",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvven1et4abb932d",
@@ -1721,7 +1779,8 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvesvuf8b56e08a",
@@ -1740,7 +1799,8 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvevvpuf7cf26c0",
@@ -1759,8 +1819,9 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvez2adbd7812a5",
@@ -1779,7 +1840,8 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvf26hgc6ccdffd",
@@ -1798,8 +1860,9 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvf3dw609eb9629",
@@ -1818,8 +1881,9 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvf4x3931b8aeeb",
@@ -1838,8 +1902,9 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null,
-  "review": "2026-10-31"
+  "angle": "front45",
+  "review": "2026-10-31",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvf7yz657e4bbcc",
@@ -1858,7 +1923,8 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvfb0fq2671c83e",
@@ -1877,7 +1943,8 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null
+  "angle": "front45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvfd85j87a47b4b",
@@ -1896,7 +1963,8 @@
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvffzgp433b4511",
@@ -1915,8 +1983,9 @@
   "view": "front",
   "facing": "user",
   "app": "8.16",
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvfl1ka-row",
@@ -1940,8 +2009,9 @@
    0,
    190
   ],
-  "angle": null,
-  "review": "2026-10-31"
+  "angle": "rear45",
+  "review": "2026-10-31",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvfl1ka-dips",
@@ -1965,8 +2035,9 @@
    190,
    236
   ],
-  "angle": null,
-  "archivedFrom": "worst"
+  "angle": "rear45",
+  "archivedFrom": "worst",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvfo3h7de7ad609",
@@ -1985,7 +2056,8 @@
   "view": "front",
   "facing": "user",
   "app": "8.16",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvfp3sp39090326",
@@ -2004,7 +2076,8 @@
   "view": "front",
   "facing": "user",
   "app": "8.16",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvfrgoaeb40e212",
@@ -2023,7 +2096,8 @@
   "view": "oblique",
   "facing": "user",
   "app": "8.16",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvfsawp67eb0973",
@@ -2042,7 +2116,8 @@
   "view": "front",
   "facing": "user",
   "app": "8.16",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvw6fsc9ea28c668",
@@ -2061,7 +2136,8 @@
   "view": "front",
   "facing": "user",
   "app": "8.29",
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  },
  {
   "id": "mvvfr0478a996584",
@@ -2084,6 +2160,7 @@
    41,
    59
   ],
-  "angle": null
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-10-31"
  }
 ]
