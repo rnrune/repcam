@@ -129,8 +129,8 @@ $('ok').onclick = () => submit('corrected'); $('rm').onclick = () => submit('rem
 $('tStart').onclick = () => { if (sk) { $('tFrom').value = sk.t.toFixed(1); drawTl(); } }; $('tEnd').onclick = () => { if (sk) { $('tTo').value = sk.t.toFixed(1); drawTl(); } }; $('tClr').onclick = () => { $('tFrom').value = $('tTo').value = ''; drawTl(); }; $('skip').onclick = () => submit('skip'); $('none').onclick = () => submit('notASet');
 $('reset').onclick = e => { e.preventDefault(); LS.removeItem(DONE); next(); };
 // own uncertain clips first, then the web clips
-const own = await fetch('review-own.json?v=8.22').then(r => r.ok ? r.json() : []).catch(() => []);
-clips = [...own, ...await (await fetch('review-clips.json?v=8.22')).json()]; next(); loop();
+const own = await fetch('review-own.json?v=8.30r1').then(r => r.ok ? r.json() : []).catch(() => []);
+clips = [...own, ...await (await fetch('review-clips.json?v=8.30r1')).json()]; next(); loop();
 const { PoseLandmarker, FilesetResolver } = await import(VISION);
 const fs = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
 const opts = d => ({ baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task", delegate: d }, runningMode: "VIDEO", numPoses: 1 });
