@@ -1,0 +1,4023 @@
+{
+ "mvveg0gceee8b71a": {
+  "setTs": "2026-10-30T20:02:55.609Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "bulgarsk",
+   "reps": 6,
+   "kg": 70,
+   "auto": true
+  },
+  "repTimes": [
+   52.59,
+   58.42,
+   61.99,
+   68.95,
+   72.6,
+   75.42
+  ],
+  "durationS": 85.71,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 7770394,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "bulgarsk",
+   "reps": 0,
+   "kg": 70,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-30T20:02:55.609Z",
+   "at": "2026-10-30T21:18:28.577Z",
+   "_received": "2026-10-30T21:18:30.179Z"
+  }
+ },
+ "mvvehvtk67c340d1": {
+  "setTs": "2026-10-30T20:04:22.994Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 15,
+   "kg": 100,
+   "auto": true
+  },
+  "repTimes": [
+   52.02,
+   53.54,
+   54.86,
+   56.29,
+   57.54,
+   58.83,
+   60.14,
+   61.48,
+   62.8,
+   64.14,
+   65.49,
+   66.94,
+   68.26,
+   69.68,
+   71.17
+  ],
+  "durationS": 87.39,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 9670379,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "benkpress",
+   "reps": 15,
+   "kg": 50,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:04:22.994Z",
+   "at": "2026-10-30T20:04:52.798Z",
+   "_received": "2026-10-30T20:04:53.679Z"
+  }
+ },
+ "mvvelxx5526d7df0": {
+  "setTs": "2026-10-30T20:07:32.335Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "dips",
+   "reps": 3,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   173.4,
+   176.63,
+   179.31
+  ],
+  "durationS": 189.35,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 21163791,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "dips",
+   "reps": 0,
+   "kg": 0,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-30T20:07:32.335Z",
+   "at": "2026-10-30T21:18:33.595Z",
+   "_received": "2026-10-30T21:18:34.654Z"
+  }
+ },
+ "mvven1et4abb932d": {
+  "setTs": "2026-10-30T20:08:23.518Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 12,
+   "kg": 50,
+   "auto": true
+  },
+  "repTimes": [
+   14.9,
+   16.09,
+   17.43,
+   18.74,
+   20.16,
+   21.53,
+   24.75,
+   26.71,
+   28.34,
+   30.22,
+   33.55,
+   36.85
+  ],
+  "durationS": 51.19,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 5671828,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "benkpress",
+   "reps": 12,
+   "kg": 80,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:08:23.518Z",
+   "at": "2026-10-30T21:06:32.044Z",
+   "_received": "2026-10-30T21:06:32.875Z"
+  }
+ },
+ "mvveorge55a3f902": {
+  "setTs": "2026-10-30T20:09:43.884Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "dips",
+   "reps": 5,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   15.06,
+   21.74,
+   26.95,
+   29.9,
+   30.59
+  ],
+  "durationS": 51.46,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 5746822,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "benkpress",
+   "reps": 12,
+   "kg": 80,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:09:43.884Z",
+   "at": "2026-10-30T21:06:46.074Z",
+   "_received": "2026-10-30T21:06:47.409Z"
+  }
+ },
+ "mvvesvuf8b56e08a": {
+  "setTs": "2026-10-30T20:12:56.240Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 7,
+   "kg": 10,
+   "auto": true
+  },
+  "repTimes": [
+   81.18,
+   82.98,
+   84.55,
+   86.32,
+   87.99,
+   89.69,
+   91.5
+  ],
+  "durationS": 101.39,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 11300145,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "pullups",
+   "reps": 8,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:12:56.240Z",
+   "at": "2026-10-30T21:08:43.875Z",
+   "_received": "2026-10-30T21:08:44.864Z"
+  }
+ },
+ "mvvevvpuf7cf26c0": {
+  "setTs": "2026-10-30T20:15:16.042Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 7,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   119.48,
+   121.14,
+   122.79,
+   124.49,
+   126.18,
+   128,
+   129.91
+  ],
+  "durationS": 139.81,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 15641812,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "pullups",
+   "reps": 8,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps"
+   ],
+   "setTs": "2026-10-30T20:15:16.042Z",
+   "at": "2026-10-30T21:08:58.273Z",
+   "_received": "2026-10-30T21:08:59.611Z"
+  }
+ },
+ "mvvez2adbd7812a5": {
+  "setTs": "2026-10-30T20:17:44.525Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 6,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   130.42,
+   132.01,
+   133.69,
+   135.34,
+   136.97,
+   138.76
+  ],
+  "durationS": 148.49,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 16518643,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "pullups",
+   "reps": 8,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps"
+   ],
+   "setTs": "2026-10-30T20:17:44.525Z",
+   "at": "2026-10-30T21:40:50.942Z",
+   "_received": "2026-10-30T21:40:51.416Z"
+  }
+ },
+ "mvvf26hgc6ccdffd": {
+  "setTs": "2026-10-30T20:20:09.932Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 7,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   92.79,
+   94.34,
+   95.89,
+   97.54,
+   99.07,
+   100.74,
+   104.43
+  ],
+  "durationS": 114.95,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 12761159,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "pullups",
+   "reps": 8,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps"
+   ],
+   "setTs": "2026-10-30T20:20:09.932Z",
+   "at": "2026-10-30T21:09:48.314Z",
+   "_received": "2026-10-30T21:09:49.173Z"
+  }
+ },
+ "mvvf3dw609eb9629": {
+  "setTs": "2026-10-30T20:21:06.194Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 3,
+   "kg": 100,
+   "auto": true
+  },
+  "repTimes": [
+   30.31,
+   40.42,
+   45.75
+  ],
+  "durationS": 56.27,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 6282575,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "halvmark",
+   "reps": 0,
+   "kg": 100,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-30T20:21:06.194Z",
+   "at": "2026-10-30T21:18:46.978Z",
+   "_received": "2026-10-30T21:18:48.471Z"
+  }
+ },
+ "mvvf3zaq7389345d": {
+  "setTs": "2026-10-30T20:21:33.934Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "roing",
+   "reps": 5,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   4.77,
+   9.26,
+   11.28,
+   13.13,
+   17.29
+  ],
+  "durationS": 27.74,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 3058162,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "skråbenk",
+   "reps": 12,
+   "kg": 70,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:21:33.934Z",
+   "at": "2026-10-30T21:18:51.191Z",
+   "_received": "2026-10-30T21:18:52.505Z"
+  }
+ },
+ "mvvf4x3931b8aeeb": {
+  "setTs": "2026-10-30T20:22:17.724Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 12,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   10.12,
+   11.25,
+   12.36,
+   13.79,
+   15.09,
+   16.35,
+   17.59,
+   18.95,
+   20.42,
+   21.85,
+   23.57,
+   25.52
+  ],
+  "durationS": 43.8,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 4886109,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "skråbenk",
+   "reps": 10,
+   "kg": 70,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:22:17.724Z",
+   "at": "2026-10-30T21:10:30.666Z",
+   "_received": "2026-10-30T21:10:31.519Z"
+  }
+ },
+ "mvvf7yz657e4bbcc": {
+  "setTs": "2026-10-30T20:24:40.137Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "roing",
+   "reps": 11,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   78.65,
+   79.69,
+   80.83,
+   82.15,
+   83.63,
+   85.03,
+   86.58,
+   88.9,
+   90.72,
+   93.37,
+   97.35
+  ],
+  "durationS": 112.06,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 12527770,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "skråbenk",
+   "reps": 10,
+   "kg": 70,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:24:40.137Z",
+   "at": "2026-10-30T21:10:45.444Z",
+   "_received": "2026-10-30T21:10:46.347Z"
+  }
+ },
+ "mvvfb0fq2671c83e": {
+  "setTs": "2026-10-30T20:27:01.999Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 10,
+   "kg": 70,
+   "auto": true
+  },
+  "repTimes": [
+   112.65,
+   113.88,
+   115.29,
+   116.69,
+   118.03,
+   119.63,
+   122.59,
+   124.57,
+   127.58,
+   130.85
+  ],
+  "durationS": 141.87,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 15840233,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "skråbenk",
+   "reps": 0,
+   "kg": 70,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-30T20:27:01.999Z",
+   "at": "2026-10-30T21:40:26.309Z",
+   "_received": "2026-10-30T21:40:26.979Z"
+  }
+ },
+ "mvvfd85j87a47b4b": {
+  "setTs": "2026-10-30T20:28:45.311Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "roing",
+   "reps": 4,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   67.61,
+   84.59,
+   86.54,
+   93.39
+  ],
+  "durationS": 103.32,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 11527348,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "roing",
+   "reps": 10,
+   "kg": 90,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:28:45.311Z",
+   "at": "2026-10-30T21:39:07.909Z",
+   "_received": "2026-10-30T21:39:08.690Z"
+  }
+ },
+ "mvvffzgp433b4511": {
+  "setTs": "2026-10-30T20:30:54.018Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "roing",
+   "reps": 10,
+   "kg": 90,
+   "auto": true
+  },
+  "repTimes": [
+   106.59,
+   107.59,
+   108.63,
+   109.74,
+   110.85,
+   112.01,
+   113.17,
+   114.41,
+   115.68,
+   117.14
+  ],
+  "durationS": 128.71,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 14303447,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "confirmed",
+   "exercise": "roing",
+   "reps": 10,
+   "kg": 90,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-30T20:30:54.018Z",
+   "at": "2026-10-30T21:28:37.416Z",
+   "_received": "2026-10-30T21:28:38.223Z"
+  }
+ },
+ "mvvfl1ka048fe127": {
+  "setTs": "2026-10-30T20:34:50.018Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "dips",
+   "reps": 13,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   202.59,
+   204.08,
+   205.61,
+   207.08,
+   208.45,
+   209.83,
+   211.23,
+   212.68,
+   214.07,
+   215.58,
+   217.12,
+   218.73,
+   220.82
+  ],
+  "durationS": 236,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 26300544,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "roing",
+   "reps": 10,
+   "kg": 90,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:34:50.018Z",
+   "at": "2026-10-30T21:28:52.996Z",
+   "_received": "2026-10-30T21:28:54.398Z"
+  }
+ },
+ "mvvfmblba6ab7c02": {
+  "setTs": "2026-10-30T20:35:49.674Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "curl",
+   "reps": 11,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   25.82,
+   27.75,
+   31.32,
+   32.87,
+   34.47,
+   36.07,
+   37.63,
+   39.29,
+   40.84,
+   42.62,
+   44.53
+  ],
+  "durationS": 59.66,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 6716061,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "curl",
+   "reps": 0,
+   "kg": 20,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-30T20:35:49.674Z",
+   "at": "2026-10-30T21:39:12.248Z",
+   "_received": "2026-10-30T21:39:13.049Z"
+  }
+ },
+ "mvvfo3h7de7ad609": {
+  "setTs": "2026-10-30T20:37:12.469Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "dips",
+   "reps": 7,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   60.69,
+   61.96,
+   63.22,
+   64.47,
+   65.74,
+   67.12,
+   68.69
+  ],
+  "durationS": 82.8,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 9242791,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "dips",
+   "reps": 12,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps"
+   ],
+   "setTs": "2026-10-30T20:37:12.469Z",
+   "at": "2026-10-30T21:39:36.605Z",
+   "_received": "2026-10-30T21:39:37.128Z"
+  }
+ },
+ "mvvfp3sp39090326": {
+  "setTs": "2026-10-30T20:37:59.539Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "curl",
+   "reps": 12,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   19.32,
+   20.92,
+   22.38,
+   23.81,
+   25.25,
+   26.65,
+   28.17,
+   29.76,
+   31.33,
+   32.94,
+   34.6,
+   37.03
+  ],
+  "durationS": 47.08,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 5277468,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "curl",
+   "reps": 12,
+   "kg": 30,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-30T20:37:59.539Z",
+   "at": "2026-10-30T21:38:42.634Z",
+   "_received": "2026-10-30T21:38:43.092Z"
+  }
+ },
+ "mvvfphhq23aa5582": {
+  "setTs": "2026-10-30T20:38:17.289Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "bulgarsk",
+   "reps": 5,
+   "kg": 70,
+   "auto": true
+  },
+  "repTimes": [
+   4.62,
+   6.49,
+   8.09,
+   10.67,
+   14.57
+  ],
+  "durationS": 17.75,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 2014867,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "bulgarsk",
+   "reps": 0,
+   "kg": 70,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-30T20:38:17.289Z",
+   "at": "2026-10-30T21:39:46.731Z",
+   "_received": "2026-10-30T21:39:48.054Z"
+  }
+ },
+ "mvvfrgoaeb40e212": {
+  "setTs": "2026-10-30T20:39:49.540Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "dips",
+   "reps": 2,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   11.06,
+   12.23
+  ],
+  "durationS": 21.46,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 2409861,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "curl",
+   "reps": 12,
+   "kg": 30,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:39:49.540Z",
+   "at": "2026-10-30T21:40:47.477Z",
+   "_received": "2026-10-30T21:40:48.845Z"
+  }
+ },
+ "mvvfsawp67eb0973": {
+  "setTs": "2026-10-30T20:40:28.721Z",
+  "app": "8.16",
+  "pred": {
+   "exercise": "curl",
+   "reps": 14,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   6.75,
+   8.01,
+   9.42,
+   10.86,
+   12.3,
+   13.76,
+   15.2,
+   17.24,
+   18.8,
+   20.24,
+   22.43,
+   25.05,
+   27.42,
+   29.55
+  ],
+  "durationS": 39.19,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 4444284,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "dips",
+   "reps": 12,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-30T20:40:28.721Z",
+   "at": "2026-10-30T21:40:09.869Z",
+   "_received": "2026-10-30T21:40:10.368Z"
+  }
+ },
+ "mvmtfqlo8d46051c": {
+  "setTs": "2026-10-24T19:52:41.570Z",
+  "app": "8.7",
+  "pred": {
+   "exercise": "armhevinger",
+   "reps": 8,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   0.2,
+   0.2,
+   5.95,
+   8.37,
+   10.73,
+   13.2,
+   15.56,
+   18.01
+  ],
+  "durationS": 27.06,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 3104079,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "armhevinger",
+   "reps": 8,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-24T19:52:41.570Z",
+   "at": "2026-10-24T19:52:51.472Z",
+   "_received": "2026-10-24T19:52:52.468Z"
+  }
+ },
+ "mvmtju2917da1c69": {
+  "setTs": "2026-10-24T19:55:52.682Z",
+  "app": "8.7",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 7,
+   "kg": 25,
+   "auto": true
+  },
+  "repTimes": [
+   11.83,
+   11.83,
+   14.08,
+   15.88,
+   17.72,
+   19.55,
+   21.59
+  ],
+  "durationS": 30.64,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 3491122,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "halvmark",
+   "reps": 7,
+   "kg": 25,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-24T19:55:52.682Z",
+   "at": "2026-10-24T19:56:03.938Z",
+   "_received": "2026-10-24T19:56:04.977Z"
+  }
+ },
+ "mvnn4l651c1e1196": {
+  "setTs": "2026-10-25T09:43:49.768Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 13,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   97.49,
+   99.05,
+   100.48,
+   101.93,
+   103.34,
+   104.82,
+   106.18,
+   107.65,
+   108.97,
+   110.45,
+   111.93,
+   113.51,
+   118.14
+  ],
+  "durationS": 127.7,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 14056005,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "benkpress",
+   "reps": 13,
+   "kg": 20,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T09:43:49.768Z",
+   "at": "2026-10-25T09:44:27.887Z",
+   "_received": "2026-10-25T09:44:28.797Z"
+  }
+ },
+ "mvnn5r2m4dcaaed1": {
+  "setTs": "2026-10-25T09:44:44.106Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 2,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   9.14,
+   13.5
+  ],
+  "durationS": 23.31,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 2815856,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "knebøy",
+   "reps": 2,
+   "kg": 20,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T09:44:44.106Z",
+   "at": "2026-10-25T09:44:56.303Z",
+   "_received": "2026-10-25T09:44:56.857Z"
+  }
+ },
+ "mvnn63hcade41090": {
+  "setTs": "2026-10-25T09:45:00.159Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 3,
+   "kg": 50,
+   "auto": true
+  },
+  "repTimes": [
+   2.21,
+   4.02,
+   5.88
+  ],
+  "durationS": 16.09,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 1786348,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "benkpress",
+   "reps": 6,
+   "kg": 80,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-25T09:45:00.159Z",
+   "at": "2026-10-25T09:45:13.483Z",
+   "_received": "2026-10-25T09:45:14.861Z"
+  }
+ },
+ "mvnn79nr4e8f55a4": {
+  "setTs": "2026-10-25T09:45:54.815Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "situps",
+   "reps": 4,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   26.33,
+   31.5,
+   38.71,
+   41.02
+  ],
+  "durationS": 54.7,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 6279039,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "situps",
+   "reps": 4,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T09:45:54.815Z",
+   "at": "2026-10-25T09:46:10.885Z",
+   "_received": "2026-10-25T09:46:11.434Z"
+  }
+ },
+ "mvnn7o35d80c0438": {
+  "setTs": "2026-10-25T09:46:13.512Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 3,
+   "kg": 80,
+   "auto": true
+  },
+  "repTimes": [
+   2.27,
+   4.33,
+   8.2
+  ],
+  "durationS": 18.74,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 2274414,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "benkpress",
+   "reps": 6,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-25T09:46:13.512Z",
+   "at": "2026-10-25T09:46:30.008Z",
+   "_received": "2026-10-25T09:46:31.598Z"
+  }
+ },
+ "mvnnauvh327e01f6": {
+  "setTs": "2026-10-25T09:48:42.308Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 7,
+   "kg": 100,
+   "auto": true
+  },
+  "repTimes": [
+   123.19,
+   124.97,
+   126.62,
+   128.41,
+   130.66,
+   133.91,
+   138.84
+  ],
+  "durationS": 148.8,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 16549407,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "benkpress",
+   "reps": 7,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T09:48:42.308Z",
+   "at": "2026-10-25T09:49:07.751Z",
+   "_received": "2026-10-25T09:49:08.604Z"
+  }
+ },
+ "mvnne20j922852c2": {
+  "setTs": "2026-10-25T09:51:11.499Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 7,
+   "kg": 100,
+   "auto": true
+  },
+  "repTimes": [
+   124.36,
+   125.9,
+   127.4,
+   129.29,
+   131.09,
+   134.25,
+   139.48
+  ],
+  "durationS": 149.23,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 16502580,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "benkpress",
+   "reps": 7,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T09:51:11.499Z",
+   "at": "2026-10-25T09:51:38.541Z",
+   "_received": "2026-10-25T09:51:39.071Z"
+  }
+ },
+ "mvnnh70nea07ec8a": {
+  "setTs": "2026-10-25T09:53:37.982Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 6,
+   "kg": 100,
+   "auto": true
+  },
+  "repTimes": [
+   122.73,
+   124.49,
+   126.2,
+   128.1,
+   131.18,
+   134.78
+  ],
+  "durationS": 146.49,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 16189059,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "benkpress",
+   "reps": 6,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T09:53:37.982Z",
+   "at": "2026-10-25T09:54:05.109Z",
+   "_received": "2026-10-25T09:54:06.340Z"
+  }
+ },
+ "mvnni53q2857159c": {
+  "setTs": "2026-10-25T09:54:22.159Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 4,
+   "kg": 22.5,
+   "auto": true
+  },
+  "repTimes": [
+   14.34,
+   18.81,
+   26.74,
+   34.1
+  ],
+  "durationS": 44.18,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 4886641,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "knebøy",
+   "reps": 4,
+   "kg": 22.5,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T09:54:22.159Z",
+   "at": "2026-10-25T09:54:35.490Z",
+   "_received": "2026-10-25T09:54:36.812Z"
+  }
+ },
+ "mvnnjow896196e28": {
+  "setTs": "2026-10-25T09:55:34.467Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 6,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   51.85,
+   53.92,
+   55.78,
+   57.98,
+   60.56,
+   62.79
+  ],
+  "durationS": 72.31,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 7995118,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "pullups",
+   "reps": 6,
+   "kg": 10,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "kg"
+   ],
+   "setTs": "2026-10-25T09:55:34.467Z",
+   "at": "2026-10-25T09:55:56.619Z",
+   "_received": "2026-10-25T09:55:57.556Z"
+  }
+ },
+ "mvnnmlyb8d46d904": {
+  "setTs": "2026-10-25T09:57:50.616Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 5,
+   "kg": 10,
+   "auto": true
+  },
+  "repTimes": [
+   88.01,
+   89.61,
+   91.22,
+   92.96,
+   94.81
+  ],
+  "durationS": 105.9,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 11790614,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "pullups",
+   "reps": 5,
+   "kg": 10,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T09:57:50.616Z",
+   "at": "2026-10-25T09:58:21.072Z",
+   "_received": "2026-10-25T09:58:21.930Z"
+  }
+ },
+ "mvnnpi950c4573ee": {
+  "setTs": "2026-10-25T10:00:05.796Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 3,
+   "kg": 22.5,
+   "auto": true
+  },
+  "repTimes": [
+   117.55,
+   119.45,
+   125.78
+  ],
+  "durationS": 135.19,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 14948611,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "knebøy",
+   "reps": 3,
+   "kg": 22.5,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:00:05.796Z",
+   "at": "2026-10-25T10:00:45.217Z",
+   "_received": "2026-10-25T10:00:46.098Z"
+  }
+ },
+ "mvnnso2aea1f27b0": {
+  "setTs": "2026-10-25T10:02:33.292Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 6,
+   "kg": 10,
+   "auto": true
+  },
+  "repTimes": [
+   127.82,
+   129.41,
+   130.98,
+   132.6,
+   134.34,
+   137.96
+  ],
+  "durationS": 147.5,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 16370247,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "pullups",
+   "reps": 6,
+   "kg": 10,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:02:33.292Z",
+   "at": "2026-10-25T10:03:05.559Z",
+   "_received": "2026-10-25T10:03:06.430Z"
+  }
+ },
+ "mvnnu10fd5aab31c": {
+  "setTs": "2026-10-25T10:03:36.695Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 6,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   22.29,
+   29.87,
+   37.87,
+   42.34,
+   49.49,
+   53.31
+  ],
+  "durationS": 63.44,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 7003347,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "halvmark",
+   "reps": 6,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:03:36.695Z",
+   "at": "2026-10-25T10:03:55.361Z",
+   "_received": "2026-10-25T10:03:56.715Z"
+  }
+ },
+ "mvnnumk35bc1533f": {
+  "setTs": "2026-10-25T10:04:04.653Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "roing",
+   "reps": 4,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   12.15,
+   14.08,
+   15.27,
+   17.15
+  ],
+  "durationS": 27.96,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 3098490,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "roing",
+   "reps": 4,
+   "kg": 30,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:04:04.653Z",
+   "at": "2026-10-25T10:04:21.896Z",
+   "_received": "2026-10-25T10:04:22.991Z"
+  }
+ },
+ "mvnnvm4m78a14062": {
+  "setTs": "2026-10-25T10:04:50.752Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 11,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   5.71,
+   17.59,
+   19.11,
+   20.68,
+   22.07,
+   23.83,
+   25.61,
+   27.72,
+   30.78,
+   35.73,
+   45.96
+  ],
+  "durationS": 46.1,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 5074893,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "skråbenk",
+   "reps": 11,
+   "kg": 20,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:04:50.752Z",
+   "at": "2026-10-25T10:05:07.188Z",
+   "_received": "2026-10-25T10:05:08.581Z"
+  }
+ },
+ "mvnnyske91a727d2": {
+  "setTs": "2026-10-25T10:07:19.063Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 12,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   107.49,
+   108.8,
+   111.78,
+   121.5,
+   122.73,
+   124,
+   125.45,
+   126.96,
+   128.61,
+   131.19,
+   134.3,
+   139.09
+  ],
+  "durationS": 148.32,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 16408655,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "skråbenk",
+   "reps": 12,
+   "kg": 20,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:07:19.063Z",
+   "at": "2026-10-25T10:08:08.374Z",
+   "_received": "2026-10-25T10:08:09.265Z"
+  }
+ },
+ "mvno21b4b03d0f8b": {
+  "setTs": "2026-10-25T10:09:50.361Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 9,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   91.97,
+   93.28,
+   94.58,
+   96.13,
+   97.73,
+   99.71,
+   103.45,
+   106.75,
+   110.91
+  ],
+  "durationS": 121.03,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 13406794,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "skråbenk",
+   "reps": 9,
+   "kg": 20,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:09:50.361Z",
+   "at": "2026-10-25T10:10:12.909Z",
+   "_received": "2026-10-25T10:10:14.259Z"
+  }
+ },
+ "mvno2nrl20c2da02": {
+  "setTs": "2026-10-25T10:10:19.468Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 2,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   9.05,
+   20.01
+  ],
+  "durationS": 29.11,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 3239237,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "halvmark",
+   "reps": 2,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:10:19.468Z",
+   "at": "2026-10-25T10:10:33.683Z",
+   "_received": "2026-10-25T10:10:34.577Z"
+  }
+ },
+ "mvno4ocl012d89f9": {
+  "setTs": "2026-10-25T10:11:53.535Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "dips",
+   "reps": 8,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   15.89,
+   17.78,
+   19.49,
+   21.49,
+   26.74,
+   30.7,
+   40.3,
+   48.13
+  ],
+  "durationS": 94.07,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 10326177,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "dips",
+   "reps": 8,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:11:53.535Z",
+   "at": "2026-10-25T10:12:17.255Z",
+   "_received": "2026-10-25T10:12:18.692Z"
+  }
+ },
+ "mvno6wnoab08c185": {
+  "setTs": "2026-10-25T10:13:37.612Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "roing",
+   "reps": 13,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   73.15,
+   74.12,
+   79.01,
+   80.15,
+   81.34,
+   82.58,
+   83.82,
+   85.04,
+   86.35,
+   87.54,
+   89.02,
+   90.5,
+   93.77
+  ],
+  "durationS": 104.08,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 11394894,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "roing",
+   "reps": 13,
+   "kg": 30,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:13:37.612Z",
+   "at": "2026-10-25T10:14:01.345Z",
+   "_received": "2026-10-25T10:14:02.738Z"
+  }
+ },
+ "mvnoa62be037036e": {
+  "setTs": "2026-10-25T10:16:09.772Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 4,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   111.81,
+   115.22,
+   118.31,
+   142.54
+  ],
+  "durationS": 152.17,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 16709119,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "halvmark",
+   "reps": 4,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:16:09.772Z",
+   "at": "2026-10-25T10:16:30.786Z",
+   "_received": "2026-10-25T10:16:31.392Z"
+  }
+ },
+ "mvnoc4f7aa1e6640": {
+  "setTs": "2026-10-25T10:17:40.924Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "dips",
+   "reps": 16,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   5.22,
+   8.05,
+   50.42,
+   57.58,
+   63.69,
+   65.32,
+   66.83,
+   68.4,
+   69.96,
+   71.45,
+   73.08,
+   74.62,
+   76.13,
+   77.73,
+   79.29,
+   81.08
+  ],
+  "durationS": 91.19,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 10137931,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "dips",
+   "reps": 16,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:17:40.924Z",
+   "at": "2026-10-25T10:17:59.986Z",
+   "_received": "2026-10-25T10:18:00.893Z"
+  }
+ },
+ "mvnoctaf7a668445": {
+  "setTs": "2026-10-25T10:18:13.184Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "roing",
+   "reps": 8,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   3.69,
+   9.25,
+   12.1,
+   14.04,
+   16.6,
+   19.52,
+   21.07,
+   22.62
+  ],
+  "durationS": 32.27,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 3818680,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "roing",
+   "reps": 8,
+   "kg": 30,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:18:13.184Z",
+   "at": "2026-10-25T10:18:25.955Z",
+   "_received": "2026-10-25T10:18:26.818Z"
+  }
+ },
+ "mvnoe7jm75332b16": {
+  "setTs": "2026-10-25T10:19:18.316Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "roing",
+   "reps": 20,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   2.38,
+   3.52,
+   10.41,
+   12.56,
+   17.25,
+   19.51,
+   21.67,
+   23.79,
+   26.62,
+   28.78,
+   33.44,
+   36.19,
+   38.54,
+   40.83,
+   42.64,
+   43.14,
+   43.9,
+   44.83,
+   49.09,
+   55.36
+  ],
+  "durationS": 65.14,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 7260414,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "roing",
+   "reps": 20,
+   "kg": 30,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:19:18.316Z",
+   "at": "2026-10-25T10:19:37.671Z",
+   "_received": "2026-10-25T10:19:38.744Z"
+  }
+ },
+ "mvnogfwn500e341f": {
+  "setTs": "2026-10-25T10:21:02.432Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "dips",
+   "reps": 13,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   77.36,
+   78.72,
+   80.02,
+   81.31,
+   82.61,
+   83.85,
+   85.11,
+   86.37,
+   87.62,
+   88.94,
+   90.28,
+   91.73,
+   93.98
+  ],
+  "durationS": 104.15,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 11454774,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "dips",
+   "reps": 13,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:21:02.432Z",
+   "at": "2026-10-25T10:21:20.537Z",
+   "_received": "2026-10-25T10:21:22.051Z"
+  }
+ },
+ "mvnohgsi2c916059": {
+  "setTs": "2026-10-25T10:21:50.235Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 9,
+   "kg": 22.5,
+   "auto": true
+  },
+  "repTimes": [
+   13.13,
+   16.6,
+   18.31,
+   21.16,
+   23.28,
+   29.89,
+   33.51,
+   35.12,
+   38.29
+  ],
+  "durationS": 47.84,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 5303238,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "knebøy",
+   "reps": 9,
+   "kg": 22.5,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:21:50.235Z",
+   "at": "2026-10-25T10:22:04.141Z",
+   "_received": "2026-10-25T10:22:05.548Z"
+  }
+ },
+ "mvnok2vt347693bc": {
+  "setTs": "2026-10-25T10:23:52.178Z",
+  "app": "8.8",
+  "pred": {
+   "exercise": "dips",
+   "reps": 16,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   65.31,
+   66.99,
+   86.13,
+   87.43,
+   88.57,
+   89.8,
+   90.88,
+   92.01,
+   93.2,
+   94.22,
+   95.41,
+   96.59,
+   97.9,
+   100.84,
+   103.94,
+   112.47
+  ],
+  "durationS": 121.98,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 13391060,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "dips",
+   "reps": 16,
+   "kg": 0,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-25T10:23:52.178Z",
+   "at": "2026-10-25T10:24:17.916Z",
+   "_received": "2026-10-25T10:24:19.518Z"
+  }
+ },
+ "mvr3cnad21805e00": {
+  "setTs": "2026-10-27T19:41:18.132Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 5,
+   "kg": 22.5,
+   "auto": true
+  },
+  "repTimes": [
+   101.78,
+   105.71,
+   108.26,
+   110.46,
+   112.13
+  ],
+  "durationS": 121.38,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 13476832,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "knebøy",
+   "reps": 12,
+   "kg": 50,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T19:41:18.132Z",
+   "at": "2026-10-27T19:42:15.284Z",
+   "_received": "2026-10-27T19:42:16.304Z"
+  }
+ },
+ "mvr3ehf7d7e3da93": {
+  "setTs": "2026-10-27T19:42:43.857Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 1,
+   "kg": 50,
+   "auto": true
+  },
+  "repTimes": [
+   26.83
+  ],
+  "durationS": 85.76,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 9568105,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 80,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T19:42:43.857Z",
+   "at": "2026-10-27T19:43:11.377Z",
+   "_received": "2026-10-27T19:43:12.903Z"
+  }
+ },
+ "mvr3gojt95bd64ea": {
+  "setTs": "2026-10-27T19:44:26.435Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 3,
+   "kg": 80,
+   "auto": true
+  },
+  "repTimes": [
+   55.06,
+   58.48,
+   62.32
+  ],
+  "durationS": 72.31,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 8006068,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T19:44:26.435Z",
+   "at": "2026-10-27T19:44:56.813Z",
+   "_received": "2026-10-27T19:44:57.813Z"
+  }
+ },
+ "mvr3k128fb810868": {
+  "setTs": "2026-10-27T19:47:02.615Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 7,
+   "kg": 100,
+   "auto": true
+  },
+  "repTimes": [
+   122.31,
+   127.52,
+   130.44,
+   133.33,
+   139.37,
+   142.78,
+   146.26
+  ],
+  "durationS": 156.19,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 17394215,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps"
+   ],
+   "setTs": "2026-10-27T19:47:02.615Z",
+   "at": "2026-10-27T19:47:50.512Z",
+   "_received": "2026-10-27T19:47:51.910Z"
+  }
+ },
+ "mvr3naxy72228481": {
+  "setTs": "2026-10-27T19:49:35.358Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 100,
+   "auto": true
+  },
+  "repTimes": [
+   120.64,
+   123.89,
+   126.74,
+   129.64,
+   132.84,
+   135.91,
+   139.17,
+   142.87
+  ],
+  "durationS": 152.78,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 16871666,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "implicit",
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "setTs": "2026-10-27T19:49:35.358Z",
+   "at": "2026-10-27T19:51:02.234Z",
+   "_received": "2026-10-27T19:51:03.745Z"
+  }
+ },
+ "mvr3nq3e5c6cddac": {
+  "setTs": "2026-10-27T19:49:54.994Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "curl",
+   "reps": 2,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   1.02,
+   5.31
+  ],
+  "durationS": 19.68,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 2206578,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "curl",
+   "reps": 0,
+   "kg": 20,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-27T19:49:54.994Z",
+   "at": "2026-10-27T21:02:35.841Z",
+   "_received": "2026-10-27T21:02:36.899Z"
+  }
+ },
+ "mvr3o841cd8387e6": {
+  "setTs": "2026-10-27T19:50:18.380Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 2,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   8.19,
+   13.99
+  ],
+  "durationS": 23.39,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 2573504,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "halvmark",
+   "reps": 9,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T19:50:18.380Z",
+   "at": "2026-10-27T21:03:01.536Z",
+   "_received": "2026-10-27T21:03:02.931Z"
+  }
+ },
+ "mvr3phm88e08d970": {
+  "setTs": "2026-10-27T19:51:17.354Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 9,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   26.85,
+   29.38,
+   30.6,
+   34.41,
+   37.01,
+   39.77,
+   42.79,
+   45.82,
+   49.13
+  ],
+  "durationS": 58.98,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 6632870,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "halvmark",
+   "reps": 9,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "kg"
+   ],
+   "setTs": "2026-10-27T19:51:17.354Z",
+   "at": "2026-10-27T21:03:08.890Z",
+   "_received": "2026-10-27T21:03:10.250Z"
+  }
+ },
+ "mvr3rto36e8c9504": {
+  "setTs": "2026-10-27T19:53:06.284Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "curl",
+   "reps": 3,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   86.84,
+   97.75,
+   99.22
+  ],
+  "durationS": 108.94,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 12033293,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "curl",
+   "reps": 0,
+   "kg": 20,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-27T19:53:06.284Z",
+   "at": "2026-10-27T21:03:28.938Z",
+   "_received": "2026-10-27T21:03:29.835Z"
+  }
+ },
+ "mvr3slr3ddbdbd01": {
+  "setTs": "2026-10-27T19:53:42.676Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "situps",
+   "reps": 9,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   2.97,
+   5.86,
+   8.45,
+   11.08,
+   13.76,
+   16.53,
+   19.49,
+   22.93,
+   26.15
+  ],
+  "durationS": 36.4,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 4019090,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "situps",
+   "reps": 0,
+   "kg": 0,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-27T19:53:42.676Z",
+   "at": "2026-10-27T21:03:32.992Z",
+   "_received": "2026-10-27T21:03:34.320Z"
+  }
+ },
+ "mvr3syhj01e21c7d": {
+  "setTs": "2026-10-27T19:53:59.184Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "curl",
+   "reps": 2,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   1.87,
+   5.93
+  ],
+  "durationS": 16.52,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 1837894,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "curl",
+   "reps": 0,
+   "kg": 20,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-27T19:53:59.184Z",
+   "at": "2026-10-27T21:03:37.386Z",
+   "_received": "2026-10-27T21:03:38.265Z"
+  }
+ },
+ "mvr3vtnn4fb621e5": {
+  "setTs": "2026-10-27T19:56:12.892Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 9,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   100.75,
+   103.46,
+   106.05,
+   108.71,
+   111.35,
+   114.06,
+   116.69,
+   119.89,
+   123.07
+  ],
+  "durationS": 133.71,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 14725508,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "halvmark",
+   "reps": 9,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "kg"
+   ],
+   "setTs": "2026-10-27T19:56:12.892Z",
+   "at": "2026-10-27T21:03:42.392Z",
+   "_received": "2026-10-27T21:03:43.231Z"
+  }
+ },
+ "mvr3wf154db09bdd": {
+  "setTs": "2026-10-27T19:56:40.596Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "roing",
+   "reps": 4,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   5.99,
+   8.07,
+   9.75,
+   17.46
+  ],
+  "durationS": 27.71,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 3086094,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "roing",
+   "reps": 0,
+   "kg": 30,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-27T19:56:40.596Z",
+   "at": "2026-10-27T21:03:55.151Z",
+   "_received": "2026-10-27T21:03:56.152Z"
+  }
+ },
+ "mvr3x5c841129b1d": {
+  "setTs": "2026-10-27T19:57:14.689Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 2,
+   "kg": 100,
+   "auto": true
+  },
+  "repTimes": [
+   18.03,
+   24.23
+  ],
+  "durationS": 34.1,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 3802767,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "knebøy",
+   "reps": 0,
+   "kg": 100,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-27T19:57:14.689Z",
+   "at": "2026-10-27T21:03:59.901Z",
+   "_received": "2026-10-27T21:04:00.838Z"
+  }
+ },
+ "mvr3yc9wa4bdef61": {
+  "setTs": "2026-10-27T19:58:10.335Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "dips",
+   "reps": 3,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   46.33,
+   48.02,
+   52.39
+  ],
+  "durationS": 55.65,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 6355084,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "bulgarsk",
+   "reps": 16,
+   "kg": 70,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T19:58:10.335Z",
+   "at": "2026-10-27T21:04:03.810Z",
+   "_received": "2026-10-27T21:04:05.135Z"
+  }
+ },
+ "mvr3ztyba5399299": {
+  "setTs": "2026-10-27T19:59:19.556Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "roing",
+   "reps": 2,
+   "kg": 30,
+   "auto": true
+  },
+  "repTimes": [
+   57.76,
+   59.97
+  ],
+  "durationS": 69.57,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 7755409,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "bulgarsk",
+   "reps": 16,
+   "kg": 70,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T19:59:19.556Z",
+   "at": "2026-10-27T21:04:11.425Z",
+   "_received": "2026-10-27T21:04:12.821Z"
+  }
+ },
+ "mvr41nwtbd9af7b2": {
+  "setTs": "2026-10-27T20:00:45.380Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "dips",
+   "reps": 4,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   70.21,
+   73.29,
+   74.77,
+   76.05
+  ],
+  "durationS": 85.83,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 9546907,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "bulgarsk",
+   "reps": 13,
+   "kg": 70,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T20:00:45.380Z",
+   "at": "2026-10-27T21:04:15.530Z",
+   "_received": "2026-10-27T21:04:16.384Z"
+  }
+ },
+ "mvr44ack538bd39c": {
+  "setTs": "2026-10-27T20:02:47.775Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "dips",
+   "reps": 2,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   75.4,
+   82.15
+  ],
+  "durationS": 92.07,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 10200890,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "vsitup",
+   "reps": 20,
+   "kg": 15,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T20:02:47.775Z",
+   "at": "2026-10-27T21:04:29.744Z",
+   "_received": "2026-10-27T21:04:30.689Z"
+  }
+ },
+ "mvr454zha4194442": {
+  "setTs": "2026-10-27T20:03:27.477Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "bulgarsk",
+   "reps": 4,
+   "kg": 70,
+   "auto": true
+  },
+  "repTimes": [
+   19.52,
+   29.98,
+   31.01,
+   31.82
+  ],
+  "durationS": 39.7,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 4408608,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "vsitup",
+   "reps": 20,
+   "kg": 15,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T20:03:27.477Z",
+   "at": "2026-10-27T21:04:39.071Z",
+   "_received": "2026-10-27T21:04:39.907Z"
+  }
+ },
+ "mvr48mi6b1e804c0": {
+  "setTs": "2026-10-27T20:06:10.151Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "situps",
+   "reps": 17,
+   "kg": 0,
+   "auto": true
+  },
+  "repTimes": [
+   24.36,
+   26.32,
+   28.02,
+   29.66,
+   31.33,
+   32.98,
+   34.69,
+   36.35,
+   38.1,
+   39.86,
+   41.56,
+   45.08,
+   50.27,
+   52.03,
+   53.84,
+   55.64,
+   57.64
+  ],
+  "durationS": 71.8,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 8095729,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "corrected",
+   "exercise": "vsitup",
+   "reps": 12,
+   "kg": 15,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps",
+    "kg"
+   ],
+   "setTs": "2026-10-27T20:06:10.151Z",
+   "at": "2026-10-27T21:04:52.875Z",
+   "_received": "2026-10-27T21:04:53.771Z"
+  }
+ },
+ "mvr4g3o2db25cd16": {
+  "setTs": "2026-10-27T20:11:58.983Z",
+  "app": "8.11",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 12,
+   "kg": 100,
+   "auto": true
+  },
+  "repTimes": [
+   319.72,
+   321.46,
+   323.19,
+   324.78,
+   326.35,
+   327.98,
+   329.62,
+   331.26,
+   333.03,
+   334.83,
+   336.67,
+   338.82
+  ],
+  "durationS": 348.84,
+  "video": {
+   "mime": "video/mp4; codecs=avc1.42000a",
+   "bytes": 38885538,
+   "w": 720,
+   "h": 1280,
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "notASet",
+   "exercise": "benkpress",
+   "reps": 0,
+   "kg": 100,
+   "notASet": true,
+   "missed": false,
+   "setTs": "2026-10-27T20:11:58.983Z",
+   "at": "2026-10-27T21:04:57.503Z",
+   "_received": "2026-10-27T21:04:58.329Z"
+  }
+ },
+ "rvmvp56r670f42e340": {
+  "setTs": null,
+  "app": "8.11",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 6
+  },
+  "repTimes": [
+   7,
+   4.4,
+   4.2,
+   1.1,
+   4.2,
+   4.2
+  ],
+  "durationS": 7.1,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-01",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "benkpress",
+   "detected": {
+    "exercise": "benkpress",
+    "reps": 6,
+    "repTimes": [
+     7,
+     4.4,
+     4.2,
+     1.1,
+     4.2,
+     4.2
+    ]
+   },
+   "exercise": "benkpress",
+   "reps": 3,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps"
+   ],
+   "at": "2026-10-26T10:57:10.158Z",
+   "_received": "2026-10-26T10:57:35.504Z"
+  }
+ },
+ "rvmvp5852nf5306b2a": {
+  "setTs": null,
+  "app": "8.11",
+  "pred": {
+   "exercise": "skråbenk",
+   "reps": 2
+  },
+  "repTimes": [
+   4.1,
+   4.2
+  ],
+  "durationS": 6,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-03",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/8/80/Incline_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "skråbenk",
+   "detected": {
+    "exercise": "skråbenk",
+    "reps": 2,
+    "repTimes": [
+     4.1,
+     4.2
+    ]
+   },
+   "exercise": "skråbenk",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "changed": [],
+   "at": "2026-10-26T10:58:14.831Z",
+   "_received": "2026-10-26T10:58:39.175Z"
+  }
+ },
+ "rvmvp58x3t552fc13b": {
+  "setTs": null,
+  "app": "8.11",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 5
+  },
+  "repTimes": [
+   6.3,
+   3.3,
+   6.4,
+   3.3,
+   6.3
+  ],
+  "durationS": 7.1,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-04",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Squat_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "knebøy",
+   "detected": {
+    "exercise": "knebøy",
+    "reps": 5,
+    "repTimes": [
+     6.3,
+     3.3,
+     6.4,
+     3.3,
+     6.3
+    ]
+   },
+   "exercise": "knebøy",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps"
+   ],
+   "at": "2026-10-26T10:58:51.161Z",
+   "_received": "2026-10-26T10:59:14.757Z"
+  }
+ },
+ "rvmvp59jkd18db8960": {
+  "setTs": null,
+  "app": "8.11",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 4
+  },
+  "repTimes": [
+   1.7,
+   5.6,
+   1.9,
+   5.7
+  ],
+  "durationS": 7.4,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-05",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/6/62/Deadlift_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "halvmark",
+   "detected": {
+    "exercise": "halvmark",
+    "reps": 4,
+    "repTimes": [
+     1.7,
+     5.6,
+     1.9,
+     5.7
+    ]
+   },
+   "exercise": "halvmark",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps"
+   ],
+   "at": "2026-10-26T10:59:20.269Z",
+   "_received": "2026-10-26T10:59:44.301Z"
+  }
+ },
+ "rvmvp5bcd165fabef6": {
+  "setTs": null,
+  "app": "8.11",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 2
+  },
+  "repTimes": [
+   33.3,
+   36.7
+  ],
+  "durationS": 75.881,
+  "video": {
+   "w": 1920,
+   "h": 1080
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-06",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/Army_Combat_Fitness_Test-_3_Repetition_Maximum_Deadlift_%28MDL%29_%28Event_1%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "Public domain",
+   "expected": "halvmark",
+   "detected": {
+    "exercise": "knebøy",
+    "reps": 2,
+    "repTimes": [
+     33.3,
+     36.7
+    ]
+   },
+   "exercise": "halvmark",
+   "reps": 6,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "exercise",
+    "reps"
+   ],
+   "at": "2026-10-26T11:00:44.245Z",
+   "_received": "2026-10-26T11:01:08.385Z"
+  }
+ },
+ "rvmvp5cxw223f1866e": {
+  "setTs": null,
+  "app": "8.11",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 5
+  },
+  "repTimes": [
+   2.1,
+   2.1,
+   5.7,
+   2.1,
+   5.7
+  ],
+  "durationS": 6,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-07",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/Pull-ups_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "pullups",
+   "detected": {
+    "exercise": "pullups",
+    "reps": 5,
+    "repTimes": [
+     2.1,
+     2.1,
+     5.7,
+     2.1,
+     5.7
+    ]
+   },
+   "exercise": "pullups",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "changed": [
+    "reps"
+   ],
+   "at": "2026-10-26T11:01:58.802Z",
+   "_received": "2026-10-26T11:02:22.550Z"
+  }
+ },
+ "rvmvp5ioxydabb4060": {
+  "setTs": null,
+  "app": "8.12",
+  "pred": {
+   "exercise": "armhevinger",
+   "reps": 3
+  },
+  "repTimes": [
+   61.7,
+   69.2,
+   75.8
+  ],
+  "durationS": 85.689,
+  "video": {
+   "w": 1920,
+   "h": 1080
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-09",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Army_Combat_Fitness_Test-_Hand-Release_Push-Up_%28HRP%29_%28Event_3%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "Public domain",
+   "expected": "armhevinger",
+   "detected": {
+    "exercise": "armhevinger",
+    "reps": 3,
+    "repTimes": [
+     61.7,
+     69.2,
+     75.8
+    ]
+   },
+   "exercise": "armhevinger",
+   "reps": 6,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "Ikke vanlige armhevinger, først demonsterer han 1 rep. Så tar han 5 repetisjoner etter hverandre",
+   "changed": [
+    "reps"
+   ],
+   "at": "2026-10-26T11:06:27.142Z",
+   "_received": "2026-10-26T11:06:50.613Z"
+  }
+ },
+ "rvmvp5llc7698e92dc": {
+  "setTs": null,
+  "app": "8.12",
+  "pred": {
+   "exercise": "armhevinger",
+   "reps": 1
+  },
+  "repTimes": [
+   38.8
+  ],
+  "durationS": 173.228,
+  "video": {
+   "w": 1920,
+   "h": 1080
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-10",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Video_of_EZ_Bar_Curl_and_Straight_Bar_Curl.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "curl",
+   "detected": {
+    "exercise": "armhevinger",
+    "reps": 1,
+    "repTimes": [
+     38.8
+    ]
+   },
+   "exercise": "curl",
+   "reps": 12,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "12 ez bar curls etterfulgt av 4 straight bar curls",
+   "changed": [
+    "exercise",
+    "reps"
+   ],
+   "at": "2026-10-26T11:08:42.439Z",
+   "_received": "2026-10-26T11:09:06.620Z"
+  }
+ },
+ "rvmvp5n29yaae6c6db": {
+  "setTs": null,
+  "app": "8.12",
+  "pred": {
+   "exercise": "roing",
+   "reps": 5
+  },
+  "repTimes": [
+   3.2,
+   5.1,
+   1,
+   3.1,
+   5.1
+  ],
+  "durationS": 5.166,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-12",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Bent-over_row_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "roing",
+   "detected": {
+    "exercise": "roing",
+    "reps": 5,
+    "repTimes": [
+     3.2,
+     5.1,
+     1,
+     3.1,
+     5.1
+    ]
+   },
+   "exercise": "roing",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "2 fullstendige reps",
+   "changed": [
+    "reps"
+   ],
+   "at": "2026-10-26T11:09:51.046Z",
+   "_received": "2026-10-26T11:10:14.869Z"
+  }
+ },
+ "rvmvp5n7j4e13f42bd": {
+  "setTs": null,
+  "app": "8.12",
+  "pred": {
+   "exercise": "roing",
+   "reps": 5
+  },
+  "repTimes": [
+   3.2,
+   5.1,
+   1,
+   3.1,
+   5.1
+  ],
+  "durationS": 5.166,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-12",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Bent-over_row_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "roing",
+   "detected": {
+    "exercise": "roing",
+    "reps": 5,
+    "repTimes": [
+     3.2,
+     5.1,
+     1,
+     3.1,
+     5.1
+    ]
+   },
+   "exercise": "roing",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "2 fullstendige reps",
+   "changed": [
+    "reps"
+   ],
+   "at": "2026-10-26T11:09:57.856Z",
+   "_received": "2026-10-26T11:10:21.694Z"
+  }
+ },
+ "rvmvr647ij73a9812a": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 8
+  },
+  "repTimes": [
+   53.7,
+   56.5,
+   58.9,
+   61.2,
+   63.7,
+   66,
+   68.6,
+   71.1
+  ],
+  "durationS": 85.67,
+  "video": {
+   "w": 720,
+   "h": 1280
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "mvr3ehf7d7e3da93",
+   "expected": "knebøy",
+   "detected": {
+    "exercise": "knebøy",
+    "reps": 8,
+    "repTimes": [
+     53.7,
+     56.5,
+     58.9,
+     61.2,
+     63.7,
+     66,
+     68.6,
+     71.1
+    ]
+   },
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 80,
+   "notASet": false,
+   "missed": false,
+   "comment": null,
+   "changed": [],
+   "at": "2026-10-27T20:58:43.339Z",
+   "own": true,
+   "question": "Knebøy 80 kg × 8. Ny motor teller 9 – en ekstra «rep» rundt 50 s, før settet ser ut til å starte ved ca. 53 s. Var det en utgang fra stativet / en halv prøve-rep der?",
+   "_received": "2026-10-27T20:58:48.473Z"
+  }
+ },
+ "rvmvr65bu477a13f68": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 7
+  },
+  "repTimes": [
+   124.5,
+   127.7,
+   130.6,
+   133.4,
+   139.4,
+   142.9,
+   146.4
+  ],
+  "durationS": 156,
+  "video": {
+   "w": 720,
+   "h": 1280
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "mvr3k128fb810868",
+   "expected": "knebøy",
+   "detected": {
+    "exercise": "knebøy",
+    "reps": 7,
+    "repTimes": [
+     124.5,
+     127.7,
+     130.6,
+     133.4,
+     139.4,
+     142.9,
+     146.4
+    ]
+   },
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 100,
+   "notASet": false,
+   "missed": false,
+   "comment": null,
+   "changed": [
+    "reps"
+   ],
+   "at": "2026-10-27T20:59:35.596Z",
+   "own": true,
+   "question": "Knebøy 100 kg × 8 (sett 2). Appen teller 7 – det er et hull mellom ca. 133 s og 139 s. Tok du en lang pause i toppen der, eller er en rep skjult (stang/skiver foran hoftene)?",
+   "_received": "2026-10-27T20:59:40.786Z"
+  }
+ },
+ "rvmvr67237d3cd8c0a": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": "roing",
+   "reps": 12
+  },
+  "repTimes": [
+   10.1,
+   11.9,
+   15.7,
+   23.3,
+   26.5,
+   35.1,
+   37.4,
+   42.5,
+   47.5,
+   49.1,
+   50.9,
+   53.3
+  ],
+  "durationS": 55.59,
+  "video": {
+   "w": 720,
+   "h": 1280
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "mvr3yc9wa4bdef61",
+   "expected": "bulgarsk",
+   "detected": {
+    "exercise": "roing",
+    "reps": 12,
+    "repTimes": [
+     10.1,
+     11.9,
+     15.7,
+     23.3,
+     26.5,
+     35.1,
+     37.4,
+     42.5,
+     47.5,
+     49.1,
+     50.9,
+     53.3
+    ]
+   },
+   "exercise": "bulgarsk",
+   "reps": 16,
+   "kg": 70,
+   "notASet": false,
+   "missed": false,
+   "comment": "8 rep per bein. 16 totalt",
+   "changed": [
+    "exercise",
+    "reps"
+   ],
+   "at": "2026-10-27T21:00:56.274Z",
+   "own": true,
+   "question": "Bulgarsk utfall 70 kg (stang på ryggen, bakfot på benk). Hvilket bein, og var dette sett 1? Var det 8 reps på ett bein uten bytte i klippet? (Kameraet ser beina dårlig bak benken – appen så dips/knebøy.) Fikk du andre sett med bulgarsk og V-situp på video? De kom ikke fram til meg.",
+   "_received": "2026-10-27T21:01:01.613Z"
+  }
+ },
+ "rvmvr6fmxgc14d6369": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 2
+  },
+  "repTimes": [
+   4,
+   4.2
+  ],
+  "durationS": 7.1,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-01",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "benkpress",
+   "detected": {
+    "exercise": "benkpress",
+    "reps": 2,
+    "repTimes": [
+     4,
+     4.2
+    ]
+   },
+   "exercise": "benkpress",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "Stsrter og slutter midt i",
+   "changed": [],
+   "at": "2026-10-27T21:07:36.532Z",
+   "_received": "2026-10-27T21:07:41.233Z"
+  }
+ },
+ "rvmvr6fq810b6b0caa": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 2
+  },
+  "repTimes": [
+   4,
+   4.2
+  ],
+  "durationS": 7.1,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-01",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/d/df/Bench_press_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "benkpress",
+   "detected": {
+    "exercise": "benkpress",
+    "reps": 2,
+    "repTimes": [
+     4,
+     4.2
+    ]
+   },
+   "exercise": "benkpress",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "Stsrter og slutter midt i",
+   "changed": [],
+   "at": "2026-10-27T21:07:40.801Z",
+   "_received": "2026-10-27T21:07:45.462Z"
+  }
+ },
+ "rvmvr6g2hia4ab675f": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 2
+  },
+  "repTimes": [
+   3.3,
+   6.4
+  ],
+  "durationS": 7.1,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-04",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Squat_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "knebøy",
+   "detected": {
+    "exercise": "knebøy",
+    "reps": 2,
+    "repTimes": [
+     3.3,
+     6.4
+    ]
+   },
+   "exercise": "knebøy",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": null,
+   "changed": [],
+   "at": "2026-10-27T21:07:56.694Z",
+   "_received": "2026-10-27T21:08:00.664Z"
+  }
+ },
+ "rvmvr6gev91638dc0e": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 2
+  },
+  "repTimes": [
+   1.7,
+   5.5
+  ],
+  "durationS": 7.4,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-05",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/6/62/Deadlift_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "halvmark",
+   "detected": {
+    "exercise": "halvmark",
+    "reps": 2,
+    "repTimes": [
+     1.7,
+     5.5
+    ]
+   },
+   "exercise": "halvmark",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": null,
+   "changed": [],
+   "at": "2026-10-27T21:08:12.741Z",
+   "_received": "2026-10-27T21:08:16.999Z"
+  }
+ },
+ "rvmvr6gt5ee2af3a94": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": null,
+   "reps": 0
+  },
+  "repTimes": [],
+  "durationS": 75.8735,
+  "video": {
+   "w": 1920,
+   "h": 1080
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-06",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/Army_Combat_Fitness_Test-_3_Repetition_Maximum_Deadlift_%28MDL%29_%28Event_1%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "Public domain",
+   "expected": "halvmark",
+   "detected": {
+    "exercise": null,
+    "reps": 0,
+    "repTimes": []
+   },
+   "exercise": "halvmark",
+   "reps": 0,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "Dette klippet lan du fjerne",
+   "changed": [
+    "exercise"
+   ],
+   "at": "2026-10-27T21:08:31.250Z",
+   "_received": "2026-10-27T21:08:35.300Z"
+  }
+ },
+ "rvmvr6h52l6fd44959": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 2
+  },
+  "repTimes": [
+   2.1,
+   5.8
+  ],
+  "durationS": 6,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-07",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/Pull-ups_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "pullups",
+   "detected": {
+    "exercise": "pullups",
+    "reps": 2,
+    "repTimes": [
+     2.1,
+     5.8
+    ]
+   },
+   "exercise": "pullups",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": null,
+   "changed": [],
+   "at": "2026-10-27T21:08:46.701Z",
+   "_received": "2026-10-27T21:08:51.077Z"
+  }
+ },
+ "rvmvr6hj7l312ca59d": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": null,
+   "reps": 0
+  },
+  "repTimes": [],
+  "durationS": 85.689,
+  "video": {
+   "w": 1920,
+   "h": 1080
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-09",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Army_Combat_Fitness_Test-_Hand-Release_Push-Up_%28HRP%29_%28Event_3%29.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "Public domain",
+   "expected": "armhevinger",
+   "detected": {
+    "exercise": null,
+    "reps": 0,
+    "repTimes": []
+   },
+   "exercise": "armhevinger",
+   "reps": 0,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "Dette klippet kan du fjerne",
+   "changed": [
+    "exercise"
+   ],
+   "at": "2026-10-27T21:09:05.025Z",
+   "_received": "2026-10-27T21:09:09.176Z"
+  }
+ },
+ "rvmvr6i2di790bcd00": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": null,
+   "reps": 0
+  },
+  "repTimes": [],
+  "durationS": 173.2335,
+  "video": {
+   "w": 1920,
+   "h": 1080
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-10",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Video_of_EZ_Bar_Curl_and_Straight_Bar_Curl.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "curl",
+   "detected": {
+    "exercise": null,
+    "reps": 0,
+    "repTimes": []
+   },
+   "exercise": "curl",
+   "reps": 0,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "Dette klippet kan du fjerne",
+   "changed": [
+    "exercise"
+   ],
+   "at": "2026-10-27T21:09:29.862Z",
+   "_received": "2026-10-27T21:09:34.062Z"
+  }
+ },
+ "rvmvr6j0d742e7f695": {
+  "setTs": null,
+  "app": "8.13",
+  "pred": {
+   "exercise": "roing",
+   "reps": 6
+  },
+  "repTimes": [
+   3.2,
+   5.1,
+   0.8,
+   3.1,
+   5.1,
+   3.2
+  ],
+  "durationS": 5.166,
+  "video": {
+   "w": 1280,
+   "h": 720
+  },
+  "label": {
+   "kind": "review",
+   "action": "corrected",
+   "clipId": "wc-12",
+   "clipUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Bent-over_row_-_exercise_demonstration_video.webm?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "source": "Wikimedia Commons",
+   "licence": "CC BY 3.0",
+   "expected": "roing",
+   "detected": {
+    "exercise": "roing",
+    "reps": 6,
+    "repTimes": [
+     3.2,
+     5.1,
+     0.8,
+     3.1,
+     5.1,
+     3.2
+    ]
+   },
+   "exercise": "roing",
+   "reps": 2,
+   "kg": null,
+   "notASet": false,
+   "missed": false,
+   "comment": "2 konplette reps",
+   "changed": [
+    "reps"
+   ],
+   "at": "2026-10-27T21:10:13.915Z",
+   "_received": "2026-10-27T21:10:17.801Z"
+  }
+ }
+}
