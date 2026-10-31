@@ -44,13 +44,13 @@
     bulgarsk: { minAmp: 0.18, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       // front leg = knee closest to hip height
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref },
-    pullups: { bodyMove: 0.25, minAmp: 0.25, countAtTop: 0.8, barHold: 0.4, barDrop: 0.5, /* v8.19, countAtTop null = off */ minRep: 0.6, maxRep: 8, need: 'arms', posture: (g, ref) => g.wrM.y < g.shM.y + 0.3 * ref && g.torsoTilt < 50,
+    pullups: { bodyMove: 0.25, edgeGapTail: 4.5, /* v8.21: a slow last pull-up (4.3 s) was trimmed as a tail */ minAmp: 0.25, countAtTop: 0.8, barHold: 0.4, barDrop: 0.5, /* v8.19, countAtTop null = off */ minRep: 0.6, maxRep: 8, need: 'arms', posture: (g, ref) => g.wrM.y < g.shM.y + 0.3 * ref && g.torsoTilt < 50,
       signal: (g, ref) => (g.shM.y - g.wrM.y) / ref,
       valid: raw => raw > -0.5, // wrists well below shoulders = not hanging from the bar
       // knee height relative to hip; hanging leg raises bring the knees up to/above the hips
       aux: (g, ref) => g.legsVis > 0.4 ? (Math.max(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref : null,
       auxOk: (lo) => lo == null || lo > 0.0 },
-    dips: { bodyMove: 0.25, poseMin: 0.3, minAmp: 0.15, minRep: 0.5, maxRep: 8, need: 'arms',
+    dips: { bodyMove: 0.25, cntRatio: 0.45, /* v8.21: was 0.5 (default); first deep dips after mounting were below 0.5 x a setup excursion */ poseMin: 0.3, minAmp: 0.15, minRep: 0.5, maxRep: 8, need: 'arms',
       posture: (g, ref) => g.wrM.y > g.shM.y - 0.4 * ref && g.wrM.y < g.hipM.y + 0.35 * ref && g.torsoTilt < 65, // upright, supported on the hands (at hip height, not hanging by the sides)
       signal: (g, ref) => (g.wrM.y - g.shM.y) / ref },
     // flat bench: wrist-to-shoulder distance; body size = max(torso, 1.25 x shoulder width) because the torso is
@@ -87,7 +87,7 @@
     // the signal dips negative. Rest-high convention holds, each sit-up is one valley.
     // v8.9: EZ-bar / biceps curl, standing upright: the wrists swing up toward the shoulders while the shoulders, hips and
     // knees stay put (squat = hips drop, RDL = torso hinges, dips/pull-ups = the shoulders travel with the hands planted)
-    curl: { minAmp: 0.4, minRep: 0.8, maxRep: 8, need: 'arms', stillBody: 0.75,
+    curl: { minAmp: 0.4, minRep: 0.8, maxRep: 8, need: 'arms', stillBody: 0.75, endBend: { tilt: 40, dur: 0.4 }, /* v8.21, null = off */
       posture: g => g.torsoTilt < 30 && (g.legsVis < 0.4 || Math.min(g.knee[0] ?? 180, g.knee[1] ?? 180) > 120),
       signal: (g, ref) => (g.wr[g.arm].y - g.sh[g.arm].y) / ref },
     // v8.13 V-situp (weighted V-up / jackknife): lying on the back, the torso AND the straight legs lift toward each other so
@@ -108,9 +108,9 @@
   function createCounter(exId = 'knebøy', opts = {}) {
     const def = { ...EX[exId] || EX.knebøy, ...opts };
     const tau = def.tau ?? 0.12, topWin = def.topWin ?? 2, cntRatio = def.cntRatio ?? 0.5, overshoot = def.overshoot ?? 0.6;
-    let s0T = null, repAmps = [], s, lastT, ref, refBuf, state, top, hist, lo, tDown, reps, amps, lastRepT, lastGood, repTimes, raw3, pend, auxLo, auxHi, aux2Lo, aux2Hi, onRep = opts.onRep;
+    let s0T = null, bendT = null, ended = false, repAmps = [], s, lastT, ref, refBuf, state, top, hist, lo, tDown, reps, amps, lastRepT, lastGood, repTimes, raw3, pend, auxLo, auxHi, aux2Lo, aux2Hi, onRep = opts.onRep;
     let bodyBuf = [], rejected = 0, qa = null, tents = [], camT = 0, topPose = [];
-    function reset() { tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
+    function reset() { bendT = null; ended = false; tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
     reset();
     const typAmp = () => { if (!amps.length) return null; const a = [...amps].sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; };
     const hiNow = () => top.length ? Math.max(...top.map(p => p[1])) : s;
@@ -146,6 +146,7 @@
       // v8.13: a movement made out of posture or out of view (unracking/walking out under the bar, glitchy frames) no longer
       // sets the adaptive amplitude, so one huge setup excursion cannot make the set's real (smaller) reps look too shallow
       if (!def.cleanAmps || (why !== 'pose' && why !== 'vis')) { amps.push(p.amp); if (amps.length > 8) amps.shift(); p.inAmps = true; }
+      if (ended && p.t > ended) { rejected++; opts.onReject && opts.onReject('ended', p); return; }
       if (why) { rejected++; opts.onReject && opts.onReject(why, p); return; }
       if (reps > 0) return count(p);
       if (p.q && p.q.topOk === false) { rejected++; opts.onReject && opts.onReject('setup', p); return; } // v8.8: no established top yet
@@ -177,6 +178,8 @@
       const g = lm && geom(lm, aspect);
       const ok = g && (def.need === 'legs' ? g.legsVis > 0.4 : def.need === 'arms' ? g.armsVis > 0.4 : true);
       if (!ok) { if (qa) { qa.n++; qa.bad++; } checkPend(t, true); return out(false); }
+      // v8.21 curl: bending far forward after reps (putting the bar down) ends the set; later arm swings are not reps (def.endBend null = off)
+      if (def.endBend && reps > 0) { if (g.torsoTilt > def.endBend.tilt) { bendT ??= t; if (t - bendT >= def.endBend.dur && !ended) ended = bendT; } else bendT = null; }
       const body = def.bodyRef ? Math.max(g.torso, 1.25 * g.shW) : g.torso;
       // v8.13: one-off pose glitches (bar/plates/rack occluding the hips: the torso collapses to under half its recent length
       // for a frame or two; standing leg lifts: the torso flips upside down) are dropped as bad frames, so they cannot fake a huge rep that poisons the adaptive amplitude
@@ -556,7 +559,7 @@
   // one — keeps its reps within a few seconds of each other.
   // v8.20 tempo gate: rigging / rest / phone handling gives 'reps' far slower than a real set of that exercise. Median gap
   // between reps above maxMedGap[ex] (s) = not a set. mode 'shadow' = only reported (app logs it in feedback meta), 'on' = enforced.
-  const TEMPO_CFG = { mode: 'shadow', maxMedGap: { roing: 2.5, curl: 3, dips: 2.5, halvmark: 4 } };
+  const TEMPO_CFG = { mode: 'shadow', maxMedGap: { roing: 1.7, curl: 3, dips: 2.5, halvmark: 4 } };
   function tempoSlow(ex, times) {
     const lim = TEMPO_CFG.maxMedGap[ex]; if (!lim || !times || times.length < 2) return false;
     const g = []; for (let i = 1; i < times.length; i++) g.push(times[i] - times[i - 1]); g.sort((a, b) => a - b);
