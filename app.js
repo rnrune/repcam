@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.27';
+const APP_VERSION = '8.28';
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
 const strava = Strava.createClient({ ls: localStorage, fetch: (...x) => fetch(...x), config: window.REPCAM_STRAVA || {}, liveSets });
 // A set was edited/deleted: pending Strava sync/auto-create follows the current sets; zero sets left = cancelled.
@@ -203,20 +203,28 @@ async function fbLabel(ts, action, val) {
 // start, on returning to the foreground and on pageshow (iOS resumes/reloads PWAs on its own schedule).
 let fbTimer = 0;
 const fbAuto = () => Feedback.QUEUE_CFG.retry && LS.getItem('repcam.fb.retryOff') !== '1';
+/* v8.28 Kun wifi (Rune): navigator.connection.type where it exists (Android Chrome); iOS Safari/PWA has none -> 'unknown' ->
+   no automatic upload, only «Send nå» (Rune confirms he is on wifi). repcam.fb.wifiOnly=0 allows mobile data. Clips stay queued. */
+const fbNet = () => { const o = LS.getItem('repcam.fb.netTest'); if (o) return o; const c = navigator.connection; const ty = c && c.type;
+  return ty === 'wifi' || ty === 'ethernet' ? 'wifi' : ty === 'cellular' || ty === 'wimax' || ty === 'bluetooth' ? 'cellular' : 'unknown'; };
+const fbWifiOnly = () => LS.getItem('repcam.fb.wifiOnly') !== '0';
+const fbNetOk = () => !fbWifiOnly() || fbNet() === 'wifi';
 async function fbUpload(force) {
   if (!LS.getItem(Feedback.KEYS.inst)) return;
-  if (force !== true && !fbAuto()) return fbPending();
+  if (force !== 'user' && !fbNetOk()) return fbPending();
+  if (force !== true && force !== 'user' && !fbAuto()) return fbPending();
   // navigator.onLine is only a hint (iOS reports true on dead gym Wi-Fi, and navigator.connection is missing): a forced try runs anyway
-  if (navigator.onLine !== false || force === true) { try { await fbQueue().process({ force: force === true }); } catch (e) { console.warn('fb up', e); } }
-  try { const t = await fbQueue().nextDue(); clearTimeout(fbTimer); if (t != null && fbAuto()) fbTimer = setTimeout(fbUpload, Math.max(2e3, t - Date.now() + 50)); } catch {}
+  if (navigator.onLine !== false || force) { try { await fbQueue().process({ force: !!force }); } catch (e) { console.warn('fb up', e); } }
+  try { const t = await fbQueue().nextDue(); clearTimeout(fbTimer); if (t != null && fbAuto() && fbNetOk()) fbTimer = setTimeout(fbUpload, Math.max(2e3, t - Date.now() + 50)); } catch {}
   fbPending(); if (cur === 'profil') renderFb();
 }
 // v8.18: small «⇡ n» badge (home + workout) while clips are waiting to be sent
 async function fbPending() {
   let n = 0; try { if (LS.getItem(Feedback.KEYS.inst)) n = (await fbQueue().stats()).pending; } catch {}
-  document.querySelectorAll('.fbPend').forEach(el => { el.textContent = n ? '⇡ ' + n : ''; el.style.display = n ? '' : 'none'; el.title = n ? L.t('fb.stats', { p: n, u: '', mb: '' }) : ''; });
+  document.querySelectorAll('.fbPend').forEach(el => { el.textContent = n ? '⇡ ' + n : ''; el.style.display = n ? '' : 'none'; el.title = n ? (fbNetOk() ? L.t('fb.stats', { p: n, u: '', mb: '' }) : L.t('fb.waitWifi', { n })) : ''; el.classList.toggle('wifiWait', !!n && !fbNetOk()); });
   return n;
 }
+if (navigator.connection && navigator.connection.addEventListener) navigator.connection.addEventListener('change', () => fbUpload(true)); /* v8.28: wifi came on */
 addEventListener('online', () => fbUpload(true)); setInterval(() => { if (document.visibilityState === 'visible') fbUpload(); }, Feedback.QUEUE_CFG.periodMs);
 addEventListener('pageshow', () => fbUpload()); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') fbUpload(true); });
 setTimeout(() => fbUpload(true), 1500);
@@ -227,11 +235,14 @@ async function renderFb() {
   el.innerHTML = `<label class="row" style="gap:12px"><span><b>${L.t('fb.title')}</b><div class="muted small" style="margin:2px 0 0">${L.t('fb.sub')}</div></span><input type="checkbox" id="fbOn" class="sw" ${on ? 'checked' : ''}></label>
     ${typeof MediaRecorder === 'undefined' ? `<div class="muted small">${L.t('fb.unsupported')}</div>` : ''}
     <div class="muted small" id="fbStats">${L.t('fb.stats', { p: st.pending, u: st.uploaded, mb: L.nf(Math.round(st.bytes / 1e5) / 10, 1) })}</div>
+    <label class="row" style="gap:12px"><span><b>${L.t('fb.wifiOnly')}</b><div class="muted small" style="margin:2px 0 0">${L.t('fb.wifiSub')}</div></span><input type="checkbox" id="fbWifi" class="sw" ${fbWifiOnly() ? 'checked' : ''}></label>
+    ${st.pending && !fbNetOk() ? `<div class="small wifiWait" id="fbWifiWait">${L.t('fb.waitWifi', { n: st.pending })}</div>` : ''}
     ${st.pending ? `<div class="btns"><button class="ghost" id="fbSend">${L.t('fb.send')}</button><button class="ghost" id="fbDel">${L.t('fb.del')}</button></div>` : ''}`;
+  $('fbWifi').onchange = () => { LS.setItem('repcam.fb.wifiOnly', $('fbWifi').checked ? '1' : '0'); fbUpload(true); renderFb(); };
   $('fbOn').onchange = () => { LS.setItem(Feedback.KEYS.on, $('fbOn').checked ? '1' : '0'); if ($('fbOn').checked) fbQueue(); renderFb(); };
   if ($('fbSend')) $('fbSend').onclick = async () => { const b = $('fbSend'); b.disabled = true; b.textContent = '…'; // v8.18: visible feedback
     let r = null; try { r = await fbQueue().process({ force: true }); } catch (e) { r = { error: e.message }; }
-    await fbUpload(); const n = await fbPending(); showToastGlobal(n ? `⇡ ${n} · ${r && r.error ? r.error : ''}` : '✓'); renderFb(); };
+    await fbUpload('user'); const n = await fbPending(); showToastGlobal(n ? `⇡ ${n} · ${r && r.error ? r.error : ''}` : '✓'); renderFb(); };
   if ($('fbDel')) $('fbDel').onclick = async () => { if (await confirmDialog(L.t('fb.del'), L.t('fb.delText'), L.t('del.ok'))) { await fbQueue().clearPending(); } renderFb(); };
 }
 
