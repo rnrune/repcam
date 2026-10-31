@@ -199,8 +199,9 @@
         if (!def.posture || def.posture(g, ref)) qa.pose++;
       }
       if (lastGood != null && t - lastGood > 1.5) { checkPend(t, true); s = null; s0T = null; state = 'top'; top = []; hist = []; raw3 = []; qa = null; } // long dropout: restart tracking (keep reps)
-      raw3.push(raw); if (raw3.length > 3) raw3.shift();
-      if (raw3.length === 3) raw = [...raw3].sort((x, y) => x - y)[1];
+      if (FILTER_CFG.medWin) { raw3.push([t, raw]); while (raw3.length > 1 && raw3[0][0] < t - FILTER_CFG.medWin) raw3.shift(); /* v8.26: time-based spike median (frame-rate independent) */
+        if (raw3.length >= 3) { const a = raw3.map(p => p[1]).sort((x, y) => x - y); raw = a.length % 2 ? a[a.length >> 1] : (a[a.length / 2 - 1] + a[a.length / 2]) / 2; } }
+      else { raw3.push(raw); if (raw3.length > 3) raw3.shift(); if (raw3.length === 3) raw = [...raw3].sort((x, y) => x - y)[1]; }
       const dt = lastT == null ? 0 : Math.max(0, t - lastT); lastT = t; lastGood = t;
       const a = s == null ? 1 : 1 - Math.exp(-dt / tau);
       s = s == null ? raw : s + a * (raw - s);
@@ -507,13 +508,14 @@
       const T = Math.max(a.g.torso, g.torso), keys = Object.keys(a.P).filter(k => buf[buf.length - 1].P[k]);
       if (keys.length < 3) return null;
       const b = buf[buf.length - 1].P;
-      const d = keys.map(k => dist(a.P[k], b[k]) / T), dMin = Math.min(...d); lastD = dMin;
+      const kS = !opts.normSpan ? 1 : win / Math.max(win, t - a.t); /* v8.26: per-window rate, so 10 Hz (span ≈ win + 1 frame) = 30 Hz */
+      const d = keys.map(k => kS * dist(a.P[k], b[k]) / T), dMin = Math.min(...d); lastD = dMin;
       // zoom: every body length (torso, shoulder width, thighs, shins, upper arms) scales the same way — a hinge, sit-up or
       // squat changes some lengths (foreshortening) but not all of them in the same direction
       const lens = gg => [gg.torso, gg.shW, dist(gg.hip[0], gg.kn[0]), dist(gg.hip[1], gg.kn[1]), dist(gg.kn[0], gg.an[0]), dist(gg.kn[1], gg.an[1]), dist(gg.sh[0], gg.el[0]), dist(gg.sh[1], gg.el[1])];
       const okLen = gg => [1, gg.shW > 0.3 * gg.torso, vis(gg.kn[0]) > 0.5, vis(gg.kn[1]) > 0.5, vis(gg.an[0]) > 0.5 && vis(gg.kn[0]) > 0.5, vis(gg.an[1]) > 0.5 && vis(gg.kn[1]) > 0.5, vis(gg.el[0]) > 0.5, vis(gg.el[1]) > 0.5];
       const l0 = lens(a.g), l1 = lens(g), o0 = okLen(a.g), o1 = okLen(g), zr = [];
-      for (let i = 0; i < l0.length; i++) if (o0[i] && o1[i] && l0[i] > 0.02 && l1[i] > 0.02) zr.push(Math.log(l1[i] / l0[i]));
+      for (let i = 0; i < l0.length; i++) if (o0[i] && o1[i] && l0[i] > 0.02 && l1[i] > 0.02) zr.push(kS * Math.log(l1[i] / l0[i]));
       const zoomed = zr.length >= 3 && (zr.every(x => x > 0.5 * minScale) || zr.every(x => x < -0.5 * minScale)) && Math.abs(zr.sort((x, y) => x - y)[zr.length >> 1]) > minScale;
       if (dMin > minDisp) return 'shift';
       // roll: shoulder line, hip line, torso and hip→ankle axis all turn by the same angle (a body turns them differently)
@@ -521,7 +523,7 @@
       const L = gg => [gg.shW > 0.3 * gg.torso ? [gg.sh[0], gg.sh[1]] : null, dist(gg.hip[0], gg.hip[1]) > 0.2 * gg.torso ? [gg.hip[0], gg.hip[1]] : null,
         [gg.shM, gg.hipM], b.an ? [gg.hipM, b.an] : null];
       const L0 = L(a.g), L1 = L(g), r = [];
-      for (let i = 0; i < 4; i++) if (L0[i] && L1[i] && (i < 3 || a.P.an)) r.push(dA(ang(...L1[i]), ang(i === 3 ? a.g.hipM : L0[i][0], i === 3 ? a.P.an : L0[i][1])));
+      for (let i = 0; i < 4; i++) if (L0[i] && L1[i] && (i < 3 || a.P.an)) r.push(kS * dA(ang(...L1[i]), ang(i === 3 ? a.g.hipM : L0[i][0], i === 3 ? a.P.an : L0[i][1])));
       if (r.length >= 3 && (r.every(x => x > minRot) || r.every(x => x < -minRot)) && Math.min(...r.map(Math.abs)) > 0.6 * Math.max(...r.map(Math.abs))) return 'rotate';
       if (zoomed) return 'zoom';
       return null;
@@ -563,6 +565,7 @@
   // one — keeps its reps within a few seconds of each other.
   // v8.20 tempo gate: rigging / rest / phone handling gives 'reps' far slower than a real set of that exercise. Median gap
   // between reps above maxMedGap[ex] (s) = not a set. mode 'shadow' = only reported (app logs it in feedback meta), 'on' = enforced.
+  const FILTER_CFG = { medWin: null }; // v8.26: s; null = old median-of-3 frames
   const TEMPO_CFG = { mode: 'on', /* v8.24: on by default (Rune 31 Oct); localStorage repcam.tempo=off = kill switch, =shadow = log only */ maxMedGap: { roing: 1.7, curl: 3, dips: 2.5, halvmark: 4 } };
   function tempoSlow(ex, times) {
     const lim = TEMPO_CFG.maxMedGap[ex]; if (!lim || !times || times.length < 2) return false;
@@ -575,6 +578,6 @@
     const mx = Math.max(...g), mn = Math.min(...g), md = [...g].sort((a, b) => a - b)[(g.length - 1) >> 1];
     return !(md > 5.5 || (mx > 6 && mx > 2 * mn));
   }
-  const api = { TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

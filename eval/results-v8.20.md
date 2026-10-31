@@ -43,3 +43,11 @@ mvvesvuf pullups→dips; curl wrists-level 0.3/0.2: breaks core mvnohgsi; pull-u
 - Tempo: unanswered ✓/✗ now keeps the set, marked "usikker" (set card + history), not logged as truth; only ✗ removes.
 - mvr3k128 trim end 134.0 s (gt 4) → 4 ✓.
 - 10 Hz tempo on: exact 51/60, MAE 0.19, exercise 47/47, false sets 0/13, core 21/21.
+
+## v8.26 — frame-rate study (10 Hz vs 30 Hz)
+- Real rate: logged landmarks (fbSample, ≥100 ms throttle) are 8.3–10 Hz per clip (gaps p5/p50/p95 0.10/0.12/0.13 s). Detection itself is unthrottled (every rAF, detectForVideo); gap quantization (0.11/0.12 dominant) implies ≈17–26 Hz live. App now logs `poseRate` (n, med/p10/p90 ms, hz) in each label to measure it exactly.
+- Eval: recorded timestamps as-is (real jitter) stay primary. New flags: --jitter f, --hold (repeat poses, new timestamps only), --jump, --ids.
+- Baseline: rec 51/60 core 21/21 · 17 Hz 42 · 25 Hz 42 · 30 Hz 43/60 core 18/21. Hold@30: 45/60.
+- Cause 1 (real frame-count dependency): median-of-3-FRAMES spike filter. Time-based (FILTER_CFG.medWin) makes hold@30 = 49/60 ≈ rec, but costs core curl mvnohgsi at rec (20/21); tried 0.27 and 0.3 s → kept OFF (medWin null).
+- Cause 2: camera gate window span = win + 1 frame (10 Hz sees ~15 % more displacement). Span normalization (opts.normSpan) + minDisp 0.43: rec neutral, 30 Hz 41/60 → kept OFF.
+- Remaining 30 Hz gap is mostly a linear-upsampling artifact (1-frame spikes become 200 ms ramps that survive filtering); glitch-step upsampling (--jump) did not close it. No engine change shipped.
