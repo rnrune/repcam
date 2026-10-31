@@ -50,7 +50,7 @@
       // knee height relative to hip; hanging leg raises bring the knees up to/above the hips
       aux: (g, ref) => g.legsVis > 0.4 ? (Math.max(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref : null,
       auxOk: (lo) => lo == null || lo > 0.0 },
-    dips: { bodyMove: 0.25, tailDrop: { amp: 0.75, gap: 1.25 }, /* v8.23, null = off */ cntRatio: 0.45, /* v8.21: was 0.5 (default); first deep dips after mounting were below 0.5 x a setup excursion */ poseMin: 0.3, minAmp: 0.15, minRep: 0.5, maxRep: 8, need: 'arms',
+    dips: { bodyMove: 0.25, ampIdle: 20, /* v8.31 (null = off): mvvfr047's 22.8 s standing arm swing raised the threshold for the set at 44 s */ tailDrop: { amp: 0.75, gap: 1.25 }, tailTop: { frac: 0.4, before: 0.6, after: 0.4, mode: 'on' /* v8.31: 'shadow' = log only (opts.onTail), null = off */ }, /* v8.23, null = off */ cntRatio: 0.45, /* v8.21: was 0.5 (default); first deep dips after mounting were below 0.5 x a setup excursion */ poseMin: 0.3, minAmp: 0.15, minRep: 0.5, maxRep: 8, need: 'arms',
       posture: (g, ref) => g.wrM.y > g.shM.y - 0.4 * ref && g.wrM.y < g.hipM.y + 0.35 * ref && g.torsoTilt < 65, // upright, supported on the hands (at hip height, not hanging by the sides)
       signal: (g, ref) => (g.wrM.y - g.shM.y) / ref },
     // flat bench: wrist-to-shoulder distance; body size = max(torso, 1.25 x shoulder width) because the torso is
@@ -109,8 +109,8 @@
     const def = { ...EX[exId] || EX.knebøy, ...opts };
     const tau = def.tau ?? 0.12, topWin = def.topWin ?? 2, cntRatio = def.cntRatio ?? 0.5, overshoot = def.overshoot ?? 0.6;
     let s0T = null, bendT = null, ended = false, repAmps = [], s, lastT, ref, refBuf, state, top, hist, lo, tDown, reps, amps, lastRepT, lastGood, repTimes, raw3, pend, auxLo, auxHi, aux2Lo, aux2Hi, onRep = opts.onRep;
-    let bodyBuf = [], rejected = 0, qa = null, tents = [], camT = 0, topPose = [];
-    function reset() { bendT = null; ended = false; tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
+    let shBuf = [], ampT = 0, bodyBuf = [], rejected = 0, qa = null, tents = [], camT = 0, topPose = [];
+    function reset() { bendT = null; ended = false; tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; shBuf = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
     reset();
     const typAmp = () => { if (!amps.length) return null; const a = [...amps].sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; };
     const hiNow = () => top.length ? Math.max(...top.map(p => p[1])) : s;
@@ -145,7 +145,7 @@
       const why = cleanRep(p);
       // v8.13: a movement made out of posture or out of view (unracking/walking out under the bar, glitchy frames) no longer
       // sets the adaptive amplitude, so one huge setup excursion cannot make the set's real (smaller) reps look too shallow
-      if (!def.cleanAmps || (why !== 'pose' && why !== 'vis')) { amps.push(p.amp); if (amps.length > 8) amps.shift(); p.inAmps = true; }
+      if (!def.cleanAmps || (why !== 'pose' && why !== 'vis')) { ampT = p.t; amps.push(p.amp); if (amps.length > 8) amps.shift(); p.inAmps = true; }
       if (ended && p.t > ended) { rejected++; opts.onReject && opts.onReject('ended', p); return; }
       if (why) { rejected++; opts.onReject && opts.onReject(why, p); return; }
       if (reps > 0) return count(p);
@@ -175,6 +175,7 @@
       const t = tMs / 1000;
       if (camMoving) return camPause(t);
       camT = 0;
+      if (def.ampIdle && reps === 0 && amps.length && t - ampT > def.ampIdle) amps = []; // v8.31: before the set's first rep, amplitudes older than ampIdle s are forgotten
       const g = lm && geom(lm, aspect);
       const ok = g && (def.need === 'legs' ? g.legsVis > 0.4 : def.need === 'arms' ? g.armsVis > 0.4 : true);
       if (!ok) { if (qa) { qa.n++; qa.bad++; } checkPend(t, true); return out(false); }
@@ -188,6 +189,7 @@
           if (g.torso < 0.6 * m || (def.need === 'legs' && g.torsoTilt > 120)) { if (qa) { qa.n++; qa.bad++; if (g.torsoTilt > 120) qa.flip = (qa.flip || 0) + 1; } return out(false); } } }
       ref = Math.max(ref * Math.exp(-(lastT == null ? 0 : Math.max(0, t - lastT)) / (def.refTau && body < (def.refTauBelow ?? 0.9) * ref ? def.refTau : 60)), body); // slowly decaying max torso length (v8.13: refTau — faster decay once the body is clearly smaller, e.g. after walking up to the phone)
       if (def.refWin) { refBuf.push([t, body]); while (refBuf[0][0] < t - def.refWin) refBuf.shift(); }
+      if (def.tailTop) { shBuf.push([t, g.shM.y / ref]); if (shBuf.length > 4000) shBuf.splice(0, 1000); } // v8.31 dismount: shoulder height history
       let raw = def.signal(g, def.refWin ? Math.max(...refBuf.map(p => p[1])) : ref);
       if (raw == null || !isFinite(raw) || (def.valid && !def.valid(raw, g, ref))) { if (qa) { qa.n++; qa.bad++; } checkPend(t, true); return out(false); }
       if (qa) { // frame quality while a rep is in progress
@@ -274,9 +276,16 @@
       // v8.9: tempo outliers at either end of the set — a "rep" far slower to follow (lead) or to arrive (tail) than the
       // set's own rhythm is setup/re-racking motion (lying down onto the bench, sitting up, reaching for the bar), not a rep
       // v8.23 dips dismount: a last 'rep' clearly shallower than the set AND arriving late (stepping down off the bars) is dropped
-      if (def.tailDrop && reps >= 6) { const am = [...repAmps.slice(0, -1)].sort((x, y) => x - y)[(repAmps.length - 2) >> 1];
+      const tailDrop = () => { if (!(def.tailDrop && reps >= 6)) return false; const am = [...repAmps.slice(0, -1)].sort((x, y) => x - y)[(repAmps.length - 2) >> 1];
         const gs = []; for (let i = 1; i < repTimes.length - 1; i++) gs.push(repTimes[i] - repTimes[i - 1]); gs.sort((x, y) => x - y); const gm = gs[(gs.length - 1) >> 1];
-        const L = repTimes.length - 1; if (repAmps[L] < def.tailDrop.amp * am && repTimes[L] - repTimes[L - 1] > def.tailDrop.gap * gm) { reps--; repTimes.pop(); repAmps.pop(); } }
+        const L = repTimes.length - 1; if (repAmps[L] < def.tailDrop.amp * am && repTimes[L] - repTimes[L - 1] > def.tailDrop.gap * gm) { reps--; repTimes.pop(); repAmps.pop(); return true; } return false; };
+      // v8.31 dismount (def.tailTop, null = off): the shoulders never get back up to the set's top after the last 'rep' (stepping down
+      // off the bars: hips/shoulders settle at standing height). Top = highest shoulder (min y/ref) within [t-before, t+after] of each rep.
+      const topDrop = () => { const T = def.tailTop; if (!T || reps < 6) return false; const top = x => { let m = Infinity; for (const [u, y] of shBuf) if (u >= x - T.before && u <= x + T.after) m = Math.min(m, y); return m; };
+        const tops = repTimes.map(top), L = reps - 1, mt = [...tops.slice(0, -1)].sort((x, y) => x - y)[(L - 1) >> 1], ma = [...repAmps.slice(0, -1)].sort((x, y) => x - y)[(L - 1) >> 1];
+        const short = isFinite(tops[L]) && isFinite(mt) && tops[L] - mt > T.frac * ma; if (opts.onTail) opts.onTail({ t: repTimes[L], top: tops[L], medTop: mt, medAmp: ma, ratio: (tops[L] - mt) / ma, drop: short && T.mode !== 'shadow' });
+        if (short && T.mode !== 'shadow') { reps--; repTimes.pop(); repAmps.pop(); return true; } return false; };
+      const tailDropped = tailDrop() || topDrop();
       if (def.edgeTrim ?? true) {
         // split the set where a gap is far longer than its typical rep-to-rep time (40th percentile, so slow junk at the
         // edges does not inflate it) (L); an edge group is dropped while ≥4
@@ -296,6 +305,8 @@
             repTimes = repTimes.slice(k0, k1); repAmps = repAmps.slice(k0, k1); reps = repTimes.length; }
         }
       }
+      // v8.31: the dismount check again once a far-off trailing group is trimmed (mvvfo3h7: shallow step-down 68.8 s sat before a stray 73.6 s 'rep')
+      if (!tailDropped) topDrop(); // after trimming a far-off trailing group the real last rep is checked too
       // v8.10: rows — the setup lift (bar from floor/rack to the hang, hinging over) and putting it back are one big, slow
       // excursion at an edge of the set: drop an edge rep much bigger than the set's median AND slower than its rhythm
       if (def.bigEdge && reps >= 6) {
