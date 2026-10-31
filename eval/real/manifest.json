@@ -416,7 +416,7 @@
  {
   "id": "mvnnso2aea1f27b0",
   "exercise": "pullups",
-  "gt": 6,
+  "gt": 5,
   "kg": 0,
   "realKg": 10,
   "view": "front",
@@ -440,8 +440,12 @@
   "label": "implicit",
   "labelReps": 6,
   "labelEx": "pullups",
-  "notes": "2026-10-25 session: pull-ups +10 kg set 4 at ~124-137 s",
-  "tier": "worst"
+  "notes": "2026-10-25 session: pull-ups +10 kg set 4 at ~124-137 s | Rune review 31 Oct: use 122.1–134.6 s; comment \"5 rene reps\" (form field said 6) → truth 5.",
+  "tier": "worst",
+  "win": [
+   122.1,
+   134.6
+  ]
  },
  {
   "id": "mvnnu10fd5aab31c",
@@ -769,8 +773,12 @@
   "label": "implicit",
   "labelReps": 16,
   "labelEx": "dips",
-  "notes": "2026-10-25 session: dips +15 kg set 1",
-  "tier": "worst"
+  "notes": "2026-10-25 session: dips +15 kg set 1 | Rune review 31 Oct: use 57.9–85 s, truth 12.",
+  "tier": "worst",
+  "win": [
+   57.9,
+   85
+  ]
  },
  {
   "id": "mvnoctaf7a668445",
@@ -1262,7 +1270,7 @@
  {
   "id": "mvr3phm88e08d970",
   "exercise": "halvmark",
-  "gt": 9,
+  "gt": 6,
   "kg": 40,
   "realKg": 100,
   "view": "front",
@@ -1278,9 +1286,13 @@
   "label": "implicit",
   "labelEx": "halvmark",
   "labelReps": 9,
-  "notes": "romanian deadlift (RDL) 100 kg, start rep from the floor included · Rune in-app: 9 × 100 kg",
+  "notes": "romanian deadlift (RDL) 100 kg, start rep from the floor included · Rune in-app: 9 × 100 kg | Rune review 31 Oct: use only the last 6 clean reps (31.9–52.9 s), truth 6.",
   "tier": "worst",
-  "kgTrue": 100
+  "kgTrue": 100,
+  "win": [
+   31.9,
+   52.9
+  ]
  },
  {
   "id": "mvr3slr3ddbdbd01",
@@ -1776,8 +1788,8 @@
    "kg": 30,
    "auto": true
   },
-  "notes": "30 Oct (2): standing row 90 kg set 1 (~70-86 s, far from the camera after long rigging), Rune 10. App roing 4; replay 10 Hz dips 5, 30 Hz nothing.",
-  "tier": "worst",
+  "notes": "30 Oct (2): standing row 90 kg set 1 (~70-86 s, far from the camera after long rigging), Rune 10. App roing 4; replay 10 Hz dips 5, 30 Hz nothing. | Rune review 31 Oct: removed from test data.",
+  "tier": "excluded",
   "view": "front",
   "facing": "user",
   "app": "8.17",
