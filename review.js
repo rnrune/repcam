@@ -2,9 +2,10 @@
 // Rune corrects exercise/reps, the result goes to the feedback worker as meta + label (kind 'review'), clip marked done.
 const VISION = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 const $ = id => document.getElementById(id), v = $('v'), c = $('c'), ctx = c.getContext('2d'), LS = localStorage, R = Reps, F = Feedback;
-const DONE = 'repcam.review.done', AUTOSAVE_S = 9;
+const DONE = 'repcam.review.done.v2', /* v8.24: new key — answers only; skipped clips used to be stored as done and vanished */ AUTOSAVE_S = 9;
 const NAMES = { knebøy: 'Knebøy', bulgarsk: 'Bulgarsk utfall', pullups: 'Pull-ups', dips: 'Dips', benkpress: 'Benkpress', skråbenk: 'Skråbenk', halvmark: 'Markløft', roing: 'Roing', armhevinger: 'Armhevinger', curl: 'Curl', situps: 'Situps', vsitup: 'V-situp' };
 $('ex').innerHTML = '<option value="">– ingen –</option>' + R.IDS.map(i => `<option value="${i}">${NAMES[i] || i}</option>`).join('');
+let skipped = [];
 const done = () => { try { return JSON.parse(LS.getItem(DONE) || '[]'); } catch { return []; } };
 let clips = [], cur = null, lm = [], det = { ex: null, reps: 0, times: [] }, landmarker, lastT = -1, lastLog = -1;
 // same replay as eval/real/run.js (app.js processFrame in auto mode incl. 9 s autosave); frames [t,(x,y,vis)*33]
@@ -71,7 +72,7 @@ function show(final) {
   if (final) { $('ex').value = det.ex || cur.expected || ''; $('reps').value = det.reps; }
 }
 function next() {
-  const d = done(), left = clips.filter(x => !d.includes(x.id)); $('left').textContent = `(${left.length} igjen)`;
+  const d = done(), left = clips.filter(x => !d.includes(x.id)).sort((a, b) => skipped.indexOf(a.id) - skipped.indexOf(b.id)); /* skipped clips go last, never disappear */ $('left').textContent = `(${left.length} igjen)`;
   $('comment').value = ''; $('tFrom').value = $('tTo').value = '';
   cur = left[0]; lm = []; lastT = -1; lastLog = -1; sk = null; skelUi(false);
   if (!cur) { $('info').textContent = 'Alle klipp er gjennomgått 🎉'; v.removeAttribute('src'); return; }
@@ -122,7 +123,7 @@ async function submit(action) {
     try { await send('meta', id, JSON.stringify(meta), 'application/json'); await send('label', id, JSON.stringify(label), 'application/json'); $('st').textContent = 'Sendt ✓ ' + cur.id; }
     catch (e) { $('st').textContent = 'Opplasting feilet: ' + e.message; return; }
   } else $('st').textContent = 'Hoppet over ' + cur.id;
-  LS.setItem(DONE, JSON.stringify([...done(), cur.id])); next();
+  if (action === 'skip') { skipped = [...skipped.filter(x => x !== cur.id), cur.id]; } else LS.setItem(DONE, JSON.stringify([...done(), cur.id])); next();
 }
 $('ok').onclick = () => submit('corrected'); $('rm').onclick = () => submit('remove');
 $('tStart').onclick = () => { if (sk) { $('tFrom').value = sk.t.toFixed(1); drawTl(); } }; $('tEnd').onclick = () => { if (sk) { $('tTo').value = sk.t.toFixed(1); drawTl(); } }; $('tClr').onclick = () => { $('tFrom').value = $('tTo').value = ''; drawTl(); }; $('skip').onclick = () => submit('skip'); $('none').onclick = () => submit('notASet');

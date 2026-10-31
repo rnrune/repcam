@@ -270,9 +270,10 @@ async function review() {
     await p.screenshot({ path: OUT + `review-${stamp}.png`, fullPage: true });
     await p.click('#ok'); await p.waitForTimeout(800); const left2 = await p.textContent('#left'), info2 = await p.textContent('#info');
     await p.screenshot({ path: OUT + `review-next-${stamp}.png`, fullPage: true });
+    await p.click('#skip'); await p.waitForTimeout(300); const left3 = await p.textContent('#left'); await p.reload(); await p.waitForTimeout(1500); const left4 = await p.textContent('#left');
     const lab = sent.find(x => x.u.startsWith('label/')), L = lab ? JSON.parse(lab.body) : {};
-    const ok = /3 igjen/.test(left) && /Knebøy/.test(info) && /Problem:/.test(info) && L.clipId === 'mvr3cnad21805e00' && L.useFrom === 100.9 && L.useTo === 112 && L.reps === 12 && L.comment === 'verify-test' && /2 igjen/.test(left2) && !errs.length;
-    console.log(JSON.stringify({ left, info: info.slice(0, 200), label: { clipId: L.clipId, reps: L.reps, useFrom: L.useFrom, useTo: L.useTo, removeFromTest: L.removeFromTest, comment: L.comment }, left2, next: info2.slice(0, 80), ok, pageErrors: errs }));
+    const ok = /3 igjen/.test(left) && /Knebøy/.test(info) && /Problem:/.test(info) && L.clipId === 'mvr3cnad21805e00' && L.useFrom === 100.9 && L.useTo === 112 && L.reps === 12 && L.comment === 'verify-test' && /2 igjen/.test(left2) && /2 igjen/.test(left3) && /2 igjen/.test(left4) && !errs.length;
+    console.log(JSON.stringify({ left, info: info.slice(0, 200), label: { clipId: L.clipId, reps: L.reps, useFrom: L.useFrom, useTo: L.useTo, removeFromTest: L.removeFromTest, comment: L.comment }, left2, afterSkip: left3, afterSkipReload: left4, next: info2.slice(0, 80), ok, pageErrors: errs }));
     console.log(`${ok ? 'PASS' : 'FAIL'} review · proof ${OUT}review-${stamp}.png / review-next-${stamp}.png`); process.exitCode = ok ? 0 : 1;
   } finally { await b.close(); srv.close(); }
 }
