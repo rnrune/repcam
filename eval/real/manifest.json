@@ -1668,7 +1668,7 @@
    "kg": 0,
    "auto": true
   },
-  "notes": "30 Oct: pull-ups set 3. Rune 31 Oct: body tracking failed after rep 6 — landmarks trimmed at 140.3 s (end of rep 6 + margin), truth 6.",
+  "notes": "30 Oct: pull-ups set 3. Rune 31 Oct: body tracking failed after rep 6 — landmarks trimmed at 139.4 s (pose flips from 139.5 s) (end of rep 6 + margin), truth 6.",
   "tier": "worst",
   "view": "front",
   "facing": "user",

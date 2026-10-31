@@ -265,7 +265,7 @@
    136.97,
    138.76
   ],
-  "durationS": 140.3,
+  "durationS": 139.4,
   "video": {
    "mime": "video/mp4; codecs=avc1.42000a",
    "bytes": 16518643,
@@ -286,7 +286,7 @@
    "setTs": "2026-10-30T20:17:44.525Z",
    "at": "2026-10-30T21:40:50.942Z",
    "_received": "2026-10-30T21:40:51.416Z",
-   "note": "Rune 31 Oct: only data up to rep 6 is valid (tracking failed after); truth 6. Landmarks trimmed at 140.3 s."
+   "note": "Rune 31 Oct: only data up to rep 6 is valid (tracking failed after); truth 6. Landmarks trimmed at 139.4 s."
   }
  },
  "mvvf26hgc6ccdffd": {
