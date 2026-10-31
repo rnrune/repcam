@@ -18,3 +18,11 @@ mvvesvuf pullups→dips; curl wrists-level 0.3/0.2: breaks core mvnohgsi; pull-u
 * 10 Hz (`--tempo on`): exact 42 → 47/64, false sets 0/15, core 21/21. 30 Hz: core 18/21 (same 3 pre-existing misses).
 * Rolled back: set-posture gate for rows (torso tilt > 15° share 0.75 / 0.6, no gain); rest/rigging posture only helped via tempo.
 * Still open: mvvez2ad pull-ups 6/8 (kipping reps with knees up, wrists at frame top → pose 0), mvnnpi95 5/6, mvnnso2a 7/6, mvnogfwn dips 13/12, mvvfl1ka-dips 13/12, mvvfl1ka-row 11/10.
+
+## v8.22 (31 Oct)
+* tempo gate roing 2.5 → 1.7 s (shadow): with `--tempo on` false sets 2/15 → **0/15**, core 21/21.
+* dips `cntRatio` 0.45 (was 0.5): mvvfo3h7 9 → 12 ✓.
+* curl `endBend {tilt 40°, dur 0.4 s}`: reps after the bar is put down are not counted: mvvfsawp 14 → 12 ✓.
+* pull-ups `edgeGapTail` 4.5 (was 4): slow last rep kept: mvvf26hg 7 → 8 ✓. mvvez2ad stays 6/8 (its last two "reps" are out-of-pose dismount frames; video already deleted, could not inspect).
+* Rolled back: roing set-posture gate (torso tilt > 15°, frac 0.75 with 1.5 s lead → broke core mvno4ocl; frac 0.6 no lead → no gain).
+* 10 Hz, `--tempo on`: exact 47/64, exercise 48/49, MAE 0.84. 30 Hz: core 18/21 (same 3 pre-existing misses).
