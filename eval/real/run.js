@@ -21,7 +21,7 @@ const HOLD = process.argv.includes('--hold'); // v8.26 diagnostic: repeat each l
 function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gate (shadow: verdicts only; active: counters wait for READY)
   const G = opt.rest ? require(path.join(__dirname, '..', '..', 'rest.js')).createRestGate(opt.rest.cfg) : null, verdicts = [];
   const F = hz ? upsample(d.frames, hz, opt.jit ?? JIT) : d.frames, asp = d.w / d.h, rec = R.createRecognizer(), pick = R.createPicker(), gate = R.createCameraGate();
-  let cs, auto = null, lock = null, shown = 0, shownT = 0, saved = null; const keep = r => { if (G) { const v = G.verdict((r.times[0] ?? 0) * 1000 - 1); verdicts.push({ t: r.times[0], ex: r.ex, reps: r.reps, v }); G.rest(F[i0][0] * 1000); if (opt.rest.active && v === 'would-suppress') return; } if (!saved || r.reps > saved.reps) saved = r; };
+  let cs, auto = null, lock = null, shown = 0, shownT = 0, saved = null; const keep = r => { if (opt.onKeep) opt.onKeep(r); if (G) { const v = G.verdict((r.times[0] ?? 0) * 1000 - 1); verdicts.push({ t: r.times[0], ex: r.ex, reps: r.reps, v }); G.rest(F[i0][0] * 1000); if (opt.rest.active && v === 'would-suppress') return; } if (!saved || r.reps > saved.reps) saved = r; };
   const reset = () => { cs = {}; for (const id of R.IDS) cs[id] = R.createCounter(id); lock = null; shown = 0; };
   const res = ex => { const reps = cs[ex].flush(); return { ex, reps, kg: DEFAULT_KG[ex] ?? 0, times: cs[ex].repTimes.map(t => +t.toFixed(1)) }; };
   reset(); let i0 = 0; if (G) G.rest(F[0][0] * 1000 - 1e9);
@@ -35,11 +35,11 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     for (const id of R.IDS) if (id !== ex && cs[id].reps > 0 && a[0] - cs[id].lastRepT > AUTOSAVE_S && cs[id].forget) cs[id].forget();
     if (n !== shown) { shown = n; shownT = a[0]; }
     if (n > 0 && a[0] - shownT > AUTOSAVE_S && lock && R.relock && R.relock(cs, lock, p, a[0], rc.scores, true) !== lock) { lock = R.relock(cs, lock, p, a[0], rc.scores, true); shown = cs[lock].reps; shownT = a[0]; }
-    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) {  if (n >= 2 && plaus(ex, cs[ex].repTimes)) { keep(res(ex)); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
+    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) {  if (n >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) { keep(res(ex)); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
   // the clip ends where the app saved the set: same last-chance re-lock as at an autosave
   if (lock && R.relock) lock = R.relock(cs, lock, null, F[F.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto;
-  if (ex && cs[ex].reps >= 2 && plaus(ex, cs[ex].repTimes)) keep(res(ex));
+  if (ex && cs[ex].reps >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) keep(res(ex));
   if (G) { const ret = saved || { ex: null, reps: 0, kg: 0, times: [] }; ret.restVerdicts = verdicts; if (opt.rest.active) return ret; }
   if (saved) return saved;
   if (ex) { const r = res(ex); if (plaus(ex, r.times)) return r; return { ...r, reps: 0, times: [] }; }

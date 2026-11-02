@@ -24,7 +24,7 @@ function replay(Fr, asp) {
     for (const id of R.IDS) if (id !== ex && cs[id].reps > 0 && a[0] - cs[id].lastRepT > AUTOSAVE_S) cs[id].forget();
     if (n !== shown) { shown = n; shownT = a[0]; }
     if (n > 0 && a[0] - shownT > AUTOSAVE_S && lock && R.relock(cs, lock, p, a[0], rc.scores, true) !== lock) { lock = R.relock(cs, lock, p, a[0], rc.scores, true); shown = cs[lock].reps; shownT = a[0]; }
-    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) { if (n >= 2 && R.plausibleSet(cs[ex].repTimes)) { keep(res(ex)); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
+    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) { if (n >= (R.minSet ? R.minSet(ex) : 2) && R.plausibleSet(cs[ex].repTimes)) { keep(res(ex)); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
   if (lock) lock = R.relock(cs, lock, null, Fr[Fr.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto; if (ex && cs[ex].reps >= 2 && R.plausibleSet(cs[ex].repTimes)) keep(res(ex));
   if (saved) return saved; const r = ex ? res(ex) : null; return r && R.plausibleSet(r.times) ? r : { ex: null, reps: 0, times: [] };
