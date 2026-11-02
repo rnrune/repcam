@@ -756,42 +756,6 @@
    "_received": "2026-10-30T21:38:43.092Z"
   }
  },
- "mvvfphhq23aa5582": {
-  "setTs": "2026-10-30T20:38:17.289Z",
-  "app": "8.16",
-  "pred": {
-   "exercise": "bulgarsk",
-   "reps": 5,
-   "kg": 70,
-   "auto": true
-  },
-  "repTimes": [
-   4.62,
-   6.49,
-   8.09,
-   10.67,
-   14.57
-  ],
-  "durationS": 17.75,
-  "video": {
-   "mime": "video/mp4; codecs=avc1.42000a",
-   "bytes": 2014867,
-   "w": 720,
-   "h": 1280,
-   "bps": 1000000
-  },
-  "label": {
-   "kind": "notASet",
-   "exercise": "bulgarsk",
-   "reps": 0,
-   "kg": 70,
-   "notASet": true,
-   "missed": false,
-   "setTs": "2026-10-30T20:38:17.289Z",
-   "at": "2026-10-30T21:39:46.731Z",
-   "_received": "2026-10-30T21:39:48.054Z"
-  }
- },
  "mvvfrgoaeb40e212": {
   "setTs": "2026-10-30T20:39:49.540Z",
   "app": "8.16",
