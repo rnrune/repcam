@@ -18,6 +18,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
 const APP_VERSION = '8.33';
+let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
 /* v8.32 row lead-in kill switch: localStorage repcam.rowLead = off | shadow */
@@ -207,7 +208,7 @@ async function fbCut1(pred, setTs, label) {
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
     camera, restShadow, barShadow, tempoShadow, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
-    video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth, h: v.videoHeight, bps: 1e6 },
+    video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
   try { const st = await fbQueue().stats(); if (st.bytes + seg.blob.size > Feedback.QUEUE_CFG.maxLocalBytes) { console.warn('fb: local queue full, clip skipped'); return; } } catch {}
@@ -285,7 +286,7 @@ async function renderFb() {
   if ($('fbRemember')) $('fbRemember').onclick = async () => { const d = new Date(); let ok = false; try { ok = !!(await fbNetCall('trust', { label: 'Wifi ' + d.getDate() + '.' + (d.getMonth() + 1) + '.' })).ok; } catch {} fbOfferRemember = !ok; fbNetSt.at = 0; showToastGlobal(ok ? L.t('fb.remembered') : '⚠'); await fbUpload(true); renderFb(); };
   $('fbOn').onchange = () => { LS.setItem(Feedback.KEYS.on, $('fbOn').checked ? '1' : '0'); if ($('fbOn').checked) fbQueue(); renderFb(); };
   if ($('fbSend')) $('fbSend').onclick = async () => { const b = $('fbSend'); b.disabled = true; b.textContent = '…'; // v8.18: visible feedback
-    let r = null; try { r = await fbQueue().process({ force: true }); } catch (e) { r = { error: e.message }; }
+    let r = null; try { r = await fbQueue().process({ force: true, upload: { mode: 'manual', net: fbNetType(), trusted: !!fbNetSt.trusted, wifiOnly: fbWifiOnly(), online: navigator.onLine !== false, at: new Date().toISOString() } }); /* v8.34 bug A */ } catch (e) { r = { error: e.message }; }
     await fbUpload('user'); const n = await fbPending(); fbOfferRemember = fbWifiOnly() && fbNetType() === 'unknown' && !(await fbNetCheck(true)).trusted; /* v8.29: one tap to trust this network */ showToastGlobal(n ? `⇡ ${n} · ${r && r.error ? r.error : ''}` : '✓'); renderFb(); };
   if ($('fbDel')) $('fbDel').onclick = async () => { if (await confirmDialog(L.t('fb.del'), L.t('fb.delText'), L.t('del.ok'))) { await fbQueue().clearPending(); } renderFb(); };
 }
@@ -732,7 +733,8 @@ function loop() {
   const ts = performance.now(); if (ts <= lastTs) return; if (fb.rec && lastTs > 0) { (fb.det ||= []).push(ts - lastTs); if (fb.det.length > 6000) fb.det.splice(0, 1000); } /* v8.26: real pose rate telemetry */ lastTs = ts;
   const res = landmarker.detectForVideo(v, ts);
   ctx.clearRect(0, 0, c.width, c.height);
-  const lm = res.landmarks?.[0], asp = v.videoWidth / v.videoHeight || 1;
+  if (v.videoWidth && v.videoHeight) { lastVW = v.videoWidth; lastVH = v.videoHeight; } /* v8.34 bug B: iOS reports 0x0 at times */
+  const lm = res.landmarks?.[0], asp = (lastVW / lastVH) || 1;
   if (lm) {
     const du = new DrawingUtils(ctx);
     du.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: '#ff5a3c', lineWidth: 4 });
