@@ -13,6 +13,8 @@ function upsample(F, hz, jit = 0) { let seed = 12345; const rnd = () => (seed = 
 // rep is dropped (only that exercise's counter is reset), 2+ reps are saved as a set and counting starts over. The clip ends with the set the app
 // logged; when the replay produces several sets (setup junk before/after) the biggest one is reported (the clip's real set).
 const AUTOSAVE_S = 9;
+if (arg('--sig', null)) R.SIG_CFG.mode = arg('--sig'); // v8.38: off|shadow|on
+const SIGLOG = [];
 if (arg('--tempo', null)) R.TEMPO_CFG.mode = arg('--tempo'); // v8.20: --tempo on|shadow
 const plaus = (ex, t) => (!R.plausibleSet || R.plausibleSet(t)) && !(R.TEMPO_CFG && R.TEMPO_CFG.mode === 'on' && R.tempoSlow(ex, t));
 const JIT = +((process.argv.includes('--jitter') && process.argv[process.argv.indexOf('--jitter') + 1]) || 0); // v8.26: ±frame jitter (fraction of a frame period)
@@ -20,13 +22,16 @@ const JUMP = +arg('--jump', 0.06); // v8.26: a landmark that jumps more than thi
 const HOLD = process.argv.includes('--hold'); // v8.26 diagnostic: repeat each logged pose (new timestamps only) instead of interpolating
 function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gate (shadow: verdicts only; active: counters wait for READY)
   const G = opt.rest ? require(path.join(__dirname, '..', '..', 'rest.js')).createRestGate(opt.rest.cfg) : null, verdicts = [];
-  const F = hz ? upsample(d.frames, hz, opt.jit ?? JIT) : d.frames, asp = d.w / d.h, rec = R.createRecognizer(), pick = R.createPicker(), gate = R.createCameraGate();
+  const F = hz ? upsample(d.frames, hz, opt.jit ?? JIT) : d.frames, asp = d.w / d.h, rec = R.createRecognizer(), pick = R.createPicker(), gate = R.createCameraGate(), sig = R.createSigTracker ? R.createSigTracker() : null;
   let cs, auto = null, lock = null, shown = 0, shownT = 0, saved = null; const keep = r => { if (opt.onKeep) opt.onKeep(r); if (G) { const v = G.verdict((r.times[0] ?? 0) * 1000 - 1); verdicts.push({ t: r.times[0], ex: r.ex, reps: r.reps, v }); G.rest(F[i0][0] * 1000); if (opt.rest.active && v === 'would-suppress') return; } if (!saved || r.reps > saved.reps) saved = r; };
   const reset = () => { cs = {}; for (const id of R.IDS) cs[id] = R.createCounter(id); lock = null; shown = 0; };
   const res = ex => { const reps = cs[ex].flush(); return { ex, reps, kg: DEFAULT_KG[ex] ?? 0, times: cs[ex].repTimes.map(t => +t.toFixed(1)) }; };
+  const sigKeep = ex => { if (!sig || R.SIG_CFG.mode === 'off') return keep(res(ex)); const v = sig.check(ex, cs[ex].repTimes, cs, R.minSet);
+    SIGLOG.push({ cnt: Object.fromEntries(R.IDS.map(i => [i, cs[i].reps]).filter(x => x[1])), ex, reps: cs[ex].reps, why: v.why, to: v.ex, st: v.st && { tilt: +v.st.tilt.toFixed(0), wrAb: +v.st.wrAb.toFixed(2), travel: +v.st.travel.toFixed(2), iqr: +v.st.iqr.toFixed(2), hy: +v.st.hy.toFixed(2) } });
+    if (R.SIG_CFG.mode !== 'on' || !v.why) return keep(res(ex)); if (v.drop) return; const e2 = v.ex; if (e2 !== ex && plaus(e2, cs[e2].repTimes)) return keep(res(e2)); return keep(res(ex)); };
   reset(); let i0 = 0; if (G) G.rest(F[0][0] * 1000 - 1e9);
   for (const a of F) { i0 = F.indexOf(a, i0); const lm = []; for (let i = 0; i < 33; i++) lm.push({ x: a[1 + 3 * i], y: a[2 + 3 * i], visibility: a[3 + 3 * i] });
-    const ms = a[0] * 1000; let cam = !gate.update(lm, ms, asp).ok; if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
+    const ms = a[0] * 1000; let cam = !gate.update(lm, ms, asp).ok; if (sig) sig.update(lm, ms, asp); if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
     const rc = rec.update(lm, ms, asp, cam), p = pick.update(rc, ms); if (!lock && p) auto = p;
     if (auto && !lock && cs[auto].reps >= 2) lock = auto; else if (lock && R.relock) lock = R.relock(cs, lock, p, a[0], rc.scores);
     const ex = lock || auto, n = ex ? cs[ex].reps : 0;
@@ -35,11 +40,11 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     for (const id of R.IDS) if (id !== ex && cs[id].reps > 0 && a[0] - cs[id].lastRepT > AUTOSAVE_S && cs[id].forget) cs[id].forget();
     if (n !== shown) { shown = n; shownT = a[0]; }
     if (n > 0 && a[0] - shownT > AUTOSAVE_S && lock && R.relock && R.relock(cs, lock, p, a[0], rc.scores, true) !== lock) { lock = R.relock(cs, lock, p, a[0], rc.scores, true); shown = cs[lock].reps; shownT = a[0]; }
-    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) {  if (n >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) { keep(res(ex)); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
+    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) {  if (n >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) { sigKeep(ex); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
   // the clip ends where the app saved the set: same last-chance re-lock as at an autosave
   if (lock && R.relock) lock = R.relock(cs, lock, null, F[F.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto;
-  if (ex && cs[ex].reps >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) keep(res(ex));
+  if (ex && cs[ex].reps >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) sigKeep(ex);
   if (G) { const ret = saved || { ex: null, reps: 0, kg: 0, times: [] }; ret.restVerdicts = verdicts; if (opt.rest.active) return ret; }
   if (saved) return saved;
   if (ex) { const r = res(ex); if (plaus(ex, r.times)) return r; return { ...r, reps: 0, times: [] }; }
@@ -47,7 +52,7 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
 }
 // v8.27: old clips {w,h,frames} (≈10 Hz throttled) and new full-rate clips {w,h,landmarks:{enc:'i16b64',…}} or packed `frames` load alike; timestamps as recorded
 function normLm(d) { const FB = require(path.join(__dirname, '..', '..', 'feedback.js')); const L = d.landmarks || (d.frames && !Array.isArray(d.frames) ? d.frames : null); return L ? { ...d, frames: FB.unpackLm(L), full: !!L.full } : d; }
-module.exports = { normLm, replay, man: () => JSON.parse(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8')), load: id => normLm(JSON.parse(fs.readFileSync(path.join(__dirname, id + '.lm.json'), 'utf8'))) };
+module.exports = { SIGLOG, normLm, replay, man: () => JSON.parse(fs.readFileSync(path.join(__dirname, 'manifest.json'), 'utf8')), load: id => normLm(JSON.parse(fs.readFileSync(path.join(__dirname, id + '.lm.json'), 'utf8'))) };
 // Scoring: a clip is exact when exercise + reps (+ default kg) match; negatives (exercise null, gt 0) pass when nothing is logged.
 // Only clips marked `must` (v8.8, also checked at 30 Hz in test-v88) or `regress` (v8.9 clips the engine gets right) fail
 // the run (exit 1); the rest are tracked as a score (exact / exercise / MAE / false sets).

@@ -603,6 +603,33 @@
   // dip bars) made a false 'curl 2'; real curl sets are never doubles. Kill switch in the app: localStorage repcam.minSet = off.
   const MIN_SET = { curl: 3 };
   const minSet = ex => Math.max(2, MIN_SET[ex] || 2);
-  const api = { MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  // v8.38 kinematic signature (Rune 3 Nov: «avstand regler, akse bevegelse regler på punktene?»): a set-level check over
+  // the set's frames. Body orientation (torso tilt from vertical), wrists above/below the shoulders, and horizontal travel
+  // of the hips (walking around = rigging, not a set). Ranges measured on the eval set (3 Nov, 87 clips), units = torso length.
+  // mode: 'off' | 'shadow' (log only) | 'on'. travel → the set is dropped; a signature mismatch → the best-matching other
+  // exercise that also counted a set takes over (no match → the set is kept as is).
+  const SIG_CFG = { mode: 'shadow', travelMax: 1.2, vetoOn: true, travelOn: true, pre: 1.2, post: 0.3,
+    ex: { benkpress: { tilt: [70, 180], wrAb: [0.2, 9] }, skråbenk: { tilt: [45, 72], wrAb: [0.15, 9] }, vsitup: { tilt: [70, 180], wrAb: [0.2, 9] },
+      pullups: { tilt: [0, 22], wrAb: [0.15, 9] }, armhevinger: { tilt: [40, 80], wrAb: [-9, -0.6] }, dips: { tilt: [0, 40], wrAb: [-9, -0.4], hy: [0.38, 9] },
+      roing: { tilt: [10, 45], wrAb: [-9, -0.4] }, curl: { tilt: [0, 20], wrAb: [-9, -0.3] }, knebøy: { tilt: [0, 35], wrAb: [-0.3, 0.4] },
+      halvmark: { tilt: [0, 40], wrAb: [-9, -0.55] } } };
+  function createSigTracker() {
+    const buf = []; const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+    function update(lm, ms, asp) { if (!lm || !lm[24]) return; const t = ms / 1000, sh = mid(lm[11], lm[12]), hp = mid(lm[23], lm[24]), wr = mid(lm[15], lm[16]);
+      const tx = (sh.x - hp.x) * asp, ty = sh.y - hp.y, L = Math.hypot(tx, ty); if (!(L > 1e-4)) return;
+      buf.push([t, Math.abs(Math.atan2(tx, -ty) * 180 / Math.PI), (sh.y - wr.y) / L, hp.x * asp, L, hp.y]); while (buf.length && buf[0][0] < t - 180) buf.shift(); }
+    const med = a => { const b = [...a].sort((x, y) => x - y); return b[b.length >> 1]; }, q = (a, f) => { const b = [...a].sort((x, y) => x - y); return b[Math.floor(f * (b.length - 1))]; };
+    function stats(times) { if (!times || !times.length) return null; const t0 = times[0] - SIG_CFG.pre, t1 = times[times.length - 1] + SIG_CFG.post, F = buf.filter(f => f[0] >= t0 && f[0] <= t1); if (F.length < 8) return null;
+      const L = med(F.map(f => f[4])), hx = F.map(f => f[3]); return { tilt: med(F.map(f => f[1])), wrAb: med(F.map(f => f[2])), travel: (q(hx, 0.95) - q(hx, 0.05)) / L, iqr: (q(hx, 0.75) - q(hx, 0.25)) / L, hy: (q(F.map(f => f[5]), 0.95) - q(F.map(f => f[5]), 0.05)) / L, n: F.length }; }
+    const fits = (ex, st) => { const r = SIG_CFG.ex[ex]; if (!r || !st) return true; return (!r.tilt || (st.tilt >= r.tilt[0] && st.tilt <= r.tilt[1])) && (!r.wrAb || (st.wrAb >= r.wrAb[0] && st.wrAb <= r.wrAb[1])) && (!r.hy || (st.hy >= r.hy[0] && st.hy <= r.hy[1])); };
+    // verdict for a set the app is about to save: {drop, ex (possibly replaced), why, st}
+    function check(ex, times, cs, minOf) { const st = stats(times); if (!st) return { ex, why: null, st };
+      if (SIG_CFG.travelOn && st.iqr > SIG_CFG.travelMax) return { drop: true, ex, why: 'travel', st };
+      if (!SIG_CFG.vetoOn || fits(ex, st)) return { ex, why: null, st };
+      const alt = Object.keys(SIG_CFG.ex).filter(id => id !== ex && fits(id, st) && cs && cs[id] && cs[id].reps >= (minOf ? minOf(id) : 2)).sort((a, b) => cs[b].reps - cs[a].reps)[0];
+      return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
+    return { update, stats, fits, check, reset: () => { buf.length = 0; } };
+  }
+  const api = { SIG_CFG, createSigTracker, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

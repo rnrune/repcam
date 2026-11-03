@@ -250,14 +250,16 @@
   "labelReps": 7,
   "labelEx": "benkpress",
   "notes": "2026-10-25 session: bench 100kg set 2 Rune review 31 Oct: reps 121.7-134.1 s, truth 6 (the 121.6 s movement is the rack-out).",
-  "tier": "worst",
+  "tier": "archive",
   "angle": "front45",
   "win": [
    121.7,
    134.1
   ],
   "review": "2026-10-31",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvnne20j922852c2",
@@ -289,9 +291,11 @@
   "labelEx": "benkpress",
   "notes": "2026-10-25 session: bench 100kg set 3",
   "regress": true,
-  "tier": "core",
+  "tier": "archive",
   "angle": "front45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "core",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvnnh70nea07ec8a",
@@ -627,9 +631,11 @@
   "labelEx": "skråbenk",
   "notes": "2026-10-25 session: incline 80kg set 2",
   "regress": true,
-  "tier": "core",
+  "tier": "archive",
   "angle": "front45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "core",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvno21b4b03d0f8b",
@@ -766,9 +772,11 @@
   "labelReps": 13,
   "labelEx": "roing",
   "notes": "2026-10-25 session: standing row 100kg set 2 ~74-92 s",
-  "tier": "core",
+  "tier": "archive",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "core",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvnoa62be037036e",
@@ -878,9 +886,11 @@
   "labelReps": 8,
   "labelEx": "roing",
   "notes": "2026-10-25 session: between dips and curls (phone handled/laid down); app logged roing 8 — not a set",
-  "tier": "pass",
+  "tier": "archive",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "pass",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvnoe7jm75332b16",
@@ -964,10 +974,12 @@
   "labelReps": 13,
   "labelEx": "dips",
   "notes": "2026-10-25 session: dips +15 kg set 2 Rune review 31 Oct: dismount starts 92.5 s, 12 reps before it (the 94.0 s 'rep' is the dismount).",
-  "tier": "worst",
+  "tier": "archive",
   "angle": "rear45",
   "review": "2026-10-31",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvnohgsi2c916059",
@@ -1346,13 +1358,15 @@
   "labelEx": "knebøy",
   "labelReps": 8,
   "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session) · Rune review: confirmed 8 (no comment on the 133–139 s gap) | Rune review 31 Oct: use 118–134.0 s (end moved from 133.3, Rune 31 Oct), truth 4.",
-  "tier": "worst",
+  "tier": "archive",
   "win": [
    118,
    134
   ],
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvr3naxy72228481",
@@ -1374,9 +1388,11 @@
   "labelEx": "knebøy",
   "labelReps": 8,
   "notes": "knebøy 8x100 kg in a power rack (2026-10-27 session)",
-  "tier": "core",
+  "tier": "archive",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "core",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvr3phm88e08d970",
@@ -1398,14 +1414,16 @@
   "labelEx": "halvmark",
   "labelReps": 9,
   "notes": "romanian deadlift (RDL) 100 kg, start rep from the floor included · Rune in-app: 9 × 100 kg | Rune review 31 Oct: use only the last 6 clean reps (31.9–52.9 s), truth 6.",
-  "tier": "worst",
+  "tier": "archive",
   "kgTrue": 100,
   "win": [
    31.9,
    52.9
   ],
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvr3slr3ddbdbd01",
@@ -1452,10 +1470,12 @@
   "labelEx": "halvmark",
   "labelReps": 9,
   "notes": "RDL set 3 after ~85 s of standing rest · Rune in-app: 9 × 100 kg",
-  "tier": "core",
+  "tier": "archive",
   "kgTrue": 100,
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "core",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvr3yc9wa4bdef61",
@@ -1600,9 +1620,11 @@
   "labelEx": "roing",
   "labelReps": 2,
   "notes": "rest: sitting close to phone talking (app 8.12: false roing x2)",
-  "tier": "core",
+  "tier": "archive",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "core",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvr4g3o2db25cd16-s2",
@@ -1621,7 +1643,7 @@
   },
   "label": "none-yet",
   "lm": "mvr4g3o2db25cd16",
-  "tier": "worst",
+  "tier": "archive",
   "gt": 20,
   "win": [
    140,
@@ -1630,7 +1652,9 @@
   "notes": "V-situp set 2 (20 × 15 kg plate), side view on the floor; the app saved NO set for it (one 349 s recording holds sets 2 and 3)",
   "angle": "side",
   "angleNote": "≈10° off side",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvr4g3o2db25cd16-s3",
@@ -1649,13 +1673,13 @@
   },
   "label": "none-yet",
   "lm": "mvr4g3o2db25cd16",
-  "tier": "worst",
+  "tier": "core",
   "gt": 12,
   "win": [
    316.5,
    338.3
   ],
-  "notes": "V-situp set 3 (12 × 15 kg); app 8.11 logged benkpress 12 × 100 Rune review 31 Oct: reps 316.5-338.3 s, truth 12 (341.8 s is not a rep).",
+  "notes": "V-situp set 3 (12 × 15 kg); app 8.11 logged benkpress 12 × 100 Rune review 31 Oct: reps 316.5-338.3 s, truth 12 (341.8 s is not a rep). · 3 Nov prune: only side-angle guard → core",
   "angle": "side",
   "review": "2026-10-31",
   "angleNote": "≈10° off side",
@@ -1681,13 +1705,15 @@
    75.42
   ],
   "notes": "30 Oct: loading plates / rigging the bench before set 1 (walks to phone, bends over). App 8.16 saved a false bulgarsk x6. Negative. v8.17: fixed (flipMax), moved to core.",
-  "tier": "core",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.16",
   "label": "implicit",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "core",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvvelxx5-bench",
@@ -1704,13 +1730,15 @@
    "reps": 0
   },
   "notes": "30 Oct: benk 80 kg set 1 (12 reps, 52-73 s) after a face close-up at the phone (0-15 s). App 8.16 saved NOTHING for this set: the close-up inflated the bench body-size reference (ref 0.65 vs 0.23, 60 s decay) so the real reps looked too shallow. v8.17: fixed (refTau/refTauBelow on benkpress), moved to core.",
-  "tier": "core",
+  "tier": "archive",
   "view": "oblique",
   "facing": "user",
   "app": "8.16",
   "label": "implicit",
   "angle": "front45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "core",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvvelxx5-rest",
@@ -1734,13 +1762,15 @@
    179.31
   ],
   "notes": "30 Oct: rest after benk set, standing/walking near the rack. App 8.16 saved a false dips x3. Negative.",
-  "tier": "worst",
+  "tier": "archive",
   "view": "oblique",
   "facing": "user",
   "app": "8.16",
   "label": "implicit",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvvehvtk67c340d1",
@@ -1794,13 +1824,15 @@
    "auto": true
   },
   "notes": "30 Oct (2): pull-ups set 1, Rune: 8. App/replay 7: the last pull is lowered only ~55 % before dropping off the bar (95 s), so it never completes. v8.18 recount from video (Rune: a rep = fully up): 8 full tops, the last one followed by a half lowering and release, so the app (counts on the way down) misses it.",
-  "tier": "worst",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvvevvpuf7cf26c0",
@@ -1835,13 +1867,15 @@
    "auto": true
   },
   "notes": "30 Oct: pull-ups set 3. Rune 31 Oct: body tracking failed after rep 6 — landmarks trimmed at 139.4 s (pose flips from 139.5 s) (end of rep 6 + margin), truth 6.",
-  "tier": "worst",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvvf26hgc6ccdffd",
@@ -1918,13 +1952,15 @@
    "auto": true
   },
   "notes": "30 Oct (2): incline 70 kg set 2: 10 reps. App roing 11 (30 Hz replay also roing), 10 Hz replay skråbenk 10.",
-  "tier": "worst",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.17",
   "label": "corrected",
   "angle": "front45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvvfb0fq2671c83e",
@@ -2000,7 +2036,7 @@
   },
   "label": "corrected",
   "notes": "30 Oct: standing row 90 kg set 3 (t 117-131 s). Same recording continues into dips set 1 (see mvvfl1ka-dips); the app saved only \"dips 13\" and Rune corrected that card to row 10. Rune review 31 Oct: truth 10, the clip shows the row well — engine issue.",
-  "tier": "worst",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.16",
@@ -2011,7 +2047,9 @@
   ],
   "angle": "rear45",
   "review": "2026-10-31",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvvfl1ka-dips",
@@ -2052,12 +2090,14 @@
   },
   "label": "corrected",
   "notes": "30 Oct: dips BW set 2 (set 1 is mvvfl1ka-dips), truth 12. App dips 7.",
-  "tier": "worst",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.16",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvvfp3sp39090326",
@@ -2072,12 +2112,14 @@
   },
   "label": "implicit",
   "notes": "30 Oct: curl set (truth dips BW 12 / EZ curl 30 kg 12, alternating). App curl 12.",
-  "tier": "worst",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.16",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvvfrgoaeb40e212",
@@ -2112,12 +2154,14 @@
   },
   "label": "corrected",
   "notes": "30 Oct: EZ curl 30 kg set, truth curl 12 (Rune 31 Oct: label \"dips 12\" was a mistaken correction). App curl 14.",
-  "tier": "worst",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.16",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mvw6fsc9ea28c668",
@@ -2132,12 +2176,14 @@
   },
   "label": "corrected",
   "notes": "31 Oct: squat 50 kg x8 (Rune confirmed 31 Oct; app label kg 80 was wrong too). First full-rate (v8.27+) clip, 1610 frames ~40 Hz. App 8.29 counted 8. Sent manually (Send nå).",
-  "tier": "pass",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.29",
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "pass",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by 1 core clip per exercise×angle"
  },
  {
   "id": "mvvfr0478a996584",
@@ -2152,7 +2198,7 @@
   },
   "label": "corrected",
   "notes": "30 Oct 21:39: one set of 12 dips (Rune confirmed 31 Oct). App 8.16 counted 4; engine 8.29 8 native / 6 at 30 Hz. 10 Hz throttled log. Cause (31 Oct): a standing arm movement at 22.8 s (rejected 'still', amp 1.15) still sets the adaptive amplitude, so the first 4 real dips (44-48 s) are below cntRatio. Excluding/ageing that amp fixes this clip (12) but breaks mvvfo3h7 (12→13) — not shipped. Window 41-59 s (Rune 31 Oct: reps 41-59 s; 13 movements incl. the jump up into the start position, which is not a rep → truth 12). Engine 8.30 with window: 12 (jump-up at ~43 s not counted). Full recording (what the app sees): still 8 — the 22.8 s arm swing keeps the threshold high; ampIdle (forget pre-set amps) fixes it but makes mvvfo3h7 13 (its shallow last movement 68.8 s then survives tailDrop by a hair: gap 1.6 s vs 1.25x1.3 s).",
-  "tier": "worst",
+  "tier": "archive",
   "view": "front",
   "facing": "user",
   "app": "8.16",
@@ -2161,7 +2207,9 @@
    59
   ],
   "angle": "rear45",
-  "angleVerified": "Rune 2026-10-31"
+  "angleVerified": "Rune 2026-10-31",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mw13mzz0ee9588ee",
@@ -2271,7 +2319,7 @@
  {
   "id": "mw13wreb9393d836",
   "exercise": "benkpress",
-  "gt": 7,
+  "gt": 6,
   "kg": 20,
   "realKg": 100,
   "pred": {
@@ -2288,7 +2336,7 @@
    96.65,
    100.12
   ],
-  "label": "corrected",
+  "label": "review-rune",
   "labelEx": "benkpress",
   "labelReps": 7,
   "created": "2026-11-03T19:54:38.387Z",
@@ -2296,10 +2344,12 @@
   "view": "front",
   "facing": "user",
   "durationS": 111.32,
-  "tier": "worst",
+  "tier": "archive",
   "angle": "front45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · Rune 3 Nov 21:58: 100 kg sets 1-2 = 7, sets 3-4 = 6 → set 2 (19:54Z) = 7. Landmarks show 6 descents (pause at top 97.4-98.3 s); on review page for Rune."
+  "notes": "3 Nov 2026 session, label corrected by Rune · Rune 3 Nov 21:58: 100 kg sets 1-2 = 7, sets 3-4 = 6 → set 2 (19:54Z) = 7. Landmarks show 6 descents (pause at top 97.4-98.3 s); on review page for Rune. · Rune review 3 Nov 22:14: 6 («begynner nok å bli sliten og bruker litt lenger tid på siste reps») — accepted engine 6; conflicts with his chat answer (sets 1-2 = 7), review answer wins.",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-03 prune: mode stable/fixed, covered by core/archive"
  },
  {
   "id": "mw13zsy66f202548",
@@ -2422,10 +2472,10 @@
   "view": "front",
   "facing": "user",
   "durationS": 29.2,
-  "tier": "worst",
+  "tier": "excluded",
   "angle": "front45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: bench 7 → app pullups 6: exercise ID at clip start (lying down under the bar read as hanging) · Rune 3 Nov 21:58: set 4 of 100 kg = 6 (in-app label 7 was wrong); still fails on exercise (pullups)."
+  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: bench 7 → app pullups 6: exercise ID at clip start (lying down under the bar read as hanging) · Rune 3 Nov 21:58: set 4 of 100 kg = 6 (in-app label 7 was wrong); still fails on exercise (pullups). · 3 Nov kinematic check: landmarks of the counted set are upright (torso tilt 7°), wrists above shoulders, knees/hips moving — a pull-up/hang signature, not lying on a bench (bench clips tilt 84-92°). Label (bench 6) vs landmarks disagree → excluded until Rune confirms."
  },
  {
   "id": "mw1459mkd5bfec4c",
@@ -2679,7 +2729,7 @@
    34.57,
    40.24
   ],
-  "label": "notASet",
+  "label": "review-rune",
   "labelEx": "halvmark",
   "labelReps": 0,
   "created": "2026-11-03T20:14:15.844Z",
@@ -2690,7 +2740,7 @@
   "tier": "worst",
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label notASet by Rune · failure mode: not a set → halvmark 4: false set (moving between stations)"
+  "notes": "3 Nov 2026 session, label notASet by Rune · failure mode: not a set → halvmark 4: false set (moving between stations) · Rune review 3 Nov 22:12: «Dette er bare rigging» — not a set (confirmed)."
  },
  {
   "id": "mw14myut3d7b4551",
