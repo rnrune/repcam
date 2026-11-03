@@ -139,7 +139,7 @@ async function resume() {
       const cw = v.videoWidth * k, ch = v.videoHeight * k;
       return { viewport: [W, H], stage: r('stage'), video: r('v'), canvas: r('c'), objectFit: fit, stream: [v.videoWidth, v.videoHeight], canvasPx: [document.getElementById('c').width, document.getElementById('c').height],
         contentCovers: cw >= vb.width - 1 && ch >= vb.height - 1, fills: ['stage', 'v', 'c'].every(id => { const b = document.getElementById(id).getBoundingClientRect(); return Math.abs(b.width - W) < 2 && Math.abs(b.height - H) < 2 && Math.abs(b.left) < 2 && Math.abs(b.top) < 2; }) }; });
-    const before = await measure(); await p.screenshot({ path: OUT + `resume-before-${stamp}.png` });
+    const before = await measure(); await p.screenshot({ path: OUT + `resume-before-${stamp}.png` }); await p.evaluate(() => { window.__vPrev = window.__repcam.video(); });
     // v8.36: several app switches in a row (Rune: the frame came back on the 2nd switch). Odd cycles: iOS kills the camera and the
     // viewport rotates while away; even cycles: camera kept alive. Each cycle must end with the CURRENT stream re-bound (fitLog did).
     const cycles = +flag('--cycles', 3) || 3, per = []; let after = null;
@@ -147,10 +147,12 @@ async function resume() {
       const kill = k % 2 === 1, t0 = await p.evaluate(() => Date.now());
       await p.evaluate(kill => { window.__setVis('hidden'); if (kill) document.getElementById('v').srcObject?.getVideoTracks().forEach(t => t.stop()); }, kill);
       if (kill) { await p.setViewportSize({ width: dev.viewport.height, height: dev.viewport.width }); await p.waitForTimeout(300); await p.setViewportSize(dev.viewport); }
-      await p.waitForTimeout(200); await p.evaluate(() => window.__setVis('visible')); await p.waitForTimeout(2500);
+      await p.waitForTimeout(200); await p.evaluate(() => window.__setVis('visible')); await p.waitForTimeout(3600);
       after = await measure(); await p.screenshot({ path: OUT + `resume-after${k}-${stamp}.png` });
-      const fl = await p.evaluate(t0 => ({ did: window.__repcam.fitLog.filter(x => x.t >= t0 && x.did).length, pending: window.__repcam.fitPending() }), t0);
-      per.push({ cycle: k, cameraKilled: kill, fills: after.fills, contentCovers: after.contentCovers, stream: after.stream, rebinds: fl.did, pending: fl.pending, ok: after.fills && after.contentCovers && after.stream[0] > 0 && fl.did > 0 && !fl.pending });
+      if (k === 1) await p.evaluate(() => { window.__v0 = window.__repcam.video(); });
+      const fl = await p.evaluate(t0 => ({ did: window.__repcam.fitLog.filter(x => x.t >= t0 && x.did).length, pending: window.__repcam.fitPending(), newVideo: window.__repcam.video() !== window.__vPrev, videos: document.querySelectorAll('#stage video').length, diag: window.__repcam.fitDiag.slice(-1)[0] || null }), t0);
+      await p.evaluate(() => { window.__vPrev = window.__repcam.video(); });
+      per.push({ cycle: k, cameraKilled: kill, fills: after.fills, contentCovers: after.contentCovers, stream: after.stream, rebinds: fl.did, pending: fl.pending, newVideo: fl.newVideo, videos: fl.videos, diag: fl.diag, ok: after.fills && after.contentCovers && after.stream[0] > 0 && fl.did > 0 && !fl.pending && fl.newVideo && fl.videos === 1 && !!fl.diag });
     }
     await p.screenshot({ path: OUT + `resume-after-${stamp}.png` });
     const ok = before.fills && per.every(x => x.ok) && !errs.length; console.log(JSON.stringify(per));
@@ -358,4 +360,25 @@ async function camera() {
   } finally { await b.close(); if (srv) srv.close(); }
 }
 
-({ doctor, replay, app, ui, resume, queue, stravaup, confirm, review, camera }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();
+// v8.37: the one-tap camera question at session start (fresh user: 3 common positions; with a last position: it pre-selected)
+async function camask() {
+  const srv = await serve(), URL0 = `http://127.0.0.1:${srv.address().port}/`, stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const { chromium, devices } = pw(), errs = [], res = {}; fs.mkdirSync(OUT, { recursive: true });
+  const b = await chromium.launch({ executablePath: CHROME, headless: true, args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--use-file-for-fake-video-capture=' + path.join(TEST, 'rune-bench.y4m'), '--enable-unsafe-swiftshader'] });
+  try { for (const mode of ['fresh', 'last']) {
+    const ctx = await b.newContext({ ...devices['iPhone 13'], permissions: ['camera'] });
+    await ctx.addInitScript(mode => { if (!sessionStorage.seeded) { sessionStorage.seeded = 1; localStorage.clear(); Object.entries({ 'repcam.onboarded': '1', 'repcam.profile': '{"name":"Verify"}', 'repcam.lang': 'nb', 'repcam.feedback': '0', ...(mode === 'last' ? { 'repcam.cam.last': '{"dir":"front","deg":45,"side":null}' } : {}) }).forEach(([k, v]) => localStorage.setItem(k, v)); } }, mode);
+    await ctx.route(u => /dropbox|strava\.com|workers\.dev/i.test(u.hostname), r => r.abort());
+    const p = await ctx.newPage(); p.on('pageerror', x => errs.push(x.message));
+    await p.goto(URL0); await p.waitForSelector('#view-home.on', { timeout: 20000 }); await p.click('#startOkt'); await p.waitForSelector('#start', { state: 'hidden', timeout: 120000 });
+    await p.waitForSelector('#camAsk', { state: 'visible', timeout: 5000 }); const btns = await p.$$eval('#camAsk button', x => x.map(b => b.textContent));
+    await p.screenshot({ path: OUT + `camask-${mode}-${stamp}.png` });
+    await p.click('#camAsk button[data-i="0"]'); await p.waitForTimeout(200);
+    const after = await p.evaluate(() => ({ pos: JSON.parse(localStorage.getItem('repcam.cam.last')), btn: document.getElementById('camBtn').textContent, hidden: getComputedStyle(document.getElementById('camAsk')).display === 'none' }));
+    await p.evaluate(() => window.__repcam.maybeAskCam()); const again = await p.$eval('#camAsk', e => getComputedStyle(e).display !== 'none');
+    res[mode] = { btns, after, askedAgain: again }; await ctx.close(); }
+    const ok = res.fresh.btns.length === 5 && res.fresh.after.pos.dir === 'rear' && res.last.btns[0].includes('Forfra 45') && res.last.after.pos.dir === 'front' && res.fresh.after.hidden && !res.fresh.askedAgain && !res.last.askedAgain && !errs.length;
+    console.log(JSON.stringify(res)); console.log(`${ok ? 'PASS' : 'FAIL'} camask · proof ${OUT}camask-{fresh,last}-${stamp}.png`); process.exitCode = ok ? 0 : 1;
+  } finally { await b.close(); srv.close(); }
+}
+({ doctor, replay, app, ui, resume, queue, stravaup, confirm, review, camera, camask }[cmd] || (() => { console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 5).join('\n').replace(/^\/\/ ?/gm, '')); process.exit(cmd ? 2 : 0); }))();

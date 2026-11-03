@@ -2266,7 +2266,7 @@
   "tier": "archive",
   "angle": "front45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune"
+  "notes": "3 Nov 2026 session, label corrected by Rune · Rune 3 Nov 21:58: set 1 of 100 kg = 7 (confirmed)."
  },
  {
   "id": "mw13wreb9393d836",
@@ -2296,15 +2296,15 @@
   "view": "front",
   "facing": "user",
   "durationS": 111.32,
-  "tier": "excluded",
+  "tier": "worst",
   "angle": "front45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · label check pending: Rune 7 (changed 6→7), engine+app 6; video (mw13wreb 85-104 s) shows unrack ~86 s, 6 descents, rack ~102 s, sit up 104 s — ask Rune before scoring"
+  "notes": "3 Nov 2026 session, label corrected by Rune · Rune 3 Nov 21:58: 100 kg sets 1-2 = 7, sets 3-4 = 6 → set 2 (19:54Z) = 7. Landmarks show 6 descents (pause at top 97.4-98.3 s); on review page for Rune."
  },
  {
   "id": "mw13zsy66f202548",
   "exercise": "benkpress",
-  "gt": 7,
+  "gt": 6,
   "kg": 20,
   "realKg": 100,
   "pred": {
@@ -2321,7 +2321,7 @@
    127.43,
    131.38
   ],
-  "label": "corrected",
+  "label": "corrected-rune-chat",
   "labelEx": "benkpress",
   "labelReps": 7,
   "created": "2026-11-03T19:57:00.366Z",
@@ -2329,10 +2329,10 @@
   "view": "oblique",
   "facing": "user",
   "durationS": 142.01,
-  "tier": "excluded",
+  "tier": "archive",
   "angle": "front45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · label check pending: Rune 7 (changed 6→7), engine+app 6; video (mw13wreb 85-104 s) shows unrack ~86 s, 6 descents, rack ~102 s, sit up 104 s — ask Rune before scoring"
+  "notes": "3 Nov 2026 session, label corrected by Rune · Rune 3 Nov 21:58: set 3 of 100 kg = 6 (in-app label 7 was wrong)."
  },
  {
   "id": "mw141hrs54d5f868",
@@ -2397,7 +2397,7 @@
  {
   "id": "mw142hvr1fc313d7",
   "exercise": "benkpress",
-  "gt": 7,
+  "gt": 6,
   "kg": 20,
   "realKg": 100,
   "pred": {
@@ -2414,7 +2414,7 @@
    16.77,
    20.14
   ],
-  "label": "corrected",
+  "label": "corrected-rune-chat",
   "labelEx": "benkpress",
   "labelReps": 7,
   "created": "2026-11-03T19:59:05.991Z",
@@ -2425,7 +2425,7 @@
   "tier": "worst",
   "angle": "front45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: bench 7 → app pullups 6: exercise ID at clip start (lying down under the bar read as hanging)"
+  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: bench 7 → app pullups 6: exercise ID at clip start (lying down under the bar read as hanging) · Rune 3 Nov 21:58: set 4 of 100 kg = 6 (in-app label 7 was wrong); still fails on exercise (pullups)."
  },
  {
   "id": "mw1459mkd5bfec4c",

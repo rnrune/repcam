@@ -1,7 +1,7 @@
 const VISION = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
 let PoseLandmarker, FilesetResolver, DrawingUtils;
 const $ = id => document.getElementById(id);
-const v = $('v'), c = $('c'), ctx = c.getContext('2d');
+let v = $('v'); const c = $('c'), ctx = c.getContext('2d'); // v8.37: let — the <video> is re-created on resume
 const store = Store.createStore(localStorage);
 const LS = localStorage;
 // Private mode / blocked storage: detect so we can tell the user instead of silently forgetting everything.
@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.36';
+const APP_VERSION = '8.37';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -209,7 +209,7 @@ async function fbCut1(pred, setTs, label) {
   const poseRate = Feedback.clipRate(lm); /* v8.30: rate of THIS clip's logged frames (mean step); poseRateSeg = detector step stats since the last cut (median-based, was `poseRate` ≤8.29) */
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    camera, ruleLog, restShadow, barShadow, tempoShadow, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    camera, ruleLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -611,6 +611,23 @@ let tempoPend = null;
 function tempoLog(ex, reps, outcome) { try { const a = JSON.parse(LS.getItem('repcam.tempo.log') || '[]'); a.push({ at: new Date().toISOString(), ex, reps, outcome }); LS.setItem('repcam.tempo.log', JSON.stringify(a.slice(-200))); } catch {} console.info('[tempo]', outcome, ex, reps); }
 $('confirm').onclick = () => { saveSet(); };
 $('camBtn').onclick = () => openCamPicker(renderWorkout);
+// v8.37 (Rune: the camera choice never came up naturally): once per session, when the camera starts and no position is set,
+// a small one-tap card under the top bar — last position (pre-selected) or the common ones, «Annet …» opens the full picker,
+// ✕ = not now. Counting goes on underneath; it goes away by itself after CAM_ASK_MS. Kill switch: localStorage repcam.camAsk=off.
+const CAM_ASK_MS = 25e3; let camAskT = 0;
+function hideCamAsk() { clearTimeout(camAskT); $('camAsk').style.display = 'none'; }
+function maybeAskCam() {
+  const a = store.active(); if (!a || a.camera || a.camAsked || LS.getItem('repcam.camAsk') === 'off' || cur !== 'okt') return;
+  store.touchActive({ camAsked: true });
+  const last = JSON.parse(LS.getItem('repcam.cam.last') || 'null'), opts = last ? [last] : [{ dir: 'rear', deg: 45, side: null }, { dir: 'front', deg: 45, side: null }, { dir: 'side', deg: 90, side: null }];
+  const el = $('camAsk');
+  el.innerHTML = `<b>📷 ${L.t('cam.ask')}</b><div class="camaskb">${opts.map((p, i) => `<button class="${i === 0 && last ? 'on' : ''}" data-i="${i}">${last ? '✓ ' : ''}${esc(camPosLabel(p))}</button>`).join('')}<button data-o="1">${L.t('cam.other')}</button><button data-x="1" aria-label="✕">✕</button></div>`;
+  el.style.display = '';
+  el.querySelectorAll('button').forEach(b => b.onclick = () => { hideCamAsk();
+    if (b.dataset.o) return openCamPicker(renderWorkout); if (b.dataset.x) return;
+    const p = opts[+b.dataset.i]; store.touchActive({ camera: p }); LS.setItem('repcam.cam.last', JSON.stringify(p)); renderWorkout(); });
+  camAskT = setTimeout(hideCamAsk, CAM_ASK_MS);
+}
 function enterWorkout() {
   const resumed = !!store.active();
   const a = store.startSession(); resetCounters(); recognizer.reset(); picker.reset(); camGate.reset(); restGate.rest(-1e12); camPaused = false; motion.resume(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();
@@ -643,7 +660,7 @@ function onShow() {
   if (away && Date.now() - lastActivity > AWAY_END_MS) { endAt = new Date(Date.now() - away); endedByIdle = true; location.hash = '#/'; return; }
   lastActivity += away; // time away doesn't count toward the on-screen idle rule
   store.touchActive({ seen: Date.now() });
-  resumeCam(); fitStageSoon(true);
+  resumeCam(); fitStageSoon(true); unpin(); settle(Date.now());
 }
 // v8.17 bug: back from the app switcher (iOS PWA/Safari) the camera view could come back much smaller, framed by black.
 // iOS can resume with a stale layout: the viewport scale/size from while the app was hidden (rotated or resized in the
@@ -663,11 +680,38 @@ function fitStage(rebind) {
     const m = document.querySelector('meta[name=viewport]'); if (m) { const c0 = m.content; m.content = c0 + ',maximum-scale=1'; m.content = c0; }
     const st = $('stage'); if (st) { st.style.display = 'none'; void st.offsetHeight; st.style.display = ''; }
     const did = !!(rebind && camLive() && v.srcObject === stream);
-    if (did) { v.srcObject = null; v.srcObject = stream; v.play().catch(() => {}); fitRebind = false; }
+    if (did) { if (FIT_CFG.recreate) newVideo(); else { v.srcObject = null; v.srcObject = stream; v.play().catch(() => {}); } fitRebind = false; }
     c.width = 0; // loop() re-sizes the canvas to the (possibly new) stream resolution on the next frame
     fitLog.push({ t: Date.now(), rebind: !!rebind, did, live: camLive() }); if (fitLog.length > 40) fitLog.shift();
   } catch (e) { console.warn('fitStage', e); }
 }
+// v8.37 (Rune: the frame still comes back after app switches): v8.36's re-bind did not cure it on the iPhone, so the WebKit
+// video layer itself is suspect. Try 1: on resume the <video> element is REPLACED by a fresh one (new layer, new object-fit
+// geometry) instead of re-binding the old one. Try 2 (same pass): a settle loop — every SETTLE_MS for up to SETTLE_MAX_MS after
+// a resume, scroll the page back to 0,0 (iOS can resume a standalone PWA scrolled/offset) and, while the stage box does not
+// match the visual viewport, pin #stage to the viewport in px. Each resume logs its geometry (fitDiag) into the next clip's
+// meta so the real iPhone numbers come back. Kill switches: repcam.vidRecreate=off, repcam.fitSettle=off (repcam.fitOff=1 = all).
+FIT_CFG.recreate = LS.getItem('repcam.vidRecreate') !== 'off'; FIT_CFG.settle = LS.getItem('repcam.fitSettle') !== 'off'; FIT_CFG.SETTLE_MS = 200; FIT_CFG.SETTLE_MAX_MS = 3000;
+const fitDiag = [];
+function newVideo() {
+  const o = v, n = document.createElement('video');
+  n.id = 'v'; n.className = o.className; n.muted = true; n.playsInline = true; n.autoplay = true; ['playsinline', 'muted', 'autoplay'].forEach(k => n.setAttribute(k, ''));
+  n.srcObject = stream; o.srcObject = null; o.replaceWith(n); v = n; v.addEventListener('resize', () => fitStageSoon(false)); v.play().catch(() => {});
+}
+function geom() { const vv = window.visualViewport, r = e => { const b = e.getBoundingClientRect(); return [Math.round(b.left), Math.round(b.top), Math.round(b.width), Math.round(b.height)]; };
+  return { t: Date.now(), inner: [innerWidth, innerHeight], vv: vv ? [Math.round(vv.width), Math.round(vv.height), +vv.scale.toFixed(3), Math.round(vv.offsetTop), Math.round(vv.offsetLeft)] : null, scroll: [scrollX, scrollY], screen: [screen.width, screen.height], orient: screen.orientation?.type || String(window.orientation ?? ''), stage: r($('stage')), video: r(v), vpx: [v.videoWidth, v.videoHeight], pinned: !!$('stage').style.width }; }
+let settleT = 0;
+function settle(t0) {
+  clearTimeout(settleT); if (!FIT_CFG.settle || cur !== 'okt') return;
+  const vv = window.visualViewport, W = vv ? vv.width : innerWidth, H = vv ? vv.height : innerHeight, st = $('stage');
+  if (scrollX || scrollY) scrollTo(0, 0);
+  const b = st.getBoundingClientRect(), off = Math.abs(b.width - W) > 2 || Math.abs(b.height - H) > 2 || Math.abs(b.left) > 2 || Math.abs(b.top) > 2;
+  if (off) { st.style.width = W + 'px'; st.style.height = H + 'px'; st.style.left = (vv ? vv.offsetLeft : 0) + 'px'; st.style.top = (vv ? vv.offsetTop : 0) + 'px'; st.style.right = st.style.bottom = 'auto'; }
+  if (Date.now() - t0 < FIT_CFG.SETTLE_MAX_MS) settleT = setTimeout(() => settle(t0), FIT_CFG.SETTLE_MS);
+  else { settleT = 0; const g = geom(); fitDiag.push(g); if (fitDiag.length > 10) fitDiag.shift(); (fb.fitDiag ||= []).push(g); if (fb.fitDiag.length > 10) fb.fitDiag.shift(); }
+}
+function unpin() { const st = $('stage'); ['width', 'height', 'left', 'top', 'right', 'bottom'].forEach(k => st.style[k] = ''); }
+const unpinIdle = () => { if (!settleT) unpin(); }; window.visualViewport?.addEventListener('resize', unpinIdle); addEventListener('orientationchange', unpinIdle);
 const fitOff = () => { const b = v.getBoundingClientRect(); return Math.abs(b.width - innerWidth) > 2 || Math.abs(b.height - innerHeight) > 2; };
 function fitStageSoon(rebind) {
   if (rebind) fitRebind = true; fitTimers.forEach(clearTimeout); const n = FIT_CFG.delaysMs.length;
@@ -738,7 +782,7 @@ function runCam(camP, resume) {
     st.textContent = L.t('start.model');
     if (!modelP) modelP = initModel().then(m => landmarker = m);
     return modelP;
-  }).then(() => { pending = false; if (cur !== 'okt') { stream?.getTracks().forEach(t => t.stop()); stream = null; return; } $('start').style.display = 'none'; st.textContent = ''; lastActivity = Date.now(); if (!fb.rec) fbStart(); renderWorkout(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); })
+  }).then(() => { pending = false; if (cur !== 'okt') { stream?.getTracks().forEach(t => t.stop()); stream = null; return; } $('start').style.display = 'none'; st.textContent = ''; lastActivity = Date.now(); if (!fb.rec) fbStart(); renderWorkout(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); setTimeout(maybeAskCam, 600); })
   .catch(e => { pending = false; console.warn(e); if (resume && cur === 'okt') { setStartUI(true); return; } $('start').style.display = 'flex'; st.textContent = L.t('start.err', { m: e.message }); showHelp(e); go.disabled = false; go.textContent = L.t('start.retry'); });
 }
 // Both buttons: getUserMedia MUST be the first call, synchronous in the tap (iOS user activation); the motion-sensor
@@ -812,4 +856,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

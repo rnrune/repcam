@@ -147,3 +147,9 @@ details.sess[open] .chev{transform:rotate(90deg)}
 .toast.ask #tEdit{flex:1 0 100%;background:none;min-height:40px;font-weight:650;opacity:.85;text-decoration:underline}
 body.confirming .wcard,body.confirming #hint,body.confirming #camBtn,body.confirming #fbMiss{opacity:0;pointer-events:none;transition:opacity .2s}
 body.confirming #ringwrap{opacity:.25;transition:opacity .2s}body.confirming #flip,body.confirming .fbPend{opacity:0;pointer-events:none}
+
+/* v8.37 one-tap camera position card */
+.camask{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top) + 76px);max-width:540px;margin:0 auto;padding:12px;border-radius:18px;background:rgba(16,16,20,.9);color:#fff;z-index:30;text-align:center}
+.camask b{display:block;font-size:17px;margin-bottom:8px}.camaskb{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.camaskb button{border:0;border-radius:12px;padding:10px 14px;min-height:48px;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:15px}
+.camaskb button.on{background:#1f9d55}body.confirming .camask{display:none!important}
