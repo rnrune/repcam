@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.35';
+const APP_VERSION = '8.36';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -580,7 +580,13 @@ function saveSet() {
 }
 const CONFIRM_MAX_REPS = 3; // v8.20: auto sets with this few reps count as uncertain
 function showToast(text, ts, ask) {
-  $('toastTx').textContent = text; $('toast').classList.add('on');
+  // v8.36 declutter (Rune 3 Nov: too much on screen when asked to confirm a set): a question gets one focused card —
+  // question as the headline, set summary under it, two big labelled buttons, Endre as a small link; the workout card,
+  // hint, camera chip and big counter are hidden/dimmed meanwhile (body.confirming). Kill switch: repcam.declutter=off.
+  const focus = !!(ask && ts) && LS.getItem('repcam.declutter') !== 'off', cut = text.lastIndexOf(' · ');
+  $('toastTx').innerHTML = focus && cut > 0 ? `<b class="tq-h">${esc(text.slice(cut + 3))}</b><span class="tq-s">${esc(text.slice(0, cut).replace(/^[^:]+:\s*/, ''))}</span>` : esc(text);
+  $('toast').classList.add('on'); $('toast').classList.toggle('ask', focus); document.body.classList.toggle('confirming', focus);
+  $('tYes').textContent = focus ? L.t('w.yesKeep') : '✓'; $('tNo').textContent = focus ? L.t('w.noDel') : '✗';
   $('tYes').style.display = $('tNo').style.display = ask && ts ? '' : 'none';
   $('tYes').onclick = () => { if (tempoPend && tempoPend.ts === ts) { tempoLog(tempoPend.ex, tempoPend.reps, 'kept'); tempoPend = null; } store.updateSet(ts, { unsure: false }); const r = store.sets().find(x => x.timestamp === ts); fbLabel(ts, 'edit', r ? { reps: r.reps, kg: r.kg, exercise: r.exercise } : undefined); hideToast(); showToast(L.t('w.kept')); };
   $('tNo').onclick = () => $('tUndo').onclick();
@@ -597,7 +603,7 @@ let setToast = null;
 // called every frame: hide the set toast once the next set is under way (a rep counted) and the minimum time has passed
 function setToastTick() { if (setToast && currentReps() > 0 && Date.now() - setToast.at >= SET_TOAST_MIN_MS) hideToast(); }
 $('fbMiss').onclick = () => { fb.camera = Camera.forSet(camPos(), curEx()) || (camPos() ? { sessionPos: camPos(), derivedAngle: null, angle: null, overridden: false } : null); /* v8.34 */ fbCut({ exercise: curEx(), reps: currentReps(), kg: kgFor(curEx() || 'knebøy') }, null, Feedback.labelFrom({}, 'missed')); showToast(L.t('fb.missedOk')); };
-function hideToast() { $('toast').classList.remove('on'); setToast = null;
+function hideToast() { $('toast').classList.remove('on', 'ask'); document.body.classList.remove('confirming'); setToast = null;
   // v8.25 (Rune): no answer KEEPS the set, marked 'usikker' in the log/history to fix later; no label is sent (not ground truth), Strava keeps it
   if (tempoPend) { const p = tempoPend; tempoPend = null; if (store.sets().some(x => x.timestamp === p.ts)) { store.updateSet(p.ts, { unsure: true }); tempoLog(p.ex, p.reps, 'kept-noanswer'); renderWorkout(); } } }
 // v8.24 tempo decisions, kept locally for measuring the rule after a session (also in each clip's feedback meta)
@@ -644,18 +650,29 @@ function onShow() {
 // background, no resize event delivered) and a video layer that keeps its old geometry after the camera stream is
 // restarted. On every resume/resize: reset the viewport meta (forces scale 1), re-layout the stage, re-bind the stream to
 // the <video> (WebKit then re-computes object-fit) and let the loop re-size the canvas. Kill switch: localStorage repcam.fitOff=1.
-const FIT_CFG = { enabled: LS.getItem('repcam.fitOff') !== '1', delaysMs: [0, 250, 1000] };
-let fitTimers = [];
+// v8.36 bug (Rune 3 Nov: the frame came back the 2nd time he switched apps): the re-bind was a one-shot on the 0 ms timer.
+// When iOS had killed the camera, that timer ran before the new stream existed (no-op), and attach()/resize events then
+// re-armed the timers with rebind=false, so the NEW stream was never re-bound → stale WebKit video geometry. Now the
+// rebind request is sticky (fitRebind) until it has been applied to a live stream, and the last pass self-heals when the
+// video box no longer matches the viewport. fitLog (last 40) is exposed for verify.js. Kill switch: repcam.fitOff=1.
+const FIT_CFG = { enabled: LS.getItem('repcam.fitOff') !== '1', delaysMs: [0, 250, 1000], heal: LS.getItem('repcam.fitHeal') !== 'off' };
+let fitTimers = [], fitRebind = false; const fitLog = [];
 function fitStage(rebind) {
   if (!FIT_CFG.enabled) return;
   try {
     const m = document.querySelector('meta[name=viewport]'); if (m) { const c0 = m.content; m.content = c0 + ',maximum-scale=1'; m.content = c0; }
     const st = $('stage'); if (st) { st.style.display = 'none'; void st.offsetHeight; st.style.display = ''; }
-    if (rebind && stream && v.srcObject === stream) { v.srcObject = null; v.srcObject = stream; v.play().catch(() => {}); }
+    const did = !!(rebind && camLive() && v.srcObject === stream);
+    if (did) { v.srcObject = null; v.srcObject = stream; v.play().catch(() => {}); fitRebind = false; }
     c.width = 0; // loop() re-sizes the canvas to the (possibly new) stream resolution on the next frame
+    fitLog.push({ t: Date.now(), rebind: !!rebind, did, live: camLive() }); if (fitLog.length > 40) fitLog.shift();
   } catch (e) { console.warn('fitStage', e); }
 }
-function fitStageSoon(rebind) { fitTimers.forEach(clearTimeout); fitTimers = FIT_CFG.delaysMs.map((d, i) => setTimeout(() => fitStage(rebind && i === 0), d)); }
+const fitOff = () => { const b = v.getBoundingClientRect(); return Math.abs(b.width - innerWidth) > 2 || Math.abs(b.height - innerHeight) > 2; };
+function fitStageSoon(rebind) {
+  if (rebind) fitRebind = true; fitTimers.forEach(clearTimeout); const n = FIT_CFG.delaysMs.length;
+  fitTimers = FIT_CFG.delaysMs.map((d, i) => setTimeout(() => { if (FIT_CFG.heal && i === n - 1 && cur === 'okt' && fitOff()) fitRebind = true; fitStage(fitRebind); }, d));
+}
 addEventListener('resize', () => fitStageSoon(false)); addEventListener('orientationchange', () => fitStageSoon(false));
 window.visualViewport?.addEventListener('resize', () => fitStageSoon(false));
 v.addEventListener('resize', () => fitStageSoon(false)); // the stream's resolution/orientation changed
@@ -795,4 +812,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

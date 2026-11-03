@@ -140,14 +140,21 @@ async function resume() {
       return { viewport: [W, H], stage: r('stage'), video: r('v'), canvas: r('c'), objectFit: fit, stream: [v.videoWidth, v.videoHeight], canvasPx: [document.getElementById('c').width, document.getElementById('c').height],
         contentCovers: cw >= vb.width - 1 && ch >= vb.height - 1, fills: ['stage', 'v', 'c'].every(id => { const b = document.getElementById(id).getBoundingClientRect(); return Math.abs(b.width - W) < 2 && Math.abs(b.height - H) < 2 && Math.abs(b.left) < 2 && Math.abs(b.top) < 2; }) }; });
     const before = await measure(); await p.screenshot({ path: OUT + `resume-before-${stamp}.png` });
-    // app switch: hidden, iOS kills the camera, the phone is rotated / the viewport changes while away
-    await p.evaluate(() => { window.__setVis('hidden'); window.__repcam && document.getElementById('v').srcObject?.getVideoTracks().forEach(t => t.stop()); });
-    await p.setViewportSize({ width: dev.viewport.height, height: dev.viewport.width }); await p.waitForTimeout(300);
-    await p.setViewportSize(dev.viewport); await p.waitForTimeout(200);
-    await p.evaluate(() => window.__setVis('visible')); await p.waitForTimeout(2500);
-    const after = await measure(); await p.screenshot({ path: OUT + `resume-after-${stamp}.png` });
-    const ok = before.fills && after.fills && after.contentCovers && after.stream[0] > 0 && !errs.length;
-    const proof = { tool: 'tools/verify.js resume', at: new Date().toISOString(), version: await p.evaluate(() => window.__repcam.APP_VERSION), before, after, ok, pageErrors: errs };
+    // v8.36: several app switches in a row (Rune: the frame came back on the 2nd switch). Odd cycles: iOS kills the camera and the
+    // viewport rotates while away; even cycles: camera kept alive. Each cycle must end with the CURRENT stream re-bound (fitLog did).
+    const cycles = +flag('--cycles', 3) || 3, per = []; let after = null;
+    for (let k = 1; k <= cycles; k++) {
+      const kill = k % 2 === 1, t0 = await p.evaluate(() => Date.now());
+      await p.evaluate(kill => { window.__setVis('hidden'); if (kill) document.getElementById('v').srcObject?.getVideoTracks().forEach(t => t.stop()); }, kill);
+      if (kill) { await p.setViewportSize({ width: dev.viewport.height, height: dev.viewport.width }); await p.waitForTimeout(300); await p.setViewportSize(dev.viewport); }
+      await p.waitForTimeout(200); await p.evaluate(() => window.__setVis('visible')); await p.waitForTimeout(2500);
+      after = await measure(); await p.screenshot({ path: OUT + `resume-after${k}-${stamp}.png` });
+      const fl = await p.evaluate(t0 => ({ did: window.__repcam.fitLog.filter(x => x.t >= t0 && x.did).length, pending: window.__repcam.fitPending() }), t0);
+      per.push({ cycle: k, cameraKilled: kill, fills: after.fills, contentCovers: after.contentCovers, stream: after.stream, rebinds: fl.did, pending: fl.pending, ok: after.fills && after.contentCovers && after.stream[0] > 0 && fl.did > 0 && !fl.pending });
+    }
+    await p.screenshot({ path: OUT + `resume-after-${stamp}.png` });
+    const ok = before.fills && per.every(x => x.ok) && !errs.length; console.log(JSON.stringify(per));
+    const proof = { tool: 'tools/verify.js resume', at: new Date().toISOString(), version: await p.evaluate(() => window.__repcam.APP_VERSION), before, after, cycles: per, ok, pageErrors: errs };
     fs.writeFileSync(OUT + `resume-${stamp}.json`, JSON.stringify(proof, null, 1));
     console.log(JSON.stringify({ before, after }, null, 0)); console.log(`${ok ? 'PASS' : 'FAIL'} resume · proof ${OUT}resume-{before,after}-${stamp}.png / resume-${stamp}.json`);
     process.exitCode = ok ? 0 : 1;

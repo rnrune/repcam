@@ -137,3 +137,13 @@ details.sess[open] .chev{transform:rotate(90deg)}
 .camgrid button{min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--chip);font-weight:650;padding:8px 12px;color:inherit}
 .camgrid button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--card))}
 .camchip{display:block;margin:8px 0 0;background:none;border:1px dashed var(--line);border-radius:12px;color:inherit;font:inherit;font-size:14px;padding:6px 10px;cursor:pointer;opacity:.9}
+
+/* v8.36 declutter: one focused confirm card */
+.toast.ask{flex-wrap:wrap;bottom:calc(env(safe-area-inset-bottom) + 16px);padding:18px 16px 14px;gap:10px;background:rgba(16,16,20,.96);border-radius:22px}
+.toast.ask #toastTx{flex:1 0 100%;display:flex;flex-direction:column;gap:4px;text-align:center}
+.toast.ask .tq-h{font-size:24px;font-weight:800}.toast.ask .tq-s{font-size:17px;font-weight:600;opacity:.8}
+.toast.ask #tYes,.toast.ask #tNo{flex:1 1 40%;min-height:64px;font-size:19px;border-radius:16px}
+.toast.ask #tYes{background:#1f9d55}.toast.ask #tNo{background:rgba(255,255,255,.16)}
+.toast.ask #tEdit{flex:1 0 100%;background:none;min-height:40px;font-weight:650;opacity:.85;text-decoration:underline}
+body.confirming .wcard,body.confirming #hint,body.confirming #camBtn,body.confirming #fbMiss{opacity:0;pointer-events:none;transition:opacity .2s}
+body.confirming #ringwrap{opacity:.25;transition:opacity .2s}body.confirming #flip,body.confirming .fbPend{opacity:0;pointer-events:none}
