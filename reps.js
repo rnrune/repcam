@@ -50,7 +50,7 @@
       // knee height relative to hip; hanging leg raises bring the knees up to/above the hips
       aux: (g, ref) => g.legsVis > 0.4 ? (Math.max(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref : null,
       auxOk: (lo) => lo == null || lo > 0.0 },
-    dips: { bodyMove: 0.25, ampIdle: 20, /* v8.31 (null = off): mvvfr047's 22.8 s standing arm swing raised the threshold for the set at 44 s */ tailDrop: { amp: 0.75, gap: 1.25 }, tailTop: { frac: 0.4, wrist: 0.6, wristWin: 0.6, wristMode: 'on', /* v8.35: hands off the bars (wrist null = off, wristMode 'shadow' = log only) */ before: 0.6, after: 0.4, mode: 'on' /* v8.31: 'shadow' = log only (opts.onTail), null = off */ }, /* v8.23, null = off */ cntRatio: 0.45, /* v8.21: was 0.5 (default); first deep dips after mounting were below 0.5 x a setup excursion */ poseMin: 0.3, minAmp: 0.15, minRep: 0.5, maxRep: 8, need: 'arms',
+    dips: { bodyMove: 0.25, ampIdle: 20, /* v8.31 (null = off): mvvfr047's 22.8 s standing arm swing raised the threshold for the set at 44 s */ tailDrop: { amp: 0.75, gap: 1.25 }, tailTop: { frac: 0.4, wrist: 0.6, wristWin: 0.6, wristMode: 'on', body: 0.4, bodyMode: 'on', /* v8.38 last-rep shoulder travel (null = off); kill switch localStorage repcam.dipsBody=off|shadow */ /* v8.35: hands off the bars (wrist null = off, wristMode 'shadow' = log only) */ before: 0.6, after: 0.4, mode: 'on' /* v8.31: 'shadow' = log only (opts.onTail), null = off */ }, /* v8.23, null = off */ cntRatio: 0.45, /* v8.21: was 0.5 (default); first deep dips after mounting were below 0.5 x a setup excursion */ poseMin: 0.3, minAmp: 0.15, minRep: 0.5, maxRep: 8, need: 'arms',
       posture: (g, ref) => g.wrM.y > g.shM.y - 0.4 * ref && g.wrM.y < g.hipM.y + 0.35 * ref && g.torsoTilt < 65, // upright, supported on the hands (at hip height, not hanging by the sides)
       signal: (g, ref) => (g.wrM.y - g.shM.y) / ref },
     // flat bench: wrist-to-shoulder distance; body size = max(torso, 1.25 x shoulder width) because the torso is
@@ -72,7 +72,7 @@
     // v8.8: standing hinge — legs visible (head-on push-ups hide them) and the hands not planted far below the hips
     halvmark: { minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso', posture: (g, ref) => g.legsVis > 0.4 && g.wrM.y - g.hipM.y < 0.8 * ref,
       signal: (g, ref) => (g.hipM.y - g.shM.y) / ref },
-     roing: { minAmp: 0.15, bigEdge: 1.25, leadGap: { ratio: 1.8, min: 1.8, mode: 'on' }, /* v8.32: bar lifted into position before the first row */
+     roing: { forgetAmps: true, minAmp: 0.2, /* v8.38 (was 0.15): with the stale amplitudes gone, a tiny lead-in twitch (mvnoa62b 118.2 s, 0.16) must not start the set */ /* v8.38: a stale background count (forget) also drops its amplitudes (mw14pclp: setup junk at 16-58 s kept the bar too high for the set at 100 s); false = off */ bigEdge: 1.25, leadGap: { ratio: 1.8, min: 1.8, mode: 'on' }, /* v8.32: bar lifted into position before the first row */
       minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
     // push-up: wrists planted below the shoulders (rest = arms extended, body high). Same scalar family as dips, but the
@@ -110,7 +110,8 @@
     const tau = def.tau ?? 0.12, topWin = def.topWin ?? 2, cntRatio = def.cntRatio ?? 0.5, overshoot = def.overshoot ?? 0.6;
     let s0T = null, bendT = null, ended = false, repAmps = [], s, lastT, ref, refBuf, state, top, hist, lo, tDown, reps, amps, lastRepT, lastGood, repTimes, raw3, pend, auxLo, auxHi, aux2Lo, aux2Hi, onRep = opts.onRep;
     let shBuf = [], ampT = 0, bodyBuf = [], rejected = 0, qa = null, tents = [], camT = 0, topPose = [];
-    function reset() { bendT = null; ended = false; tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; shBuf = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
+    const repSy = new Map(); // v8.38: shoulder travel per counted rep (rep time → range, body-scale units)
+    function reset() { repSy.clear(); bendT = null; ended = false; tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; shBuf = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
     reset();
     const typAmp = () => { if (!amps.length) return null; const a = [...amps].sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; };
     const hiNow = () => top.length ? Math.max(...top.map(p => p[1])) : s;
@@ -119,7 +120,7 @@
     // tentative until a second rep with similar amplitude and tempo follows within a few seconds. Random one-off movements
     // (reaching for the phone, stretching, walking past) therefore never reach the counter.
     const strict = def.strict ?? true, pairAmp = def.pairAmp ?? 2.5, pairDur = def.pairDur ?? 4.5, pairGap = def.pairGap ?? 12;
-    const count = p => { reps++; if (!p.inAmps) { amps.push(p.amp); if (amps.length > 8) amps.shift(); } lastRepT = p.t; repTimes.push(p.t); repAmps.push(p.amp); onRep && onRep(reps, p.t); };
+    const count = p => { reps++; if (!p.inAmps) { amps.push(p.amp); if (amps.length > 8) amps.shift(); } lastRepT = p.t; repTimes.push(p.t); repAmps.push(p.amp); if (p.q && p.q.syMax != null) repSy.set(p.t, p.q.syMax - p.q.syMin); onRep && onRep(reps, p.t); };
     function cleanRep(p) {
       const q = p.q; if (!q || !q.n) return 'noq';
       if (q.bad / q.n > 0.5) return 'vis'; // low visibility / out of frame / dropouts during the rep
@@ -281,13 +282,18 @@
         const L = repTimes.length - 1; if (repAmps[L] < def.tailDrop.amp * am && repTimes[L] - repTimes[L - 1] > def.tailDrop.gap * gm) { reps--; repTimes.pop(); repAmps.pop(); return true; } return false; };
       // v8.31 dismount (def.tailTop, null = off): the shoulders never get back up to the set's top after the last 'rep' (stepping down
       // off the bars: hips/shoulders settle at standing height). Top = highest shoulder (min y/ref) within [t-before, t+after] of each rep.
+      let lastBodyCheck = false;
       const topDrop = () => { const T = def.tailTop; if (!T || reps < 6) return false; const top = x => { let m = Infinity; for (const [u, y] of shBuf) if (u >= x - T.before && u <= x + T.after) m = Math.min(m, y); return m; };
         const tops = repTimes.map(top), L = reps - 1, mt = [...tops.slice(0, -1)].sort((x, y) => x - y)[(L - 1) >> 1], ma = [...repAmps.slice(0, -1)].sort((x, y) => x - y)[(L - 1) >> 1];
         // v8.35: hands leaving the bars after the last 'rep' (wrists drop in the wristWin s after it, relative to where they sat at the set's reps) = dismount
         const wAt = x => { let n = 0, sum = 0; for (const [u, , w] of shBuf) if (u >= x && u <= x + T.wristWin) { n++; sum += w; } return n ? sum / n : NaN; };
         const ws = T.wrist != null ? repTimes.map(wAt) : [], mw = ws.slice(0, -1).filter(isFinite).sort((x, y) => x - y), wr = mw.length ? (ws[L] - mw[(mw.length - 1) >> 1]) / ma : NaN;
         const hands = isFinite(wr) && wr > T.wrist && T.wristMode !== 'shadow';
-        const short = (isFinite(tops[L]) && isFinite(mt) && tops[L] - mt > T.frac * ma) || hands; if (opts.onTail) opts.onTail({ t: repTimes[L], top: tops[L], medTop: mt, medAmp: ma, ratio: (tops[L] - mt) / ma, wrist: wr, drop: short && T.mode !== 'shadow' });
+        // v8.38: shoulder travel of the last 'rep' far below the set's (stepping down off the bars: wrists move, shoulders barely) = dismount.
+        // T.body = min fraction of the median shoulder travel (measured during each rep) of the other reps; null = off, bodyMode 'shadow' = log only.
+                const br = T.body != null ? (() => { const r = repTimes.map(x => repSy.get(x) ?? NaN), o = r.slice(0, -1).filter(isFinite).sort((x, y) => x - y); return o.length >= 4 && isFinite(r[L]) ? r[L] / o[(o.length - 1) >> 1] : NaN; })() : NaN;
+        if (lastBodyCheck) { const low = isFinite(br) && br < T.body; if (opts.onTail) opts.onTail({ rule: 'body', t: repTimes[L], body: br, drop: low && T.bodyMode !== 'shadow' }); if (low && T.bodyMode !== 'shadow') { reps--; repTimes.pop(); repAmps.pop(); return true; } return false; }
+        const short = (isFinite(tops[L]) && isFinite(mt) && tops[L] - mt > T.frac * ma) || hands; if (opts.onTail) opts.onTail({ t: repTimes[L], top: tops[L], medTop: mt, medAmp: ma, ratio: (tops[L] - mt) / ma, wrist: wr, body: br, drop: short && T.mode !== 'shadow' });
         if (short && T.mode !== 'shadow') { reps--; repTimes.pop(); repAmps.pop(); return true; } return false; };
       const tailDropped = tailDrop() || topDrop();
       if (def.edgeTrim ?? true) {
@@ -310,7 +316,9 @@
         }
       }
       // v8.31: the dismount check again once a far-off trailing group is trimmed (mvvfo3h7: shallow step-down 68.8 s sat before a stray 73.6 s 'rep')
-      if (!tailDropped) topDrop(); // after trimming a far-off trailing group the real last rep is checked too
+      if (!tailDropped) topDrop();
+      // v8.38: one last look at the (now) final rep's shoulder travel, after all other end-of-set rules
+      if (def.tailTop && def.tailTop.body != null) { lastBodyCheck = true; topDrop(); lastBodyCheck = false; } // after trimming a far-off trailing group the real last rep is checked too
       // v8.10: rows — the setup lift (bar from floor/rack to the hang, hinging over) and putting it back are one big, slow
       // excursion at an edge of the set: drop an edge rep much bigger than the set's median AND slower than its rhythm
       // v8.32 lead-in (def.leadGap, null = off; mode 'shadow' = log via opts.onLead only): the first 'rep' sits far before the set's
@@ -332,7 +340,7 @@
     function out(tracking) { return { reps, state, signal: s, tracking, progress: progress(), pending: !!pend }; }
     function progress() { if (s == null) return 0; const hi = state === 'top' ? hiNow() : top0; const ta = typAmp() || def.minAmp * 1.6; return Math.max(0, Math.min(1, (hi - s) / ta)); }
     // v8.9: drop the counted reps (stale background count) but keep tracking the signal, so a rep in progress survives
-    function forget() { reps = 0; repTimes = []; repAmps = []; lastRepT = null; }
+    function forget() { repSy.clear(); if (def.forgetAmps) amps = []; reps = 0; repTimes = []; repAmps = []; lastRepT = null; }
     return { update, progress, flush, reset, forget,
       get reps() { return reps; }, get tentative() { return tents.length; }, get rejected() { return rejected; }, get lastRepT() { return lastRepT; }, get repTimes() { return repTimes; }, get repAmps() { return repAmps; }, def };
   }
@@ -608,7 +616,7 @@
   // of the hips (walking around = rigging, not a set). Ranges measured on the eval set (3 Nov, 87 clips), units = torso length.
   // mode: 'off' | 'shadow' (log only) | 'on'. travel → the set is dropped; a signature mismatch → the best-matching other
   // exercise that also counted a set takes over (no match → the set is kept as is).
-  const SIG_CFG = { mode: 'shadow', travelMax: 1.2, vetoOn: true, travelOn: true, pre: 1.2, post: 0.3,
+  const SIG_CFG = { mode: 'on', travelMax: 1.2, vetoOn: true, travelOn: false, dropTilt: 25, /* v8.38: drop a set whose torso tilt is ≥ 25° outside its exercise's range and no other exercise fits */ pre: 1.2, post: 0.3,
     ex: { benkpress: { tilt: [70, 180], wrAb: [0.2, 9] }, skråbenk: { tilt: [45, 72], wrAb: [0.15, 9] }, vsitup: { tilt: [70, 180], wrAb: [0.2, 9] },
       pullups: { tilt: [0, 22], wrAb: [0.15, 9] }, armhevinger: { tilt: [40, 80], wrAb: [-9, -0.6] }, dips: { tilt: [0, 40], wrAb: [-9, -0.4], hy: [0.38, 9] },
       roing: { tilt: [10, 45], wrAb: [-9, -0.4] }, curl: { tilt: [0, 20], wrAb: [-9, -0.3] }, knebøy: { tilt: [0, 35], wrAb: [-0.3, 0.4] },
@@ -627,6 +635,8 @@
       if (SIG_CFG.travelOn && st.iqr > SIG_CFG.travelMax) return { drop: true, ex, why: 'travel', st };
       if (!SIG_CFG.vetoOn || fits(ex, st)) return { ex, why: null, st };
       const alt = Object.keys(SIG_CFG.ex).filter(id => id !== ex && fits(id, st) && cs && cs[id] && cs[id].reps >= (minOf ? minOf(id) : 2)).sort((a, b) => cs[b].reps - cs[a].reps)[0];
+      const r = SIG_CFG.ex[ex], off = r && r.tilt ? Math.max(r.tilt[0] - st.tilt, st.tilt - r.tilt[1], 0) : 0;
+      if (!alt && SIG_CFG.dropTilt != null && off >= SIG_CFG.dropTilt) return { drop: true, ex, why: 'posture', off, st }; // body orientation clearly wrong (standing 'push-ups')
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }

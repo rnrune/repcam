@@ -451,8 +451,8 @@
   "label": "implicit",
   "labelReps": 3,
   "labelEx": "knebøy",
-  "notes": "2026-10-25 session: pull-ups +10 kg set 3 at ~120-135 s; app said knebøy 3 Rune review 31 Oct: truth 6; the app misses the last rep at ~135.1 s.",
-  "tier": "worst",
+  "notes": "2026-10-25 session: pull-ups +10 kg set 3 at ~120-135 s; app said knebøy 3 Rune review 31 Oct: truth 6; the app misses the last rep at ~135.1 s. · 4 Nov: the clip ends at 135.1 s in the middle of rep 6 (signal still on the way up) — the top of rep 6 is not in the log; the live app sees it. Not scorable.",
+  "tier": "excluded",
   "angle": "rear45",
   "review": "2026-10-31",
   "angleVerified": "Rune 2026-10-31"
@@ -2535,10 +2535,10 @@
   "view": "front",
   "facing": "user",
   "durationS": 135.03,
-  "tier": "worst",
+  "tier": "excluded",
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: pullups 5 → roing 1: exercise ID"
+  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: pullups 5 → roing 1: exercise ID · 4 Nov: wrists never above the shoulders in the whole clip (pose frozen/standing 104-132 s) — the pull-ups are not in the landmarks (out of frame or tracking lost); not an engine case."
  },
  {
   "id": "mw148qda0dd085ce",
@@ -2599,10 +2599,12 @@
   "view": "front",
   "facing": "user",
   "durationS": 113.06,
-  "tier": "worst",
+  "tier": "archive",
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label implicit by Rune · failure mode: pullups 5 → armhevinger 7: exercise ID + overcount"
+  "notes": "3 Nov 2026 session, label implicit by Rune · failure mode: pullups 5 → armhevinger 7: exercise ID + overcount",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-04 fixed in v8.38"
  },
  {
   "id": "mw14eqip4b0eef81",
@@ -2813,10 +2815,12 @@
   "view": "front",
   "facing": "user",
   "durationS": 111.13,
-  "tier": "worst",
+  "tier": "archive",
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: roing 10 → skråbenk 10: exercise ID (reps right)"
+  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: roing 10 → skråbenk 10: exercise ID (reps right)",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-04 fixed in v8.38"
  },
  {
   "id": "mw14por08f4385be",
@@ -2915,10 +2919,12 @@
   "view": "front",
   "facing": "user",
   "durationS": 93.56,
-  "tier": "worst",
+  "tier": "archive",
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: weighted dips 10 (20 kg) → 9: first dip at 53.1 rejected still? · Rune review 4 Nov 06:29: 8 («Dette var også 8»). Engine full clip 9: counts the shallow step-down at 70.1 s (shoulder travel 0.12 vs ~0.4 on real dips) as a rep; review window 50-73 s gave 8."
+  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: weighted dips 10 (20 kg) → 9: first dip at 53.1 rejected still? · Rune review 4 Nov 06:29: 8 («Dette var også 8»). Engine full clip 9: counts the shallow step-down at 70.1 s (shoulder travel 0.12 vs ~0.4 on real dips) as a rep; review window 50-73 s gave 8.",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-04 fixed in v8.38"
  },
  {
   "id": "mw14v453e1e351de",

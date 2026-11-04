@@ -17,12 +17,16 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.37';
+const APP_VERSION = '8.38';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
 /* v8.35 per-exercise minimum auto set (curl 3) kill switch: localStorage repcam.minSet = off */
 if (localStorage.getItem('repcam.minSet') === 'off') for (const k in Reps.MIN_SET) delete Reps.MIN_SET[k];
+/* v8.38 kill switches: repcam.dipsBody = off | shadow (dips last-rep shoulder travel), repcam.rowAmps = off (row: stale amps forgotten + minAmp 0.2), repcam.sig = off | shadow */
+{ const m = localStorage.getItem('repcam.dipsBody'); if (m === 'off') Reps.EX.dips.tailTop && (Reps.EX.dips.tailTop.body = null); else if (m === 'shadow' && Reps.EX.dips.tailTop) Reps.EX.dips.tailTop.bodyMode = 'shadow'; }
+if (localStorage.getItem('repcam.rowAmps') === 'off') { Reps.EX.roing.forgetAmps = false; Reps.EX.roing.minAmp = 0.15; }
+const sigMode = localStorage.getItem('repcam.sig') || 'on', sigT = Reps.createSigTracker();
 /* v8.32 row lead-in kill switch: localStorage repcam.rowLead = off | shadow */
 { const m = localStorage.getItem('repcam.rowLead'); if (m === 'off') Reps.EX.roing.leadGap = null; else if (m === 'shadow') Reps.EX.roing.leadGap.mode = 'shadow'; }
 const liveSets = id => store.sets().filter(s => s.sessionId === id);
@@ -202,14 +206,14 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) return;
-  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
+  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) return;
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
   const poseRate = Feedback.clipRate(lm); /* v8.30: rate of THIS clip's logged frames (mean step); poseRateSeg = detector step stats since the last cut (median-based, was `poseRate` ≤8.29) */
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    camera, ruleLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    camera, ruleLog, sigLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -551,7 +555,15 @@ function finishPending() {
   // v8.20 tempo gate (Reps.TEMPO_CFG): shadow by default, verdict goes into feedback meta. localStorage repcam.tempo = on | off (kill switch)
   const tMode = LS.getItem('repcam.tempo') || Reps.TEMPO_CFG.mode, tSlow = !!(ce && !manualEx && tMode !== 'off' && Reps.tempoSlow(ce, counters[ce].repTimes));
   fb.tempoShadow = { slow: tSlow, mode: tMode, ex: ce, reps: r }; if (tSlow) console.info('[tempoShadow] slow', ce, r, tMode);
-  if (r >= (manualEx || !ce ? MIN_AUTO_REPS : Math.max(MIN_AUTO_REPS, Reps.minSet(ce))) && (manualEx || !ce || Reps.plausibleSet(counters[ce].repTimes))) return saveSet(); /* v8.24: a tempo-rejected set is saved and ASKED (✓ keeps, ✗ or no answer removes), see saveSet */ /* v8.13: sparse rigging 'reps' are not a set */ fb.tempoShadow = null; if (r > 0) { const e = ce; counters[e] = mkCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
+  // v8.38 kinematic signature (Reps.SIG_CFG): an auto-detected set whose body orientation clearly does not fit the exercise
+  // (e.g. 'push-ups' while standing) and that no other exercise fits is not saved. Logged in fb.sigLog (clip meta).
+  // localStorage repcam.sig = off | shadow (log only); default on.
+  let sigDrop = false;
+  if (ce && !manualEx && r >= Reps.minSet(ce) && sigMode !== 'off') { const v = sigT.check(ce, counters[ce].repTimes, counters, Reps.minSet);
+    const e = { ex: ce, reps: r, why: v.why, drop: !!v.drop, mode: sigMode, st: v.st && { tilt: Math.round(v.st.tilt), wrAb: +v.st.wrAb.toFixed(2) } };
+    if (v.why) { (fb.sigLog ||= []).push(e); if (fb.sigLog.length > 10) fb.sigLog.shift(); console.info('[sig]', e); }
+    sigDrop = !!v.drop && sigMode === 'on'; }
+  if (!sigDrop && r >= (manualEx || !ce ? MIN_AUTO_REPS : Math.max(MIN_AUTO_REPS, Reps.minSet(ce))) && (manualEx || !ce || Reps.plausibleSet(counters[ce].repTimes))) return saveSet(); /* v8.24: a tempo-rejected set is saved and ASKED (✓ keeps, ✗ or no answer removes), see saveSet */ /* v8.13: sparse rigging 'reps' are not a set */ fb.tempoShadow = null; if (r > 0) { const e = ce; counters[e] = mkCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
 function saveSet() {
   const ex = curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
@@ -814,6 +826,7 @@ function processFrame(lm, ts, asp, sensor) {
   // v8.7: while the phone itself moves a lot (and briefly after), frames are ignored — no rep, no set start, no exercise switch
   const cg = camGate.update(lm, ts, asp, sensor), cam = !cg.ok;
   restGate.update(lm, ts, asp); // v8.15 shadow only: does not affect counting
+  sigT.update(lm, ts, asp); // v8.38 signature buffer
   barFrame(lm, ts); // v8.16 shadow only
   if (cam !== camPaused) { camPaused = cam; $('hint').textContent = L.t(cam ? 'w.camMoving' : 'w.hint'); }
   let tracking = false;
