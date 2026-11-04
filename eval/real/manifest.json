@@ -2740,7 +2740,7 @@
   "tier": "worst",
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label notASet by Rune · failure mode: not a set → halvmark 4: false set (moving between stations) · Rune review 3 Nov 22:12: «Dette er bare rigging» — not a set (confirmed)."
+  "notes": "3 Nov 2026 session, label notASet by Rune · failure mode: not a set → halvmark 4: false set (moving between stations) · Rune review 3 Nov 22:12: «Dette er bare rigging» — not a set (confirmed). · Rune 4 Nov: rigging clip, fine to use as a negative example."
  },
  {
   "id": "mw14myut3d7b4551",
@@ -2887,7 +2887,7 @@
  {
   "id": "mw14ui9f1618f5a7",
   "exercise": "dips",
-  "gt": 10,
+  "gt": 8,
   "kg": 0,
   "realKg": 20,
   "pred": {
@@ -2907,7 +2907,7 @@
    68.05,
    70.11
   ],
-  "label": "corrected",
+  "label": "review-rune",
   "labelEx": "dips",
   "labelReps": 10,
   "created": "2026-11-03T20:20:52.851Z",
@@ -2918,7 +2918,7 @@
   "tier": "worst",
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: weighted dips 10 (20 kg) → 9: first dip at 53.1 rejected still?"
+  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: weighted dips 10 (20 kg) → 9: first dip at 53.1 rejected still? · Rune review 4 Nov 06:29: 8 («Dette var også 8»). Engine full clip 9: counts the shallow step-down at 70.1 s (shoulder travel 0.12 vs ~0.4 on real dips) as a rep; review window 50-73 s gave 8."
  },
  {
   "id": "mw14v453e1e351de",
@@ -2990,7 +2990,7 @@
  {
   "id": "mw14xc8z0fbee6b9",
   "exercise": "dips",
-  "gt": 10,
+  "gt": 8,
   "kg": 0,
   "realKg": 20,
   "pred": {
@@ -3009,7 +3009,7 @@
    60.47,
    61.79
   ],
-  "label": "corrected",
+  "label": "review-rune",
   "labelEx": "dips",
   "labelReps": 10,
   "created": "2026-11-03T20:23:05.027Z",
@@ -3017,10 +3017,12 @@
   "view": "front",
   "facing": "user",
   "durationS": 73.89,
-  "tier": "worst",
+  "tier": "archive",
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: weighted dips 10 (20 kg) → 8: low front-side view; video 2 fps suggests ~9-10"
+  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: weighted dips 10 (20 kg) → 8: low front-side view; video 2 fps suggests ~9-10 · Rune review 4 Nov 06:28: 8 («Stemmer at det er 8 reps»); in-app label 10 was wrong.",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-04: passes after Rune label 8"
  },
  {
   "id": "mw14y1s3cdcc2474",
