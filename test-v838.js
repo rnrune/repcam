@@ -7,6 +7,6 @@ for(const [k,v] of Object.entries(want)){const e=m.find(x=>x.id.startsWith(k));a
  const d=R.load(e.lm||e.id);const r=R.replay(e.win?{...d,frames:d.frames.filter(a=>a[0]>=e.win[0]&&a[0]<=e.win[1])}:d);const exp=v||[e.exercise,e.gt];
  assert.strictEqual(r&&r.ex,exp[0],k+' ex '+(r&&r.ex));assert.strictEqual(r.reps,exp[1],k+' reps '+r.reps);n++;}
 const a=fs.readFileSync('app.js','utf8');
-for(const s of ["repcam.dipsBody","repcam.rowAmps","repcam.sig","APP_VERSION = '8.38'"]) assert(a.includes(s),s);
-assert(fs.readFileSync('index.html','utf8').includes('?v=8.38'));
+for(const s of ["repcam.dipsBody","repcam.rowAmps","repcam.sig","APP_VERSION = '8.3"]) assert(a.includes(s),s);
+assert(fs.readFileSync('index.html','utf8').includes('?v=8.3'));
 console.log('test-v838 ok',n);

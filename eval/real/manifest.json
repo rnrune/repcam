@@ -2778,10 +2778,13 @@
   "view": "front",
   "facing": "user",
   "durationS": 45.27,
-  "tier": "worst",
+  "tier": "archive",
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
-  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: roing 10 → 12: overcount (app 12 too)"
+  "notes": "3 Nov 2026 session, label corrected by Rune · failure mode: roing 10 → 12: overcount (app 12 too) · 4 Nov: Rune confirms 10. Extra reps 29.2/30.1 s were done standing upright (tilt 0-7°) after straightening up at ~27.5 s → v8.39 tailTilt.",
+  "archivedFrom": "worst",
+  "archivedAt": "2026-11-04 fixed in v8.39",
+  "gtConfirmed": "Rune 4 Nov 07:55: 10 reps"
  },
  {
   "id": "mw14pclpa99b380d",

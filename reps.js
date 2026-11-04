@@ -72,7 +72,7 @@
     // v8.8: standing hinge — legs visible (head-on push-ups hide them) and the hands not planted far below the hips
     halvmark: { minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso', posture: (g, ref) => g.legsVis > 0.4 && g.wrM.y - g.hipM.y < 0.8 * ref,
       signal: (g, ref) => (g.hipM.y - g.shM.y) / ref },
-     roing: { forgetAmps: true, minAmp: 0.2, /* v8.38 (was 0.15): with the stale amplitudes gone, a tiny lead-in twitch (mvnoa62b 118.2 s, 0.16) must not start the set */ /* v8.38: a stale background count (forget) also drops its amplitudes (mw14pclp: setup junk at 16-58 s kept the bar too high for the set at 100 s); false = off */ bigEdge: 1.25, leadGap: { ratio: 1.8, min: 1.8, mode: 'on' }, /* v8.32: bar lifted into position before the first row */
+     roing: { tailTilt: { min: 12, set: 18, mode: 'on' }, /* v8.39: standing-upright trailing reps dropped; kill switch repcam.rowTilt=off|shadow */ forgetAmps: true, minAmp: 0.2, /* v8.38 (was 0.15): with the stale amplitudes gone, a tiny lead-in twitch (mvnoa62b 118.2 s, 0.16) must not start the set */ /* v8.38: a stale background count (forget) also drops its amplitudes (mw14pclp: setup junk at 16-58 s kept the bar too high for the set at 100 s); false = off */ bigEdge: 1.25, leadGap: { ratio: 1.8, min: 1.8, mode: 'on' }, /* v8.32: bar lifted into position before the first row */
       minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
     // push-up: wrists planted below the shoulders (rest = arms extended, body high). Same scalar family as dips, but the
@@ -110,8 +110,8 @@
     const tau = def.tau ?? 0.12, topWin = def.topWin ?? 2, cntRatio = def.cntRatio ?? 0.5, overshoot = def.overshoot ?? 0.6;
     let s0T = null, bendT = null, ended = false, repAmps = [], s, lastT, ref, refBuf, state, top, hist, lo, tDown, reps, amps, lastRepT, lastGood, repTimes, raw3, pend, auxLo, auxHi, aux2Lo, aux2Hi, onRep = opts.onRep;
     let shBuf = [], ampT = 0, bodyBuf = [], rejected = 0, qa = null, tents = [], camT = 0, topPose = [];
-    const repSy = new Map(); // v8.38: shoulder travel per counted rep (rep time → range, body-scale units)
-    function reset() { repSy.clear(); bendT = null; ended = false; tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; shBuf = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
+    const repSy = new Map(), repTilt = new Map(); // v8.39: mean torso tilt per counted rep // v8.38: shoulder travel per counted rep (rep time → range, body-scale units)
+    function reset() { repSy.clear(); repTilt.clear(); bendT = null; ended = false; tents = []; rejected = 0; qa = null; s = null; lastT = null; ref = 0; refBuf = []; state = 'top'; top = []; hist = []; lo = null; tDown = 0; reps = 0; amps = []; shBuf = []; lastRepT = null; lastGood = null; repTimes = []; repAmps = []; raw3 = []; pend = null; s0T = null; topPose = []; }
     reset();
     const typAmp = () => { if (!amps.length) return null; const a = [...amps].sort((x, y) => x - y); return a[Math.floor(a.length / 2)]; };
     const hiNow = () => top.length ? Math.max(...top.map(p => p[1])) : s;
@@ -120,7 +120,7 @@
     // tentative until a second rep with similar amplitude and tempo follows within a few seconds. Random one-off movements
     // (reaching for the phone, stretching, walking past) therefore never reach the counter.
     const strict = def.strict ?? true, pairAmp = def.pairAmp ?? 2.5, pairDur = def.pairDur ?? 4.5, pairGap = def.pairGap ?? 12;
-    const count = p => { reps++; if (!p.inAmps) { amps.push(p.amp); if (amps.length > 8) amps.shift(); } lastRepT = p.t; repTimes.push(p.t); repAmps.push(p.amp); if (p.q && p.q.syMax != null) repSy.set(p.t, p.q.syMax - p.q.syMin); onRep && onRep(reps, p.t); };
+    const count = p => { reps++; if (!p.inAmps) { amps.push(p.amp); if (amps.length > 8) amps.shift(); } lastRepT = p.t; repTimes.push(p.t); repAmps.push(p.amp); if (p.q && p.q.syMax != null) repSy.set(p.t, p.q.syMax - p.q.syMin); if (p.q && p.q.tN) repTilt.set(p.t, p.q.tSum / p.q.tN); onRep && onRep(reps, p.t); };
     function cleanRep(p) {
       const q = p.q; if (!q || !q.n) return 'noq';
       if (q.bad / q.n > 0.5) return 'vis'; // low visibility / out of frame / dropouts during the rep
@@ -200,6 +200,7 @@
         const inside = chain.every(k => k && k.visibility > 0.35) && [g.sh[0], g.sh[1]].every(k => k.y > -0.05 && k.y < 1.05 && k.x > -0.05 * aspect && k.x < 1.05 * aspect);
         qa.n++; if (!inside) qa.bad++; const sy = g.shM.y / ref; qa.syMin = Math.min(qa.syMin ?? sy, sy); qa.syMax = Math.max(qa.syMax ?? sy, sy); const hx = g.hipM.x / ref; if (qa.x0 == null) qa.x0 = hx; qa.x1 = hx; qa.xMin = Math.min(qa.xMin, hx); qa.xMax = Math.max(qa.xMax, hx);
         if (!def.posture || def.posture(g, ref)) qa.pose++;
+        qa.tSum = (qa.tSum || 0) + g.torsoTilt; qa.tN = (qa.tN || 0) + 1;
       }
       if (lastGood != null && t - lastGood > 1.5) { checkPend(t, true); s = null; s0T = null; state = 'top'; top = []; hist = []; raw3 = []; qa = null; } // long dropout: restart tracking (keep reps)
       if (FILTER_CFG.medWin) { raw3.push([t, raw]); while (raw3.length > 1 && raw3[0][0] < t - FILTER_CFG.medWin) raw3.shift(); /* v8.26: time-based spike median (frame-rate independent) */
@@ -318,7 +319,12 @@
       // v8.31: the dismount check again once a far-off trailing group is trimmed (mvvfo3h7: shallow step-down 68.8 s sat before a stray 73.6 s 'rep')
       if (!tailDropped) topDrop();
       // v8.38: one last look at the (now) final rep's shoulder travel, after all other end-of-set rules
-      if (def.tailTop && def.tailTop.body != null) { lastBodyCheck = true; topDrop(); lastBodyCheck = false; } // after trimming a far-off trailing group the real last rep is checked too
+      if (def.tailTop && def.tailTop.body != null) { lastBodyCheck = true; topDrop(); lastBodyCheck = false; }
+      // v8.39 rows (def.tailTilt, null = off; mode 'shadow' = log via opts.onTail): trailing 'reps' done standing upright (torso tilt
+      // under T.min°) after a bent-over set (median tilt of the rest ≥ T.set°) = straightening up / putting the bar down (mw14myut 29.2, 30.1 s)
+      if (def.tailTilt) { const T = def.tailTilt; while (reps > 4) { const tl = repTimes.map(x => repTilt.get(x) ?? NaN), L = reps - 1, o = tl.slice(0, -1).filter(isFinite).sort((x, y) => x - y), mo = o.length ? o[(o.length - 1) >> 1] : NaN;
+        const up = isFinite(tl[L]) && tl[L] < T.min && mo >= T.set; if (opts.onTail) opts.onTail({ rule: 'tilt', t: repTimes[L], tilt: tl[L], setTilt: mo, drop: up && T.mode !== 'shadow' });
+        if (!up || T.mode === 'shadow') break; reps--; repTimes.pop(); repAmps.pop(); } } // after trimming a far-off trailing group the real last rep is checked too
       // v8.10: rows — the setup lift (bar from floor/rack to the hang, hinging over) and putting it back are one big, slow
       // excursion at an edge of the set: drop an edge rep much bigger than the set's median AND slower than its rhythm
       // v8.32 lead-in (def.leadGap, null = off; mode 'shadow' = log via opts.onLead only): the first 'rep' sits far before the set's
@@ -340,7 +346,7 @@
     function out(tracking) { return { reps, state, signal: s, tracking, progress: progress(), pending: !!pend }; }
     function progress() { if (s == null) return 0; const hi = state === 'top' ? hiNow() : top0; const ta = typAmp() || def.minAmp * 1.6; return Math.max(0, Math.min(1, (hi - s) / ta)); }
     // v8.9: drop the counted reps (stale background count) but keep tracking the signal, so a rep in progress survives
-    function forget() { repSy.clear(); if (def.forgetAmps) amps = []; reps = 0; repTimes = []; repAmps = []; lastRepT = null; }
+    function forget() { repSy.clear(); repTilt.clear(); if (def.forgetAmps) amps = []; reps = 0; repTimes = []; repAmps = []; lastRepT = null; }
     return { update, progress, flush, reset, forget,
       get reps() { return reps; }, get tentative() { return tents.length; }, get rejected() { return rejected; }, get lastRepT() { return lastRepT; }, get repTimes() { return repTimes; }, get repAmps() { return repAmps; }, def };
   }
