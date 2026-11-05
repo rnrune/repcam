@@ -38,10 +38,12 @@
   // Exercise definitions: each defines a scalar signal where the REST (start) position is HIGH,
   // normalized by a body length so it is camera-distance independent.
   // ref = running reference torso length (max seen in set) so foreshortening during hinge shows up.
-  const EX = {
+  // v8.42: Bulgarian undercount — rear45 working-leg dips often sit just under 0.18 torso (Rune 5 Nov mw3v3mef 5→8, mw3v0giw 10→?). Kill switch: repcam.bulgCount=off|shadow.
+  const BULG_COUNT_CFG = { minAmp: 0.14, /* was 0.18 */ mode: 'on' };
+    const EX = {
     knebøy: { minAmp: 0.22, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y, Math.max(g.kn[0].y, g.kn[1].y)) - g.hipM.y) / ref },
-    bulgarsk: { minAmp: 0.18, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
+    bulgarsk: { minAmp: BULG_COUNT_CFG.minAmp, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       // front leg = knee closest to hip height
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref },
     pullups: { bodyMove: 0.25, edgeGapTail: 4.5, /* v8.21: a slow last pull-up (4.3 s) was trimmed as a tail */ minAmp: 0.25, countAtTop: 0.8, barHold: 0.4, barDrop: 0.5, /* v8.19, countAtTop null = off */ minRep: 0.6, maxRep: 8, need: 'arms', posture: (g, ref) => g.wrM.y < g.shM.y + 0.3 * ref && g.torsoTilt < 50,
@@ -659,6 +661,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);
