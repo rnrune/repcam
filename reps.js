@@ -495,14 +495,24 @@
   // (before the 9 s autosave).
   // atSave: called right before the autosave would store the locked set — then a counter with 2+ reps after it and clearly
   // more reps in total (2 more, or any more over a bare 2-rep lock) wins without a recognizer vote (the reps are the evidence).
+  // v8.40: mature locked sets (4+ reps) must not be stolen by the v8.13 "ambiguous start" path.
+  // mw3uun14 RDL: halvmark locked at 9, then end-of-set dips noise (score spike + inflated dips counter) stole the lock → dips×9.
+  // Comment below already said 4+ is never re-assigned, but the steal ran first. Kill switch in app: repcam.halvmarkDips=off|shadow.
+  const RELOCK_CFG = { matureMin: 4, mode: 'on' /* on | shadow | off */ };
   function relock(cs, lock, pick, tSec, scores, atSave = false) {
     if (!lock || !cs[lock]) return lock;
     const lt = cs[lock].lastRepT ?? -Infinity;
     // v8.13: the recognizer now clearly shows another exercise whose counter is counting the SAME reps (as many, the last one
     // recent): the 2-rep lock came from an ambiguous start (an RDL picked up from the floor looked like a squat) — follow it
-    if (pick && pick !== lock && cs[pick] && cs[pick].reps >= Math.max(4, cs[lock].reps) && cs[pick].reps <= cs[lock].reps + 2 && tSec - (cs[pick].lastRepT ?? -Infinity) < 1.5
+    const steal = pick && pick !== lock && cs[pick] && cs[pick].reps >= Math.max(4, cs[lock].reps) && cs[pick].reps <= cs[lock].reps + 2 && tSec - (cs[pick].lastRepT ?? -Infinity) < 1.5
       && cs[pick].repTimes.length && cs[pick].repTimes[0] <= (cs[lock].repTimes[1] ?? lt) + 1.5
-      && scores && (scores[pick] ?? 0) >= 1.5 * (scores[lock] ?? 0) + 0.1) return pick; // and the recognizer clearly prefers it now
+      && scores && (scores[pick] ?? 0) >= 1.5 * (scores[lock] ?? 0) + 0.1;
+    const mature = cs[lock].reps >= RELOCK_CFG.matureMin;
+    if (steal) {
+      if (RELOCK_CFG.mode === 'off' || !mature) return pick;
+      if (RELOCK_CFG.mode === 'shadow') { /* log-only: keep lock */ }
+      else return lock; // on: refuse steal of a mature set
+    }
     if (tSec - lt < 5 || cs[lock].reps > 3) return lock; // a real set (4+ reps) is never re-assigned
     const after = id => cs[id] ? cs[id].repTimes.filter(t => t > lt).length : 0;
     if (pick && pick !== lock && after(pick) >= 3) return pick;
@@ -646,6 +656,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { SIG_CFG, createSigTracker, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

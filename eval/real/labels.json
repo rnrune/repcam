@@ -3902,5 +3902,53 @@
    "at": "2026-10-27T21:10:13.915Z",
    "_received": "2026-10-27T21:10:17.801Z"
   }
+ },
+ "mw3uun1418e0dd87": {
+  "setTs": "2026-11-05T18:04:21.388Z",
+  "app": "8.39",
+  "pred": {
+   "exercise": "dips",
+   "reps": 9,
+   "kg": 20,
+   "auto": true
+  },
+  "repTimes": [
+   121.33,
+   123.79,
+   125.91,
+   128.12,
+   130.43,
+   132.67,
+   134.97,
+   137.54,
+   140.55
+  ],
+  "durationS": 156.48,
+  "video": {
+   "bytes": 17282580,
+   "w": 720,
+   "h": 1280,
+   "dimSrc": "live",
+   "bps": 1000000
+  },
+  "label": {
+   "kind": "review",
+   "exercise": "halvmark",
+   "reps": 9,
+   "kg": 110,
+   "notASet": false,
+   "comment": "Rumensk mark. 9 stk om du teller repetisjonen der jeg løfter opp stang første gsng",
+   "at": "2026-11-05T18:54:27.300Z"
+  },
+  "camera": {
+   "sessionPos": {
+    "dir": "rear",
+    "deg": 45,
+    "side": null
+   },
+   "derivedAngle": "rear45",
+   "angle": "rear45",
+   "overridden": false
+  }
  }
 }

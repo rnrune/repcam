@@ -3172,5 +3172,34 @@
   "angle": "rear45",
   "angleVerified": "default per exercise (no camera position chosen in app 3 Nov) — not verified",
   "notes": "3 Nov 2026 session, label corrected by Rune"
+ },
+ {
+  "id": "mw3uun1418e0dd87",
+  "exercise": "halvmark",
+  "gt": 9,
+  "kg": 40,
+  "realKg": 110,
+  "view": "front",
+  "facing": "user",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "app": "8.39",
+  "created": "2026-11-05T18:04:21.400Z",
+  "pred": {
+   "exercise": "dips",
+   "reps": 9,
+   "kg": 20,
+   "auto": true
+  },
+  "label": "review",
+  "labelEx": "halvmark",
+  "labelReps": 9,
+  "tier": "worst",
+  "notes": "v8.40: live app 8.39 saved dips×9 via mature-lock steal at set end; review fasit halvmark×9 @110 (incl. first bar pickup). Kill switch repcam.halvmarkDips."
  }
 ]
