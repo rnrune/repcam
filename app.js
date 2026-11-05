@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.40';
+const APP_VERSION = '8.41';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -29,6 +29,8 @@ if (localStorage.getItem('repcam.minSet') === 'off') for (const k in Reps.MIN_SE
 if (localStorage.getItem('repcam.rowTilt') === 'off') Reps.EX.roing.tailTilt = null; else if (localStorage.getItem('repcam.rowTilt') === 'shadow') Reps.EX.roing.tailTilt = { ...Reps.EX.roing.tailTilt, mode: 'shadow' };
 /* v8.40: refuse dips (etc.) stealing a mature halvmark/RDL lock at set end — repcam.halvmarkDips = off | shadow */
 { const m = localStorage.getItem('repcam.halvmarkDips'); if (m === 'off') Reps.RELOCK_CFG.mode = 'off'; else if (m === 'shadow') Reps.RELOCK_CFG.mode = 'shadow'; }
+/* v8.41: Bulgarian rear-foot split — repcam.bulgSquat = off (median ankDx) | shadow (same as on for now) */
+{ const m = localStorage.getItem('repcam.bulgSquat'); if (m === 'off') Reps.SPLIT_CFG.ankDxQ = 0.5; else if (m === 'shadow') Reps.SPLIT_CFG.mode = 'shadow'; }
 if (localStorage.getItem('repcam.rowAmps') === 'off') { Reps.EX.roing.forgetAmps = false; Reps.EX.roing.minAmp = 0.15; }
 const sigMode = localStorage.getItem('repcam.sig') || 'on', sigT = Reps.createSigTracker();
 /* v8.32 row lead-in kill switch: localStorage repcam.rowLead = off | shadow */

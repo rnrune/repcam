@@ -352,6 +352,9 @@
   }
 
   // Best-effort exercise recognition from a sliding window of pose features.
+  // v8.41: Bulgarian (rear foot back, Rune 5 Nov «fot strekkes ut bakover»). ankDx was a median (0.5) aimed at side-view
+  // gaps ≥1.12 torso; rear45 only spikes intermittently — use high percentile. Kill switch: localStorage repcam.bulgSquat=off|shadow.
+  const SPLIT_CFG = { ankDxQ: 0.85, kneeDy: [0.3, 0.42], ankDx: [1.12, 1.3], mode: 'on' };
   function createRecognizer(opts = {}) {
     const win = opts.window ?? 6; // seconds
     const buf = [];
@@ -384,7 +387,7 @@
         kneeMin: q(buf.map(b => Math.min(b.g.knee[0] ?? 180, b.g.knee[1] ?? 180)), 0.1),
         // split stance: one knee much lower than the other at some point (any view), or feet far apart front-to-back (side view)
         kneeDy: q(buf.map(b => Math.abs(b.g.kn[0].y - b.g.kn[1].y) / ref), 0.9),
-        ankDx: q(buf.map(b => Math.abs(b.g.an[0].x - b.g.an[1].x) / ref), 0.5),
+        ankDx: q(buf.map(b => Math.abs(b.g.an[0].x - b.g.an[1].x) / ref), SPLIT_CFG.ankDxQ),
         // vertical torso extent relative to shoulder width: small when lying flat (side view: shoulders level with hips;
         // end views: torso foreshortened), large on an incline bench where the shoulders are well above the hips
         dyShW: q(buf.map(b => Math.abs(b.g.shM.y - b.g.hipM.y) / Math.max(b.g.shW, 1e-3)), 0.5),
@@ -432,7 +435,7 @@
       S.halvmark = sig(f.legsVis, 0.3, 0.5) * (1 - proneHoriz) * (1 - sig(-f.wrUp, 0.8, 1.1) * (1 - sig(f.dyShW, 0.95, 1.2))) * sig(f.hinge, 0.2, 0.45) * sig(f.tiltRange, 20, 40) * sig(f.knee, 130, 155) * (1 - sig(f.wrUp, -0.3, 0)) * sig(f.kneeMin, 40, 65);
       const squatish = (1 - headOn) * sig(f.legsVis, 0.3, 0.5) * sig(f.hipKnee, 0.15, 0.4) * (1 - sig(f.wrUp, 0.2, 0.6) * 0.3) * (1 - sig(f.tilt, 45, 70))
         * sig(f.kneeMin, 20, 32) * (1 - sig(f.tiltRange, 55, 80));
-      const split = Math.max(sig(f.kneeDy, 0.3, 0.42), sig(f.ankDx, 1.12, 1.3));
+      const split = Math.max(sig(f.kneeDy, SPLIT_CFG.kneeDy[0], SPLIT_CFG.kneeDy[1]), sig(f.ankDx, SPLIT_CFG.ankDx[0], SPLIT_CFG.ankDx[1]));
       // a row pulls the hands far relative to steady shoulders; in a squat the shoulders travel and the hands ride along
       const rowish = (1 - sig(f.tilt, 72, 85)) * sig(f.tilt, 14, 24) * sig(f.wrDist, 0.25, 0.4) * (1 - sig(f.shMove, 0.3, 0.45));
       S.knebøy = squatish * (1 - split) * (1 - hang) * (1 - rowish);
@@ -656,6 +659,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

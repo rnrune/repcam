@@ -3201,5 +3201,51 @@
   "labelReps": 9,
   "tier": "worst",
   "notes": "v8.40: live app 8.39 saved dips×9 via mature-lock steal at set end; review fasit halvmark×9 @110 (incl. first bar pickup). Kill switch repcam.halvmarkDips."
+ },
+ {
+  "id": "mw3v0giwaffe81c2",
+  "exercise": "bulgarsk",
+  "gt": 16,
+  "kg": 70,
+  "realKg": 70,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.40",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 4,
+   "kg": 70,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "bulgarsk",
+  "labelReps": 16,
+  "notes": "5 Nov session: Bulgarian split squat 70 kg BOTH legs 8+8 (Rune cue: rear foot stretched back). Live app 8.40 misread knebøy×4. v8.41 SPLIT_CFG ankDxQ=0.85 → bulgarsk (reps still undercount ~10).",
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-11-05"
+ },
+ {
+  "id": "mw3v3mef43e63298",
+  "exercise": "bulgarsk",
+  "gt": 8,
+  "kg": 70,
+  "realKg": 70,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.40",
+  "pred": {
+   "exercise": "bulgarsk",
+   "reps": 8,
+   "kg": 70,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "bulgarsk",
+  "labelReps": 8,
+  "notes": "5 Nov session: Bulgarian tail/rest of set (same set as mw3v0giw). Fasit bulgarsk×8 @70.",
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune 2026-11-05"
  }
 ]
