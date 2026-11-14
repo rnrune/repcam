@@ -5,7 +5,7 @@ const assert = require('assert');
 const R = require('./reps.js');
 const run = require('./eval/real/run.js');
 const man = run.man(), rp = id => { const e = man.find(x => x.id === id), d = run.load(e.lm || e.id); return run.replay(e.win ? { ...d, frames: d.frames.filter(a => a[0] >= e.win[0] && a[0] <= e.win[1]) } : d, 0); };
-for (const [id, ex, n] of [['mvr3vtnn4fb621e5', 'halvmark', 9], ['mvvf7yz657e4bbcc', 'skråbenk', 10], ['mw15189o998758fd', 'curl', 10], ['mw3uun1418e0dd87', 'halvmark', 9]]) {
+for (const [id, ex, n] of [['mvr3vtnn4fb621e5', 'halvmark', 9], ['mvvf7yz657e4bbcc', 'skråbenk', 10], ['mw15189o998758fd', 'curl', 10], ['mw3uun1418e0dd87', 'halvmark', 8]]) {
   const r = rp(id); assert.strictEqual(r.ex, ex, id); assert.strictEqual(r.reps, n, id + ' reps'); }
 let r = rp('mw3u9xk58aee31ee'); assert.strictEqual(r.ex, 'knebøy'); assert.strictEqual(r.reps, 11, 'ampDur on: 11');
 R.AMP_DUR_CFG.mode = 'shadow'; R.AMP_DUR_CFG.shadowLog.length = 0; r = rp('mw3u9xk58aee31ee');

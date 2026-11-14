@@ -6,7 +6,7 @@ const id = 'mw3uun1418e0dd87';
 R.RELOCK_CFG.mode = 'on';
 let r = replay(load(id), 0);
 assert.strictEqual(r.ex, 'halvmark', 'on: halvmark');
-assert.strictEqual(r.reps, 9, 'on: 9 reps');
+assert.strictEqual(r.reps, 8, 'on: 8 reps (v8.44 bar set down dropped)');
 R.RELOCK_CFG.mode = 'off';
 r = replay(load(id), 0);
 assert.strictEqual(r.ex, 'dips', 'off: dips steal');

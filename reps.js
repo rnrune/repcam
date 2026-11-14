@@ -43,6 +43,11 @@
   // amplitude, so the first real reps (≈0.27) fell under cntRatio × typAmp and were never counted. A candidate slower than
   // maxDur s no longer feeds the adaptive amplitude. Kill switch repcam.sqAmpDur = off | shadow (shadow: logged only).
   const AMP_DUR_CFG = { maxDur: 7, /* 5 tried: slow 5.8–5.9 s setup moves in negatives (mvr3x5c8) then let small junk reps through */ mode: 'on' /* on | shadow | off */, shadowLog: [] };
+  // v8.44 RDL «bar set down»: Rune 14 Nov — the first lift off the floor is not a rep, and neither is putting the bar back down.
+  // mw3uun14: after 8 reps (amp ≈0.30–0.43) a pause, then the bar goes to the floor (pose flips, amp 1.43) → counted as 9th.
+  // A last rep ≥ ratio × the set's median amplitude AND arriving after ≥ gap × the median rep gap is dropped (needs minReps others).
+  // Kill switch repcam.rdlTail = off | shadow (shadow: counted as before, logged in RDL_TAIL_CFG.shadowLog).
+  const RDL_TAIL_CFG = { ratio: 2.5, gap: 1.4, minReps: 4, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   const BULG_COUNT_CFG = { minAmp: 0.14, /* was 0.18 */ mode: 'on' }; // v8.43 tried 0.13: 16 on mw3v0giw only via a spurious 0.8 s half-rep on leg 2 (real miss ≈236.4 s on leg 1, ≈0.10 deep) — rejected
     const EX = {
     knebøy: { ampDur: AMP_DUR_CFG, minAmp: 0.22, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
@@ -76,7 +81,7 @@
       posture: g => g.torsoTilt > 18 || g.legsVis < 0.4 || Math.min(g.knee[0] ?? 180, g.knee[1] ?? 180) < 150, minRep: 0.5, maxRep: 8, need: 'arms', trimLead: 0.7,
       signal: (g, ref) => dist(g.wr[g.arm], g.sh[g.arm]) / ref },
     // v8.8: standing hinge — legs visible (head-on push-ups hide them) and the hands not planted far below the hips
-    halvmark: { minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso', posture: (g, ref) => g.legsVis > 0.4 && g.wrM.y - g.hipM.y < 0.8 * ref,
+    halvmark: { tailBig: RDL_TAIL_CFG, minAmp: 0.22, minRep: 0.7, maxRep: 10, need: 'torso', posture: (g, ref) => g.legsVis > 0.4 && g.wrM.y - g.hipM.y < 0.8 * ref,
       signal: (g, ref) => (g.hipM.y - g.shM.y) / ref },
      roing: { tailTilt: { min: 12, set: 18, mode: 'on' }, /* v8.39: standing-upright trailing reps dropped; kill switch repcam.rowTilt=off|shadow */ forgetAmps: true, minAmp: 0.2, /* v8.38 (was 0.15): with the stale amplitudes gone, a tiny lead-in twitch (mvnoa62b 118.2 s, 0.16) must not start the set */ /* v8.38: a stale background count (forget) also drops its amplitudes (mw14pclp: setup junk at 16-58 s kept the bar too high for the set at 100 s); false = off */ bigEdge: 1.25, leadGap: { ratio: 1.8, min: 1.8, mode: 'on' }, /* v8.32: bar lifted into position before the first row */
       minRep: 0.4, maxRep: 8, need: 'arms', refWin: 2, // torso angle ~constant while rowing -> use recent torso length (robust to camera zoom/drift)
@@ -349,6 +354,11 @@
           if (repAmps[L] > def.bigEdge * a && (g[L - 1] > 1.4 * gm || repAmps[L - 1] > def.bigEdge * a)) { reps--; repTimes.pop(); repAmps.pop(); }
           else if (repAmps[0] > def.bigEdge * a && (g[0] > 1.4 * gm || repAmps[1] > def.bigEdge * a)) { reps--; repTimes.shift(); repAmps.shift(); } else break; }
       }
+      if (def.tailBig && def.tailBig.mode !== 'off' && reps > def.tailBig.minReps) { const T = def.tailBig, L = reps - 1; // v8.44 RDL bar set down
+        const a = repAmps.slice(0, -1).sort((x, y) => x - y)[(L - 1) >> 1], g = []; for (let i = 1; i < L; i++) g.push(repTimes[i] - repTimes[i - 1]); g.sort((x, y) => x - y);
+        const gm = g.length ? g[(g.length - 1) >> 1] : Infinity, hit = repAmps[L] >= T.ratio * a && repTimes[L] - repTimes[L - 1] >= T.gap * gm;
+        if (hit && T.mode === 'shadow') { if (T.shadowLog.length < 50) T.shadowLog.push({ ex: exId, t: +repTimes[L].toFixed(1), amp: +repAmps[L].toFixed(2), med: +a.toFixed(2) }); }
+        else if (hit) { reps--; repTimes.pop(); repAmps.pop(); } }
       return reps;
     }
     function out(tracking) { return { reps, state, signal: s, tracking, progress: progress(), pending: !!pend }; }
@@ -673,6 +683,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

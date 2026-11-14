@@ -3,11 +3,11 @@
  "hz": 0,
  "all": true,
  "summary": {
-  "exact": 88,
+  "exact": 89,
   "n": 100,
   "exOk": 76,
   "pos": 77,
-  "mae": 0.208,
+  "mae": 0.195,
   "falseSets": 2,
   "neg": 23
  },
@@ -685,12 +685,12 @@
    "bad": 0
   },
   "mw3uun1418e0dd87": {
-   "ok": false,
+   "ok": true,
    "gt": 8,
    "exercise": "halvmark",
    "ex": "halvmark",
-   "reps": 9,
-   "bad": 1
+   "reps": 8,
+   "bad": 0
   },
   "mw3v0giwaffe81c2": {
    "ok": false,

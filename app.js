@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.43';
+const APP_VERSION = '8.44';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -31,6 +31,8 @@ if (localStorage.getItem('repcam.rowTilt') === 'off') Reps.EX.roing.tailTilt = n
 { const m = localStorage.getItem('repcam.halvmarkDips'); if (m === 'off') Reps.RELOCK_CFG.mode = 'off'; else if (m === 'shadow') Reps.RELOCK_CFG.mode = 'shadow'; }
 /* v8.41: Bulgarian rear-foot split — repcam.bulgSquat = off | shadow (v8.43: shadow is now true shadow = baseline median ankDx) */
 { const m = localStorage.getItem('repcam.bulgSquat'); if (m === 'off' || m === 'shadow') { Reps.SPLIT_CFG.ankDxQ = 0.5; Reps.SPLIT_CFG.mode = m; } }
+/* v8.44: RDL bar set down — a big, late last halvmark 'rep' is dropped — repcam.rdlTail = off | shadow (shadow = baseline + Reps.RDL_TAIL_CFG.shadowLog) */
+{ const m = localStorage.getItem('repcam.rdlTail'); if (m === 'off' || m === 'shadow') Reps.RDL_TAIL_CFG.mode = m; }
 /* v8.43: squat walk-out — a candidate rep slower than AMP_DUR_CFG.maxDur no longer sets the adaptive amplitude — repcam.sqAmpDur = off | shadow */
 { const m = localStorage.getItem('repcam.sqAmpDur'); if (m === 'off' || m === 'shadow') Reps.AMP_DUR_CFG.mode = m; }
 /* v8.42: Bulgarian minAmp — repcam.bulgCount = off|shadow keeps 0.18 (baseline); on (default) uses BULG_COUNT_CFG.minAmp */
