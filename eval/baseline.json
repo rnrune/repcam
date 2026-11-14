@@ -3,11 +3,11 @@
  "hz": 0,
  "all": true,
  "summary": {
-  "exact": 89,
+  "exact": 88,
   "n": 100,
   "exOk": 76,
   "pos": 77,
-  "mae": 0.221,
+  "mae": 0.208,
   "falseSets": 2,
   "neg": 23
  },
@@ -685,12 +685,12 @@
    "bad": 0
   },
   "mw3uun1418e0dd87": {
-   "ok": true,
-   "gt": 9,
+   "ok": false,
+   "gt": 8,
    "exercise": "halvmark",
    "ex": "halvmark",
    "reps": 9,
-   "bad": 0
+   "bad": 1
   },
   "mw3v0giwaffe81c2": {
    "ok": false,
@@ -774,19 +774,19 @@
   },
   "mw3uo69lbda11a06": {
    "ok": false,
-   "gt": 8,
+   "gt": 7,
    "exercise": "halvmark",
    "ex": "knebøy",
    "reps": 10,
-   "bad": 108
+   "bad": 107
   },
   "mw3uraald9dadf4c": {
    "ok": false,
-   "gt": 9,
+   "gt": 8,
    "exercise": "halvmark",
    "ex": "halvmark",
    "reps": 7,
-   "bad": 2
+   "bad": 1
   },
   "mw3v2f9g9b235c6c": {
    "ok": true,

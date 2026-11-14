@@ -3949,6 +3949,13 @@
    "derivedAngle": "rear45",
    "angle": "rear45",
    "overridden": false
+  },
+  "gtRule": "Rune 14 Nov (t253u): første løft av stanga fra gulvet teller IKKE som rep på rumensk markløft/halvmark.",
+  "fasit": {
+   "exercise": "halvmark",
+   "reps": 8,
+   "kg": 110,
+   "repsInclPickup": 9
   }
  }
 }

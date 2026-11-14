@@ -3176,7 +3176,7 @@
  {
   "id": "mw3uun1418e0dd87",
   "exercise": "halvmark",
-  "gt": 9,
+  "gt": 8,
   "kg": 40,
   "realKg": 110,
   "view": "front",
@@ -3198,9 +3198,10 @@
   },
   "label": "review",
   "labelEx": "halvmark",
-  "labelReps": 9,
+  "labelReps": 8,
   "tier": "worst",
-  "notes": "v8.40: live app 8.39 saved dips×9 via mature-lock steal at set end; review fasit halvmark×9 @110 (incl. first bar pickup). Kill switch repcam.halvmarkDips."
+  "notes": "v8.40: live app 8.39 saved dips×9 via mature-lock steal at set end; review fasit halvmark×9 @110. Kill switch repcam.halvmarkDips. · v8.43+ GT 9→8: first bar pickup not counted (Rune 14 Nov (t253u): første løft av stanga fra gulvet teller IKKE som rep på rumensk markløft/halvmark.)",
+  "gtInclPickup": 9
  },
  {
   "id": "mw3v0giwaffe81c2",
@@ -3483,7 +3484,7 @@
  {
   "id": "mw3uo69lbda11a06",
   "exercise": "halvmark",
-  "gt": 8,
+  "gt": 7,
   "kg": 40,
   "realKg": 110,
   "view": "oblique",
@@ -3498,7 +3499,7 @@
   },
   "label": "review-reconciled",
   "labelEx": "halvmark",
-  "labelReps": 8,
+  "labelReps": 7,
   "tier": "worst",
   "angle": "rear45",
   "angleVerified": "Rune in-app session position 2026-11-05",
@@ -3507,12 +3508,13 @@
    "deg": 45,
    "side": null
   },
-  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit halvmark×8 @110kg (review-reconciled). Review: «8 reps om du teller med første løft når jeg løfter opp stanga første gang». GT counts first bar pickup (Rune 5 Nov)."
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit halvmark×8 @110kg (review-reconciled). Review: «8 reps om du teller med første løft når jeg løfter opp stanga første gang». · v8.43+ GT 8→7: first bar pickup not counted (Rune 14 Nov (t253u): første løft av stanga fra gulvet teller IKKE som rep på rumensk markløft/halvmark.)",
+  "gtInclPickup": 8
  },
  {
   "id": "mw3uraald9dadf4c",
   "exercise": "halvmark",
-  "gt": 9,
+  "gt": 8,
   "kg": 40,
   "realKg": 110,
   "view": "oblique",
@@ -3527,7 +3529,7 @@
   },
   "label": "review-reconciled",
   "labelEx": "halvmark",
-  "labelReps": 9,
+  "labelReps": 8,
   "tier": "worst",
   "angle": "rear45",
   "angleVerified": "Rune in-app session position 2026-11-05",
@@ -3536,7 +3538,8 @@
    "deg": 45,
    "side": null
   },
-  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit halvmark×9 @110kg (review-reconciled). Review: «Rumensk mark. Ser ut som 9 reps om du tar med når jeg løfter opp første gsng». GT counts first bar pickup (Rune 5 Nov)."
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit halvmark×9 @110kg (review-reconciled). Review: «Rumensk mark. Ser ut som 9 reps om du tar med når jeg løfter opp første gsng». · v8.43+ GT 9→8: first bar pickup not counted (Rune 14 Nov (t253u): første løft av stanga fra gulvet teller IKKE som rep på rumensk markløft/halvmark.)",
+  "gtInclPickup": 9
  },
  {
   "id": "mw3v2f9g9b235c6c",
