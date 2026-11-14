@@ -1,0 +1,816 @@
+{
+ "reps": "reps.js",
+ "hz": 0,
+ "all": true,
+ "summary": {
+  "exact": 89,
+  "n": 100,
+  "exOk": 76,
+  "pos": 77,
+  "mae": 0.221,
+  "falseSets": 2,
+  "neg": 23
+ },
+ "clips": {
+  "mvmtfqlo8d46051c": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "armhevinger",
+   "ex": "armhevinger",
+   "reps": 6,
+   "bad": 0
+  },
+  "mvmtju2917da1c69": {
+   "ok": true,
+   "gt": 5,
+   "exercise": "armhevinger",
+   "ex": "armhevinger",
+   "reps": 5,
+   "bad": 0
+  },
+  "mvnn4l651c1e1196": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvnn63hcade41090": {
+   "ok": true,
+   "gt": 3,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 3,
+   "bad": 0
+  },
+  "mvnn7o35d80c0438": {
+   "ok": true,
+   "gt": 3,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 3,
+   "bad": 0
+  },
+  "mvnnauvh327e01f6": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 6,
+   "bad": 0
+  },
+  "mvnne20j922852c2": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 6,
+   "bad": 0
+  },
+  "mvnnh70nea07ec8a": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 6,
+   "bad": 0
+  },
+  "mvnni53q2857159c": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "knebøy",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvnnjow896196e28": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 6,
+   "bad": 0
+  },
+  "mvnnmlyb8d46d904": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 6,
+   "bad": 0
+  },
+  "mvnnso2aea1f27b0": {
+   "ok": true,
+   "gt": 5,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 5,
+   "bad": 0
+  },
+  "mvnnu10fd5aab31c": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "roing",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvnnumk35bc1533f": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "roing",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvnnvm4m78a14062": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "skråbenk",
+   "ex": "skråbenk",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvnnyske91a727d2": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "skråbenk",
+   "ex": "skråbenk",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvno21b4b03d0f8b": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "skråbenk",
+   "ex": "skråbenk",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvno2nrl20c2da02": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": null,
+   "reps": 0,
+   "bad": 0
+  },
+  "mvno4ocl012d89f9": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "roing",
+   "ex": "roing",
+   "reps": 10,
+   "bad": 0
+  },
+  "mvno6wnoab08c185": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "roing",
+   "ex": "roing",
+   "reps": 10,
+   "bad": 0
+  },
+  "mvnoa62be037036e": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "roing",
+   "ex": "roing",
+   "reps": 10,
+   "bad": 0
+  },
+  "mvnoc4f7aa1e6640": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "dips",
+   "ex": "dips",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvnoctaf7a668445": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "roing",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvnogfwn500e341f": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "dips",
+   "ex": "dips",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvnohgsi2c916059": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "curl",
+   "ex": "curl",
+   "reps": 10,
+   "bad": 0
+  },
+  "mvnok2vt347693bc": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "dips",
+   "ex": "dips",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvr3ehf7d7e3da93": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvr3gojt95bd64ea": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvr3k128fb810868": {
+   "ok": true,
+   "gt": 4,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 4,
+   "bad": 0
+  },
+  "mvr3naxy72228481": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvr3phm88e08d970": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "halvmark",
+   "ex": "halvmark",
+   "reps": 6,
+   "bad": 0
+  },
+  "mvr3slr3ddbdbd01": {
+   "ok": true,
+   "gt": 9,
+   "exercise": "halvmark",
+   "ex": "halvmark",
+   "reps": 9,
+   "bad": 0
+  },
+  "mvr3vtnn4fb621e5": {
+   "ok": true,
+   "gt": 9,
+   "exercise": "halvmark",
+   "ex": "halvmark",
+   "reps": 9,
+   "bad": 0
+  },
+  "mvr3nq3e5c6cddac": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "knebøy",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvr3o841cd8387e6": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "halvmark",
+   "reps": 1,
+   "bad": 0
+  },
+  "mvr3rto36e8c9504": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "curl",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvr3x5c841129b1d": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "halvmark",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvr3ztyba5399299": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "roing",
+   "reps": 1,
+   "bad": 0
+  },
+  "mvr4g3o2db25cd16-s2": {
+   "ok": true,
+   "gt": 20,
+   "exercise": "vsitup",
+   "ex": "vsitup",
+   "reps": 20,
+   "bad": 0
+  },
+  "mvr4g3o2db25cd16-s3": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "vsitup",
+   "ex": "vsitup",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvveg0gceee8b71a": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "knebøy",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvvelxx5-bench": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvvelxx5-rest": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "curl",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvvesvuf8b56e08a": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvvevvpuf7cf26c0": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvvez2adbd7812a5": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 6,
+   "bad": 0
+  },
+  "mvvf26hgc6ccdffd": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvvf3dw609eb9629": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "halvmark",
+   "reps": 0,
+   "bad": 0
+  },
+  "mvvf4x3931b8aeeb": {
+   "ok": false,
+   "gt": 12,
+   "exercise": "skråbenk",
+   "ex": "skråbenk",
+   "reps": 11,
+   "bad": 1
+  },
+  "mvvf7yz657e4bbcc": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "skråbenk",
+   "ex": "skråbenk",
+   "reps": 10,
+   "bad": 0
+  },
+  "mvvffzgp433b4511": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "roing",
+   "ex": "roing",
+   "reps": 10,
+   "bad": 0
+  },
+  "mvvfl1ka-row": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "roing",
+   "ex": "roing",
+   "reps": 10,
+   "bad": 0
+  },
+  "mvvfl1ka-dips": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "dips",
+   "ex": "dips",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvvfo3h7de7ad609": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "dips",
+   "ex": "dips",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvvfp3sp39090326": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "curl",
+   "ex": "curl",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvvfsawp67eb0973": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "curl",
+   "ex": "curl",
+   "reps": 12,
+   "bad": 0
+  },
+  "mvw6fsc9ea28c668": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 8,
+   "bad": 0
+  },
+  "mvvfr0478a996584": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "dips",
+   "ex": "dips",
+   "reps": 12,
+   "bad": 0
+  },
+  "mw13mzz0ee9588ee": {
+   "ok": true,
+   "gt": 12,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 12,
+   "bad": 0
+  },
+  "mw13okr6e0563048": {
+   "ok": true,
+   "gt": 5,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 5,
+   "bad": 0
+  },
+  "mw13tq5t8d0c3da8": {
+   "ok": true,
+   "gt": 7,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 7,
+   "bad": 0
+  },
+  "mw13wreb9393d836": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 6,
+   "bad": 0
+  },
+  "mw13zsy66f202548": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 6,
+   "bad": 0
+  },
+  "mw141hrs54d5f868": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "knebøy",
+   "reps": 1,
+   "bad": 0
+  },
+  "mw141vcua0acfaa1": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": null,
+   "reps": 0,
+   "bad": 0
+  },
+  "mw1459mkd5bfec4c": {
+   "ok": true,
+   "gt": 5,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 5,
+   "bad": 0
+  },
+  "mw148qda0dd085ce": {
+   "ok": true,
+   "gt": 5,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 5,
+   "bad": 0
+  },
+  "mw14c1uf79bc3b22": {
+   "ok": true,
+   "gt": 5,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 5,
+   "bad": 0
+  },
+  "mw14eqip4b0eef81": {
+   "ok": true,
+   "gt": 9,
+   "exercise": "skråbenk",
+   "ex": "skråbenk",
+   "reps": 9,
+   "bad": 0
+  },
+  "mw14hvfqfc0ac9ad": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "skråbenk",
+   "ex": "skråbenk",
+   "reps": 8,
+   "bad": 0
+  },
+  "mw14kx4tf0fdbd21": {
+   "ok": false,
+   "gt": 8,
+   "exercise": "skråbenk",
+   "ex": "skråbenk",
+   "reps": 9,
+   "bad": 1
+  },
+  "mw14lzxg33d67550": {
+   "ok": false,
+   "gt": 0,
+   "exercise": null,
+   "ex": "halvmark",
+   "reps": 4,
+   "bad": 104
+  },
+  "mw14myut3d7b4551": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "roing",
+   "ex": "roing",
+   "reps": 10,
+   "bad": 0
+  },
+  "mw14pclpa99b380d": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "roing",
+   "ex": "roing",
+   "reps": 10,
+   "bad": 0
+  },
+  "mw14por08f4385be": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "dips",
+   "reps": 0,
+   "bad": 0
+  },
+  "mw14si2u0da0dff5": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "roing",
+   "ex": "roing",
+   "reps": 10,
+   "bad": 0
+  },
+  "mw14ui9f1618f5a7": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "dips",
+   "ex": "dips",
+   "reps": 8,
+   "bad": 0
+  },
+  "mw14v453e1e351de": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "halvmark",
+   "reps": 0,
+   "bad": 0
+  },
+  "mw14vr8p95eadb80": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "curl",
+   "ex": "curl",
+   "reps": 10,
+   "bad": 0
+  },
+  "mw14xc8z0fbee6b9": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "dips",
+   "ex": "dips",
+   "reps": 8,
+   "bad": 0
+  },
+  "mw14y1s3cdcc2474": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "curl",
+   "ex": "curl",
+   "reps": 10,
+   "bad": 0
+  },
+  "mw14yi151ad09d6b": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "dips",
+   "reps": 0,
+   "bad": 0
+  },
+  "mw150kj73cecbc77": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "dips",
+   "ex": "dips",
+   "reps": 10,
+   "bad": 0
+  },
+  "mw15189o998758fd": {
+   "ok": true,
+   "gt": 10,
+   "exercise": "curl",
+   "ex": "curl",
+   "reps": 10,
+   "bad": 0
+  },
+  "mw3uun1418e0dd87": {
+   "ok": true,
+   "gt": 9,
+   "exercise": "halvmark",
+   "ex": "halvmark",
+   "reps": 9,
+   "bad": 0
+  },
+  "mw3v0giwaffe81c2": {
+   "ok": false,
+   "gt": 16,
+   "exercise": "bulgarsk",
+   "ex": "bulgarsk",
+   "reps": 15,
+   "bad": 1
+  },
+  "mw3v3mef43e63298": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "bulgarsk",
+   "ex": "bulgarsk",
+   "reps": 8,
+   "bad": 0
+  },
+  "mw3u9xk58aee31ee": {
+   "ok": false,
+   "gt": 12,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 11,
+   "bad": 1
+  },
+  "mw3ub9yv18d6cc2c": {
+   "ok": false,
+   "gt": 8,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 7,
+   "bad": 1
+  },
+  "mw3ucgewaf93cd66": {
+   "ok": false,
+   "gt": 3,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 4,
+   "bad": 1
+  },
+  "mw3ufjnh35acfba9": {
+   "ok": false,
+   "gt": 4,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 3,
+   "bad": 1
+  },
+  "mw3uinwa0e034b83": {
+   "ok": true,
+   "gt": 4,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 4,
+   "bad": 0
+  },
+  "mw3ulnj8a7e137ea": {
+   "ok": true,
+   "gt": 4,
+   "exercise": "knebøy",
+   "ex": "knebøy",
+   "reps": 4,
+   "bad": 0
+  },
+  "mw3umlzj8bff3e5b": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "dips",
+   "reps": 0,
+   "bad": 0
+  },
+  "mw3un16xaa5995ba": {
+   "ok": false,
+   "gt": 0,
+   "exercise": null,
+   "ex": "bulgarsk",
+   "reps": 4,
+   "bad": 104
+  },
+  "mw3uo69lbda11a06": {
+   "ok": false,
+   "gt": 8,
+   "exercise": "halvmark",
+   "ex": "knebøy",
+   "reps": 10,
+   "bad": 108
+  },
+  "mw3uraald9dadf4c": {
+   "ok": false,
+   "gt": 9,
+   "exercise": "halvmark",
+   "ex": "halvmark",
+   "reps": 7,
+   "bad": 2
+  },
+  "mw3v2f9g9b235c6c": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "dips",
+   "reps": 0,
+   "bad": 0
+  },
+  "mw3v2ujvb057df3a": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "dips",
+   "reps": 0,
+   "bad": 0
+  },
+  "mw3v6srrca836707": {
+   "ok": true,
+   "gt": 20,
+   "exercise": "vsitup",
+   "ex": "vsitup",
+   "reps": 20,
+   "bad": 0
+  }
+ }
+}

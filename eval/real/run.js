@@ -61,7 +61,7 @@ if (require.main === module) {
   console.log('| Clip | GT | Pred | Exercise (GT → pred) | kg | Rep times (s) |\n|---|---|---|---|---|---|');
   // v8.13 benchmark tiers (manifest `tier`): core = small stable set that must pass (regression guard), worst = clips the app
   // fails most (test fixes here first, move solved ones to core), pass = solved but not core. --tier core|worst|pass filters.
-  const tier = arg('--tier', null), T = {}, A = {}; const ALL = process.argv.includes('--all'); // v8.32: archive tier = retired duplicates, run with --all (full regression pass before each push)
+  const tier = arg('--tier', null), T = {}, A = {}, PER = {}; const ALL = process.argv.includes('--all'); // v8.32 archive tier with --all; v8.43 PER = per-clip results for --json / --diff const ALL = process.argv.includes('--all'); // v8.32: archive tier = retired duplicates, run with --all (full regression pass before each push)
   // v8.14: one recording can hold several sets — `lm` names the landmark file, `win: [t0, t1]` the set's time window
   const loadE = e => { const d = module.exports.load(e.lm || e.id); return e.win ? { ...d, frames: d.frames.filter(a => a[0] >= e.win[0] && a[0] <= e.win[1]) } : d; };
   const ids = arg('--ids', null); for (const e of module.exports.man().filter(x => ids ? ids.split(',').includes(x.id) : tier ? x.tier === tier : x.tier !== 'excluded' && (ALL || x.tier !== 'archive'))) { const r = replay(loadE(e), hz); n++;
@@ -69,10 +69,23 @@ if (require.main === module) {
     if (!e.exercise) { neg++; ok = r.reps < 2; /* v8.13: the app drops a stray single rep (autosave needs 2) */ if (!ok) falseSets++; }
     else { pos++; const exm = r.ex === e.exercise; if (exm) exOk++; ok = exm && r.reps === e.gt && r.kg === e.kg; ae += exm ? Math.abs(r.reps - e.gt) : e.gt; }
     const tt = T[e.tier || '-'] ||= { n: 0, ok: 0 }; tt.n++; if (ok) tt.ok++; const ta = A[e.angle || 'unknown'] ||= { n: 0, ok: 0 }; ta.n++; if (ok) ta.ok++; // v8.32: per verified camera angle
+    PER[e.id] = { ok, gt: e.gt, exercise: e.exercise || null, ex: r.ex, reps: r.reps, bad: badness(e, r) };
     if (ok) exact++; else if (e.must || e.regress || e.tier === 'core') bad++;
     console.log(`| ${ok ? '✓' : '✗'}${e.must || e.regress || e.tier === 'core' ? '!' : ''} ${e.id} | ${e.gt} | ${r.reps} | ${e.exercise} → ${r.ex} | ${r.kg} | ${r.times.join(', ')} |`); }
   console.log('\nangles: ' + Object.entries(A).map(([k, v]) => `${k} ${v.ok}/${v.n}`).join(' · '));
   console.log('\ntiers: ' + Object.entries(T).map(([k, v]) => `${k} ${v.ok}/${v.n}`).join(' · '));
   console.log(`exact ${exact}/${n} · exercise ${exOk}/${pos} · rep MAE ${(ae / Math.max(1, pos)).toFixed(2)} (wrong exercise = all reps missed) · false sets ${falseSets}/${neg} · must-fail ${bad}`);
-  process.exit(bad ? 1 : 0);
+  // v8.43 strict rule: --json FILE saves per-clip results (baseline); --diff FILE compares against a saved baseline on the SAME
+  // manifest. Any clip whose badness rises (exact→not, exercise lost, rep error up, new false set) is a regression → exit 1.
+  const jo = arg('--json', null); if (jo) fs.writeFileSync(jo, JSON.stringify({ reps: arg('--reps', 'reps.js'), hz, all: ALL, summary: { exact, n, exOk, pos, mae: +(ae / Math.max(1, pos)).toFixed(3), falseSets, neg }, clips: PER }, null, 1));
+  const dfile = arg('--diff', null); let regs = 0;
+  if (dfile) { const B = JSON.parse(fs.readFileSync(dfile, 'utf8')).clips, fmt = c => c ? `${c.ex || 'none'}×${c.reps}${c.ok ? ' ✓' : ''}` : 'n/a';
+    const better = [], worse = [], missing = Object.keys(B).filter(k => !PER[k]);
+    for (const [id, c] of Object.entries(PER)) { const b = B[id]; if (!b) { console.log(`diff: NEW ${id} ${fmt(c)} (no baseline)`); continue; }
+      if (c.bad > b.bad || (b.ok && !c.ok)) worse.push(`${id}: ${fmt(b)} → ${fmt(c)} (GT ${c.exercise || 'none'}×${c.gt})`); else if (c.bad < b.bad) better.push(`${id}: ${fmt(b)} → ${fmt(c)}`); }
+    regs = worse.length; console.log(`\ndiff vs ${dfile}: ${better.length} better · ${worse.length} WORSE · ${missing.length} baseline clips not run`);
+    for (const x of better) console.log('  + ' + x); for (const x of worse) console.log('  - WORSE ' + x); if (missing.length) console.log('  ? not run: ' + missing.join(', ')); }
+  process.exit(bad || regs ? 1 : 0);
 }
+// v8.43: per-clip badness for the baseline diff. Wrong exercise = gt + 100 (always worse than any count error); negative = reps logged when ≥2.
+function badness(e, r) { if (!e.exercise) return r.reps >= 2 ? 100 + r.reps : 0; return r.ex === e.exercise ? Math.abs(r.reps - e.gt) + (r.kg === e.kg ? 0 : 0.5) : 100 + e.gt; }

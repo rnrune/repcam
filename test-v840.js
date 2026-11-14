@@ -11,7 +11,10 @@ R.RELOCK_CFG.mode = 'off';
 r = replay(load(id), 0);
 assert.strictEqual(r.ex, 'dips', 'off: dips steal');
 assert.strictEqual(r.reps, 9, 'off: 9 dips reps');
-R.RELOCK_CFG.mode = 'shadow';
+R.RELOCK_CFG.mode = 'shadow'; // v8.43: true shadow = baseline (steal happens) + logged
+R.RELOCK_CFG.shadowLog.length = 0;
 r = replay(load(id), 0);
-assert.strictEqual(r.ex, 'halvmark', 'shadow: keep halvmark');
+assert.strictEqual(r.ex, 'dips', 'shadow: baseline behaviour');
+assert.ok(R.RELOCK_CFG.shadowLog.length > 0, 'shadow: refusal logged');
+R.RELOCK_CFG.mode = 'on';
 console.log('test-v840 ok');

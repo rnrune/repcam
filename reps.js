@@ -39,9 +39,13 @@
   // normalized by a body length so it is camera-distance independent.
   // ref = running reference torso length (max seen in set) so foreshortening during hinge shows up.
   // v8.42: Bulgarian undercount — rear45 working-leg dips often sit just under 0.18 torso (Rune 5 Nov mw3v3mef 5→8, mw3v0giw 10→?). Kill switch: repcam.bulgCount=off|shadow.
-  const BULG_COUNT_CFG = { minAmp: 0.14, /* was 0.18 */ mode: 'on' };
+  // v8.43: squat walk-out/unrack. mw3u9xk (12×50 kg, app 8): a 7.6 s "rep" (amp 0.53, under the bar walking out) set the adaptive
+  // amplitude, so the first real reps (≈0.27) fell under cntRatio × typAmp and were never counted. A candidate slower than
+  // maxDur s no longer feeds the adaptive amplitude. Kill switch repcam.sqAmpDur = off | shadow (shadow: logged only).
+  const AMP_DUR_CFG = { maxDur: 7, /* 5 tried: slow 5.8–5.9 s setup moves in negatives (mvr3x5c8) then let small junk reps through */ mode: 'on' /* on | shadow | off */, shadowLog: [] };
+  const BULG_COUNT_CFG = { minAmp: 0.14, /* was 0.18 */ mode: 'on' }; // v8.43 tried 0.13: 16 on mw3v0giw only via a spurious 0.8 s half-rep on leg 2 (real miss ≈236.4 s on leg 1, ≈0.10 deep) — rejected
     const EX = {
-    knebøy: { minAmp: 0.22, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
+    knebøy: { ampDur: AMP_DUR_CFG, minAmp: 0.22, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y, Math.max(g.kn[0].y, g.kn[1].y)) - g.hipM.y) / ref },
     bulgarsk: { minAmp: BULG_COUNT_CFG.minAmp, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       // front leg = knee closest to hip height
@@ -148,7 +152,9 @@
       const why = cleanRep(p);
       // v8.13: a movement made out of posture or out of view (unracking/walking out under the bar, glitchy frames) no longer
       // sets the adaptive amplitude, so one huge setup excursion cannot make the set's real (smaller) reps look too shallow
-      if (!def.cleanAmps || (why !== 'pose' && why !== 'vis')) { ampT = p.t; amps.push(p.amp); if (amps.length > 8) amps.shift(); p.inAmps = true; }
+      const slow = def.ampDur && def.ampDur.mode !== 'off' && p.dur > def.ampDur.maxDur;
+      if (slow && def.ampDur.mode === 'shadow' && def.ampDur.shadowLog.length < 50) def.ampDur.shadowLog.push({ ex: exId, t: +p.t.toFixed(1), amp: +p.amp.toFixed(2), dur: +p.dur.toFixed(1) });
+      if ((!def.cleanAmps || (why !== 'pose' && why !== 'vis')) && !(slow && def.ampDur.mode === 'on')) { ampT = p.t; amps.push(p.amp); if (amps.length > 8) amps.shift(); p.inAmps = true; }
       if (ended && p.t > ended) { rejected++; opts.onReject && opts.onReject('ended', p); return; }
       if (why) { rejected++; opts.onReject && opts.onReject(why, p); return; }
       if (reps > 0) return count(p);
@@ -503,7 +509,12 @@
   // v8.40: mature locked sets (4+ reps) must not be stolen by the v8.13 "ambiguous start" path.
   // mw3uun14 RDL: halvmark locked at 9, then end-of-set dips noise (score spike + inflated dips counter) stole the lock → dips×9.
   // Comment below already said 4+ is never re-assigned, but the steal ran first. Kill switch in app: repcam.halvmarkDips=off|shadow.
-  const RELOCK_CFG = { matureMin: 4, mode: 'on' /* on | shadow | off */ };
+  // v8.43: the blanket refusal also blocked three real corrections of a wrong mature lock (mvr3vtnn knebøy→halvmark,
+  // mvvf7yz roing→skråbenk, mw15189o bulgarsk→curl): there the stealing counter counts the SAME reps (+0/+1), while the
+  // mw3uun14 end-of-set dips counter had picked up extra reps (11 vs 9). A mature lock is now only protected when the pick
+  // counts more than matureSlack reps above it. shadow = baseline (v8.13 steal allowed) + log in RELOCK_CFG.shadowLog.
+  // (Tried and rejected: waiting for one more pick rep before a mature steal — lost mvr3vtnn.)
+  const RELOCK_CFG = { matureMin: 4, matureSlack: 1, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   function relock(cs, lock, pick, tSec, scores, atSave = false) {
     if (!lock || !cs[lock]) return lock;
     const lt = cs[lock].lastRepT ?? -Infinity;
@@ -514,9 +525,10 @@
       && scores && (scores[pick] ?? 0) >= 1.5 * (scores[lock] ?? 0) + 0.1;
     const mature = cs[lock].reps >= RELOCK_CFG.matureMin;
     if (steal) {
-      if (RELOCK_CFG.mode === 'off' || !mature) return pick;
-      if (RELOCK_CFG.mode === 'shadow') { /* log-only: keep lock */ }
-      else return lock; // on: refuse steal of a mature set
+      const refuse = mature && cs[pick].reps > cs[lock].reps + RELOCK_CFG.matureSlack;
+      if (RELOCK_CFG.mode === 'off' || !refuse) return pick;
+      if (RELOCK_CFG.mode === 'shadow') { if (RELOCK_CFG.shadowLog.length < 50) RELOCK_CFG.shadowLog.push({ t: +tSec.toFixed(1), lock, pick, lr: cs[lock].reps, pr: cs[pick].reps }); return pick; } // true shadow: baseline
+      return lock; // on: refuse steal of a mature set by a counter with extra reps
     }
     if (tSec - lt < 5 || cs[lock].reps > 3) return lock; // a real set (4+ reps) is never re-assigned
     const after = id => cs[id] ? cs[id].repTimes.filter(t => t > lt).length : 0;
@@ -661,6 +673,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

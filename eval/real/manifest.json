@@ -3206,7 +3206,7 @@
   "id": "mw3v0giwaffe81c2",
   "exercise": "bulgarsk",
   "gt": 16,
-  "kg": 70,
+  "kg": 0,
   "realKg": 70,
   "view": "oblique",
   "facing": "user",
@@ -3229,7 +3229,7 @@
   "id": "mw3v3mef43e63298",
   "exercise": "bulgarsk",
   "gt": 8,
-  "kg": 70,
+  "kg": 0,
   "realKg": 70,
   "view": "oblique",
   "facing": "user",
@@ -3247,5 +3247,382 @@
   "tier": "worst",
   "angle": "rear45",
   "angleVerified": "Rune 2026-11-05"
+ },
+ {
+  "id": "mw3u9xk58aee31ee",
+  "exercise": "knebøy",
+  "gt": 12,
+  "kg": 20,
+  "realKg": 50,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T17:48:15.270Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 80,
+   "auto": true
+  },
+  "label": "review-reconciled",
+  "labelEx": "knebøy",
+  "labelReps": 12,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit knebøy×12 @50kg (review-reconciled). Session fasit 12×50 (app 8)."
+ },
+ {
+  "id": "mw3ub9yv18d6cc2c",
+  "exercise": "knebøy",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 80,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T17:49:18.007Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 8,
+   "kg": 80,
+   "auto": true
+  },
+  "label": "implicit",
+  "labelEx": "knebøy",
+  "labelReps": 8,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit knebøy×8 @80kg (implicit)."
+ },
+ {
+  "id": "mw3ucgewaf93cd66",
+  "exercise": "knebøy",
+  "gt": 3,
+  "kg": 20,
+  "realKg": 110,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T17:50:13.016Z",
+  "pred": {
+   "exercise": "dips",
+   "reps": 5,
+   "kg": 20,
+   "auto": true
+  },
+  "label": "review-reconciled",
+  "labelEx": "knebøy",
+  "labelReps": 3,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit knebøy×3 @110kg (review-reconciled). Review: «3 registrerte reps helr på slutten. Den siste reppen må være i et annet klipp eller slettet»."
+ },
+ {
+  "id": "mw3ufjnh35acfba9",
+  "exercise": "knebøy",
+  "gt": 4,
+  "kg": 20,
+  "realKg": 110,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T17:52:37.181Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 4,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "knebøy",
+  "labelReps": 4,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit knebøy×4 @110kg (corrected)."
+ },
+ {
+  "id": "mw3uinwa0e034b83",
+  "exercise": "knebøy",
+  "gt": 4,
+  "kg": 20,
+  "realKg": 110,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T17:55:02.650Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 4,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "knebøy",
+  "labelReps": 4,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit knebøy×4 @110kg (corrected)."
+ },
+ {
+  "id": "mw3ulnj8a7e137ea",
+  "exercise": "knebøy",
+  "gt": 4,
+  "kg": 20,
+  "realKg": 110,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T17:57:22.148Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 4,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "corrected",
+  "labelEx": "knebøy",
+  "labelReps": 4,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit knebøy×4 @110kg (corrected)."
+ },
+ {
+  "id": "mw3umlzj8bff3e5b",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T17:58:06.799Z",
+  "pred": {
+   "exercise": "dips",
+   "reps": 4,
+   "kg": 20,
+   "auto": true
+  },
+  "label": "notASet",
+  "labelEx": "dips",
+  "labelReps": 0,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Rune: NOT_A_SET (between sets / setup); app saved dips×4."
+ },
+ {
+  "id": "mw3un16xaa5995ba",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T17:58:26.505Z",
+  "pred": {
+   "exercise": "knebøy",
+   "reps": 3,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "notASet",
+  "labelEx": "knebøy",
+  "labelReps": 0,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Rune: NOT_A_SET (between sets / setup); app saved knebøy×3."
+ },
+ {
+  "id": "mw3uo69lbda11a06",
+  "exercise": "halvmark",
+  "gt": 8,
+  "kg": 40,
+  "realKg": 110,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T17:59:19.737Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 4,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "review-reconciled",
+  "labelEx": "halvmark",
+  "labelReps": 8,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit halvmark×8 @110kg (review-reconciled). Review: «8 reps om du teller med første løft når jeg løfter opp stanga første gang». GT counts first bar pickup (Rune 5 Nov)."
+ },
+ {
+  "id": "mw3uraald9dadf4c",
+  "exercise": "halvmark",
+  "gt": 9,
+  "kg": 40,
+  "realKg": 110,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T18:01:44.925Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 7,
+   "kg": 100,
+   "auto": true
+  },
+  "label": "review-reconciled",
+  "labelEx": "halvmark",
+  "labelReps": 9,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit halvmark×9 @110kg (review-reconciled). Review: «Rumensk mark. Ser ut som 9 reps om du tar med når jeg løfter opp første gsng». GT counts first bar pickup (Rune 5 Nov)."
+ },
+ {
+  "id": "mw3v2f9g9b235c6c",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T18:10:24.580Z",
+  "pred": {
+   "exercise": "curl",
+   "reps": 3,
+   "kg": 40,
+   "auto": true
+  },
+  "label": "notASet",
+  "labelEx": "curl",
+  "labelReps": 0,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Rune: NOT_A_SET (between sets / setup); app saved curl×3."
+ },
+ {
+  "id": "mw3v2ujvb057df3a",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T18:10:44.395Z",
+  "pred": {
+   "exercise": "dips",
+   "reps": 2,
+   "kg": 20,
+   "auto": true
+  },
+  "label": "notASet",
+  "labelEx": "dips",
+  "labelReps": 0,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Rune: NOT_A_SET (between sets / setup); app saved dips×2."
+ },
+ {
+  "id": "mw3v6srrca836707",
+  "exercise": "vsitup",
+  "gt": 20,
+  "kg": 15,
+  "realKg": 15,
+  "view": "oblique",
+  "facing": "user",
+  "app": "8.39",
+  "created": "2026-11-05T18:13:48.712Z",
+  "pred": {
+   "exercise": "vsitup",
+   "reps": 20,
+   "kg": 15,
+   "auto": true
+  },
+  "label": "review-reconciled",
+  "labelEx": "vsitup",
+  "labelReps": 20,
+  "tier": "worst",
+  "angle": "rear45",
+  "angleVerified": "Rune in-app session position 2026-11-05",
+  "cameraPos": {
+   "dir": "rear",
+   "deg": 45,
+   "side": null
+  },
+  "notes": "5 Nov session (app 8.39, Safari PWA). Fasit vsitup×20 @15kg (review-reconciled)."
  }
 ]

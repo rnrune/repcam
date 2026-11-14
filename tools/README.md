@@ -14,6 +14,8 @@ node tools/verify.js app rune-bench.y4m          # real app with fake camera vid
 node tools/verify.js app <x> --url https://rnrune.github.io/repcam/   # live site instead of the built-in local server
 node tools/verify.js ui                     # Hjem + Historikk screenshots (seeded sessions, collapsed + one opened)
 node tools/verify.js app <x> --dry-run      # print what would happen, touch nothing
+node tools/verify.js gate                   # v8.43 PUSH GATE: full --all for origin/main's reps.js vs working tree, same manifest; any clip worse → exit 1
+node eval/real/run.js --all --diff eval/baseline.json   # quick per-clip diff vs the last gate run
 ```
 
 ## How `app` works
