@@ -49,6 +49,10 @@
   // Kill switch repcam.rdlTail = off | shadow (shadow: counted as before, logged in RDL_TAIL_CFG.shadowLog).
   // v8.46: after a saved set the picker starts over (no stale exercise guess carried into the next set). mode on | shadow | off
   const AUTO_RESET_CFG = { mode: 'on' };
+  // v8.47 pull-ups (Rune 15 Nov mwi89q18: standing, one hand on the bar, bending down for the dip belt/plate → app pullups×4; only one real
+  // pull-up): in a pull-up the whole body rises, so the hips travel about as much as the shoulders (measured ≥ 0.76×, median ≈1.1). A 'rep' where
+  // the hips move less than ratio × the shoulders is the upper body bending with the feet on the floor. Needs the hips visible (≥ minVis of frames).
+  const HIP_FOLLOW_CFG = { ratio: 0.6, minVis: 0.6, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   const RDL_TAIL_CFG = { ratio: 2.5, gap: 1.4, minReps: 4, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   const BULG_COUNT_CFG = { minAmp: 0.14, /* was 0.18 */ mode: 'on' }; // v8.43 tried 0.13: 16 on mw3v0giw only via a spurious 0.8 s half-rep on leg 2 (real miss ≈236.4 s on leg 1, ≈0.10 deep) — rejected
     const EX = {
@@ -57,7 +61,7 @@
     bulgarsk: { minAmp: BULG_COUNT_CFG.minAmp, flipMax: 0.2, refTau: 12, glitch: true, cleanAmps: true, minRep: 0.6, maxRep: 8, need: 'legs', posture: g => g.torsoTilt < 65,
       // front leg = knee closest to hip height
       signal: (g, ref) => (Math.min(g.kn[0].y, g.kn[1].y) - g.hipM.y) / ref },
-    pullups: { bodyMove: 0.25, edgeGapTail: 4.5, /* v8.21: a slow last pull-up (4.3 s) was trimmed as a tail */ minAmp: 0.25, countAtTop: 0.8, barHold: 0.4, barDrop: 0.5, /* v8.19, countAtTop null = off */ minRep: 0.6, maxRep: 8, need: 'arms', posture: (g, ref) => g.wrM.y < g.shM.y + 0.3 * ref && g.torsoTilt < 50,
+    pullups: { hipFollow: HIP_FOLLOW_CFG, bodyMove: 0.25, edgeGapTail: 4.5, /* v8.21: a slow last pull-up (4.3 s) was trimmed as a tail */ minAmp: 0.25, countAtTop: 0.8, barHold: 0.4, barDrop: 0.5, /* v8.19, countAtTop null = off */ minRep: 0.6, maxRep: 8, need: 'arms', posture: (g, ref) => g.wrM.y < g.shM.y + 0.3 * ref && g.torsoTilt < 50,
       signal: (g, ref) => (g.shM.y - g.wrM.y) / ref,
       valid: raw => raw > -0.5, // wrists well below shoulders = not hanging from the bar
       // knee height relative to hip; hanging leg raises bring the knees up to/above the hips
@@ -148,6 +152,9 @@
       // around while standing moves only the wrists
       if (def.bodyMove && !(q.syMax - q.syMin >= def.bodyMove * p.amp)) return 'still'; // not in the exercise posture
       if (def.stillBody && q.syMax - q.syMin > def.stillBody * p.amp) return 'body'; // v8.9 curl: the shoulders must stay put
+      if (def.hipFollow && def.hipFollow.mode !== 'off' && (q.hN || 0) >= def.hipFollow.minVis * q.n && q.syMax > q.syMin) { // v8.47 HIP_FOLLOW_CFG
+        const r = (q.hyMax - q.hyMin) / (q.syMax - q.syMin);
+        if (r < def.hipFollow.ratio) { if (def.hipFollow.mode === 'on') return 'hipStill'; if (def.hipFollow.shadowLog.length < 50) def.hipFollow.shadowLog.push({ ex: exId, t: +p.t.toFixed(1), r: +r.toFixed(2) }); } }
       return null;
     }
     function confirm(ok, t) {
@@ -213,7 +220,8 @@
         // drop just below the frame edge in head-on push-ups, so they only need to be detected
         const chain = def.need === 'legs' ? [g.hip[g.leg], g.kn[g.leg]] : def.need === 'arms' ? [g.sh[g.arm], g.el[g.arm]] : [g.shM, g.hipM];
         const inside = chain.every(k => k && k.visibility > 0.35) && [g.sh[0], g.sh[1]].every(k => k.y > -0.05 && k.y < 1.05 && k.x > -0.05 * aspect && k.x < 1.05 * aspect);
-        qa.n++; if (!inside) qa.bad++; const sy = g.shM.y / ref; qa.syMin = Math.min(qa.syMin ?? sy, sy); qa.syMax = Math.max(qa.syMax ?? sy, sy); const hx = g.hipM.x / ref; if (qa.x0 == null) qa.x0 = hx; qa.x1 = hx; qa.xMin = Math.min(qa.xMin, hx); qa.xMax = Math.max(qa.xMax, hx);
+        qa.n++; if (!inside) qa.bad++; const sy = g.shM.y / ref; qa.syMin = Math.min(qa.syMin ?? sy, sy); qa.syMax = Math.max(qa.syMax ?? sy, sy);
+        if (def.hipFollow && g.hipM && Math.min(g.hip[0].visibility ?? 0, g.hip[1].visibility ?? 0) > 0.5) { const hy = g.hipM.y / ref; qa.hyMin = Math.min(qa.hyMin ?? hy, hy); qa.hyMax = Math.max(qa.hyMax ?? hy, hy); qa.hN = (qa.hN || 0) + 1; } const hx = g.hipM.x / ref; if (qa.x0 == null) qa.x0 = hx; qa.x1 = hx; qa.xMin = Math.min(qa.xMin, hx); qa.xMax = Math.max(qa.xMax, hx);
         if (!def.posture || def.posture(g, ref)) qa.pose++;
         qa.tSum = (qa.tSum || 0) + g.torsoTilt; qa.tN = (qa.tN || 0) + 1;
       }
@@ -685,6 +693,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);
