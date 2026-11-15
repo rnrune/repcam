@@ -35,6 +35,8 @@ if (localStorage.getItem('repcam.rowTilt') === 'off') Reps.EX.roing.tailTilt = n
 { const m = localStorage.getItem('repcam.hipFollow'); if (Reps.HIP_FOLLOW_CFG && (m === 'off' || m === 'shadow')) Reps.HIP_FOLLOW_CFG.mode = m; }
 /* v8.47: repcam.legTravel = off | shadow (leg set with hip-travel IQR > LEG_TRAVEL_CFG.iqrMax is not saved; shadow = baseline + Reps.LEG_TRAVEL_CFG.shadowLog) */
 { const m = localStorage.getItem('repcam.legTravel'); if (Reps.LEG_TRAVEL_CFG && (m === 'off' || m === 'shadow')) Reps.LEG_TRAVEL_CFG.mode = m; }
+/* v8.47: repcam.relockTie = off | shadow (at autosave a ≤2-rep lock yields to a counter still counting with as many reps; shadow = baseline + Reps.RELOCK_TIE_CFG.shadowLog) */
+{ const m = localStorage.getItem('repcam.relockTie'); if (Reps.RELOCK_TIE_CFG && (m === 'off' || m === 'shadow')) Reps.RELOCK_TIE_CFG.mode = m; }
 /* v8.46 fresh exercise guess after a saved set — repcam.autoReset = off | shadow (shadow = baseline, logs only) */
 { const m = localStorage.getItem('repcam.autoReset'); if (Reps.AUTO_RESET_CFG && (m === 'off' || m === 'shadow')) Reps.AUTO_RESET_CFG.mode = m; }
 /* v8.45 plate-based bench counter (plate.js): repcam.plateBench = off | shadow | on (default PLATE_MODE.mode = on since v8.45; shadow = pose count only, plate count logged in clip meta plateLog) */

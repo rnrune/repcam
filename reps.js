@@ -539,6 +539,10 @@
   // counts more than matureSlack reps above it. shadow = baseline (v8.13 steal allowed) + log in RELOCK_CFG.shadowLog.
   // (Tried and rejected: waiting for one more pick rep before a mature steal — lost mvr3vtnn.)
   const RELOCK_CFG = { matureMin: 4, matureSlack: 1, mode: 'on' /* on | shadow | off */, shadowLog: [] };
+  // v8.47 (mw3ufjnh: a 2-rep 'dips' lock from the walk-in autosaved while the squat counter was mid-set with 2 reps → the app saved
+  // dips×2 and lost the squats): at an autosave of a lock with ≤ maxLock reps, a counter with as many reps, all after the lock's last
+  // one, whose last rep is under activeS old (still counting), takes over (the save waits for it). Kill switch repcam.relockTie.
+  const RELOCK_TIE_CFG = { maxLock: 2, activeS: 4, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   function relock(cs, lock, pick, tSec, scores, atSave = false) {
     if (!lock || !cs[lock]) return lock;
     const lt = cs[lock].lastRepT ?? -Infinity;
@@ -563,6 +567,9 @@
     if (atSave) { // 2+ reps after the locked set's last one and more reps in total than the locked set
       const lr = cs[lock].reps; let bt = lr;
       for (const id in cs) if (id !== lock && after(id) >= 2 && cs[id].reps > bt && (cs[id].reps >= lr + 2 || lr <= 2)) { best = id; bt = cs[id].reps; }
+      if (best === lock && RELOCK_TIE_CFG.mode !== 'off' && lr <= RELOCK_TIE_CFG.maxLock) { // v8.47 tie with a counter still counting
+        let tie = null; for (const id in cs) if (id !== lock && cs[id].reps >= Math.max(2, lr) && after(id) === cs[id].reps && tSec - (cs[id].lastRepT ?? -Infinity) < RELOCK_TIE_CFG.activeS && (!tie || cs[id].lastRepT > cs[tie].lastRepT)) tie = id;
+        if (tie) { if (RELOCK_TIE_CFG.mode === 'on') return tie; if (RELOCK_TIE_CFG.shadowLog.length < 50) RELOCK_TIE_CFG.shadowLog.push({ t: +tSec.toFixed(1), lock, tie, lr, tr: cs[tie].reps }); } }
       return best;
     }
     for (const id in cs) if (id !== lock && scores && (scores[id] || 0) >= 0.3 && after(id) > bn) { best = id; bn = after(id); }
@@ -700,6 +707,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

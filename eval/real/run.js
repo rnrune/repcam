@@ -33,7 +33,7 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
   const res = ex => { const reps = cs[ex].flush(); return { ex, reps, kg: DEFAULT_KG[ex] ?? 0, times: cs[ex].repTimes.map(t => +t.toFixed(1)) }; };
   const sigKeep = ex => { if (!sig || R.SIG_CFG.mode === 'off') return keep(res(ex)); const v = sig.check(ex, cs[ex].repTimes, cs, R.minSet);
     SIGLOG.push({ cnt: Object.fromEntries(R.IDS.map(i => [i, cs[i].reps]).filter(x => x[1])), ex, reps: cs[ex].reps, why: v.why, to: v.ex, st: v.st && { tilt: +v.st.tilt.toFixed(0), wrAb: +v.st.wrAb.toFixed(2), travel: +v.st.travel.toFixed(2), iqr: +v.st.iqr.toFixed(2), hy: +v.st.hy.toFixed(2) } });
-    if (R.SIG_CFG.mode !== 'on' || !v.why) return keep(res(ex)); if (v.drop) { sigDropped = true; return; } const e2 = v.ex; if (e2 !== ex && plaus(e2, cs[e2].repTimes)) return keep(res(e2)); return keep(res(ex)); };
+    if (R.SIG_CFG.mode !== 'on' || !v.why) return keep(res(ex)); if (v.drop) { sigDropped = true; return; } /* v8.47: no veto→alt relabel — app.js finishPending only drops (sig veto relabel was eval-only since e80e47a) */ return keep(res(ex)); };
   reset(); let i0 = 0; if (G) G.rest(F[0][0] * 1000 - 1e9);
   for (const a of F) { i0 = F.indexOf(a, i0); const lm = []; for (let i = 0; i < 33; i++) lm.push({ x: a[1 + 3 * i], y: a[2 + 3 * i], visibility: a[3 + 3 * i] });
     const ms = a[0] * 1000; if (feed) feed.now = a[0]; let cam = !gate.update(lm, ms, asp).ok; if (sig) sig.update(lm, ms, asp); if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
