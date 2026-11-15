@@ -31,6 +31,10 @@ if (localStorage.getItem('repcam.rowTilt') === 'off') Reps.EX.roing.tailTilt = n
 { const m = localStorage.getItem('repcam.halvmarkDips'); if (m === 'off') Reps.RELOCK_CFG.mode = 'off'; else if (m === 'shadow') Reps.RELOCK_CFG.mode = 'shadow'; }
 /* v8.41: Bulgarian rear-foot split — repcam.bulgSquat = off | shadow (v8.43: shadow is now true shadow = baseline median ankDx) */
 { const m = localStorage.getItem('repcam.bulgSquat'); if (m === 'off' || m === 'shadow') { Reps.SPLIT_CFG.ankDxQ = 0.5; Reps.SPLIT_CFG.mode = m; } }
+/* v8.47: repcam.hipFollow = off | shadow (pull-up rep whose hips do not follow the shoulders is rejected; shadow = baseline + Reps.HIP_FOLLOW_CFG.shadowLog) */
+{ const m = localStorage.getItem('repcam.hipFollow'); if (Reps.HIP_FOLLOW_CFG && (m === 'off' || m === 'shadow')) Reps.HIP_FOLLOW_CFG.mode = m; }
+/* v8.47: repcam.legTravel = off | shadow (leg set with hip-travel IQR > LEG_TRAVEL_CFG.iqrMax is not saved; shadow = baseline + Reps.LEG_TRAVEL_CFG.shadowLog) */
+{ const m = localStorage.getItem('repcam.legTravel'); if (Reps.LEG_TRAVEL_CFG && (m === 'off' || m === 'shadow')) Reps.LEG_TRAVEL_CFG.mode = m; }
 /* v8.46 fresh exercise guess after a saved set — repcam.autoReset = off | shadow (shadow = baseline, logs only) */
 { const m = localStorage.getItem('repcam.autoReset'); if (Reps.AUTO_RESET_CFG && (m === 'off' || m === 'shadow')) Reps.AUTO_RESET_CFG.mode = m; }
 /* v8.45 plate-based bench counter (plate.js): repcam.plateBench = off | shadow | on (default PLATE_MODE.mode = on since v8.45; shadow = pose count only, plate count logged in clip meta plateLog) */

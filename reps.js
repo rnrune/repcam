@@ -52,6 +52,10 @@
   // v8.47 pull-ups (Rune 15 Nov mwi89q18: standing, one hand on the bar, bending down for the dip belt/plate → app pullups×4; only one real
   // pull-up): in a pull-up the whole body rises, so the hips travel about as much as the shoulders (measured ≥ 0.76×, median ≈1.1). A 'rep' where
   // the hips move less than ratio × the shoulders is the upper body bending with the feet on the floor. Needs the hips visible (≥ minVis of frames).
+  // v8.47 rigging with the legs (mw3un16x 'bulgarsk 4', mw14lzxg 'halvmark 4': walking between stations). Squat/split squat/RDL sets keep the
+  // hips in place: interquartile horizontal hip travel over the set ≤ 0.51 torso on every real set in the eval (median ≈0.25); the two
+  // rigging clips are 1.33 and 0.97. A leg set whose hip-travel IQR exceeds iqrMax is not saved (Reps sig check, like 'posture').
+  const LEG_TRAVEL_CFG = { ex: ['knebøy', 'bulgarsk', 'halvmark'], iqrMax: 0.8, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   const HIP_FOLLOW_CFG = { ratio: 0.6, minVis: 0.6, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   const RDL_TAIL_CFG = { ratio: 2.5, gap: 1.4, minReps: 4, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   const BULG_COUNT_CFG = { minAmp: 0.14, /* was 0.18 */ mode: 'on' }; // v8.43 tried 0.13: 16 on mw3v0giw only via a spurious 0.8 s half-rep on leg 2 (real miss ≈236.4 s on leg 1, ≈0.10 deep) — rejected
@@ -686,6 +690,9 @@
     // verdict for a set the app is about to save: {drop, ex (possibly replaced), why, st}
     function check(ex, times, cs, minOf) { const st = stats(times); if (!st) return { ex, why: null, st };
       if (SIG_CFG.travelOn && st.iqr > SIG_CFG.travelMax) return { drop: true, ex, why: 'travel', st };
+      if (LEG_TRAVEL_CFG.mode !== 'off' && LEG_TRAVEL_CFG.ex.includes(ex) && st.iqr > LEG_TRAVEL_CFG.iqrMax) { // v8.47
+        if (LEG_TRAVEL_CFG.mode === 'on') return { drop: true, ex, why: 'legTravel', st };
+        if (LEG_TRAVEL_CFG.shadowLog.length < 50) LEG_TRAVEL_CFG.shadowLog.push({ ex, iqr: +st.iqr.toFixed(2) }); }
       if (!SIG_CFG.vetoOn || fits(ex, st)) return { ex, why: null, st };
       const alt = Object.keys(SIG_CFG.ex).filter(id => id !== ex && fits(id, st) && cs && cs[id] && cs[id].reps >= (minOf ? minOf(id) : 2)).sort((a, b) => cs[b].reps - cs[a].reps)[0];
       const r = SIG_CFG.ex[ex], off = r && r.tilt ? Math.max(r.tilt[0] - st.tilt, st.tilt - r.tilt[1], 0) : 0;
@@ -693,6 +700,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

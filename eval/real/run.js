@@ -25,7 +25,7 @@ const HOLD = process.argv.includes('--hold'); // v8.26 diagnostic: repeat each l
 function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gate (shadow: verdicts only; active: counters wait for READY)
   const G = opt.rest ? require(path.join(__dirname, '..', '..', 'rest.js')).createRestGate(opt.rest.cfg) : null, verdicts = [];
   const F = hz ? upsample(d.frames, hz, opt.jit ?? JIT) : d.frames, asp = d.w / d.h, rec = R.createRecognizer(), pick = R.createPicker(), gate = R.createCameraGate(), sig = R.createSigTracker ? R.createSigTracker() : null;
-  let cs, auto = null, lock = null, shown = 0, shownT = 0, saved = null; const keep = r => { if (opt.onKeep) opt.onKeep(r); if (G) { const v = G.verdict((r.times[0] ?? 0) * 1000 - 1); verdicts.push({ t: r.times[0], ex: r.ex, reps: r.reps, v }); G.rest(F[i0][0] * 1000); if (opt.rest.active && v === 'would-suppress') return; } if (!saved || r.reps > saved.reps) saved = r; };
+  let cs, auto = null, lock = null, shown = 0, shownT = 0, saved = null, sigDropped = false; /* v8.47: a set the sig check drops at the clip end is not reported (the app does not save it) */ const keep = r => { if (opt.onKeep) opt.onKeep(r); if (G) { const v = G.verdict((r.times[0] ?? 0) * 1000 - 1); verdicts.push({ t: r.times[0], ex: r.ex, reps: r.reps, v }); G.rest(F[i0][0] * 1000); if (opt.rest.active && v === 'would-suppress') return; } if (!saved || r.reps > saved.reps) saved = r; };
   // v8.45 plate-based bench counter (plate.js): a stored plate track (side angle) feeds wrapped benkpress/skråbenk counters, like app.js
   const feed = opt.plate && P.PLATE_MODE.mode !== 'off' ? P.createFeed(opt.plate) : null;
   const mk = id => { const c = R.createCounter(id); return feed && P.PLATE_MODE.exercises.includes(id) ? P.wrapCounter(c, feed, id) : c; };
@@ -33,7 +33,7 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
   const res = ex => { const reps = cs[ex].flush(); return { ex, reps, kg: DEFAULT_KG[ex] ?? 0, times: cs[ex].repTimes.map(t => +t.toFixed(1)) }; };
   const sigKeep = ex => { if (!sig || R.SIG_CFG.mode === 'off') return keep(res(ex)); const v = sig.check(ex, cs[ex].repTimes, cs, R.minSet);
     SIGLOG.push({ cnt: Object.fromEntries(R.IDS.map(i => [i, cs[i].reps]).filter(x => x[1])), ex, reps: cs[ex].reps, why: v.why, to: v.ex, st: v.st && { tilt: +v.st.tilt.toFixed(0), wrAb: +v.st.wrAb.toFixed(2), travel: +v.st.travel.toFixed(2), iqr: +v.st.iqr.toFixed(2), hy: +v.st.hy.toFixed(2) } });
-    if (R.SIG_CFG.mode !== 'on' || !v.why) return keep(res(ex)); if (v.drop) return; const e2 = v.ex; if (e2 !== ex && plaus(e2, cs[e2].repTimes)) return keep(res(e2)); return keep(res(ex)); };
+    if (R.SIG_CFG.mode !== 'on' || !v.why) return keep(res(ex)); if (v.drop) { sigDropped = true; return; } const e2 = v.ex; if (e2 !== ex && plaus(e2, cs[e2].repTimes)) return keep(res(e2)); return keep(res(ex)); };
   reset(); let i0 = 0; if (G) G.rest(F[0][0] * 1000 - 1e9);
   for (const a of F) { i0 = F.indexOf(a, i0); const lm = []; for (let i = 0; i < 33; i++) lm.push({ x: a[1 + 3 * i], y: a[2 + 3 * i], visibility: a[3 + 3 * i] });
     const ms = a[0] * 1000; if (feed) feed.now = a[0]; let cam = !gate.update(lm, ms, asp).ok; if (sig) sig.update(lm, ms, asp); if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
@@ -49,10 +49,10 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
   // the clip ends where the app saved the set: same last-chance re-lock as at an autosave
   if (lock && R.relock) lock = R.relock(cs, lock, null, F[F.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto;
-  if (ex && cs[ex].reps >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) sigKeep(ex);
+  sigDropped = false; if (ex && cs[ex].reps >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) sigKeep(ex);
   if (G) { const ret = saved || { ex: null, reps: 0, kg: 0, times: [] }; ret.restVerdicts = verdicts; if (opt.rest.active) return ret; }
   if (saved) return saved;
-  if (ex) { const r = res(ex); if (plaus(ex, r.times)) return r; return { ...r, reps: 0, times: [] }; }
+  if (ex && !sigDropped) { const r = res(ex); if (plaus(ex, r.times)) return r; return { ...r, reps: 0, times: [] }; }
   return { ex: null, reps: 0, kg: 0, times: [] };
 }
 // v8.27: old clips {w,h,frames} (≈10 Hz throttled) and new full-rate clips {w,h,landmarks:{enc:'i16b64',…}} or packed `frames` load alike; timestamps as recorded
