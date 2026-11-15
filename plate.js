@@ -98,7 +98,7 @@
     W.flush = () => { const p = pose.flush(), pr = pc.reps, e = { ex: id, mode: mode(), pose: p, plate: pr, valid: +pc.validShare.toFixed(2), runs: pc.runs.filter(r => r.reps.length >= 2).map(r => [r.reps.length, +r.bot[0].toFixed(1), +r.bot[r.bot.length - 1].toFixed(1)]), ended: pc.ended };
       if (mode() !== 'off') { PLATE_MODE.log.push(e); if (PLATE_MODE.log.length > 50) PLATE_MODE.log.shift(); }
       return auth() ? pr : p; };
-    W.forget = () => { pose.forget(); fresh(); };
+    W.forget = a => { pose.forget(a); fresh(); };
     W.reset = () => { pose.reset(); fresh(); };
     W.progress = () => pose.progress();
     Object.defineProperties(W, {

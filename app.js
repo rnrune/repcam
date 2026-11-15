@@ -37,6 +37,8 @@ if (localStorage.getItem('repcam.rowTilt') === 'off') Reps.EX.roing.tailTilt = n
 { const m = localStorage.getItem('repcam.legTravel'); if (Reps.LEG_TRAVEL_CFG && (m === 'off' || m === 'shadow')) Reps.LEG_TRAVEL_CFG.mode = m; }
 /* v8.47: repcam.relockTie = off | shadow (at autosave a ≤2-rep lock yields to a counter still counting with as many reps; shadow = baseline + Reps.RELOCK_TIE_CFG.shadowLog) */
 { const m = localStorage.getItem('repcam.relockTie'); if (Reps.RELOCK_TIE_CFG && (m === 'off' || m === 'shadow')) Reps.RELOCK_TIE_CFG.mode = m; }
+/* v8.47: repcam.saveKeep = off | shadow (after a saved set every counter starts fresh = baseline) */
+{ const m = localStorage.getItem('repcam.saveKeep'); if (Reps.SAVE_KEEP_CFG && (m === 'off' || m === 'shadow')) Reps.SAVE_KEEP_CFG.mode = m; }
 /* v8.46 fresh exercise guess after a saved set — repcam.autoReset = off | shadow (shadow = baseline, logs only) */
 { const m = localStorage.getItem('repcam.autoReset'); if (Reps.AUTO_RESET_CFG && (m === 'off' || m === 'shadow')) Reps.AUTO_RESET_CFG.mode = m; }
 /* v8.45 plate-based bench counter (plate.js): repcam.plateBench = off | shadow | on (default PLATE_MODE.mode = on since v8.45; shadow = pose count only, plate count logged in clip meta plateLog) */
@@ -572,7 +574,10 @@ const curEx = () => manualEx || lockEx || autoEx;
 function mkCounter(id) { const on = LS.getItem('repcam.ruleLog') !== 'off', log = k => x => { const e = { rule: k, ex: id, ...x }; console.info('[ruleShadow]', k, id, e); (fb.ruleLog ||= []).push(e); if (fb.ruleLog.length > 20) fb.ruleLog.shift(); };
   const c = Reps.createCounter(id, on ? { onTail: log('tailTop'), onLead: log('leadGap') } : {});
   return plateFeed && Plate.PLATE_MODE.exercises.includes(id) && plateOn() ? Plate.wrapCounter(c, plateFeed, id) : c; /* v8.45 */ }
-function resetCounters() { counters = {}; for (const id of Reps.IDS) counters[id] = mkCounter(id); lockEx = null; shownReps = -1; lastRepWall = 0; }
+function resetCounters(savedEx) { // v8.47: after a saved set (savedEx) the other counters only forget their reps (Reps.SAVE_KEEP_CFG)
+  const keep = savedEx && Reps.SAVE_KEEP_CFG && Reps.SAVE_KEEP_CFG.mode === 'on' && counters;
+  if (!keep) counters = {}; for (const id of Reps.IDS) { if (keep && id !== savedEx && counters[id] && counters[id].forget) counters[id].forget(true); else counters[id] = mkCounter(id); }
+  lockEx = null; shownReps = -1; lastRepWall = 0; }
 function currentReps() { const e = curEx(); return e ? counters[e].reps : 0; }
 function renderWorkout() {
   $('fbMiss').style.display = fb.rec ? '' : 'none';
@@ -637,7 +642,7 @@ function saveSet() {
     s.repTimes = s.repTimes.map(t => +(t - f).toFixed(2)); fb.barShadow = { ...s, ex, poseReps: reps }; console.info('[barShadow]', ex, 'pose', reps, 'bar', s.reps, fb.barShadow); } catch (e) {} }
   if (barTr) barTr.reset();
   fbCut({ exercise: ex, reps, kg: rec.kg, auto: !manualEx }, rec.timestamp);
-  if (!fb.rec) fb.tempoShadow = null; resetCounters(); navigator.vibrate?.([40, 60, 40]);
+  if (!fb.rec) fb.tempoShadow = null; resetCounters(ex); navigator.vibrate?.([40, 60, 40]);
   if (Reps.AUTO_RESET_CFG && Reps.AUTO_RESET_CFG.mode === 'on' && !manualEx) { picker.reset(); autoEx = null; } /* v8.46: the next set starts with a fresh exercise guess (mwi8db6r: stale 'roing' locked a pull-up set) */
   // v8.20 «Bekreft usikkert sett»: an auto set the tempo gate calls slow (or with few reps) asks ✓/✗ in the toast.
   // ✓ = confirmed label, ✗ = removed + 'notASet' label, no answer = kept. Kill switch localStorage repcam.confirmOff=1.

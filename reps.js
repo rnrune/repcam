@@ -378,7 +378,7 @@
     function out(tracking) { return { reps, state, signal: s, tracking, progress: progress(), pending: !!pend }; }
     function progress() { if (s == null) return 0; const hi = state === 'top' ? hiNow() : top0; const ta = typAmp() || def.minAmp * 1.6; return Math.max(0, Math.min(1, (hi - s) / ta)); }
     // v8.9: drop the counted reps (stale background count) but keep tracking the signal, so a rep in progress survives
-    function forget() { repSy.clear(); repTilt.clear(); if (def.forgetAmps) amps = []; reps = 0; repTimes = []; repAmps = []; lastRepT = null; }
+    function forget(allAmps) { repSy.clear(); repTilt.clear(); if (def.forgetAmps || allAmps) amps = []; reps = 0; repTimes = []; repAmps = []; lastRepT = null; }
     return { update, progress, flush, reset, forget,
       get reps() { return reps; }, get tentative() { return tents.length; }, get rejected() { return rejected; }, get lastRepT() { return lastRepT; }, get repTimes() { return repTimes; }, get repAmps() { return repAmps; }, def };
   }
@@ -542,6 +542,10 @@
   // v8.47 (mw3ufjnh: a 2-rep 'dips' lock from the walk-in autosaved while the squat counter was mid-set with 2 reps → the app saved
   // dips×2 and lost the squats): at an autosave of a lock with ≤ maxLock reps, a counter with as many reps, all after the lock's last
   // one, whose last rep is under activeS old (still counting), takes over (the save waits for it). Kill switch repcam.relockTie.
+  // v8.47 (mw3ub9yv: the autosave of an earlier set fell in the descent of the squat set's first rep; recreating every counter lost
+  // that rep): after a saved set the saved exercise's counter starts fresh, the others only forget their counted reps (forget():
+  // the movement phase in progress is kept). Kill switch repcam.saveKeep = off | shadow (shadow = baseline: all fresh).
+  const SAVE_KEEP_CFG = { mode: 'on' /* on | shadow | off */ };
   const RELOCK_TIE_CFG = { maxLock: 2, activeS: 4, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   function relock(cs, lock, pick, tSec, scores, atSave = false) {
     if (!lock || !cs[lock]) return lock;
@@ -707,6 +711,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { SAVE_KEEP_CFG, RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

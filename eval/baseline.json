@@ -3,11 +3,11 @@
  "hz": 0,
  "all": true,
  "summary": {
-  "exact": 103,
+  "exact": 104,
   "n": 112,
   "exOk": 85,
   "pos": 86,
-  "mae": 0.198,
+  "mae": 0.186,
   "falseSets": 0,
   "neg": 26
  },
@@ -717,12 +717,12 @@
    "bad": 1
   },
   "mw3ub9yv18d6cc2c": {
-   "ok": false,
+   "ok": true,
    "gt": 8,
    "exercise": "knebøy",
    "ex": "knebøy",
-   "reps": 7,
-   "bad": 1
+   "reps": 8,
+   "bad": 0
   },
   "mw3ucgewaf93cd66": {
    "ok": false,

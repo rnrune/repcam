@@ -30,6 +30,7 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
   const feed = opt.plate && P.PLATE_MODE.mode !== 'off' ? P.createFeed(opt.plate) : null;
   const mk = id => { const c = R.createCounter(id); return feed && P.PLATE_MODE.exercises.includes(id) ? P.wrapCounter(c, feed, id) : c; };
   const reset = () => { cs = {}; for (const id of R.IDS) cs[id] = mk(id); lock = null; shown = 0; };
+  const resetSaved = ex => { if (!R.SAVE_KEEP_CFG || R.SAVE_KEEP_CFG.mode !== 'on') return reset(); /* v8.47 app saveSet → resetCounters(ex) */ for (const id of R.IDS) { if (id === ex || !cs[id].forget) cs[id] = mk(id); else cs[id].forget(true); } lock = null; shown = 0; };
   const res = ex => { const reps = cs[ex].flush(); return { ex, reps, kg: DEFAULT_KG[ex] ?? 0, times: cs[ex].repTimes.map(t => +t.toFixed(1)) }; };
   const sigKeep = ex => { if (!sig || R.SIG_CFG.mode === 'off') return keep(res(ex)); const v = sig.check(ex, cs[ex].repTimes, cs, R.minSet);
     SIGLOG.push({ cnt: Object.fromEntries(R.IDS.map(i => [i, cs[i].reps]).filter(x => x[1])), ex, reps: cs[ex].reps, why: v.why, to: v.ex, st: v.st && { tilt: +v.st.tilt.toFixed(0), wrAb: +v.st.wrAb.toFixed(2), travel: +v.st.travel.toFixed(2), iqr: +v.st.iqr.toFixed(2), hy: +v.st.hy.toFixed(2) } });
@@ -45,7 +46,7 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     for (const id of R.IDS) if (id !== ex && cs[id].reps > 0 && a[0] - cs[id].lastRepT > AUTOSAVE_S && cs[id].forget) cs[id].forget();
     if (n !== shown) { shown = n; shownT = a[0]; }
     if (n > 0 && a[0] - shownT > AUTOSAVE_S && lock && R.relock && R.relock(cs, lock, p, a[0], rc.scores, true) !== lock) { lock = R.relock(cs, lock, p, a[0], rc.scores, true); shown = cs[lock].reps; shownT = a[0]; }
-    else if (n > 0 && (a[0] - shownT > AUTOSAVE_S || cs[ex].plateEnded)) {  if (n >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) { sigKeep(ex); reset(); if (R.AUTO_RESET_CFG && R.AUTO_RESET_CFG.mode === 'on') { pick.reset(); auto = null; } /* v8.46 app saveSet */ } else { cs[ex] = mk(ex); shown = 0; } } }
+    else if (n > 0 && (a[0] - shownT > AUTOSAVE_S || cs[ex].plateEnded)) {  if (n >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) { sigKeep(ex); resetSaved(ex); if (R.AUTO_RESET_CFG && R.AUTO_RESET_CFG.mode === 'on') { pick.reset(); auto = null; } /* v8.46 app saveSet */ } else { cs[ex] = mk(ex); shown = 0; } } }
   // the clip ends where the app saved the set: same last-chance re-lock as at an autosave
   if (lock && R.relock) lock = R.relock(cs, lock, null, F[F.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto;
