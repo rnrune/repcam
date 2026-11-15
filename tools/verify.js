@@ -5,7 +5,7 @@
 //   node tools/verify.js app <caseId|clip.y4m> [--url URL] [--secs N] [--dry-run]
 //   node tools/verify.js ui [--url URL]   (screenshots of Hjem + Historikk with seeded sessions)
 //   node tools/verify.js camera [--url URL]   (v8.33 camera position picker + per-set angle override)
-//   node tools/verify.js gate [--base REF] [--hz 30]   (v8.43 push gate: --all for REF's reps.js vs working tree, same manifest; any clip worse → exit 1)
+//   node tools/verify.js gate [--base REF] [--hz 30] [--plate off|shadow|on]   (v8.43 push gate: --all for REF's reps.js vs working tree, same manifest; any clip worse → exit 1)
 const fs = require('fs'), path = require('path'), cp = require('child_process'), http = require('http');
 const ROOT = path.join(__dirname, '..'), TEST = '/workspace/repcam-test', OUT = '/workspace/repcam-shots/verify/';
 const CHROME = process.env.CHROME || '/usr/bin/google-chrome';
@@ -390,9 +390,11 @@ function gate() {
   const base = path.join(dir, 'reps-base.js'); fs.writeFileSync(base, cp.execFileSync('git', ['-C', ROOT, 'show', ref + ':reps.js']));
   const run = (extra) => cp.spawnSync('node', [path.join(ROOT, 'eval/real/run.js'), '--all', ...(hz ? ['--hz', hz] : []), ...extra], { encoding: 'utf8', maxBuffer: 1 << 26 });
   const bj = path.join(dir, 'base.json'), cj = path.join(ROOT, hz ? 'eval/baseline-' + hz + 'hz.json' : 'eval/baseline.json');
-  const a = run(['--reps', base, '--json', bj]), b = run(['--json', cj, '--diff', bj]);
+  // v8.45: the base engine runs without the plate counter (it did not exist before v8.45); the candidate runs plate.js in --plate MODE
+  // (default: the shipped PLATE_MODE.mode). Plate tracks are stored numbers (eval/real/*.plate.json), the same for both runs.
+  const pm = flag('--plate', null), a = run(['--reps', base, '--plate', 'off', '--json', bj]), b = run([...(pm ? ['--plate', pm] : []), '--json', cj, '--diff', bj]);
   const sum = o => o.stdout.split('\n').filter(l => /^exact /.test(l)).join('');
-  console.log(`base ${ref}: ${sum(a)}\ncand working tree: ${sum(b)}`); console.log(b.stdout.slice(b.stdout.indexOf('\ndiff vs')).trim());
+  console.log(`base ${ref} (plate off): ${sum(a)}\ncand working tree (plate ${pm || 'default'}): ${sum(b)}`); console.log(b.stdout.slice(b.stdout.indexOf('\ndiff vs')).trim());
   const worse = /\b(\d+) WORSE/.exec(b.stdout), mf = o => +((/must-fail (\d+)/.exec(sum(o)) || [])[1] ?? 99);
   const ok = !!worse && +worse[1] === 0 && mf(b) <= mf(a); // must-fail may not rise (30 Hz core already has 2 known)
   console.log(ok ? 'GATE PASS — no clip got worse' : 'GATE FAIL — do not push'); process.exitCode = ok ? 0 : 1;

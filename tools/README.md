@@ -15,7 +15,9 @@ node tools/verify.js app <x> --url https://rnrune.github.io/repcam/   # live sit
 node tools/verify.js ui                     # Hjem + Historikk screenshots (seeded sessions, collapsed + one opened)
 node tools/verify.js app <x> --dry-run      # print what would happen, touch nothing
 node tools/verify.js gate                   # v8.43 PUSH GATE: full --all for origin/main's reps.js vs working tree, same manifest; any clip worse → exit 1
+node tools/verify.js gate --plate shadow     # v8.45: candidate with the plate counter in a given mode (base always runs --plate off)
 node eval/real/run.js --all --diff eval/baseline.json   # quick per-clip diff vs the last gate run
+node tools/plate-track.js clip.mp4 eval/real/<id>.plate.json   # v8.45: stored plate track (numbers only) for side-angle clips
 ```
 
 ## How `app` works

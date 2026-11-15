@@ -3,13 +3,13 @@
  "hz": 0,
  "all": true,
  "summary": {
-  "exact": 93,
-  "n": 108,
-  "exOk": 82,
-  "pos": 83,
-  "mae": 0.482,
-  "falseSets": 2,
-  "neg": 25
+  "exact": 99,
+  "n": 112,
+  "exOk": 85,
+  "pos": 86,
+  "mae": 0.209,
+  "falseSets": 3,
+  "neg": 26
  },
  "clips": {
   "mvmtfqlo8d46051c": {
@@ -821,36 +821,36 @@
    "bad": 0
   },
   "mwi7wmjdbbc24c42": {
-   "ok": false,
+   "ok": true,
    "gt": 12,
    "exercise": "benkpress",
    "ex": "benkpress",
-   "reps": 3,
-   "bad": 9
+   "reps": 12,
+   "bad": 0
   },
   "mwi802robc14f02e": {
-   "ok": false,
+   "ok": true,
    "gt": 5,
    "exercise": "benkpress",
    "ex": "benkpress",
-   "reps": 1,
-   "bad": 4
+   "reps": 5,
+   "bad": 0
   },
   "mwi887bt-a": {
-   "ok": false,
+   "ok": true,
    "gt": 8,
    "exercise": "benkpress",
    "ex": "benkpress",
-   "reps": 1,
-   "bad": 7
+   "reps": 8,
+   "bad": 0
   },
   "mwi887bt-b": {
-   "ok": false,
+   "ok": true,
    "gt": 8,
    "exercise": "benkpress",
    "ex": "benkpress",
-   "reps": 13,
-   "bad": 5
+   "reps": 8,
+   "bad": 0
   },
   "mwi887bt-c": {
    "ok": true,
@@ -859,6 +859,14 @@
    "ex": "dips",
    "reps": 0,
    "bad": 0
+  },
+  "mwi89q1826bedc8f": {
+   "ok": false,
+   "gt": 0,
+   "exercise": null,
+   "ex": "pullups",
+   "reps": 4,
+   "bad": 104
   },
   "mwi8acvdfc4928c0": {
    "ok": true,
@@ -874,6 +882,30 @@
    "exercise": "pullups",
    "ex": "pullups",
    "reps": 6,
+   "bad": 0
+  },
+  "mw3v9xep06c84ddf": {
+   "ok": true,
+   "gt": 20,
+   "exercise": "vsitup",
+   "ex": "vsitup",
+   "reps": 20,
+   "bad": 0
+  },
+  "mw3vd96288d8f687": {
+   "ok": false,
+   "gt": 20,
+   "exercise": "vsitup",
+   "ex": "vsitup",
+   "reps": 17,
+   "bad": 3
+  },
+  "mwi81af67f58693c": {
+   "ok": true,
+   "gt": 8,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 8,
    "bad": 0
   }
  }

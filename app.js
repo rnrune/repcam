@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.44';
+const APP_VERSION = '8.45';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -31,6 +31,8 @@ if (localStorage.getItem('repcam.rowTilt') === 'off') Reps.EX.roing.tailTilt = n
 { const m = localStorage.getItem('repcam.halvmarkDips'); if (m === 'off') Reps.RELOCK_CFG.mode = 'off'; else if (m === 'shadow') Reps.RELOCK_CFG.mode = 'shadow'; }
 /* v8.41: Bulgarian rear-foot split — repcam.bulgSquat = off | shadow (v8.43: shadow is now true shadow = baseline median ankDx) */
 { const m = localStorage.getItem('repcam.bulgSquat'); if (m === 'off' || m === 'shadow') { Reps.SPLIT_CFG.ankDxQ = 0.5; Reps.SPLIT_CFG.mode = m; } }
+/* v8.45 plate-based bench counter (plate.js): repcam.plateBench = off | shadow | on (default PLATE_MODE.mode = on since v8.45; shadow = pose count only, plate count logged in clip meta plateLog) */
+{ const m = localStorage.getItem('repcam.plateBench'); if (window.Plate && (m === 'off' || m === 'shadow' || m === 'on')) Plate.PLATE_MODE.mode = m; }
 /* v8.44: RDL bar set down — a big, late last halvmark 'rep' is dropped — repcam.rdlTail = off | shadow (shadow = baseline + Reps.RDL_TAIL_CFG.shadowLog) */
 { const m = localStorage.getItem('repcam.rdlTail'); if (m === 'off' || m === 'shadow') Reps.RDL_TAIL_CFG.mode = m; }
 /* v8.43: squat walk-out — a candidate rep slower than AMP_DUR_CFG.maxDur no longer sets the adaptive amplitude — repcam.sqAmpDur = off | shadow */
@@ -59,6 +61,19 @@ function barFrame(lm, ts) {
     if (!barCv || barCv.height !== H) { barCv = document.createElement('canvas'); barCv.width = W; barCv.height = H; barCtx = barCv.getContext('2d', { willReadFrequently: true }); }
     barCtx.drawImage(v, 0, 0, W, H); barTr.frame(ts / 1000, Bar.toGray(barCtx.getImageData(0, 0, W, H).data, W, H), W, H, lm);
   } catch (e) { /* shadow: never break the camera loop */ } }
+// v8.45 plate tracker for side-angle bench (plate.js). Runs at PLATE_CFG.hz on a PLATE_CFG.frameW-wide gray copy of the frame whenever
+// the session camera is at the side for bench (also in shadow, to log). Samples feed the wrapped benkpress/skråbenk counters (mkCounter)
+// and go into the clip meta (plateTrack) for the eval. Kill switch repcam.plateBench=off.
+const plateFeed = window.Plate ? Plate.createFeed() : null, plateTr = window.Plate ? Plate.createPlateTracker() : null;
+let plCv = null, plCtx = null;
+function plateOn() { if (!plateFeed || Plate.PLATE_MODE.mode === 'off') return false; const p = camPos(); return !!p && Plate.PLATE_MODE.exercises.some(ex => Plate.PLATE_MODE.angles.includes(Camera.derive(p, ex))); }
+function plateFrame(ts) {
+  if (!plateOn() || !plateTr.due(ts / 1000) || !v.videoWidth) return;
+  try { const W = plateTr.cfg.frameW, H = Math.round(W * v.videoHeight / v.videoWidth / 2) * 2;
+    if (!plCv || plCv.height !== H) { plCv = document.createElement('canvas'); plCv.width = W; plCv.height = H; plCtx = plCv.getContext('2d', { willReadFrequently: true }); plateTr.reset(); }
+    plCtx.drawImage(v, 0, 0, W, H); const r = plateTr.frame(ts / 1000, Plate.toGray(plCtx.getImageData(0, 0, W, H).data, W, H), W, H);
+    plateFeed.push(r[0], r[1], r[2]); if (fb.rec) { (fb.plate ||= []).push([Math.round(ts), r[1] == null ? null : +r[1].toFixed(4), +r[2].toFixed(4)]); if (fb.plate.length > 9000) fb.plate.splice(0, 1500); fb.plateWH = [W, H]; }
+  } catch (e) { /* never break the camera loop */ } }
 let pending = false, landmarker, modelP, stream, facing = 'user', lastTs = -1, raf = 0, tick = 0;
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 
@@ -220,14 +235,14 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) return;
-  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null;
+  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null; const plAll = fb.plate || [], plWH = fb.plateWH; fb.plate = []; const plateLog = window.Plate && Plate.PLATE_MODE.log.length ? Plate.PLATE_MODE.log.splice(0).slice(-5) : null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) return;
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
   const poseRate = Feedback.clipRate(lm); /* v8.30: rate of THIS clip's logged frames (mean step); poseRateSeg = detector step stats since the last cut (median-based, was `poseRate` ≤8.29) */
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    camera, ruleLog, sigLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    camera, ruleLog, sigLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -529,7 +544,8 @@ const curEx = () => manualEx || lockEx || autoEx;
 /* v8.34: shadow/diagnostic log of the v8.31-32 end-of-set rules (dips dismount tailTop, row lead-in leadGap) -> console + clip meta ruleLog.
    Kill switch: localStorage repcam.ruleLog = off. Logging only, never changes a count. */
 function mkCounter(id) { const on = LS.getItem('repcam.ruleLog') !== 'off', log = k => x => { const e = { rule: k, ex: id, ...x }; console.info('[ruleShadow]', k, id, e); (fb.ruleLog ||= []).push(e); if (fb.ruleLog.length > 20) fb.ruleLog.shift(); };
-  return Reps.createCounter(id, on ? { onTail: log('tailTop'), onLead: log('leadGap') } : {}); }
+  const c = Reps.createCounter(id, on ? { onTail: log('tailTop'), onLead: log('leadGap') } : {});
+  return plateFeed && Plate.PLATE_MODE.exercises.includes(id) && plateOn() ? Plate.wrapCounter(c, plateFeed, id) : c; /* v8.45 */ }
 function resetCounters() { counters = {}; for (const id of Reps.IDS) counters[id] = mkCounter(id); lockEx = null; shownReps = -1; lastRepWall = 0; }
 function currentReps() { const e = curEx(); return e ? counters[e].reps : 0; }
 function renderWorkout() {
@@ -842,6 +858,7 @@ function processFrame(lm, ts, asp, sensor) {
   restGate.update(lm, ts, asp); // v8.15 shadow only: does not affect counting
   sigT.update(lm, ts, asp); // v8.38 signature buffer
   barFrame(lm, ts); // v8.16 shadow only
+  if (plateFeed) { plateFeed.now = ts / 1000; plateFrame(ts); } // v8.45
   if (cam !== camPaused) { camPaused = cam; $('hint').textContent = L.t(cam ? 'w.camMoving' : 'w.hint'); }
   let tracking = false;
   for (const id in counters) { const r = counters[id].update(lm, ts, asp, cam); if (id === curEx()) tracking = r.tracking; }
@@ -861,7 +878,7 @@ function processFrame(lm, ts, asp, sensor) {
   if (fb.rec && reps > shownReps) for (let i = Math.max(shownReps, 0); i < reps; i++) fb.repT.push(ts);
   if (fb.rec && reps === 0 && !Reps.IDS.some(id => counters[id].tentative) && ts - fb.lastTrim > 2000) { fb.lastTrim = ts; fb.rec.trimIdle(30e3); }
   if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); if (reps > 0) lastActivity = Date.now(); }
-  if (reps > 0 && Date.now() - lastRepWall > AUTOSAVE_MS) finishPending();
+  if (reps > 0 && (Date.now() - lastRepWall > AUTOSAVE_MS || (ex && counters[ex].plateEnded))) finishPending(); // v8.45: plate rack-and-still ends the set (on-mode only)
   $('hint').style.display = !cam && lm && (tracking || !ex) ? 'none' : 'block';
   $('ring').style.strokeDashoffset = 276.5 * (1 - (ex ? counters[ex].progress() : 0));
 }
@@ -883,4 +900,4 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, plate: { feed: plateFeed, tr: plateTr, on: () => plateOn(), mode: () => window.Plate && Plate.PLATE_MODE.mode, log: () => window.Plate && Plate.PLATE_MODE.log, resetCounters: () => resetCounters() }, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

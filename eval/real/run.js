@@ -15,6 +15,7 @@ function upsample(F, hz, jit = 0) { let seed = 12345; const rnd = () => (seed = 
 const AUTOSAVE_S = 9;
 if (arg('--sig', null)) R.SIG_CFG.mode = arg('--sig'); // v8.38: off|shadow|on
 const SIGLOG = [];
+const P = require(path.join(__dirname, '..', '..', 'plate.js')); if (arg('--plate', null)) P.PLATE_MODE.mode = arg('--plate'); // v8.45: off|shadow|on
 if (arg('--tempo', null)) R.TEMPO_CFG.mode = arg('--tempo'); // v8.20: --tempo on|shadow
 const plaus = (ex, t) => (!R.plausibleSet || R.plausibleSet(t)) && !(R.TEMPO_CFG && R.TEMPO_CFG.mode === 'on' && R.tempoSlow(ex, t));
 const JIT = +((process.argv.includes('--jitter') && process.argv[process.argv.indexOf('--jitter') + 1]) || 0); // v8.26: ±frame jitter (fraction of a frame period)
@@ -24,14 +25,17 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
   const G = opt.rest ? require(path.join(__dirname, '..', '..', 'rest.js')).createRestGate(opt.rest.cfg) : null, verdicts = [];
   const F = hz ? upsample(d.frames, hz, opt.jit ?? JIT) : d.frames, asp = d.w / d.h, rec = R.createRecognizer(), pick = R.createPicker(), gate = R.createCameraGate(), sig = R.createSigTracker ? R.createSigTracker() : null;
   let cs, auto = null, lock = null, shown = 0, shownT = 0, saved = null; const keep = r => { if (opt.onKeep) opt.onKeep(r); if (G) { const v = G.verdict((r.times[0] ?? 0) * 1000 - 1); verdicts.push({ t: r.times[0], ex: r.ex, reps: r.reps, v }); G.rest(F[i0][0] * 1000); if (opt.rest.active && v === 'would-suppress') return; } if (!saved || r.reps > saved.reps) saved = r; };
-  const reset = () => { cs = {}; for (const id of R.IDS) cs[id] = R.createCounter(id); lock = null; shown = 0; };
+  // v8.45 plate-based bench counter (plate.js): a stored plate track (side angle) feeds wrapped benkpress/skråbenk counters, like app.js
+  const feed = opt.plate && P.PLATE_MODE.mode !== 'off' ? P.createFeed(opt.plate) : null;
+  const mk = id => { const c = R.createCounter(id); return feed && P.PLATE_MODE.exercises.includes(id) ? P.wrapCounter(c, feed, id) : c; };
+  const reset = () => { cs = {}; for (const id of R.IDS) cs[id] = mk(id); lock = null; shown = 0; };
   const res = ex => { const reps = cs[ex].flush(); return { ex, reps, kg: DEFAULT_KG[ex] ?? 0, times: cs[ex].repTimes.map(t => +t.toFixed(1)) }; };
   const sigKeep = ex => { if (!sig || R.SIG_CFG.mode === 'off') return keep(res(ex)); const v = sig.check(ex, cs[ex].repTimes, cs, R.minSet);
     SIGLOG.push({ cnt: Object.fromEntries(R.IDS.map(i => [i, cs[i].reps]).filter(x => x[1])), ex, reps: cs[ex].reps, why: v.why, to: v.ex, st: v.st && { tilt: +v.st.tilt.toFixed(0), wrAb: +v.st.wrAb.toFixed(2), travel: +v.st.travel.toFixed(2), iqr: +v.st.iqr.toFixed(2), hy: +v.st.hy.toFixed(2) } });
     if (R.SIG_CFG.mode !== 'on' || !v.why) return keep(res(ex)); if (v.drop) return; const e2 = v.ex; if (e2 !== ex && plaus(e2, cs[e2].repTimes)) return keep(res(e2)); return keep(res(ex)); };
   reset(); let i0 = 0; if (G) G.rest(F[0][0] * 1000 - 1e9);
   for (const a of F) { i0 = F.indexOf(a, i0); const lm = []; for (let i = 0; i < 33; i++) lm.push({ x: a[1 + 3 * i], y: a[2 + 3 * i], visibility: a[3 + 3 * i] });
-    const ms = a[0] * 1000; let cam = !gate.update(lm, ms, asp).ok; if (sig) sig.update(lm, ms, asp); if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
+    const ms = a[0] * 1000; if (feed) feed.now = a[0]; let cam = !gate.update(lm, ms, asp).ok; if (sig) sig.update(lm, ms, asp); if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
     const rc = rec.update(lm, ms, asp, cam), p = pick.update(rc, ms); if (!lock && p) auto = p;
     if (auto && !lock && cs[auto].reps >= 2) lock = auto; else if (lock && R.relock) lock = R.relock(cs, lock, p, a[0], rc.scores);
     const ex = lock || auto, n = ex ? cs[ex].reps : 0;
@@ -40,7 +44,7 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     for (const id of R.IDS) if (id !== ex && cs[id].reps > 0 && a[0] - cs[id].lastRepT > AUTOSAVE_S && cs[id].forget) cs[id].forget();
     if (n !== shown) { shown = n; shownT = a[0]; }
     if (n > 0 && a[0] - shownT > AUTOSAVE_S && lock && R.relock && R.relock(cs, lock, p, a[0], rc.scores, true) !== lock) { lock = R.relock(cs, lock, p, a[0], rc.scores, true); shown = cs[lock].reps; shownT = a[0]; }
-    else if (n > 0 && a[0] - shownT > AUTOSAVE_S) {  if (n >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) { sigKeep(ex); reset(); } else { cs[ex] = R.createCounter(ex); shown = 0; } } }
+    else if (n > 0 && (a[0] - shownT > AUTOSAVE_S || cs[ex].plateEnded)) {  if (n >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) { sigKeep(ex); reset(); } else { cs[ex] = mk(ex); shown = 0; } } }
   // the clip ends where the app saved the set: same last-chance re-lock as at an autosave
   if (lock && R.relock) lock = R.relock(cs, lock, null, F[F.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto;
@@ -64,7 +68,10 @@ if (require.main === module) {
   const tier = arg('--tier', null), T = {}, A = {}, PER = {}; const ALL = process.argv.includes('--all'); // v8.32 archive tier with --all; v8.43 PER = per-clip results for --json / --diff const ALL = process.argv.includes('--all'); // v8.32: archive tier = retired duplicates, run with --all (full regression pass before each push)
   // v8.14: one recording can hold several sets — `lm` names the landmark file, `win: [t0, t1]` the set's time window
   const loadE = e => { const d = module.exports.load(e.lm || e.id); return e.win ? { ...d, frames: d.frames.filter(a => a[0] >= e.win[0] && a[0] <= e.win[1]) } : d; };
-  const ids = arg('--ids', null); for (const e of module.exports.man().filter(x => ids ? ids.split(',').includes(x.id) : tier ? x.tier === tier : x.tier !== 'excluded' && (ALL || x.tier !== 'archive'))) { const r = replay(loadE(e), hz); n++;
+  // v8.45: side-angle clips with a stored plate track (tools/plate-track.js) replay the plate feed too (window-filtered like the frames)
+  const plateOf = e => { if (!P.PLATE_MODE.angles.includes(e.angle)) return null; const f = path.join(__dirname, (e.lm || e.id) + '.plate.json'); if (!fs.existsSync(f)) return null;
+    const t = JSON.parse(fs.readFileSync(f, 'utf8')).track; return e.win ? t.filter(r => r[0] >= e.win[0] && r[0] <= e.win[1]) : t; };
+  const ids = arg('--ids', null); for (const e of module.exports.man().filter(x => ids ? ids.split(',').includes(x.id) : tier ? x.tier === tier : x.tier !== 'excluded' && (ALL || x.tier !== 'archive'))) { const r = replay(loadE(e), hz, { plate: plateOf(e) }); n++;
     let ok;
     if (!e.exercise) { neg++; ok = r.reps < 2; /* v8.13: the app drops a stray single rep (autosave needs 2) */ if (!ok) falseSets++; }
     else { pos++; const exm = r.ex === e.exercise; if (exm) exOk++; ok = exm && r.reps === e.gt && r.kg === e.kg; ae += exm ? Math.abs(r.reps - e.gt) : e.gt; }
