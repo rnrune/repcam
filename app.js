@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.45';
+const APP_VERSION = '8.46';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -31,6 +31,8 @@ if (localStorage.getItem('repcam.rowTilt') === 'off') Reps.EX.roing.tailTilt = n
 { const m = localStorage.getItem('repcam.halvmarkDips'); if (m === 'off') Reps.RELOCK_CFG.mode = 'off'; else if (m === 'shadow') Reps.RELOCK_CFG.mode = 'shadow'; }
 /* v8.41: Bulgarian rear-foot split — repcam.bulgSquat = off | shadow (v8.43: shadow is now true shadow = baseline median ankDx) */
 { const m = localStorage.getItem('repcam.bulgSquat'); if (m === 'off' || m === 'shadow') { Reps.SPLIT_CFG.ankDxQ = 0.5; Reps.SPLIT_CFG.mode = m; } }
+/* v8.46 fresh exercise guess after a saved set — repcam.autoReset = off | shadow (shadow = baseline, logs only) */
+{ const m = localStorage.getItem('repcam.autoReset'); if (Reps.AUTO_RESET_CFG && (m === 'off' || m === 'shadow')) Reps.AUTO_RESET_CFG.mode = m; }
 /* v8.45 plate-based bench counter (plate.js): repcam.plateBench = off | shadow | on (default PLATE_MODE.mode = on since v8.45; shadow = pose count only, plate count logged in clip meta plateLog) */
 { const m = localStorage.getItem('repcam.plateBench'); if (window.Plate && (m === 'off' || m === 'shadow' || m === 'on')) Plate.PLATE_MODE.mode = m; }
 /* v8.44: RDL bar set down — a big, late last halvmark 'rep' is dropped — repcam.rdlTail = off | shadow (shadow = baseline + Reps.RDL_TAIL_CFG.shadowLog) */
@@ -203,6 +205,23 @@ function openAdd(sid, after) {
 /* ---------- «Hjelp til å forbedre»: per-set clips + labels (feedback.js) ---------- */
 const fb = { rec: null, mime: '', repT: [], lm: [], lastLm: 0, lastTrim: 0, early: {}, cutting: {}, q: null };
 const fbOn = () => LS.getItem(Feedback.KEYS.on) === '1' && typeof MediaRecorder !== 'undefined' && !!(window.REPCAM_STRAVA || {}).workerUrl;
+/* v8.46 (Rune 15 Nov: no clips after 20:31 although the session went on; the camera frame comes and goes after app switches).
+   iOS can hand back a camera track that is still readyState 'live' but muted / frozen, or a getUserMedia that never settles, and a
+   MediaRecorder that died silently; the app trusted readyState and dropped clips without a word. Now: a watchdog (1 s) re-acquires
+   the camera when the track is muted/ended or video frames stop (CAM_HEAL.stallMs), getUserMedia on resume has a timeout (→ «Fortsett»
+   tap), the clip recorder is restarted when it is not recording, and every dropped clip / dead recorder shows a visible, non-blocking
+   warning (#recWarn) and is logged (clip meta camLog + skips). Kill switches: repcam.camHeal=off (no re-acquire/restart, the old
+   behaviour; logging + warning stay), repcam.recWarn=off (no warning). */
+const CAM_HEAL = { on: LS.getItem('repcam.camHeal') !== 'off', warn: LS.getItem('repcam.recWarn') !== 'off', stallMs: 2500, retryMs: 5000, gumTimeoutMs: 6000, maxTries: 3, recGraceMs: 4000, warnAfterMs: 5000, skipShowMs: 10000 };
+let vidFrameAt = 0, vidAdv = false, vidCT = -1, stallSince = 0, healTries = 0, lastHeal = 0, recBadSince = 0, lastRecFix = 0, skipAt = 0, skipWhy = '';
+function camEv(k, x) { try { const tr = stream && stream.getVideoTracks()[0]; const e = { t: Date.now(), k, vis: document.visibilityState, live: tr ? tr.readyState : null, muted: tr ? !!tr.muted : null, rec: !!(fb.rec && fb.rec.active()), ...(x || {}) };
+  (fb.camLog ||= []).push(e); if (fb.camLog.length > 40) fb.camLog.shift(); console.info('[cam]', k, e); } catch (er) {} }
+function fbSkip(why, x) { if (!fbOn()) return; skipAt = performance.now(); skipWhy = why; camEv('clipSkip', { why, ...(x || {}) });
+  try { const a = JSON.parse(LS.getItem('repcam.fb.skips') || '[]'); a.push({ t: new Date().toISOString(), why, ...(x || {}) }); LS.setItem('repcam.fb.skips', JSON.stringify(a.slice(-20))); } catch (er) {} }
+const trackMuted = () => { const tr = stream && stream.getVideoTracks()[0]; return !!(tr && tr.muted); };
+function watchFrames(el) { if (!el || !el.requestVideoFrameCallback) return; el.requestVideoFrameCallback(() => { vidFrameAt = performance.now(); vidAdv = true; if (el === v) watchFrames(el); }); }
+function gumT(p) { if (!CAM_HEAL.on) return p; let done = false; return new Promise((res, rej) => { const tm = setTimeout(() => { done = true; camEv('gumTimeout'); rej(Object.assign(new Error('camera timeout'), { name: 'Timeout' })); }, CAM_HEAL.gumTimeoutMs);
+  p.then(st => { clearTimeout(tm); if (done) st.getTracks().forEach(t => t.stop()); else res(st); }, e => { clearTimeout(tm); camEv('gumFail', { msg: e && e.name }); if (!done) rej(e); }); }); }
 function fbQueue() {
   if (fb.q) return fb.q;
   const rnd = b => crypto.getRandomValues(b);
@@ -214,8 +233,8 @@ function fbQueue() {
 function fbStart() {
   fbStop(true);
   if (!fbOn() || !camLive()) return;
-  try { fb.mime = Feedback.pickMime(m => MediaRecorder.isTypeSupported(m)); fb.rec = Feedback.createRecorder(stream, { mime: fb.mime, bps: 1e6 }); fb.repT = []; fb.lm = []; }
-  catch (e) { console.warn('fb rec', e); fb.rec = null; }
+  try { fb.mime = Feedback.pickMime(m => MediaRecorder.isTypeSupported(m)); fb.rec = Feedback.createRecorder(stream, { mime: fb.mime, bps: 1e6, onEvent: camEv }); fb.repT = []; fb.lm = []; camEv('recStart', { ok: fb.rec.active() }); }
+  catch (e) { console.warn('fb rec', e); fb.rec = null; camEv('recFail', { msg: e && e.name }); }
 }
 function fbStop(discard) { const r = fb.rec; fb.rec = null; if (r) r.stop().catch(() => {}); }
 function fbLmPack(lm, poseRate) { /* v8.27: full-rate frames packed; over LM_CFG.maxJson every other frame is dropped (marked decimated) */
@@ -234,21 +253,22 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 }
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
-  const r = fb.rec; if (!r) return;
+  const r = fb.rec; if (!r) { fbSkip('noRecorder', { pred: pred && pred.exercise + '×' + pred.reps }); return; }
   const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null; const plAll = fb.plate || [], plWH = fb.plateWH; fb.plate = []; const plateLog = window.Plate && Plate.PLATE_MODE.log.length ? Plate.PLATE_MODE.log.splice(0).slice(-5) : null;
-  const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) return;
+  const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) { fbSkip(!seg ? 'recorderStopped' : !seg.blob.size ? 'empty' : 'tooBig', { mb: seg ? +(seg.blob.size / 1e6).toFixed(1) : null, pred: pred && pred.exercise + '×' + pred.reps }); return; }
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
   const poseRate = Feedback.clipRate(lm); /* v8.30: rate of THIS clip's logged frames (mean step); poseRateSeg = detector step stats since the last cut (median-based, was `poseRate` ≤8.29) */
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
+    camLog: (fb.camLog || []).slice(-40), skips: (() => { try { const a = JSON.parse(LS.getItem('repcam.fb.skips') || '[]'); LS.removeItem('repcam.fb.skips'); return a.length ? a : null; } catch { return null; } })(), /* v8.46 */
     camera, ruleLog, sigLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
-  try { const st = await fbQueue().stats(); if (st.bytes + seg.blob.size > Feedback.QUEUE_CFG.maxLocalBytes) { console.warn('fb: local queue full, clip skipped'); return; } } catch {}
+  try { const st = await fbQueue().stats(); if (st.bytes + seg.blob.size > Feedback.QUEUE_CFG.maxLocalBytes) { console.warn('fb: local queue full, clip skipped'); fbSkip('queueFull', { mb: +(st.bytes / 1e6).toFixed(0) }); return; } } catch {}
   const lab = fb.early[setTs] || label || Feedback.labelFrom(pred, 'implicit'); delete fb.early[setTs];
-  try { await fbQueue().add({ id, setTs, blob: seg.blob, mime: seg.blob.type.split(';')[0], meta, label: lab, created: Date.now() }); } catch (e) { console.warn('fb add', e); }
+  try { await fbQueue().add({ id, setTs, blob: seg.blob, mime: seg.blob.type.split(';')[0], meta, label: lab, created: Date.now() }); } catch (e) { console.warn('fb add', e); fbSkip('addFailed', { msg: e && e.name }); }
   fbUpload();
 }
 async function fbLabel(ts, action, val) {
@@ -612,6 +632,7 @@ function saveSet() {
   if (barTr) barTr.reset();
   fbCut({ exercise: ex, reps, kg: rec.kg, auto: !manualEx }, rec.timestamp);
   if (!fb.rec) fb.tempoShadow = null; resetCounters(); navigator.vibrate?.([40, 60, 40]);
+  if (Reps.AUTO_RESET_CFG && Reps.AUTO_RESET_CFG.mode === 'on' && !manualEx) { picker.reset(); autoEx = null; } /* v8.46: the next set starts with a fresh exercise guess (mwi8db6r: stale 'roing' locked a pull-up set) */
   // v8.20 «Bekreft usikkert sett»: an auto set the tempo gate calls slow (or with few reps) asks ✓/✗ in the toast.
   // ✓ = confirmed label, ✗ = removed + 'notASet' label, no answer = kept. Kill switch localStorage repcam.confirmOff=1.
   const tOn = slowNow && (tsh.mode === 'on'); // v8.24 tempo rule ON: the set must be confirmed, otherwise it is removed
@@ -692,7 +713,7 @@ let endedByIdle = false, endAt = null, hiddenAt = 0;
 // Backgrounded (other app, lock screen) or camera killed by iOS: keep the session, save any half-counted set, and come back without extra taps.
 function onHide() {
   if (cur !== 'okt' || !store.active()) return;
-  hiddenAt = Date.now(); finishPending(); fbStop();
+  hiddenAt = Date.now(); camEv('hide'); finishPending(); fbStop();
   store.touchActive({ seen: hiddenAt, manualEx });
 }
 function onShow() {
@@ -701,7 +722,7 @@ function onShow() {
   const away = hiddenAt ? Date.now() - hiddenAt : 0; hiddenAt = 0;
   if (away && Date.now() - lastActivity > AWAY_END_MS) { endAt = new Date(Date.now() - away); endedByIdle = true; location.hash = '#/'; return; }
   lastActivity += away; // time away doesn't count toward the on-screen idle rule
-  store.touchActive({ seen: Date.now() });
+  store.touchActive({ seen: Date.now() }); camEv('show', { away: away }); vidFrameAt = performance.now(); stallSince = 0; healTries = 0;
   resumeCam(); fitStageSoon(true); unpin(); settle(Date.now());
 }
 // v8.17 bug: back from the app switcher (iOS PWA/Safari) the camera view could come back much smaller, framed by black.
@@ -738,7 +759,7 @@ const fitDiag = [];
 function newVideo() {
   const o = v, n = document.createElement('video');
   n.id = 'v'; n.className = o.className; n.muted = true; n.playsInline = true; n.autoplay = true; ['playsinline', 'muted', 'autoplay'].forEach(k => n.setAttribute(k, ''));
-  n.srcObject = stream; o.srcObject = null; o.replaceWith(n); v = n; v.addEventListener('resize', () => fitStageSoon(false)); v.play().catch(() => {});
+  n.srcObject = stream; o.srcObject = null; o.replaceWith(n); v = n; v.addEventListener('resize', () => fitStageSoon(false)); v.play().catch(() => {}); vidFrameAt = performance.now(); watchFrames(v);
 }
 function geom() { const vv = window.visualViewport, r = e => { const b = e.getBoundingClientRect(); return [Math.round(b.left), Math.round(b.top), Math.round(b.width), Math.round(b.height)]; };
   return { t: Date.now(), inner: [innerWidth, innerHeight], vv: vv ? [Math.round(vv.width), Math.round(vv.height), +vv.scale.toFixed(3), Math.round(vv.offsetTop), Math.round(vv.offsetLeft)] : null, scroll: [scrollX, scrollY], screen: [screen.width, screen.height], orient: screen.orientation?.type || String(window.orientation ?? ''), stage: r($('stage')), video: r(v), vpx: [v.videoWidth, v.videoHeight], pinned: !!$('stage').style.width }; }
@@ -765,8 +786,8 @@ v.addEventListener('resize', () => fitStageSoon(false)); // the stream's resolut
 function resumeCam() {
   if (pending || cur !== 'okt') return;
   motion.resume();
-  if (camLive()) { if (v.paused) v.play().catch(() => setStartUI(true)); if (!fb.rec) fbStart(); return; }
-  runCam(getCam(facing), true); // no gesture: works if iOS still has permission; otherwise the big «Fortsett» shows
+  if (camLive() && !(CAM_HEAL.on && trackMuted())) { if (v.paused) v.play().catch(() => setStartUI(true)); if (!fb.rec || (CAM_HEAL.on && !fb.rec.active())) fbStart(); return; }
+  camEv('resumeReacquire'); runCam(gumT(getCam(facing)), true); // no gesture: works if iOS still has permission; otherwise the big «Fortsett» shows
 }
 document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' ? onHide() : onShow());
 addEventListener('pagehide', onHide);
@@ -806,8 +827,9 @@ function getCam(f) {
 async function attach(s) {
   stream?.getTracks().forEach(t => t.stop());
   stream = s; v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('autoplay', '');
-  s.getVideoTracks().forEach(t => t.addEventListener('ended', () => { if (stream === s && document.visibilityState === 'visible') setTimeout(resumeCam, 300); }));
-  v.srcObject = s; await v.play(); fitStageSoon(false);
+  s.getVideoTracks().forEach(t => { t.addEventListener('ended', () => { if (stream === s) camEv('ended'); if (stream === s && document.visibilityState === 'visible') setTimeout(resumeCam, 300); });
+    t.addEventListener('mute', () => { if (stream === s) camEv('mute'); }); t.addEventListener('unmute', () => { if (stream === s) camEv('unmute'); }); });
+  v.srcObject = s; await v.play(); fitStageSoon(false); vidAdv = false; vidFrameAt = performance.now(); watchFrames(v); camEv('attach');
   if (cur === 'okt') fbStart();
   [v, c].forEach(el => el.classList.toggle('mirror', facing === 'user'));
 }
@@ -838,6 +860,7 @@ $('flip').onclick = async () => { facing = facing === 'user' ? 'environment' : '
 function loop() {
   raf = requestAnimationFrame(loop);
   if (!landmarker || v.readyState < 2 || document.visibilityState !== 'visible') return;
+  if (!v.requestVideoFrameCallback && v.currentTime !== vidCT) { if (vidCT >= 0) vidAdv = true; vidCT = v.currentTime; vidFrameAt = performance.now(); } // v8.46 frame watch fallback
   if (c.width !== v.videoWidth) { c.width = v.videoWidth; c.height = v.videoHeight; }
   const ts = performance.now(); if (ts <= lastTs) return; if (fb.rec && lastTs > 0) { (fb.det ||= []).push(ts - lastTs); if (fb.det.length > 6000) fb.det.splice(0, 1000); } /* v8.26: real pose rate telemetry */ lastTs = ts;
   const res = landmarker.detectForVideo(v, ts);
@@ -900,4 +923,31 @@ if (/[?&](code|error)=/.test(location.search)) {
   strava.handleRedirect(location.search).then(okk => { if (okk && foreign && !standalone) setTimeout(() => showToastGlobal(L.t('st.otherCtx')), 0); }).catch(e => console.warn('strava auth', e)).finally(() => { history.replaceState(null, '', location.pathname + '#/profil'); route(); stravaSync(); });
 } else stravaSync();
 if (cur !== 'okt') onboarding();
-window.__repcam = { APP_VERSION, plate: { feed: plateFeed, tr: plateTr, on: () => plateOn(), mode: () => window.Plate && Plate.PLATE_MODE.mode, log: () => window.Plate && Plate.PLATE_MODE.log, resetCounters: () => resetCounters() }, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+// v8.46 camera + recorder watchdog and live warning (see CAM_HEAL)
+function camWatch() {
+  const now = performance.now();
+  if (cur !== 'okt' || !store.active() || document.visibilityState !== 'visible' || pending || !raf || $('start').style.display !== 'none') { stallSince = 0; recBadSince = 0; return recWarn(false, now); }
+  const stalled = !camLive() || trackMuted() || (vidAdv && now - vidFrameAt > CAM_HEAL.stallMs);
+  if (stalled) {
+    if (!stallSince) { stallSince = now; camEv('stall', { noFrameMs: Math.round(now - vidFrameAt) }); }
+    if (CAM_HEAL.on && now - stallSince > CAM_HEAL.stallMs && now - lastHeal > CAM_HEAL.retryMs) {
+      if (healTries >= CAM_HEAL.maxTries) { camEv('healGiveUp'); healTries = 0; stallSince = 0; setStartUI(true); } // a tap on «Fortsett» = user gesture for getUserMedia
+      else { healTries++; lastHeal = now; camEv('reacquire', { n: healTries }); runCam(gumT(getCam(facing)), true); }
+    }
+  } else { if (stallSince) camEv('recovered', { ms: Math.round(now - stallSince) }); stallSince = 0; healTries = 0; }
+  if (fbOn() && !stalled) { if (fb.rec && fb.rec.active()) recBadSince = 0; else { if (!recBadSince) { recBadSince = now; camEv('recDown'); }
+      if (CAM_HEAL.on && now - recBadSince > CAM_HEAL.recGraceMs && now - lastRecFix > 5000) { lastRecFix = now; camEv('recRestart'); fbStart(); } } }
+  else recBadSince = 0;
+  recWarn(stalled, now);
+}
+function recWarn(stalled, now) {
+  const el = $('recWarn'); if (!el) return; let k = '';
+  if (CAM_HEAL.warn && cur === 'okt') {
+    if (stalled && stallSince && now - stallSince > CAM_HEAL.warnAfterMs - 3000) k = L.t(CAM_HEAL.on ? 'w.camStall' : 'w.camFrozen');
+    else if (recBadSince && now - recBadSince > CAM_HEAL.warnAfterMs) k = L.t('w.recOff');
+    else if (skipAt && now - skipAt < CAM_HEAL.skipShowMs) k = L.t('w.clipSkip', { r: skipWhy });
+  }
+  el.textContent = k; el.style.display = k ? 'block' : 'none';
+}
+setInterval(camWatch, 1000);
+window.__repcam = { APP_VERSION, camHeal: { CAM_HEAL, camWatch, log: () => fb.camLog, state: () => ({ vidAdv, vidFrameAt, stallSince, healTries, recBadSince, skipWhy }) }, plate: { feed: plateFeed, tr: plateTr, on: () => plateOn(), mode: () => window.Plate && Plate.PLATE_MODE.mode, log: () => window.Plate && Plate.PLATE_MODE.log, resetCounters: () => resetCounters() }, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

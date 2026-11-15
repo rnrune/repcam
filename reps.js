@@ -47,6 +47,8 @@
   // mw3uun14: after 8 reps (amp ≈0.30–0.43) a pause, then the bar goes to the floor (pose flips, amp 1.43) → counted as 9th.
   // A last rep ≥ ratio × the set's median amplitude AND arriving after ≥ gap × the median rep gap is dropped (needs minReps others).
   // Kill switch repcam.rdlTail = off | shadow (shadow: counted as before, logged in RDL_TAIL_CFG.shadowLog).
+  // v8.46: after a saved set the picker starts over (no stale exercise guess carried into the next set). mode on | shadow | off
+  const AUTO_RESET_CFG = { mode: 'on' };
   const RDL_TAIL_CFG = { ratio: 2.5, gap: 1.4, minReps: 4, mode: 'on' /* on | shadow | off */, shadowLog: [] };
   const BULG_COUNT_CFG = { minAmp: 0.14, /* was 0.18 */ mode: 'on' }; // v8.43 tried 0.13: 16 on mw3v0giw only via a spurious 0.8 s half-rep on leg 2 (real miss ≈236.4 s on leg 1, ≈0.10 deep) — rejected
     const EX = {
@@ -683,6 +685,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

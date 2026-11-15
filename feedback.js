@@ -98,14 +98,15 @@
   // Segment recorder: one MediaRecorder runs continuously; cut() ends the current segment (returns its blob + start time)
   // and immediately starts the next, so each set's clip includes the lead-in since the previous cut (pre-roll) and the
   // autosave pause after the last rep (post-roll). trimIdle() restarts an idle segment so the pre-roll stays short.
-  function createRecorder(stream, { mime, bps = 1e6, now = () => performance.now() } = {}) {
-    let rec = null, chunks = [], t0 = 0, stopped = false;
+  function createRecorder(stream, { mime, bps = 1e6, now = () => performance.now(), onEvent } = {}) {
+    let rec = null, chunks = [], t0 = 0, stopped = false, lastData = 0, errors = 0;
     function start() {
       if (stopped || !stream || !stream.getVideoTracks().some(t => t.readyState === 'live')) { rec = null; return; }
       chunks = []; t0 = now();
       rec = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: bps } : { videoBitsPerSecond: bps });
-      const my = chunks; rec.ondataavailable = e => { if (e.data && e.data.size) my.push(e.data); };
-      rec.start(1000);
+      const my = chunks, me = rec; rec.ondataavailable = e => { if (e.data && e.data.size) { my.push(e.data); lastData = now(); } };
+      rec.onerror = e => { errors++; if (rec === me) rec = null; if (onEvent) onEvent('recError', { msg: (e && e.error && e.error.name) || 'error' }); }; // v8.46: a dead recorder is noticed (app restarts it)
+      rec.start(1000); lastData = now();
     }
     function end() {
       const r = rec, my = chunks, start0 = t0; rec = null;
@@ -114,7 +115,7 @@
     }
     start();
     return {
-      t0: () => t0, active: () => !!rec,
+      t0: () => t0, active: () => !!rec && rec.state === 'recording', /* v8.46 */ lastData: () => lastData, errors: () => errors,
       async cut() { const p = end(); start(); return p; },
       async trimIdle(maxMs) { if (rec && now() - t0 > maxMs) { const p = end(); start(); await p; } },
       async stop() { stopped = true; return end(); }

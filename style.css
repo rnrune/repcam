@@ -153,3 +153,6 @@ body.confirming #ringwrap{opacity:.25;transition:opacity .2s}body.confirming #fl
 .camask b{display:block;font-size:17px;margin-bottom:8px}.camaskb{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .camaskb button{border:0;border-radius:12px;padding:10px 14px;min-height:48px;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:15px}
 .camaskb button.on{background:#1f9d55}body.confirming .camask{display:none!important}
+
+/* v8.46 live warning: clip recorder stopped / camera frozen / clip skipped (non-blocking) */
+#recWarn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);background:rgba(220,40,40,.92);color:#fff;padding:5px 12px;border-radius:12px;font-weight:600;font-size:13px;display:none;z-index:30;pointer-events:none;max-width:92vw;text-align:center}
