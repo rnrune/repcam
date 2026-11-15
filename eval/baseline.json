@@ -3,11 +3,11 @@
  "hz": 0,
  "all": true,
  "summary": {
-  "exact": 104,
+  "exact": 105,
   "n": 112,
   "exOk": 85,
   "pos": 86,
-  "mae": 0.186,
+  "mae": 0.151,
   "falseSets": 0,
   "neg": 26
  },
@@ -893,12 +893,12 @@
    "bad": 0
   },
   "mw3vd96288d8f687": {
-   "ok": false,
+   "ok": true,
    "gt": 20,
    "exercise": "vsitup",
    "ex": "vsitup",
-   "reps": 17,
-   "bad": 3
+   "reps": 20,
+   "bad": 0
   },
   "mwi81af67f58693c": {
    "ok": true,

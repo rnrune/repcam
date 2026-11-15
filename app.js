@@ -39,6 +39,8 @@ if (localStorage.getItem('repcam.rowTilt') === 'off') Reps.EX.roing.tailTilt = n
 { const m = localStorage.getItem('repcam.relockTie'); if (Reps.RELOCK_TIE_CFG && (m === 'off' || m === 'shadow')) Reps.RELOCK_TIE_CFG.mode = m; }
 /* v8.47: repcam.saveKeep = off | shadow (after a saved set every counter starts fresh = baseline) */
 { const m = localStorage.getItem('repcam.saveKeep'); if (Reps.SAVE_KEEP_CFG && (m === 'off' || m === 'shadow')) Reps.SAVE_KEEP_CFG.mode = m; }
+/* v8.47: repcam.vsitIdle = off (V-sit-up: old amplitudes are kept before the first rep = baseline) */
+if (localStorage.getItem('repcam.vsitIdle') === 'off' && Reps.EX.vsitup) Reps.EX.vsitup.ampIdle = null;
 /* v8.46 fresh exercise guess after a saved set — repcam.autoReset = off | shadow (shadow = baseline, logs only) */
 { const m = localStorage.getItem('repcam.autoReset'); if (Reps.AUTO_RESET_CFG && (m === 'off' || m === 'shadow')) Reps.AUTO_RESET_CFG.mode = m; }
 /* v8.45 plate-based bench counter (plate.js): repcam.plateBench = off | shadow | on (default PLATE_MODE.mode = on since v8.45; shadow = pose count only, plate count logged in clip meta plateLog) */

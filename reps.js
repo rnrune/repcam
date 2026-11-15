@@ -113,7 +113,7 @@
       signal: (g, ref) => (g.wr[g.arm].y - g.sh[g.arm].y) / ref },
     // v8.13 V-situp (weighted V-up / jackknife): lying on the back, the torso AND the straight legs lift toward each other so
     // the hip angle (shoulder–hip–ankle) closes from ~170° to ~60–90°. Rest (lying open) = high signal.
-    vsitup: { lying: true, minAmp: 0.22, minRep: 0.5, maxRep: 8, need: 'torso',
+    vsitup: { ampIdle: 20, /* v8.47 (mw3vd962: a 0.90 sit-up amplitude from 70 s earlier hid the set's first reps after a camera pause; kill switch repcam.vsitIdle=off) */ lying: true, minAmp: 0.22, minRep: 0.5, maxRep: 8, need: 'torso',
       signal: g => { const a = g.leg != null && g.an[g.leg] && vis(g.an[g.leg]) > 0.3 ? g.an[g.leg] : g.kn[g.leg];
         return a && vis(a) > 0.3 ? angle(g.shM, g.hipM, a) / 180 : null; } },
     situps: { lying: true, minAmp: 0.18, minRep: 0.55, maxRep: 12, need: 'torso',
