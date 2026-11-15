@@ -3,13 +3,13 @@
  "hz": 0,
  "all": true,
  "summary": {
-  "exact": 89,
-  "n": 100,
-  "exOk": 76,
-  "pos": 77,
-  "mae": 0.195,
+  "exact": 93,
+  "n": 108,
+  "exOk": 82,
+  "pos": 83,
+  "mae": 0.482,
   "falseSets": 2,
-  "neg": 23
+  "neg": 25
  },
  "clips": {
   "mvmtfqlo8d46051c": {
@@ -810,6 +810,70 @@
    "exercise": "vsitup",
    "ex": "vsitup",
    "reps": 20,
+   "bad": 0
+  },
+  "mwi7v8cd126803b6": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "roing",
+   "reps": 0,
+   "bad": 0
+  },
+  "mwi7wmjdbbc24c42": {
+   "ok": false,
+   "gt": 12,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 3,
+   "bad": 9
+  },
+  "mwi802robc14f02e": {
+   "ok": false,
+   "gt": 5,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 1,
+   "bad": 4
+  },
+  "mwi887bt-a": {
+   "ok": false,
+   "gt": 8,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 1,
+   "bad": 7
+  },
+  "mwi887bt-b": {
+   "ok": false,
+   "gt": 8,
+   "exercise": "benkpress",
+   "ex": "benkpress",
+   "reps": 13,
+   "bad": 5
+  },
+  "mwi887bt-c": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "dips",
+   "reps": 0,
+   "bad": 0
+  },
+  "mwi8acvdfc4928c0": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 6,
+   "bad": 0
+  },
+  "mwi8db6r827fe8a0": {
+   "ok": true,
+   "gt": 6,
+   "exercise": "pullups",
+   "ex": "pullups",
+   "reps": 6,
    "bad": 0
   }
  }

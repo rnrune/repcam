@@ -3627,5 +3627,346 @@
    "side": null
   },
   "notes": "5 Nov session (app 8.39, Safari PWA). Fasit vsitup×20 @15kg (review-reconciled)."
+ },
+ {
+  "id": "mwi7v8cd126803b6",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "side",
+  "facing": "user",
+  "app": "8.44",
+  "created": "2026-11-15T19:17:30.495Z",
+  "pred": {
+   "exercise": "roing",
+   "reps": 6,
+   "kg": 100,
+   "auto": true
+  },
+  "appRepTimes": [
+   130.1,
+   136.31,
+   139.01,
+   143.07,
+   151.28,
+   155.85
+  ],
+  "label": "notASet",
+  "labelEx": "roing",
+  "labelReps": 0,
+  "tier": "worst",
+  "angle": "side90",
+  "angleVerified": "Rune 2026-11-15 «filmet fra siden, 90 grader, rett på» + in-app session position side/90/right",
+  "cameraPos": {
+   "dir": "side",
+   "deg": 90,
+   "side": "right"
+  },
+  "session": "2026-11-15",
+  "notes": "15 Nov side90: camera setup + loading plates on the bench bar (video 120–159 s); app roing×6, Rune «Nei, fjern» (notASet) — confirmed by video: not a set."
+ },
+ {
+  "id": "mwi7wmjdbbc24c42",
+  "exercise": "benkpress",
+  "gt": 12,
+  "kg": 20,
+  "realKg": 50,
+  "view": "side",
+  "facing": "user",
+  "app": "8.44",
+  "created": "2026-11-15T19:18:35.546Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 3,
+   "kg": 100,
+   "auto": true
+  },
+  "appRepTimes": [
+   51.16,
+   52.94,
+   54.8
+  ],
+  "label": "notASet",
+  "labelEx": "benkpress",
+  "labelReps": 0,
+  "tier": "worst",
+  "angle": "side90",
+  "angleVerified": "Rune 2026-11-15 «filmet fra siden, 90 grader, rett på» + in-app session position side/90/right",
+  "cameraPos": {
+   "dir": "side",
+   "deg": 90,
+   "side": "right"
+  },
+  "session": "2026-11-15",
+  "notes": "15 Nov side90: bench set 1 (fasit 12×50). Plate tracking: unrack 27.3 s, 12 bottoms 29.2–41.2 s, rack 42.5. App counted 3 junk reps 51–55 s after racking (benkpress×3) and Rune pressed «Nei, fjern» — real set, app missed all 12 (bar/plate occludes body from the side; pose jitters)."
+ },
+ {
+  "id": "mwi802robc14f02e",
+  "exercise": "benkpress",
+  "gt": 5,
+  "kg": 20,
+  "realKg": 80,
+  "view": "side",
+  "facing": "user",
+  "app": "8.44",
+  "created": "2026-11-15T19:21:16.549Z",
+  "pred": {
+   "exercise": "benkpress",
+   "reps": 2,
+   "kg": 100,
+   "auto": true
+  },
+  "appRepTimes": [
+   15.77,
+   16.85
+  ],
+  "label": "confirmed",
+  "labelEx": "benkpress",
+  "labelReps": 2,
+  "tier": "worst",
+  "angle": "side90",
+  "angleVerified": "Rune 2026-11-15 «filmet fra siden, 90 grader, rett på» + in-app session position side/90/right",
+  "cameraPos": {
+   "dir": "side",
+   "deg": 90,
+   "side": "right"
+  },
+  "session": "2026-11-15",
+  "notes": "15 Nov side90: bench set 2 (fasit 5×80). Plate tracking: 5 bottoms 14.0–20.1 s. App benkpress×2 (Rune confirmed 2 — fasit says 5)."
+ },
+ {
+  "id": "mwi887bt-a",
+  "exercise": "benkpress",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 90,
+  "view": "side",
+  "facing": "user",
+  "app": "8.44",
+  "created": "2026-11-15T19:27:35.705Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 3,
+   "kg": 110,
+   "auto": true
+  },
+  "appRepTimes": [
+   252.43,
+   255.58,
+   261.46
+  ],
+  "label": "confirmed",
+  "labelEx": "halvmark",
+  "labelReps": 3,
+  "tier": "worst",
+  "angle": "side90",
+  "angleVerified": "Rune 2026-11-15 «filmet fra siden, 90 grader, rett på» + in-app session position side/90/right",
+  "cameraPos": {
+   "dir": "side",
+   "deg": 90,
+   "side": "right"
+  },
+  "session": "2026-11-15",
+  "notes": "15 Nov side90: bench set 3 (fasit 8×90) inside a 271 s clip. Plate tracking: unrack 56 s, 8 bottoms 57.8–68.0 s. App counted nothing here.",
+  "lm": "mwi887bt2feb95b4",
+  "win": [
+   40,
+   80
+  ]
+ },
+ {
+  "id": "mwi887bt-b",
+  "exercise": "benkpress",
+  "gt": 8,
+  "kg": 20,
+  "realKg": 90,
+  "view": "side",
+  "facing": "user",
+  "app": "8.44",
+  "created": "2026-11-15T19:27:35.705Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 3,
+   "kg": 110,
+   "auto": true
+  },
+  "appRepTimes": [
+   252.43,
+   255.58,
+   261.46
+  ],
+  "label": "confirmed",
+  "labelEx": "halvmark",
+  "labelReps": 3,
+  "tier": "worst",
+  "angle": "side90",
+  "angleVerified": "Rune 2026-11-15 «filmet fra siden, 90 grader, rett på» + in-app session position side/90/right",
+  "cameraPos": {
+   "dir": "side",
+   "deg": 90,
+   "side": "right"
+  },
+  "session": "2026-11-15",
+  "notes": "15 Nov side90: bench set 4 (fasit 8×90), same clip after the phone was moved (80–195 s). Plate tracking: 8 bottoms 206.1–217.3 s. App counted nothing here.",
+  "lm": "mwi887bt2feb95b4",
+  "win": [
+   195,
+   240
+  ]
+ },
+ {
+  "id": "mwi887bt-c",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "realKg": 0,
+  "view": "side",
+  "facing": "user",
+  "app": "8.44",
+  "created": "2026-11-15T19:27:35.705Z",
+  "pred": {
+   "exercise": "halvmark",
+   "reps": 3,
+   "kg": 110,
+   "auto": true
+  },
+  "appRepTimes": [
+   252.43,
+   255.58,
+   261.46
+  ],
+  "label": "confirmed",
+  "labelEx": "halvmark",
+  "labelReps": 3,
+  "tier": "worst",
+  "angle": "side90",
+  "angleVerified": "Rune 2026-11-15 «filmet fra siden, 90 grader, rett på» + in-app session position side/90/right",
+  "cameraPos": {
+   "dir": "side",
+   "deg": 90,
+   "side": "right"
+  },
+  "session": "2026-11-15",
+  "notes": "15 Nov side90: loading/unloading plates after bench (244–271 s). App saved halvmark×3 (252–261 s); Rune tapped confirm, but video shows plate handling — false set.",
+  "lm": "mwi887bt2feb95b4",
+  "win": [
+   240,
+   272
+  ]
+ },
+ {
+  "id": "mwi89q1826bedc8f",
+  "exercise": "pullups",
+  "gt": 0,
+  "kg": 0,
+  "realKg": 5,
+  "view": "side",
+  "facing": "user",
+  "app": "8.44",
+  "created": "2026-11-15T19:28:46.604Z",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 4,
+   "kg": 10,
+   "auto": true
+  },
+  "appRepTimes": [
+   55.02,
+   56.37,
+   59.61,
+   61.72
+  ],
+  "label": "implicit",
+  "labelEx": "pullups",
+  "labelReps": 4,
+  "tier": "excluded",
+  "angle": "side90",
+  "angleVerified": "Rune 2026-11-15 «filmet fra siden, 90 grader, rett på» + in-app session position side/90/right",
+  "cameraPos": {
+   "dir": "side",
+   "deg": 90,
+   "side": "right"
+  },
+  "session": "2026-11-15",
+  "notes": "15 Nov side90: PENDING — dip belt + plate put on (48–50 s), hanging/adjusting 51–60 s; app pullups×4 (implicit). Probably not a set — ask Rune.",
+  "pending": true
+ },
+ {
+  "id": "mwi8acvdfc4928c0",
+  "exercise": "pullups",
+  "gt": 6,
+  "kg": 0,
+  "realKg": 5,
+  "view": "side",
+  "facing": "user",
+  "app": "8.44",
+  "created": "2026-11-15T19:29:16.202Z",
+  "pred": {
+   "exercise": "pullups",
+   "reps": 6,
+   "kg": 10,
+   "auto": true
+  },
+  "appRepTimes": [
+   7.86,
+   9.6,
+   11.46,
+   13.45,
+   16.63,
+   20.2
+  ],
+  "label": "implicit",
+  "labelEx": "pullups",
+  "labelReps": 6,
+  "tier": "worst",
+  "angle": "side90",
+  "angleVerified": "Rune 2026-11-15 «filmet fra siden, 90 grader, rett på» + in-app session position side/90/right",
+  "cameraPos": {
+   "dir": "side",
+   "deg": 90,
+   "side": "right"
+  },
+  "session": "2026-11-15",
+  "notes": "15 Nov side90: pull-up set (fasit 6×5). Shoulder tops 7.3–19.4 s = 6. App pullups×6 ✓ (kg 10 in app vs real 5)."
+ },
+ {
+  "id": "mwi8db6r827fe8a0",
+  "exercise": "pullups",
+  "gt": 6,
+  "kg": 0,
+  "realKg": 5,
+  "view": "side",
+  "facing": "user",
+  "app": "8.44",
+  "created": "2026-11-15T19:31:33.987Z",
+  "pred": {
+   "exercise": "roing",
+   "reps": 7,
+   "kg": 100,
+   "auto": true
+  },
+  "appRepTimes": [
+   23.89,
+   25.48,
+   27.15,
+   28.98,
+   30.91,
+   34.33,
+   37.43
+  ],
+  "label": "confirmed",
+  "labelEx": "roing",
+  "labelReps": 7,
+  "tier": "worst",
+  "angle": "side90",
+  "angleVerified": "Rune 2026-11-15 «filmet fra siden, 90 grader, rett på» + in-app session position side/90/right",
+  "cameraPos": {
+   "dir": "side",
+   "deg": 90,
+   "side": "right"
+  },
+  "session": "2026-11-15",
+  "notes": "15 Nov side90: pull-up set (fasit 6×5), 20–34 s, kneeling hang from the side. App saved roing×7 (exercise wrong)."
  }
 ]
