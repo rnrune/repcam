@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.47';
+const APP_VERSION = '8.48';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -65,7 +65,20 @@ const stravaFmt = () => ({ name: exName, kgf: L.kgf, title: L.t('st.actName') })
 const restGate = Rest.createRestGate(); // v8.15 (rest.js, REST_CFG)
 // v8.16 bar/plate tracker, SHADOW only (bar.js, BAR_CFG; kill switch BAR_CFG.enabled or localStorage repcam.barOff=1).
 // Runs at BAR_CFG.hz on a tiny gray copy of the frame, only while the current exercise is a barbell one. Never affects counting.
-const barTr = window.Bar && LS.getItem('repcam.barOff') !== '1' ? Bar.createBarTracker() : null;
+/* v8.48 battery (Rune 16 Nov «appen bruker mye batteri»). Measured / estimated per-frame costs, biggest first: pose inference on
+   every animation frame (~30 Hz, also with nobody in view), the skeleton overlay on a full-resolution canvas, the v8.16 bar
+   tracker (SHADOW only — never counts — but 8.7 ms JS per frame at 5 Hz plus a full video read-back), per-frame DOM style writes.
+   Each saving has a kill switch; thresholds live here. kv(key, default) accepts off | shadow | on. */
+const kv = (k, d) => { const x = LS.getItem(k); return x === 'off' || x === 'shadow' || x === 'on' ? x : d; };
+const POWER_CFG = {
+  bar: kv('repcam.barShadow', 'off'),                                    // v8.16 bar shadow tracker: off by default (on = v8.47)
+  draw: { mode: kv('repcam.lowDraw', 'on'), scale: 0.5 },                // overlay canvas at scale × video size (CSS stretches it); off = full res
+  dom: kv('repcam.domDiff', 'on'),                                       // write the ring/hint styles only when they change
+  idle: { mode: kv('repcam.idleThrottle', 'on'), noPersonMs: 3000, hz: 5 }, // nobody in view for noPersonMs → pose at hz until a person shows up
+  dup: { mode: kv('repcam.dupSkip', 'shadow') },                         // skip pose when the camera has no new frame (shadow = count only)
+  log: { frames: 0, idleSkip: 0, dupSkip: 0, dup: 0, draws: 0 }          // telemetry → clip meta (power)
+};
+const barTr = window.Bar && LS.getItem('repcam.barOff') !== '1' && POWER_CFG.bar === 'on' ? Bar.createBarTracker() : null;
 let barCv = null, barCtx = null;
 function barFrame(lm, ts) {
   if (!barTr || !barTr.cfg.enabled || !barTr.due(ts / 1000) || !barTr.cfg.exercises.includes(curEx()) || !v.videoWidth) return;
@@ -223,13 +236,13 @@ const fbOn = () => LS.getItem(Feedback.KEYS.on) === '1' && typeof MediaRecorder 
    warning (#recWarn) and is logged (clip meta camLog + skips). Kill switches: repcam.camHeal=off (no re-acquire/restart, the old
    behaviour; logging + warning stay), repcam.recWarn=off (no warning). */
 const CAM_HEAL = { on: LS.getItem('repcam.camHeal') !== 'off', warn: LS.getItem('repcam.recWarn') !== 'off', stallMs: 2500, retryMs: 5000, gumTimeoutMs: 6000, maxTries: 3, recGraceMs: 4000, warnAfterMs: 5000, skipShowMs: 10000 };
-let vidFrameAt = 0, vidAdv = false, vidCT = -1, stallSince = 0, healTries = 0, lastHeal = 0, recBadSince = 0, lastRecFix = 0, skipAt = 0, skipWhy = '';
+let vidFrameAt = 0, vidAdv = false, vidCT = -1, vidSeq = 0, detSeq = -1, detCT = -1, lastDet = 0, noPersonSince = 0, drawn = false, du = null, ringOff = null, hintDisp = null, stallSince = 0, healTries = 0, lastHeal = 0, recBadSince = 0, lastRecFix = 0, skipAt = 0, skipWhy = '';
 function camEv(k, x) { try { const tr = stream && stream.getVideoTracks()[0]; const e = { t: Date.now(), k, vis: document.visibilityState, live: tr ? tr.readyState : null, muted: tr ? !!tr.muted : null, rec: !!(fb.rec && fb.rec.active()), ...(x || {}) };
   (fb.camLog ||= []).push(e); if (fb.camLog.length > 40) fb.camLog.shift(); console.info('[cam]', k, e); } catch (er) {} }
 function fbSkip(why, x) { if (!fbOn()) return; skipAt = performance.now(); skipWhy = why; camEv('clipSkip', { why, ...(x || {}) });
   try { const a = JSON.parse(LS.getItem('repcam.fb.skips') || '[]'); a.push({ t: new Date().toISOString(), why, ...(x || {}) }); LS.setItem('repcam.fb.skips', JSON.stringify(a.slice(-20))); } catch (er) {} }
 const trackMuted = () => { const tr = stream && stream.getVideoTracks()[0]; return !!(tr && tr.muted); };
-function watchFrames(el) { if (!el || !el.requestVideoFrameCallback) return; el.requestVideoFrameCallback(() => { vidFrameAt = performance.now(); vidAdv = true; if (el === v) watchFrames(el); }); }
+function watchFrames(el) { if (!el || !el.requestVideoFrameCallback) return; el.requestVideoFrameCallback(() => { vidFrameAt = performance.now(); vidAdv = true; if (el === v) { vidSeq++; watchFrames(el); } }); }
 function gumT(p) { if (!CAM_HEAL.on) return p; let done = false; return new Promise((res, rej) => { const tm = setTimeout(() => { done = true; camEv('gumTimeout'); rej(Object.assign(new Error('camera timeout'), { name: 'Timeout' })); }, CAM_HEAL.gumTimeoutMs);
   p.then(st => { clearTimeout(tm); if (done) st.getTracks().forEach(t => t.stop()); else res(st); }, e => { clearTimeout(tm); camEv('gumFail', { msg: e && e.name }); if (!done) rej(e); }); }); }
 function fbQueue() {
@@ -271,6 +284,7 @@ async function fbCut1(pred, setTs, label) {
   const poseRate = Feedback.clipRate(lm); /* v8.30: rate of THIS clip's logged frames (mean step); poseRateSeg = detector step stats since the last cut (median-based, was `poseRate` ≤8.29) */
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
+    power: { ...POWER_CFG.log, bar: POWER_CFG.bar, draw: POWER_CFG.draw.mode, dom: POWER_CFG.dom, idle: POWER_CFG.idle.mode, dup: POWER_CFG.dup.mode }, /* v8.48 */
     camLog: (fb.camLog || []).slice(-40), skips: (() => { try { const a = JSON.parse(LS.getItem('repcam.fb.skips') || '[]'); LS.removeItem('repcam.fb.skips'); return a.length ? a : null; } catch { return null; } })(), /* v8.46 */
     camera, ruleLog, sigLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
@@ -834,7 +848,9 @@ const inApp = /FBAN|FBAV|FB_IAB|Instagram|Messenger|Line\/|Snapchat|LinkedInApp|
 function getCam(f) {
   const md = navigator.mediaDevices;
   if (!md?.getUserMedia) return Promise.reject(Object.assign(new Error('getUserMedia missing'), { name: 'NoMediaDevices' }));
-  return md.getUserMedia({ audio: false, video: { facingMode: { ideal: f }, width: { ideal: 1280 }, height: { ideal: 720 } } })
+  // v8.48 experiment (opt-in, counting not verified at lower resolution): localStorage repcam.camRes = low → 960×540 (default 1280×720)
+  const lo = LS.getItem('repcam.camRes') === 'low';
+  return md.getUserMedia({ audio: false, video: { facingMode: { ideal: f }, width: { ideal: lo ? 960 : 1280 }, height: { ideal: lo ? 540 : 720 } } })
     .catch(e => (e.name === 'OverconstrainedError' || e.name === 'NotFoundError') ? md.getUserMedia({ audio: false, video: true }) : Promise.reject(e));
 }
 async function attach(s) {
@@ -874,16 +890,25 @@ function loop() {
   raf = requestAnimationFrame(loop);
   if (!landmarker || v.readyState < 2 || document.visibilityState !== 'visible') return;
   if (!v.requestVideoFrameCallback && v.currentTime !== vidCT) { if (vidCT >= 0) vidAdv = true; vidCT = v.currentTime; vidFrameAt = performance.now(); } // v8.46 frame watch fallback
-  if (c.width !== v.videoWidth) { c.width = v.videoWidth; c.height = v.videoHeight; }
-  const ts = performance.now(); if (ts <= lastTs) return; if (fb.rec && lastTs > 0) { (fb.det ||= []).push(ts - lastTs); if (fb.det.length > 6000) fb.det.splice(0, 1000); } /* v8.26: real pose rate telemetry */ lastTs = ts;
+  const P = POWER_CFG, sc = P.draw.mode === 'on' ? P.draw.scale : 1, cw = Math.round(v.videoWidth * sc), ch = Math.round(v.videoHeight * sc);
+  if (c.width !== cw || c.height !== ch) { c.width = cw; c.height = ch; du = null; drawn = false; }
+  const ts = performance.now(); if (ts <= lastTs) return;
+  // v8.48 duplicate frame: the camera has not delivered a new frame since the last pose run (rAF can tick faster than the camera)
+  const fresh = v.requestVideoFrameCallback ? (vidSeq !== detSeq || ts - vidFrameAt > 250 /* frame callbacks stopped: do not trust them */) : v.currentTime !== detCT;
+  if (!fresh && P.dup.mode !== 'off') { P.log.dup++; if (P.dup.mode === 'on') { P.log.dupSkip++; return; } }
+  // v8.48 idle throttle: nobody in view for noPersonMs → pose only at idle.hz (shadow: count the frames that would be skipped)
+  if (P.idle.mode !== 'off' && noPersonSince && !plateOn() /* side sessions: the plate tracker needs every frame */ && ts - noPersonSince >= P.idle.noPersonMs && ts - lastDet < 1000 / P.idle.hz) { P.log.idleSkip++; if (P.idle.mode === 'on') return; }
+  detSeq = vidSeq; detCT = v.currentTime; lastDet = ts; P.log.frames++;
+  if (fb.rec && lastTs > 0) { (fb.det ||= []).push(ts - lastTs); if (fb.det.length > 6000) fb.det.splice(0, 1000); } /* v8.26: real pose rate telemetry */ lastTs = ts;
   const res = landmarker.detectForVideo(v, ts);
-  ctx.clearRect(0, 0, c.width, c.height);
   if (v.videoWidth && v.videoHeight) { lastVW = v.videoWidth; lastVH = v.videoHeight; } /* v8.34 bug B: iOS reports 0x0 at times */
   const lm = res.landmarks?.[0], asp = (lastVW / lastVH) || 1;
+  if (lm) noPersonSince = 0; else if (!noPersonSince) noPersonSince = ts;
+  if (lm || drawn || P.draw.mode !== 'on') { ctx.clearRect(0, 0, c.width, c.height); drawn = false; }
   if (lm) {
-    const du = new DrawingUtils(ctx);
-    du.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: '#ff5a3c', lineWidth: 4 });
-    du.drawLandmarks(lm, { color: '#ffffff', fillColor: '#ff2d87', radius: 4 });
+    if (!du || P.draw.mode !== 'on') du = new DrawingUtils(ctx);
+    du.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: '#ff5a3c', lineWidth: 4 * sc });
+    du.drawLandmarks(lm, { color: '#ffffff', fillColor: '#ff2d87', radius: 4 * sc }); drawn = true; P.log.draws++;
   }
   processFrame(lm, ts, asp, motion.read());
 }
@@ -915,8 +940,9 @@ function processFrame(lm, ts, asp, sensor) {
   if (fb.rec && reps === 0 && !Reps.IDS.some(id => counters[id].tentative) && ts - fb.lastTrim > 2000) { fb.lastTrim = ts; fb.rec.trimIdle(30e3); }
   if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); if (reps > 0) lastActivity = Date.now(); }
   if (reps > 0 && (Date.now() - lastRepWall > AUTOSAVE_MS || (ex && counters[ex].plateEnded))) finishPending(); // v8.45: plate rack-and-still ends the set (on-mode only)
-  $('hint').style.display = !cam && lm && (tracking || !ex) ? 'none' : 'block';
-  $('ring').style.strokeDashoffset = 276.5 * (1 - (ex ? counters[ex].progress() : 0));
+  const hd = !cam && lm && (tracking || !ex) ? 'none' : 'block', ro = 276.5 * (1 - (ex ? counters[ex].progress() : 0)), dd = POWER_CFG.dom === 'on';
+  if (!dd || hd !== hintDisp) { $('hint').style.display = hd; hintDisp = hd; } // v8.48: style writes only on change (repcam.domDiff=off = every frame)
+  if (!dd || ringOff == null || Math.abs(ro - ringOff) > 0.5) { $('ring').style.strokeDashoffset = ro; ringOff = ro; }
 }
 setLang();
 if (inApp) { $('help').style.display = 'block'; $('helptext').innerHTML = L.t('help.inapp'); }
@@ -963,4 +989,4 @@ function recWarn(stalled, now) {
   el.textContent = k; el.style.display = k ? 'block' : 'none';
 }
 setInterval(camWatch, 1000);
-window.__repcam = { APP_VERSION, camHeal: { CAM_HEAL, camWatch, log: () => fb.camLog, state: () => ({ vidAdv, vidFrameAt, stallSince, healTries, recBadSince, skipWhy }) }, plate: { feed: plateFeed, tr: plateTr, on: () => plateOn(), mode: () => window.Plate && Plate.PLATE_MODE.mode, log: () => window.Plate && Plate.PLATE_MODE.log, resetCounters: () => resetCounters() }, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, power: POWER_CFG, barOn: () => !!barTr, camHeal: { CAM_HEAL, camWatch, log: () => fb.camLog, state: () => ({ vidAdv, vidFrameAt, stallSince, healTries, recBadSince, skipWhy }) }, plate: { feed: plateFeed, tr: plateTr, on: () => plateOn(), mode: () => window.Plate && Plate.PLATE_MODE.mode, log: () => window.Plate && Plate.PLATE_MODE.log, resetCounters: () => resetCounters() }, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

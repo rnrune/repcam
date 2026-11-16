@@ -69,7 +69,14 @@ if (require.main === module) {
   // fails most (test fixes here first, move solved ones to core), pass = solved but not core. --tier core|worst|pass filters.
   const tier = arg('--tier', null), T = {}, A = {}, PER = {}; const ALL = process.argv.includes('--all'); // v8.32 archive tier with --all; v8.43 PER = per-clip results for --json / --diff const ALL = process.argv.includes('--all'); // v8.32: archive tier = retired duplicates, run with --all (full regression pass before each push)
   // v8.14: one recording can hold several sets — `lm` names the landmark file, `win: [t0, t1]` the set's time window
-  const loadE = e => { const d = module.exports.load(e.lm || e.id); return e.win ? { ...d, frames: d.frames.filter(a => a[0] >= e.win[0] && a[0] <= e.win[1]) } : d; };
+  const loadE0 = e => { const d = module.exports.load(e.lm || e.id); return e.win ? { ...d, frames: d.frames.filter(a => a[0] >= e.win[0] && a[0] <= e.win[1]) } : d; };
+  // v8.48 battery: --idleSim simulates app.js POWER_CFG.idle (nobody in view ≥ noPersonMs → pose at hz). Worst case: the first
+  // 1/hz s of frames after every person-less gap ≥ noPersonMs are lost. Not applied to side sessions (app: plateOn() exempts them).
+  const IDLE_SIM = process.argv.includes('--idleSim') ? { noPersonS: 3, hz: 5 } : null;
+  const idleSim = (d, e) => { if (!IDLE_SIM || e.angle === 'side') return d; const out = []; let prev = null, cut = -1;
+    for (const a of d.frames) { if (prev != null && a[0] - prev >= IDLE_SIM.noPersonS) cut = a[0] + 1 / IDLE_SIM.hz; prev = a[0]; if (a[0] >= cut) out.push(a); }
+    return { ...d, frames: out }; };
+  const loadE = e => idleSim(loadE0(e), e);
   // v8.45: side-angle clips with a stored plate track (tools/plate-track.js) replay the plate feed too (window-filtered like the frames)
   const plateOf = e => { if (!P.PLATE_MODE.angles.includes(e.angle)) return null; const f = path.join(__dirname, (e.lm || e.id) + '.plate.json'); if (!fs.existsSync(f)) return null;
     const t = JSON.parse(fs.readFileSync(f, 'utf8')).track; return e.win ? t.filter(r => r[0] >= e.win[0] && r[0] <= e.win[1]) : t; };
