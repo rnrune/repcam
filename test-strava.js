@@ -162,6 +162,34 @@ function mock(acts, up = {}) {
   assert.equal(await c4.handleRedirect(`?state=${u3.searchParams.get('state')}&code=x&scope=activity:write,activity:read_all`), true);
   assert(c4.connected());
   assert.equal(await c3.handleRedirect('?state=abcdef&code=x&scope=activity:write,activity:read_all'), false); // own state mismatch
+  // v8.50 Strava 64-bit ids (from 1 Jun 2027): 9007199254740993 = 2^53+1 is not representable as a JS number. The raw response
+  // text must survive into the stored activityId and every /activities/{id} URL — with id_str and without (id only).
+  for (const withStr of [true, false]) {
+    const BIG = '9007199254740993', calls = [], idj = withStr ? `"id":${BIG},"id_str":"${BIG}"` : `"id":${BIG}`;
+    const T = (txt, status = 200) => ({ ok: status < 400, status, text: async () => txt, json: async () => JSON.parse(txt) });
+    const mode = { upload: 'match' };
+    const f = async (url, o = {}) => { calls.push({ url, method: o.method || 'GET' });
+      if (url.includes('/athlete/activities')) return T(mode.upload === 'match' ? `[{${idj},"name":"Styrke","sport_type":"WeightTraining","start_date":"2026-10-25T08:01:00Z","elapsed_time":2400}]` : '[]');
+      if (url.endsWith('/uploads') && o.method === 'POST') return mode.upload === 'reject' ? T('{"error":"data_type json not supported"}', 400)
+        : T(`{"id":77,"id_str":"77","error":null,"status":"Your activity is ready.","activity_id":${BIG}}`, 201);
+      if (url.endsWith('/activities') && o.method === 'POST') return T(`{${idj},"name":"Newrun Lift"}`, 201);
+      if (/\/activities\/\d+$/.test(url)) return T(`{${idj},"name":"Styrke","description":"Old note"}`);
+      return T('{}', 404); };
+    const mk = () => { const l = mem(); l.setItem(S.KEYS.tok, JSON.stringify({ access_token: 'A', refresh_token: 'R', expires_at: 2e9 }));
+      return { l, c: S.createClient({ ls: l, fetch: f, config: { clientId: '1', workerUrl: 'https://w' }, now: () => Date.parse('2026-10-25T11:00:00Z'), sleep: nop }) }; };
+    const se = { id: 'big', start: '2026-10-25T08:00:00Z', end: '2026-10-25T08:40:00Z', sets: [{ exercise: 'knebøy', reps: 5, kg: 100 }] };
+    const stored = c => c.queue().find(x => x.id === 'big').activityId;
+    // matched watch activity → description PUT
+    { const { c } = mk(); c.enqueue(se); const r = await c.process(); assert.equal(r[0].status, 'synced'); assert.strictEqual(r[0].activityId, BIG); assert.strictEqual(stored(c), BIG);
+      assert(calls.some(x => x.method === 'PUT' && x.url.endsWith('/activities/' + BIG)), 'PUT url exact');
+      const loc = await c.locate(se); assert.strictEqual(loc.activityId, BIG); calls.length = 0;
+      await c.refresh(se, loc); assert(calls.some(x => x.method === 'PUT' && x.url.endsWith('/activities/' + BIG))); assert.strictEqual(stored(c), BIG); }
+    // structured upload → activity_id
+    { mode.upload = 'upload'; const { c } = mk(); c.enqueue(se); const r = await c.process(); assert.equal(r[0].status, 'created'); assert.strictEqual(stored(c), BIG); }
+    // upload rejected → manual POST /activities → id
+    { mode.upload = 'reject'; const { c } = mk(); c.enqueue(se); const r = await c.process(); assert.equal(r[0].status, 'created'); assert.strictEqual(r[0].activityId, BIG); assert.strictEqual(stored(c), BIG); }
+  }
+  console.log('strava 64-bit id tests passed');
   console.log('strava tests passed');
 })().catch(e => { console.error(e); process.exit(1); });
 { const S = require('./strava.js'); const m = S.mergeDescription || (S._t && S._t.mergeDescription);

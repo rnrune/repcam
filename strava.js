@@ -9,6 +9,8 @@
   const RETRY_FOR = 24 * 3600e3;          // keep retrying a failing auto-create this long, then fall back to the manual button
   const AUTO_CREATE_AFTER = 3600e3;       // no matching watch activity 1 h after the session ended → create one ourselves
   const STALE_CREATE = 10 * 60e3;         // a 'creating' item older than this (app killed mid-upload) is re-checked / retried
+  // v8.50: Strava object id as an exact string (64-bit ids from 1 Jun 2027): id_str preferred, else String(id) (already quoted by api()).
+  const sid = o => o == null ? null : (o.id_str || (o.id != null ? String(o.id) : null));
   // Newrun Lift exercise → Strava strength exercise_type (JSON upload, https://developers.strava.com/docs/uploads/).
   const EXERCISE_TYPE = { knebøy: 'BARBELL_BACK_SQUAT', bulgarsk: 'DUMBBELL_BULGARIAN_SPLIT_SQUATS', pullups: 'PULL_UP_GENERIC', dips: 'CHEST_DIP',
     benkpress: 'BARBELL_BENCH_PRESS', skråbenk: 'INCLINE_BARBELL_BENCH_PRESS', halvmark: 'BARBELL_ROMANIAN_DEADLIFT', roing: 'BENT_OVER_BARBELL_ROW',
@@ -103,12 +105,16 @@
       save(K.tok, { ...t, access_token: n.access_token, refresh_token: n.refresh_token || t.refresh_token, expires_at: n.expires_at });
       return n.access_token;
     }
+    // v8.50 Strava 64-bit ids (from 1 Jun 2027): ids above 2^53 lose precision in JSON.parse → quote long id / activity_id
+    // integers (16+ digits) in the raw text first; ids are then read via sid() (id_str preferred) and kept as strings.
+    const bigQuote = t => t.replace(/"(id|activity_id)"\s*:\s*(\d{16,})/g, '"$1":"$2"');
+    const body = async r => typeof r.text === 'function' ? JSON.parse(bigQuote(await r.text())) : r.json();
     async function api(path, opt = {}) {
       const json = typeof opt.body === 'string'; // FormData (uploads) sets its own multipart Content-Type
       const r = await f(API + path, { ...opt, headers: { Authorization: 'Bearer ' + await token(), ...(json ? { 'Content-Type': 'application/json' } : {}) } });
       if (r.status === 401) { const t = read(K.tok, null); if (t) save(K.tok, { ...t, expires_at: 0 }); }
-      if (!r.ok) { let b = null; try { b = await r.json(); } catch {} const e = new Error('strava ' + r.status + (b && b.error ? ': ' + b.error : '')); e.status = r.status; e.body = b; throw e; }
-      return r.json();
+      if (!r.ok) { let b = null; try { b = await body(r); } catch {} const e = new Error('strava ' + r.status + (b && b.error ? ': ' + b.error : '')); e.status = r.status; e.body = b; throw e; }
+      return body(r);
     }
     const queue = () => read(K.q, []);
     function enqueue(sess) {
@@ -154,7 +160,7 @@
       for (let i = 0; i < tries; i++) {
         await sleep(1000);
         const u = await api('/uploads/' + uploadId);
-        if (u.activity_id) return String(u.activity_id);
+        if (u.activity_id) return String(u.activity_id_str || u.activity_id);
         const d = dupId(u); if (d) return d;
         if (u.error) { const e = new Error('upload: ' + u.error); e.upload = true; throw e; }
       }
@@ -175,7 +181,7 @@
         fd.append('file', new Blob([JSON.stringify(file)], { type: 'application/json' }), 'newrunlift-' + it.id + '.json');
         const up = await api('/uploads', { method: 'POST', body: fd });
         setItem(it.id, { uploadId: String(up.id_str || up.id) });
-        activityId = dupId(up) || (up.activity_id ? String(up.activity_id) : await pollUpload(up.id_str || up.id));
+        activityId = dupId(up) || (up.activity_id ? String(up.activity_id_str || up.activity_id) : await pollUpload(up.id_str || up.id));
         structured = true;
         if (!activityId) return { id: it.id, status: 'creating' }; // still processing: next process() picks it up
       } catch (e) {
@@ -185,7 +191,7 @@
           const local = `${d0.getFullYear()}-${pad(d0.getMonth() + 1)}-${pad(d0.getDate())}T${pad(d0.getHours())}:${pad(d0.getMinutes())}:${pad(d0.getSeconds())}`;
           const a = await api('/activities', { method: 'POST', body: JSON.stringify({ name, sport_type: 'WeightTraining', start_date_local: local,
             elapsed_time: Math.max(60, Math.round((ms(it.end) - ms(it.start)) / 1000)), description }) });
-          activityId = String(a.id);
+          activityId = sid(a);
         } else { setItem(it.id, { status: 'waiting', createErr: e.message }); throw e; } // network/auth/rate limit: retry later
       }
       setItem(it.id, { status: 'created', activityId, structured, at: now() });
@@ -204,17 +210,17 @@
               if (id) { setItem(it.id, { status: 'created', activityId: id, structured: true, at: now() }); out.push({ id: it.id, status: 'created', activityId: id }); }
               else out.push({ id: it.id, status: 'creating' }); continue; }
             const m = await matchFor(it); // POST may have gone through before the app died: the new activity overlaps the session
-            if (m) { setItem(it.id, { status: 'created', activityId: m.activity.id, at: now() }); out.push({ id: it.id, status: 'created', activityId: m.activity.id }); continue; }
+            if (m) { setItem(it.id, { status: 'created', activityId: sid(m.activity), at: now() }); out.push({ id: it.id, status: 'created', activityId: sid(m.activity) }); continue; }
             if (now() - (it.creatingAt || 0) < STALE_CREATE) { out.push({ id: it.id, status: 'creating' }); continue; }
             out.push(await create(it, fmt)); continue;
           }
           const m = await matchFor(it);
           if (m) {
-            const full = await api('/activities/' + m.activity.id);
+            const full = await api('/activities/' + sid(m.activity));
             const description = mergeDescription(full.description, describe(it.sets, fmt.name, fmt.kgf));
-            await api('/activities/' + m.activity.id, { method: 'PUT', body: JSON.stringify({ description }) });
-            setItem(it.id, { status: 'synced', activityId: m.activity.id, activityName: m.activity.name, at: now() });
-            out.push({ id: it.id, status: 'synced', activityId: m.activity.id });
+            await api('/activities/' + sid(m.activity), { method: 'PUT', body: JSON.stringify({ description }) });
+            setItem(it.id, { status: 'synced', activityId: sid(m.activity), activityName: m.activity.name, at: now() });
+            out.push({ id: it.id, status: 'synced', activityId: sid(m.activity) });
           } else if (now() - ms(it.end) >= AUTO_CREATE_AFTER) {
             try { out.push(await create(it, fmt)); }
             catch (e) { if (now() - it.added > RETRY_FOR) { setItem(it.id, { status: 'nomatch' }); out.push({ id: it.id, status: 'nomatch' }); } else throw e; }
@@ -244,8 +250,8 @@
     // earlier) or else the best start-time overlap (pickActivity) — without changing anything. Returns null if none exists.
     async function locate(sess) {
       const it = queue().find(x => x.id === sess.id), id = it && it.activityId;
-      if (id) { try { const a = await api('/activities/' + id); return { activityId: String(a.id), name: a.name, ours: it.status === 'created', stored: true }; } catch (e) { if (e.status !== 404) throw e; } }
-      const m = await matchFor(sess); return m ? { activityId: String(m.activity.id), name: m.activity.name, ours: false, stored: false } : null;
+      if (id) { try { const a = await api('/activities/' + id); return { activityId: sid(a) || String(id), name: a.name, ours: it.status === 'created', stored: true }; } catch (e) { if (e.status !== 404) throw e; } }
+      const m = await matchFor(sess); return m ? { activityId: sid(m.activity), name: m.activity.name, ours: false, stored: false } : null;
     }
     // Overwrite the Newrun Lift block of that activity's description with the session's current sets (text before the block, e.g. a
     // watch's notes, is kept). The name is only changed on activities the app created itself. PUT /activities/{id} can change
