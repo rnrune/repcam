@@ -69,6 +69,8 @@ const restGate = Rest.createRestGate(); // v8.15 (rest.js, REST_CFG)
    every animation frame (~30 Hz, also with nobody in view), the skeleton overlay on a full-resolution canvas, the v8.16 bar
    tracker (SHADOW only — never counts — but 8.7 ms JS per frame at 5 Hz plus a full video read-back), per-frame DOM style writes.
    Each saving has a kill switch; thresholds live here. kv(key, default) accepts off | shadow | on. */
+/* v8.49 landscape layout (style.css html.landUI): kill switch localStorage repcam.landUI=off */
+if (LS.getItem('repcam.landUI') !== 'off') document.documentElement.classList.add('landUI');
 const kv = (k, d) => { const x = LS.getItem(k); return x === 'off' || x === 'shadow' || x === 'on' ? x : d; };
 const POWER_CFG = {
   bar: kv('repcam.barShadow', 'off'),                                    // v8.16 bar shadow tracker: off by default (on = v8.47)

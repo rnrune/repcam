@@ -156,3 +156,23 @@ body.confirming #ringwrap{opacity:.25;transition:opacity .2s}body.confirming #fl
 
 /* v8.46 live warning: clip recorder stopped / camera frozen / clip skipped (non-blocking) */
 #recWarn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);background:rgba(220,40,40,.92);color:#fff;padding:5px 12px;border-radius:12px;font-weight:600;font-size:13px;display:none;z-index:30;pointer-events:none;max-width:92vw;text-align:center}
+/* v8.49 landscape («liggende», Rune 17 Nov: very compact, unreadable — the set card covered the rep ring). Phones on their side
+   (landscape, ≤ 500 px tall): set card = right-hand column, rep ring centred in the remaining camera area, toast/camera question/hint
+   in that area too. Only with html.landUI (app.js adds it; kill switch localStorage repcam.landUI=off = old layout). */
+@media (orientation: landscape) and (max-height: 500px) {
+  html.landUI{--landW:min(330px,40vw)}
+  html.landUI .wcard{left:auto;right:calc(env(safe-area-inset-right) + 10px);top:calc(env(safe-area-inset-top) + 62px);bottom:calc(env(safe-area-inset-bottom) + 10px);width:var(--landW);max-width:none;margin:0;padding:12px 14px;border-radius:22px;overflow:auto;display:flex;flex-direction:column;justify-content:space-between}
+  html.landUI .wcard .row{flex-wrap:wrap;gap:6px}
+  html.landUI .wcard .kg button{width:44px;height:44px}
+  html.landUI .wcard .btns{margin-top:8px}
+  html.landUI .wcard .btns .ghost{min-height:44px;padding:8px 6px}
+  html.landUI #ringwrap{top:calc(50% + 20px);left:calc((100% - var(--landW) - 20px) / 2);transform:translate(-50%,-50%);width:min(190px,48vh);height:min(190px,48vh)}
+  html.landUI #reps{font-size:min(96px,24vh)}
+  html.landUI #hint{top:auto;bottom:calc(env(safe-area-inset-bottom) + 12px);left:calc((100% - var(--landW) - 20px) / 2)}
+  html.landUI .toast{right:calc(var(--landW) + 24px);left:calc(env(safe-area-inset-left) + 12px);bottom:calc(env(safe-area-inset-bottom) + 12px);max-width:none;margin:0}
+  html.landUI .toast.ask{padding:10px 12px;gap:8px}
+  html.landUI .toast.ask #tYes,html.landUI .toast.ask #tNo{min-height:52px}
+  html.landUI .camask{right:calc(var(--landW) + 24px);left:calc(env(safe-area-inset-left) + 12px);top:calc(env(safe-area-inset-top) + 62px);max-width:none;margin:0}
+  html.landUI #exChip{left:calc((100% - var(--landW) - 20px) / 2);transform:translateX(-50%);max-width:calc(100% - var(--landW) - 120px)}
+  html.landUI #recWarn{right:calc(var(--landW) + 24px);max-width:none}
+}
