@@ -176,3 +176,8 @@ body.confirming #ringwrap{opacity:.25;transition:opacity .2s}body.confirming #fl
   html.landUI #exChip{left:calc((100% - var(--landW) - 20px) / 2);transform:translateX(-50%);max-width:calc(100% - var(--landW) - 120px)}
   html.landUI #recWarn{right:calc(var(--landW) + 24px);max-width:none}
 }
+/* v8.49 full camera frame (Rune 17 Nov «Rammen er fortsatt et problem»): object-fit:cover cropped the camera image to the screen's
+   aspect — in portrait the sides (720×1280 stream on a 393×852 screen), in landscape most of the frame. The video and the pose canvas
+   now both use contain (same intrinsic aspect → the skeleton stays on the body), letterboxed in black. Kill switch repcam.fullFrame=off. */
+html.fullFrame #stage{background:#000}
+html.fullFrame #stage video,html.fullFrame #stage canvas{object-fit:contain}

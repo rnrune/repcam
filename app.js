@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.48';
+const APP_VERSION = '8.49';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -71,6 +71,8 @@ const restGate = Rest.createRestGate(); // v8.15 (rest.js, REST_CFG)
    Each saving has a kill switch; thresholds live here. kv(key, default) accepts off | shadow | on. */
 /* v8.49 landscape layout (style.css html.landUI): kill switch localStorage repcam.landUI=off */
 if (LS.getItem('repcam.landUI') !== 'off') document.documentElement.classList.add('landUI');
+/* v8.49 full camera frame (style.css html.fullFrame: object-fit contain for video + pose canvas): kill switch localStorage repcam.fullFrame=off */
+if (LS.getItem('repcam.fullFrame') !== 'off') document.documentElement.classList.add('fullFrame');
 const kv = (k, d) => { const x = LS.getItem(k); return x === 'off' || x === 'shadow' || x === 'on' ? x : d; };
 const POWER_CFG = {
   bar: kv('repcam.barShadow', 'off'),                                    // v8.16 bar shadow tracker: off by default (on = v8.47)
@@ -241,6 +243,19 @@ const CAM_HEAL = { on: LS.getItem('repcam.camHeal') !== 'off', warn: LS.getItem(
 let vidFrameAt = 0, vidAdv = false, vidCT = -1, vidSeq = 0, detSeq = -1, detCT = -1, lastDet = 0, noPersonSince = 0, drawn = false, du = null, ringOff = null, hintDisp = null, stallSince = 0, healTries = 0, lastHeal = 0, recBadSince = 0, lastRecFix = 0, skipAt = 0, skipWhy = '';
 function camEv(k, x) { try { const tr = stream && stream.getVideoTracks()[0]; const e = { t: Date.now(), k, vis: document.visibilityState, live: tr ? tr.readyState : null, muted: tr ? !!tr.muted : null, rec: !!(fb.rec && fb.rec.active()), ...(x || {}) };
   (fb.camLog ||= []).push(e); if (fb.camLog.length > 40) fb.camLog.shift(); console.info('[cam]', k, e); } catch (er) {} }
+/* v8.49 storage (Rune 17 Nov: «nesten ingen klipp lagret» — phone almost full, iOS gave the clip queue too little room). At workout
+   start and after every clip the app reads navigator.storage.estimate(); free (quota − usage) below warnFreeMB → warning «Lite
+   lagringsplass». A clip that fails to save with a quota error shows «Lite lagringsplass – klipp lagres ikke». The estimate goes into
+   the clip meta (storage). Kill switch localStorage repcam.storeWarn = off | shadow (shadow = log only, no warning). */
+const STORE_CFG = { mode: kv('repcam.storeWarn', 'on'), warnFreeMB: 500, showMs: 12000 };
+let storeLowAt = 0, storeLowMB = 0;
+async function storeCheck(where) {
+  if (STORE_CFG.mode === 'off' || !fbOn()) return null;
+  try { const e = navigator.storage && navigator.storage.estimate ? await navigator.storage.estimate() : null; if (!e || !e.quota) return null;
+    const freeMB = Math.round((e.quota - (e.usage || 0)) / 1e6); fb.storage = { quotaMB: Math.round(e.quota / 1e6), usageMB: Math.round((e.usage || 0) / 1e6), freeMB, where, at: new Date().toISOString() };
+    if (freeMB < STORE_CFG.warnFreeMB) { camEv('storeLow', { freeMB, where }); if (STORE_CFG.mode === 'on') { storeLowAt = performance.now(); storeLowMB = freeMB; } }
+    return fb.storage; } catch (er) { return null; } }
+const isQuota = e => !!e && (e.name === 'QuotaExceededError' || /quota/i.test(e.message || ''));
 function fbSkip(why, x) { if (!fbOn()) return; skipAt = performance.now(); skipWhy = why; camEv('clipSkip', { why, ...(x || {}) });
   try { const a = JSON.parse(LS.getItem('repcam.fb.skips') || '[]'); a.push({ t: new Date().toISOString(), why, ...(x || {}) }); LS.setItem('repcam.fb.skips', JSON.stringify(a.slice(-20))); } catch (er) {} }
 const trackMuted = () => { const tr = stream && stream.getVideoTracks()[0]; return !!(tr && tr.muted); };
@@ -286,7 +301,7 @@ async function fbCut1(pred, setTs, label) {
   const poseRate = Feedback.clipRate(lm); /* v8.30: rate of THIS clip's logged frames (mean step); poseRateSeg = detector step stats since the last cut (median-based, was `poseRate` ≤8.29) */
   const id = Date.now().toString(36) + Feedback.rid(4, b => crypto.getRandomValues(b));
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
-    power: { ...POWER_CFG.log, bar: POWER_CFG.bar, draw: POWER_CFG.draw.mode, dom: POWER_CFG.dom, idle: POWER_CFG.idle.mode, dup: POWER_CFG.dup.mode }, /* v8.48 */
+    power: { ...POWER_CFG.log, bar: POWER_CFG.bar, draw: POWER_CFG.draw.mode, dom: POWER_CFG.dom, idle: POWER_CFG.idle.mode, dupMode: POWER_CFG.dup.mode }, /* v8.48; v8.49: dupMode (was `dup`, which overwrote the duplicate count) */ storage: fb.storage || null, /* v8.49 */
     camLog: (fb.camLog || []).slice(-40), skips: (() => { try { const a = JSON.parse(LS.getItem('repcam.fb.skips') || '[]'); LS.removeItem('repcam.fb.skips'); return a.length ? a : null; } catch { return null; } })(), /* v8.46 */
     camera, ruleLog, sigLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
@@ -294,8 +309,8 @@ async function fbCut1(pred, setTs, label) {
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
   try { const st = await fbQueue().stats(); if (st.bytes + seg.blob.size > Feedback.QUEUE_CFG.maxLocalBytes) { console.warn('fb: local queue full, clip skipped'); fbSkip('queueFull', { mb: +(st.bytes / 1e6).toFixed(0) }); return; } } catch {}
   const lab = fb.early[setTs] || label || Feedback.labelFrom(pred, 'implicit'); delete fb.early[setTs];
-  try { await fbQueue().add({ id, setTs, blob: seg.blob, mime: seg.blob.type.split(';')[0], meta, label: lab, created: Date.now() }); } catch (e) { console.warn('fb add', e); fbSkip('addFailed', { msg: e && e.name }); }
-  fbUpload();
+  try { await fbQueue().add({ id, setTs, blob: seg.blob, mime: seg.blob.type.split(';')[0], meta, label: lab, created: Date.now() }); } catch (e) { console.warn('fb add', e); fbSkip(isQuota(e) && STORE_CFG.mode === 'on' ? 'storage' : 'addFailed', { msg: e && e.name }); /* v8.49: a failed save with little free space is shown as a storage problem (17 Nov: addFailed InvalidStateError) */ storeCheck('addFailed').then(st => { if (st && st.freeMB < STORE_CFG.warnFreeMB && STORE_CFG.mode === 'on' && skipWhy === 'addFailed') skipWhy = 'storage'; }); }
+  fbUpload(); storeCheck('clip');
 }
 async function fbLabel(ts, action, val) {
   if (!LS.getItem(Feedback.KEYS.inst)) return;
@@ -351,7 +366,10 @@ async function renderFb() {
   const on = LS.getItem(Feedback.KEYS.on) === '1';
   let st = { pending: 0, uploaded: 0, bytes: 0 }; if (LS.getItem(Feedback.KEYS.inst)) { try { st = await fbQueue().stats(); } catch {} }
   const ty = fbNetType(), ns = on && ty === 'unknown' ? await fbNetCheck() : fbNetSt, netOk = !fbWifiOnly() || ty === 'wifi' || (ty === 'unknown' && ns.trusted);
-  const netLine = ty === 'wifi' ? L.t('fb.netWifi') : ty === 'cellular' ? L.t('fb.netCell') : ns.trusted ? L.t('fb.netKnown', { l: esc(ns.label || 'wifi') }) : L.t('fb.netUnknown');
+  const netLine = !fbWifiOnly() && LS.getItem('repcam.netLine') !== 'off' ? L.t('fb.netAnyOn') /* v8.49: «alle nett» on → it does send (said «sender ikke automatisk»); kill switch repcam.netLine=off */ : ty === 'wifi' ? L.t('fb.netWifi') : ty === 'cellular' ? L.t('fb.netCell') : ns.trusted ? L.t('fb.netKnown', { l: esc(ns.label || 'wifi') }) : L.t('fb.netUnknown');
+  /* v8.49 (Rune 17 Nov: «Husk dette nettverket» never shows): the button only appeared right after «Send nå». Now it shows whenever
+     wifi-only upload is on and the current network is unknown to iOS and not trusted yet. Kill switch repcam.netRemember=off (= v8.48). */
+  const remNow = on && LS.getItem('repcam.netRemember') !== 'off' && fbWifiOnly() && ty === 'unknown' && !ns.trusted;
   let nets = []; if (on && LS.getItem(Feedback.KEYS.inst)) { try { nets = (await fbNetCall('list')).nets || []; } catch {} }
   el.innerHTML = `<label class="row" style="gap:12px"><span><b>${L.t('fb.title')}</b><div class="muted small" style="margin:2px 0 0">${L.t('fb.sub')}</div></span><input type="checkbox" id="fbOn" class="sw" ${on ? 'checked' : ''}></label>
     ${typeof MediaRecorder === 'undefined' ? `<div class="muted small">${L.t('fb.unsupported')}</div>` : ''}
@@ -360,7 +378,7 @@ async function renderFb() {
     <div class="small muted" id="fbNetNow">${netLine}</div>
     ${st.pending && !netOk ? `<div class="small wifiWait" id="fbWifiWait">${L.t('fb.waitWifi', { n: st.pending })}</div>` : ''}
     <div class="small" style="margin-top:6px"><b>${L.t('fb.nets')}</b></div><div id="fbNets" class="small muted">${nets.length ? nets.map(n => `<div class="row" style="gap:8px"><span>${esc(n.label)}${n.current ? ' ●' : ''} · ${(n.last || n.added || '').slice(0, 10)}</span><button class="ghost fbForget" data-id="${esc(n.id)}">${L.t('fb.forget')}</button></div>`).join('') : L.t('fb.netsNone')}</div>
-    ${fbOfferRemember ? `<div class="btns"><button class="ghost" id="fbRemember">${L.t('fb.remember')}</button></div>` : ''}
+    ${fbOfferRemember || remNow ? `<div class="btns"><button class="ghost" id="fbRemember">${L.t('fb.remember')}</button></div>` : ''}
     ${st.pending ? `<div class="btns"><button class="ghost" id="fbSend">${L.t('fb.send')}</button><button class="ghost" id="fbDel">${L.t('fb.del')}</button></div>` : ''}`;
   $('fbAny').onchange = () => { LS.setItem('repcam.fb.wifiOnly', $('fbAny').checked ? '0' : '1'); fbUpload(true); renderFb(); };
   document.querySelectorAll('.fbForget').forEach(b => b.onclick = async () => { try { await fbNetCall('forget', { id: b.dataset.id }); } catch {} fbNetSt.at = 0; await fbUpload(true); renderFb(); });
@@ -723,7 +741,7 @@ function maybeAskCam() {
 function enterWorkout() {
   const resumed = !!store.active();
   const a = store.startSession(); resetCounters(); recognizer.reset(); picker.reset(); camGate.reset(); restGate.rest(-1e12); camPaused = false; motion.resume(); autoEx = null; manualEx = a.manualEx || null; lastActivity = Date.now(); renderWorkout();
-  wake.on();
+  wake.on(); storeCheck('start'); try { navigator.storage && navigator.storage.persist && navigator.storage.persist().catch(() => {}); } catch (er) {} // v8.49
   if (!stream && !pending) { setStartUI(resumed); if (resumed) runCam(getCam(facing), true); }
   clearInterval(tick); tick = setInterval(() => {
     const a = store.active(); if (!a) return; const s = Math.floor((Date.now() - new Date(a.start)) / 1000);
@@ -986,9 +1004,10 @@ function recWarn(stalled, now) {
   if (CAM_HEAL.warn && cur === 'okt') {
     if (stalled && stallSince && now - stallSince > CAM_HEAL.warnAfterMs - 3000) k = L.t(CAM_HEAL.on ? 'w.camStall' : 'w.camFrozen');
     else if (recBadSince && now - recBadSince > CAM_HEAL.warnAfterMs) k = L.t('w.recOff');
-    else if (skipAt && now - skipAt < CAM_HEAL.skipShowMs) k = L.t('w.clipSkip', { r: skipWhy });
+    else if (skipAt && now - skipAt < CAM_HEAL.skipShowMs) k = skipWhy === 'storage' ? L.t('w.storeFull') : L.t('w.clipSkip', { r: skipWhy });
+    else if (storeLowAt && now - storeLowAt < STORE_CFG.showMs) k = L.t('w.storeLow', { mb: storeLowMB }); // v8.49
   }
   el.textContent = k; el.style.display = k ? 'block' : 'none';
 }
 setInterval(camWatch, 1000);
-window.__repcam = { APP_VERSION, power: POWER_CFG, barOn: () => !!barTr, camHeal: { CAM_HEAL, camWatch, log: () => fb.camLog, state: () => ({ vidAdv, vidFrameAt, stallSince, healTries, recBadSince, skipWhy }) }, plate: { feed: plateFeed, tr: plateTr, on: () => plateOn(), mode: () => window.Plate && Plate.PLATE_MODE.mode, log: () => window.Plate && Plate.PLATE_MODE.log, resetCounters: () => resetCounters() }, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, power: POWER_CFG, barOn: () => !!barTr, storeChk: { STORE_CFG, check: storeCheck, state: () => ({ storeLowAt, storeLowMB, storage: fb.storage || null }) }, camHeal: { CAM_HEAL, camWatch, log: () => fb.camLog, state: () => ({ vidAdv, vidFrameAt, stallSince, healTries, recBadSince, skipWhy }) }, plate: { feed: plateFeed, tr: plateTr, on: () => plateOn(), mode: () => window.Plate && Plate.PLATE_MODE.mode, log: () => window.Plate && Plate.PLATE_MODE.log, resetCounters: () => resetCounters() }, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };

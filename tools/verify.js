@@ -139,7 +139,7 @@ async function resume() {
       const k = (fit === 'cover' ? Math.max : Math.min)(vb.width / (v.videoWidth || 1), vb.height / (v.videoHeight || 1)); // rendered video content size
       const cw = v.videoWidth * k, ch = v.videoHeight * k;
       return { viewport: [W, H], stage: r('stage'), video: r('v'), canvas: r('c'), objectFit: fit, stream: [v.videoWidth, v.videoHeight], canvasPx: [document.getElementById('c').width, document.getElementById('c').height],
-        contentCovers: cw >= vb.width - 1 && ch >= vb.height - 1, fills: ['stage', 'v', 'c'].every(id => { const b = document.getElementById(id).getBoundingClientRect(); return Math.abs(b.width - W) < 2 && Math.abs(b.height - H) < 2 && Math.abs(b.left) < 2 && Math.abs(b.top) < 2; }) }; });
+        contentCovers: fit === 'cover' ? cw >= vb.width - 1 && ch >= vb.height - 1 : Math.abs(cw - vb.width) < 2 || Math.abs(ch - vb.height) < 2, /* v8.49 fullFrame: contain = the whole frame fills one axis */ fills: ['stage', 'v', 'c'].every(id => { const b = document.getElementById(id).getBoundingClientRect(); return Math.abs(b.width - W) < 2 && Math.abs(b.height - H) < 2 && Math.abs(b.left) < 2 && Math.abs(b.top) < 2; }) }; });
     const before = await measure(); await p.screenshot({ path: OUT + `resume-before-${stamp}.png` }); await p.evaluate(() => { window.__vPrev = window.__repcam.video(); });
     // v8.36: several app switches in a row (Rune: the frame came back on the 2nd switch). Odd cycles: iOS kills the camera and the
     // viewport rotates while away; even cycles: camera kept alive. Each cycle must end with the CURRENT stream re-bound (fitLog did).
