@@ -105,6 +105,7 @@
       reps: { get: () => auth() ? pc.reps : pose.reps }, repTimes: { get: () => auth() ? pc.repTimes : pose.repTimes },
       lastRepT: { get: () => auth() ? (pc.repTimes.length ? pc.repTimes[pc.repTimes.length - 1] : null) : pose.lastRepT },
       tentative: { get: () => pose.tentative }, rejected: { get: () => pose.rejected }, repAmps: { get: () => pose.repAmps }, def: { get: () => pose.def },
+      heldLock: { get: () => !!pose.heldLock, set: v => { pose.heldLock = !!v; } },
       plateEnded: { get: () => auth() && pc.ended && pc.reps >= pc.cfg.minRun }, plate: { get: () => pc },
     });
     return W;

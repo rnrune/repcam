@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.50';
+const APP_VERSION = '8.51';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -39,6 +39,8 @@ if (localStorage.getItem('repcam.rowTilt') === 'off') Reps.EX.roing.tailTilt = n
 { const m = localStorage.getItem('repcam.relockTie'); if (Reps.RELOCK_TIE_CFG && (m === 'off' || m === 'shadow')) Reps.RELOCK_TIE_CFG.mode = m; }
 /* v8.47: repcam.saveKeep = off | shadow (after a saved set every counter starts fresh = baseline) */
 { const m = localStorage.getItem('repcam.saveKeep'); if (Reps.SAVE_KEEP_CFG && (m === 'off' || m === 'shadow')) Reps.SAVE_KEEP_CFG.mode = m; }
+/* v8.51: save a completed background set before forget() so each set gets its own clip — repcam.splitSets = off | shadow | on */
+{ const m = localStorage.getItem('repcam.splitSets'); if (Reps.CUT_SAVE_CFG && (m === 'off' || m === 'shadow' || m === 'on')) Reps.CUT_SAVE_CFG.mode = m; }
 /* v8.47: repcam.vsitIdle = off (V-sit-up: old amplitudes are kept before the first rep = baseline) */
 if (localStorage.getItem('repcam.vsitIdle') === 'off' && Reps.EX.vsitup) Reps.EX.vsitup.ampIdle = null;
 /* v8.46 fresh exercise guess after a saved set — repcam.autoReset = off | shadow (shadow = baseline, logs only) */
@@ -294,7 +296,7 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) { fbSkip('noRecorder', { pred: pred && pred.exercise + '×' + pred.reps }); return; }
-  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null; const plAll = fb.plate || [], plWH = fb.plateWH; fb.plate = []; const plateLog = window.Plate && Plate.PLATE_MODE.log.length ? Plate.PLATE_MODE.log.splice(0).slice(-5) : null;
+  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const splitLog = fb.splitLog || null; fb.splitLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null; const plAll = fb.plate || [], plWH = fb.plateWH; fb.plate = []; const plateLog = window.Plate && Plate.PLATE_MODE.log.length ? Plate.PLATE_MODE.log.splice(0).slice(-5) : null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) { fbSkip(!seg ? 'recorderStopped' : !seg.blob.size ? 'empty' : 'tooBig', { mb: seg ? +(seg.blob.size / 1e6).toFixed(1) : null, pred: pred && pred.exercise + '×' + pred.reps }); return; }
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
@@ -303,7 +305,7 @@ async function fbCut1(pred, setTs, label) {
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
     power: { ...POWER_CFG.log, bar: POWER_CFG.bar, draw: POWER_CFG.draw.mode, dom: POWER_CFG.dom, idle: POWER_CFG.idle.mode, dupMode: POWER_CFG.dup.mode }, /* v8.48; v8.49: dupMode (was `dup`, which overwrote the duplicate count) */ storage: fb.storage || null, /* v8.49 */
     camLog: (fb.camLog || []).slice(-40), skips: (() => { try { const a = JSON.parse(LS.getItem('repcam.fb.skips') || '[]'); LS.removeItem('repcam.fb.skips'); return a.length ? a : null; } catch { return null; } })(), /* v8.46 */
-    camera, ruleLog, sigLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    camera, ruleLog, sigLog, splitLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -661,8 +663,8 @@ function finishPending() {
     if (v.why) { (fb.sigLog ||= []).push(e); if (fb.sigLog.length > 10) fb.sigLog.shift(); console.info('[sig]', e); }
     sigDrop = !!v.drop && sigMode === 'on'; }
   if (!sigDrop && r >= (manualEx || !ce ? MIN_AUTO_REPS : Math.max(MIN_AUTO_REPS, Reps.minSet(ce))) && (manualEx || !ce || Reps.plausibleSet(counters[ce].repTimes))) return saveSet(); /* v8.24: a tempo-rejected set is saved and ASKED (✓ keeps, ✗ or no answer removes), see saveSet */ /* v8.13: sparse rigging 'reps' are not a set */ fb.tempoShadow = null; if (r > 0) { const e = ce; counters[e] = mkCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
-function saveSet() {
-  const ex = curEx(); if (!ex) return null;
+function saveSet(which) {
+  const ex = which || curEx(); if (!ex) return null;
   const reps = counters[ex].flush(); if (!reps) return null;
   const tsh = fb.tempoShadow, slowNow = !!(tsh && tsh.slow && tsh.ex === ex);
   const cam = Camera.forSet(camPos(), ex); /* v8.33 */
@@ -678,8 +680,13 @@ function saveSet() {
     s.repTimes = s.repTimes.map(t => +(t - f).toFixed(2)); fb.barShadow = { ...s, ex, poseReps: reps }; console.info('[barShadow]', ex, 'pose', reps, 'bar', s.reps, fb.barShadow); } catch (e) {} }
   if (barTr) barTr.reset();
   fbCut({ exercise: ex, reps, kg: rec.kg, auto: !manualEx }, rec.timestamp);
-  if (!fb.rec) fb.tempoShadow = null; resetCounters(ex); navigator.vibrate?.([40, 60, 40]);
-  if (Reps.AUTO_RESET_CFG && Reps.AUTO_RESET_CFG.mode === 'on' && !manualEx) { picker.reset(); autoEx = null; } /* v8.46: the next set starts with a fresh exercise guess (mwi8db6r: stale 'roing' locked a pull-up set) */
+  if (!fb.rec) fb.tempoShadow = null;
+  const bg = !!(which && which !== curEx()); // v8.51: a split-saved background set must not wipe an in-progress current set
+  if (bg) counters[ex] = mkCounter(ex);
+  else {
+    resetCounters(ex); if (Reps.AUTO_RESET_CFG && Reps.AUTO_RESET_CFG.mode === 'on' && !manualEx) { picker.reset(); autoEx = null; } /* v8.46: the next set starts with a fresh exercise guess (mwi8db6r: stale 'roing' locked a pull-up set) */
+  }
+  navigator.vibrate?.([40, 60, 40]);
   // v8.20 «Bekreft usikkert sett»: an auto set the tempo gate calls slow (or with few reps) asks ✓/✗ in the toast.
   // ✓ = confirmed label, ✗ = removed + 'notASet' label, no answer = kept. Kill switch localStorage repcam.confirmOff=1.
   const tOn = slowNow && (tsh.mode === 'on'); // v8.24 tempo rule ON: the set must be confirmed, otherwise it is removed
@@ -949,15 +956,39 @@ function processFrame(lm, ts, asp, sensor) {
   if (!manualEx && !lockEx && pk && pk !== autoEx) { autoEx = pk; renderWorkout(); }
   lastFrameT = ts / 1000;
   // v8.9: the set was locked (2 reps) on setup motion of another exercise -> follow the exercise that is really counting
-  if (lockEx && !manualEx) { const nl = Reps.relock(counters, lockEx, pk, lastFrameT, rc.scores); if (nl !== lockEx) { lockEx = nl; autoEx = nl; renderWorkout(); } }
+  if (lockEx && !manualEx) { const nl = Reps.relock(counters, lockEx, pk, lastFrameT, rc.scores); if (nl !== lockEx) { lockEx = nl; autoEx = nl; if (lockEx && counters[lockEx]) counters[lockEx].heldLock = true; renderWorkout(); } }
   const ex = curEx(), reps = currentReps();
   if (ex && !lockEx && !manualEx && reps >= 2) lockEx = ex;
+  if (lockEx && counters[lockEx]) counters[lockEx].heldLock = true;
+  // v8.51: save a completed background set before forget() drops it (mwrqaujj). Kill switch repcam.splitSets = off | shadow | on.
+  const splitMode = Reps.CUT_SAVE_CFG ? Reps.CUT_SAVE_CFG.mode : 'off';
+  if (splitMode !== 'off' && Reps.readySets) {
+    for (const id of Reps.readySets(counters, lastFrameT, ex)) {
+      let sigDrop = false;
+      if (sigMode !== 'off' && !manualEx) {
+        const v = sigT.check(id, counters[id].repTimes, counters, Reps.minSet);
+        const e = { ex: id, reps: counters[id].reps, why: v.why, drop: !!v.drop, mode: sigMode };
+        if (v.why) { (fb.sigLog ||= []).push(e); if (fb.sigLog.length > 10) fb.sigLog.shift(); }
+        sigDrop = !!v.drop && sigMode === 'on';
+      }
+      const e = { ex: id, reps: counters[id].reps, t: +lastFrameT.toFixed(2), mode: splitMode, sigDrop };
+      (fb.splitLog ||= []).push(e); if (fb.splitLog.length > 10) fb.splitLog.shift(); console.info('[splitSets]', e);
+      if (splitMode === 'on' && !sigDrop) saveSet(id);
+    }
+  }
   // v8.9: background counters forget stale reps (none for AUTOSAVE_MS) so switching to them later does not inherit old junk
   for (const id in counters) if (id !== ex && counters[id].reps > 0 && lastFrameT - counters[id].lastRepT > AUTOSAVE_MS / 1000) counters[id].forget();
   setToastTick();
   fbSample(lm, ts);
   if (fb.rec && reps > shownReps) for (let i = Math.max(shownReps, 0); i < reps; i++) fb.repT.push(ts);
-  if (fb.rec && reps === 0 && !Reps.IDS.some(id => counters[id].tentative) && ts - fb.lastTrim > 2000) { fb.lastTrim = ts; fb.rec.trimIdle(30e3); }
+  if (fb.rec && reps === 0 && !Reps.IDS.some(id => counters[id].tentative) && ts - fb.lastTrim > 2000) {
+    // v8.51: do not discard a segment that still holds a complete unsaved set (trimIdle used to drop the video
+    // of a set when currentReps hit 0 before autosave). Shadow: log and still trim (old path decides).
+    const splitMode = Reps.CUT_SAVE_CFG ? Reps.CUT_SAVE_CFG.mode : 'off';
+    const held = Reps.IDS.some(id => counters[id].reps >= Reps.minSet(id) && Reps.plausibleSet(counters[id].repTimes));
+    if (held && splitMode !== 'off') { (fb.splitLog ||= []).push({ trimSkip: true, mode: splitMode, t: +(ts / 1000).toFixed(2) }); if (splitMode === 'on') { fb.lastTrim = ts; } else { fb.lastTrim = ts; fb.rec.trimIdle(30e3); } }
+    else { fb.lastTrim = ts; fb.rec.trimIdle(30e3); }
+  }
   if (reps !== shownReps) { if (reps > shownReps && shownReps >= 0) navigator.vibrate?.(30); shownReps = reps; $('reps').textContent = reps; lastRepWall = Date.now(); if (reps > 0) lastActivity = Date.now(); }
   if (reps > 0 && (Date.now() - lastRepWall > AUTOSAVE_MS || (ex && counters[ex].plateEnded))) finishPending(); // v8.45: plate rack-and-still ends the set (on-mode only)
   const hd = !cam && lm && (tracking || !ex) ? 'none' : 'block', ro = 276.5 * (1 - (ex ? counters[ex].progress() : 0)), dd = POWER_CFG.dom === 'on';

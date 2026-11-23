@@ -378,9 +378,10 @@
     function out(tracking) { return { reps, state, signal: s, tracking, progress: progress(), pending: !!pend }; }
     function progress() { if (s == null) return 0; const hi = state === 'top' ? hiNow() : top0; const ta = typAmp() || def.minAmp * 1.6; return Math.max(0, Math.min(1, (hi - s) / ta)); }
     // v8.9: drop the counted reps (stale background count) but keep tracking the signal, so a rep in progress survives
-    function forget(allAmps) { repSy.clear(); repTilt.clear(); if (def.forgetAmps || allAmps) amps = []; reps = 0; repTimes = []; repAmps = []; lastRepT = null; }
+    let heldLock = false;
+    function forget(allAmps) { heldLock = false; repSy.clear(); repTilt.clear(); if (def.forgetAmps || allAmps) amps = []; reps = 0; repTimes = []; repAmps = []; lastRepT = null; }
     return { update, progress, flush, reset, forget,
-      get reps() { return reps; }, get tentative() { return tents.length; }, get rejected() { return rejected; }, get lastRepT() { return lastRepT; }, get repTimes() { return repTimes; }, get repAmps() { return repAmps; }, def };
+      get reps() { return reps; }, get tentative() { return tents.length; }, get rejected() { return rejected; }, get lastRepT() { return lastRepT; }, get repTimes() { return repTimes; }, get repAmps() { return repAmps; }, get heldLock() { return heldLock; }, set heldLock(v) { heldLock = !!v; }, def };
   }
 
   // Best-effort exercise recognition from a sliding window of pose features.
@@ -679,6 +680,31 @@
   // dip bars) made a false 'curl 2'; real curl sets are never doubles. Kill switch in the app: localStorage repcam.minSet = off.
   const MIN_SET = { curl: 3 };
   const minSet = ex => Math.max(2, MIN_SET[ex] || 2);
+  // v8.51: a completed background set is saved (and the clip is cut) before forget() drops it, so each set
+  // gets its own clip (mwrqaujj: two Bulgarian sets sat inside one 355 s recording). Kill switch in the app:
+  // localStorage repcam.splitSets = off | shadow | on. Threshold afterMs lives in this config.
+  const CUT_SAVE_CFG = { mode: 'on', afterMs: 9000, skipOverlap: true, requireLock: true };
+  function readySets(cs, tSec, except) {
+    const after = (CUT_SAVE_CFG.afterMs || 9000) / 1000, cand = [];
+    const overlap = (a, b) => a && b && a.length && b.length && a[0] <= b[b.length - 1] && b[0] <= a[a.length - 1];
+    const exTimes = except && cs[except] && cs[except].reps > 0 ? cs[except].repTimes : null;
+    for (const id of IDS) {
+      if (except && id === except) continue;
+      const c = cs && cs[id]; if (!c || c.reps < minSet(id)) continue;
+      if (!plausibleSet(c.repTimes)) continue;
+      if (!(c.plateEnded || (c.lastRepT != null && tSec - c.lastRepT >= after))) continue;
+      if (CUT_SAVE_CFG.skipOverlap && overlap(c.repTimes, exTimes)) continue;
+      if (CUT_SAVE_CFG.requireLock && !c.heldLock) continue;
+      cand.push(id);
+    }
+    cand.sort((a, b) => cs[b].reps - cs[a].reps || (cs[a].repTimes[0] ?? 0) - (cs[b].repTimes[0] ?? 0));
+    const out = [];
+    for (const id of cand) {
+      if (CUT_SAVE_CFG.skipOverlap && out.some(x => overlap(cs[id].repTimes, cs[x].repTimes))) continue;
+      out.push(id);
+    }
+    return out.sort((a, b) => (cs[a].repTimes[0] ?? 0) - (cs[b].repTimes[0] ?? 0));
+  }
   // v8.38 kinematic signature (Rune 3 Nov: «avstand regler, akse bevegelse regler på punktene?»): a set-level check over
   // the set's frames. Body orientation (torso tilt from vertical), wrists above/below the shoulders, and horizontal travel
   // of the hips (walking around = rigging, not a set). Ranges measured on the eval set (3 Nov, 87 clips), units = torso length.
@@ -711,6 +737,6 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { SAVE_KEEP_CFG, RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  const api = { SAVE_KEEP_CFG, RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, CUT_SAVE_CFG, readySets, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

@@ -3,13 +3,13 @@
  "hz": 0,
  "all": true,
  "summary": {
-  "exact": 105,
-  "n": 112,
-  "exOk": 85,
-  "pos": 86,
-  "mae": 0.151,
+  "exact": 108,
+  "n": 120,
+  "exOk": 87,
+  "pos": 92,
+  "mae": 0.467,
   "falseSets": 0,
-  "neg": 26
+  "neg": 28
  },
  "clips": {
   "mvmtfqlo8d46051c": {
@@ -907,6 +907,70 @@
    "ex": "benkpress",
    "reps": 8,
    "bad": 0
+  },
+  "mwp46zmt-head": {
+   "ok": false,
+   "gt": 6,
+   "exercise": "benkpress",
+   "ex": null,
+   "reps": 0,
+   "bad": 106
+  },
+  "mwp49ipa-head": {
+   "ok": false,
+   "gt": 5,
+   "exercise": "benkpress",
+   "ex": "bulgarsk",
+   "reps": 0,
+   "bad": 105
+  },
+  "mwrqaujj-bulg1": {
+   "ok": false,
+   "gt": 6,
+   "exercise": "bulgarsk",
+   "ex": "benkpress",
+   "reps": 6,
+   "bad": 106
+  },
+  "mwrqaujj-bulg2": {
+   "ok": false,
+   "gt": 9,
+   "exercise": "bulgarsk",
+   "ex": "skråbenk",
+   "reps": 5,
+   "bad": 109
+  },
+  "mwrqaujj-vsit": {
+   "ok": true,
+   "gt": 20,
+   "exercise": "vsitup",
+   "ex": "vsitup",
+   "reps": 20,
+   "bad": 0
+  },
+  "mwp4lpaf-empty": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "armhevinger",
+   "reps": 1,
+   "bad": 0
+  },
+  "mwp4m8eo-empty": {
+   "ok": true,
+   "gt": 0,
+   "exercise": null,
+   "ex": "benkpress",
+   "reps": 0,
+   "bad": 0
+  },
+  "mwp4ijue-row": {
+   "ok": false,
+   "gt": 8,
+   "exercise": "roing",
+   "ex": "roing",
+   "reps": 4,
+   "bad": 4
   }
  }
 }

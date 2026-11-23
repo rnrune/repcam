@@ -17,6 +17,7 @@ if (arg('--sig', null)) R.SIG_CFG.mode = arg('--sig'); // v8.38: off|shadow|on
 const SIGLOG = [];
 const P = require(path.join(__dirname, '..', '..', 'plate.js')); if (arg('--plate', null)) P.PLATE_MODE.mode = arg('--plate'); // v8.45: off|shadow|on
 if (arg('--autoReset', null) && R.AUTO_RESET_CFG) R.AUTO_RESET_CFG.mode = arg('--autoReset'); // v8.46: on|shadow|off
+if (arg('--splitSets', null) && R.CUT_SAVE_CFG) R.CUT_SAVE_CFG.mode = arg('--splitSets'); // v8.51: off|shadow|on
 if (arg('--tempo', null)) R.TEMPO_CFG.mode = arg('--tempo'); // v8.20: --tempo on|shadow
 const plaus = (ex, t) => (!R.plausibleSet || R.plausibleSet(t)) && !(R.TEMPO_CFG && R.TEMPO_CFG.mode === 'on' && R.tempoSlow(ex, t));
 const JIT = +((process.argv.includes('--jitter') && process.argv[process.argv.indexOf('--jitter') + 1]) || 0); // v8.26: ±frame jitter (fraction of a frame period)
@@ -40,7 +41,16 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     const ms = a[0] * 1000; if (feed) feed.now = a[0]; let cam = !gate.update(lm, ms, asp).ok; if (sig) sig.update(lm, ms, asp); if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
     const rc = rec.update(lm, ms, asp, cam), p = pick.update(rc, ms); if (!lock && p) auto = p;
     if (auto && !lock && cs[auto].reps >= 2) lock = auto; else if (lock && R.relock) lock = R.relock(cs, lock, p, a[0], rc.scores);
+    if (lock && cs[lock]) cs[lock].heldLock = true;
     const ex = lock || auto, n = ex ? cs[ex].reps : 0;
+    // v8.51 (app.js processFrame): save a completed background set before forget() drops it. Shadow: log only, old path decides.
+    const splitMode = R.CUT_SAVE_CFG ? R.CUT_SAVE_CFG.mode : 'off';
+    if (splitMode !== 'off' && R.readySets) {
+      for (const id of R.readySets(cs, a[0], ex)) {
+        if (splitMode === 'on') { sigKeep(id); cs[id] = mk(id); }
+        else SIGLOG.push({ splitShadow: true, ex: id, reps: cs[id].reps, t: +a[0].toFixed(2) });
+      }
+    }
     // v8.9 (app.js processFrame): background counters forget reps that went stale (no new rep for 9 s) so a later switch
     // to that exercise does not inherit setup junk from minutes ago
     for (const id of R.IDS) if (id !== ex && cs[id].reps > 0 && a[0] - cs[id].lastRepT > AUTOSAVE_S && cs[id].forget) cs[id].forget();

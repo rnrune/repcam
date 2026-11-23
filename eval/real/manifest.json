@@ -4060,5 +4060,152 @@
   },
   "session": "2026-11-15",
   "notes": "15 Nov side (~80–85°): bench set 3 (fasit 8×90; arrived 15 Nov 21:38 Oslo via «Send nå»). Plate track: unrack 29 s, 8 bottoms 30.3–41.7 s, rack ~43 s (contact sheet confirms). App benkpress×5 @100 (pose); Rune edited the in-app row to 5×80 at 21:37 — looks like log-row shuffling (mwi802ro row was set to 12×50 at the same time), not clip truth; ask Rune."
+ },
+ {
+  "id": "mwp46zmt-head",
+  "lm": "mwp46zmt3aadd746",
+  "exercise": "benkpress",
+  "gt": 6,
+  "kg": 20,
+  "realKg": 90,
+  "view": "front",
+  "facing": "user",
+  "app": "8.50",
+  "created": "2026-11-20T15:09:00.000Z",
+  "tier": "worst",
+  "win": [
+   93,
+   110
+  ],
+  "angle": "head-on",
+  "angleVerified": "video 23.11.2026 (sessionPos still said side 90°)",
+  "notes": "20.11 head-on bench from the head of the bench, ~6 reps 93–108 s. App saved pullups×3 (confirmed wrong). Skeleton vis 1.00, torso tilt ~4° (side bench is ~106°). Likely skråbenk 5×90 after pull-ups; fasit exercise uncertain. Test case for the new angle — no angle fix yet."
+ },
+ {
+  "id": "mwp49ipa-head",
+  "lm": "mwp49ipa44cc6d48",
+  "exercise": "benkpress",
+  "gt": 5,
+  "kg": 20,
+  "realKg": 50,
+  "view": "front",
+  "facing": "user",
+  "app": "8.50",
+  "created": "2026-11-20T15:11:00.000Z",
+  "tier": "worst",
+  "win": [
+   103,
+   115
+  ],
+  "angle": "head-on",
+  "angleVerified": "video 23.11.2026 (sessionPos still said side 90°)",
+  "notes": "20.11 head-on bench, ~5–6 reps 104–114 s at 50 kg. App saved knebøy×3 (confirmed wrong). Same angle failure as mwp46zmt (tilt ~4°, vis 1.00). Does not match fasit 90/100 kg; ask Rune."
+ },
+ {
+  "id": "mwrqaujj-bulg1",
+  "lm": "mwrqaujj739e9a75",
+  "exercise": "bulgarsk",
+  "gt": 6,
+  "kg": 0,
+  "realKg": 80,
+  "view": "front",
+  "facing": "user",
+  "app": "8.50",
+  "created": "2026-11-22T11:03:00.000Z",
+  "tier": "worst",
+  "win": [
+   60,
+   90
+  ],
+  "angle": "side",
+  "angleVerified": "Rune in-app session position 2026-11-22",
+  "notes": "22.11 first Bulgarian in the long 355 s clip (~66–79 s). Live never cut; app later saved only vsitup×20. Replay onKeep often labels benkpress."
+ },
+ {
+  "id": "mwrqaujj-bulg2",
+  "lm": "mwrqaujj739e9a75",
+  "exercise": "bulgarsk",
+  "gt": 9,
+  "kg": 0,
+  "realKg": 80,
+  "view": "front",
+  "facing": "user",
+  "app": "8.50",
+  "created": "2026-11-22T11:03:00.000Z",
+  "tier": "worst",
+  "win": [
+   198,
+   230
+  ],
+  "angle": "side",
+  "angleVerified": "Rune in-app session position 2026-11-22",
+  "notes": "22.11 second Bulgarian in the same clip (~203–224 s). Video closer to a full 6+6; replay onKeep bulgarsk×9. Live never cut."
+ },
+ {
+  "id": "mwrqaujj-vsit",
+  "lm": "mwrqaujj739e9a75",
+  "exercise": "vsitup",
+  "gt": 20,
+  "kg": 15,
+  "realKg": 15,
+  "view": "front",
+  "facing": "user",
+  "app": "8.50",
+  "created": "2026-11-22T11:03:00.000Z",
+  "tier": "worst",
+  "win": [
+   300,
+   355
+  ],
+  "angle": "side",
+  "angleVerified": "Rune in-app session position 2026-11-22",
+  "notes": "22.11 v-situp 20×15 at the end of the 355 s clip — the only set the app saved from this recording."
+ },
+ {
+  "id": "mwp4lpaf-empty",
+  "lm": "mwp4lpafbe01d77f",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "view": "side",
+  "facing": "user",
+  "app": "8.50",
+  "tier": "worst",
+  "angle": "side",
+  "angleVerified": "video 23.11.2026",
+  "notes": "20.11 empty rack / bar on the floor. App saved benkpress 5×90 (plate counter, nobody on the bench). Negative."
+ },
+ {
+  "id": "mwp4m8eo-empty",
+  "lm": "mwp4m8eoeb8f1b21",
+  "exercise": null,
+  "gt": 0,
+  "kg": 0,
+  "view": "side",
+  "facing": "user",
+  "app": "8.50",
+  "tier": "worst",
+  "angle": "side",
+  "angleVerified": "video 23.11.2026",
+  "notes": "20.11 empty rack. App saved benkpress 6×90. Negative for plate-person rule."
+ },
+ {
+  "id": "mwp4ijue-row",
+  "lm": "mwp4ijue1b77bd44",
+  "exercise": "roing",
+  "gt": 8,
+  "kg": 30,
+  "realKg": 100,
+  "view": "side",
+  "facing": "user",
+  "app": "8.50",
+  "tier": "worst",
+  "win": [
+   100,
+   125
+  ],
+  "angle": "side",
+  "angleVerified": "Rune in-app session position 2026-11-20",
+  "notes": "20.11 standing row ~103–118 s (video ~11, replay often 5). App later saved false bench 5 at 143–147 s (empty rack)."
  }
 ]
