@@ -4064,7 +4064,7 @@
  {
   "id": "mwp46zmt-head",
   "lm": "mwp46zmt3aadd746",
-  "exercise": "benkpress",
+  "exercise": "skråbenk",
   "gt": 6,
   "kg": 20,
   "realKg": 90,
@@ -4078,13 +4078,13 @@
    110
   ],
   "angle": "head-on",
-  "angleVerified": "video 23.11.2026 (sessionPos still said side 90°)",
-  "notes": "20.11 head-on bench from the head of the bench, ~6 reps 93–108 s. App saved pullups×3 (confirmed wrong). Skeleton vis 1.00, torso tilt ~4° (side bench is ~106°). Likely skråbenk 5×90 after pull-ups; fasit exercise uncertain. Test case for the new angle — no angle fix yet."
+  "angleVerified": "Rune 23.11.2026: bildene er skråbenk; front/bak er relativt til øvelsen",
+  "notes": "20.11 head-on incline bench from the head of the bench (Rune 23.11: skråbenk, not flat). ~6 reps 93–108 s (fasit 5×90). App saved pullups×3 (confirmed wrong). Skeleton vis 1.00, torso tilt ~4° (side bench is ~106°). sessionPos still said side 90°. Test case for the new angle — no angle fix yet. Front/rear is relative to the exercise (front for bench is rear for pull-ups from the same spot)."
  },
  {
   "id": "mwp49ipa-head",
   "lm": "mwp49ipa44cc6d48",
-  "exercise": "benkpress",
+  "exercise": "skråbenk",
   "gt": 5,
   "kg": 20,
   "realKg": 50,
@@ -4098,8 +4098,8 @@
    115
   ],
   "angle": "head-on",
-  "angleVerified": "video 23.11.2026 (sessionPos still said side 90°)",
-  "notes": "20.11 head-on bench, ~5–6 reps 104–114 s at 50 kg. App saved knebøy×3 (confirmed wrong). Same angle failure as mwp46zmt (tilt ~4°, vis 1.00). Does not match fasit 90/100 kg; ask Rune."
+  "angleVerified": "Rune 23.11.2026: bildene er skråbenk; front/bak er relativt til øvelsen",
+  "notes": "20.11 head-on incline bench (Rune 23.11: skråbenk, not a remnant of 12×50). ~5–6 reps 104–114 s. We saw 50 kg (one plate per side), not fasit 90 kg. App saved knebøy×3 (confirmed wrong). Same angle failure as mwp46zmt (tilt ~4°, vis 1.00). sessionPos still said side 90°. No angle fix yet."
  },
  {
   "id": "mwrqaujj-bulg1",
