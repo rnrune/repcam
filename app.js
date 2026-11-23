@@ -47,6 +47,8 @@ if (localStorage.getItem('repcam.vsitIdle') === 'off' && Reps.EX.vsitup) Reps.EX
 { const m = localStorage.getItem('repcam.autoReset'); if (Reps.AUTO_RESET_CFG && (m === 'off' || m === 'shadow')) Reps.AUTO_RESET_CFG.mode = m; }
 /* v8.45 plate-based bench counter (plate.js): repcam.plateBench = off | shadow | on (default PLATE_MODE.mode = on since v8.45; shadow = pose count only, plate count logged in clip meta plateLog) */
 { const m = localStorage.getItem('repcam.plateBench'); if (window.Plate && (m === 'off' || m === 'shadow' || m === 'on')) Plate.PLATE_MODE.mode = m; }
+/* v8.51b: plate is not authoritative unless the pose counter also has a press — repcam.platePerson = off | shadow | on */
+{ const m = localStorage.getItem('repcam.platePerson'); if (window.Plate && Plate.PLATE_PERSON_CFG && (m === 'off' || m === 'shadow' || m === 'on')) Plate.PLATE_PERSON_CFG.mode = m; }
 /* v8.44: RDL bar set down — a big, late last halvmark 'rep' is dropped — repcam.rdlTail = off | shadow (shadow = baseline + Reps.RDL_TAIL_CFG.shadowLog) */
 { const m = localStorage.getItem('repcam.rdlTail'); if (m === 'off' || m === 'shadow') Reps.RDL_TAIL_CFG.mode = m; }
 /* v8.43: squat walk-out — a candidate rep slower than AMP_DUR_CFG.maxDur no longer sets the adaptive amplitude — repcam.sqAmpDur = off | shadow */

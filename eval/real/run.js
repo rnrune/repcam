@@ -16,6 +16,7 @@ const AUTOSAVE_S = 9;
 if (arg('--sig', null)) R.SIG_CFG.mode = arg('--sig'); // v8.38: off|shadow|on
 const SIGLOG = [];
 const P = require(path.join(__dirname, '..', '..', 'plate.js')); if (arg('--plate', null)) P.PLATE_MODE.mode = arg('--plate'); // v8.45: off|shadow|on
+if (arg('--platePerson', null) && P.PLATE_PERSON_CFG) P.PLATE_PERSON_CFG.mode = arg('--platePerson'); // v8.51b: off|shadow|on
 if (arg('--autoReset', null) && R.AUTO_RESET_CFG) R.AUTO_RESET_CFG.mode = arg('--autoReset'); // v8.46: on|shadow|off
 if (arg('--splitSets', null) && R.CUT_SAVE_CFG) R.CUT_SAVE_CFG.mode = arg('--splitSets'); // v8.51: off|shadow|on
 if (arg('--tempo', null)) R.TEMPO_CFG.mode = arg('--tempo'); // v8.20: --tempo on|shadow

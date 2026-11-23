@@ -84,13 +84,27 @@
   // (validShare ≥ minValid) the set's reps/repTimes come from the plate, and rack-and-still (plate still for stillS after a valid run)
   // ends the set at once (counter.plateEnded → the app/eval autosave).
   const PLATE_MODE = { mode: 'on' /* v8.45 shipped on: gate 5 better, 0 worse; repcam.plateBench=shadow|off to revert */, exercises: ['benkpress', 'skråbenk'], angles: ['side'], minSamples: 30, log: [] };
+  // v8.51b: plate must not be authoritative when nobody is pressing (empty rack / bar at rest). Live 20.11
+  // false benches (mwp4lpaf, mwp4m8eo, tail of mwp4ijue) all had pose:0 and plate:5–6. Real side benches in
+  // the eval still had ≥1 pose rep even when the plate hid most of the set. Kill switch: localStorage
+  // repcam.platePerson = off | shadow | on. Shadow: log only, plate stays authoritative (old path).
+  const PLATE_PERSON_CFG = { mode: 'on', poseRepsMin: 1, log: [] };
   // shared sample feed: the app pushes live tracker samples, the eval preloads a stored track; `now` = time of the current pose frame
   function createFeed(track) { const f = { s: track ? track.slice() : [], base: 0, now: -Infinity,
     push(t, y, m) { this.s.push([t, y, m]); if (this.s.length > 20000) { this.s.splice(0, 10000); this.base += 10000; } } }; return f; }
   function wrapCounter(pose, feed, id, cfg) {
     let pc, at, start, seen; const mode = () => PLATE_MODE.mode;
     const fresh = () => { pc = createPlateCounter(cfg); at = null; start = feed.now; seen = 0; }; fresh();
-    const auth = () => mode() === 'on' && seen >= PLATE_MODE.minSamples && pc.validShare >= pc.cfg.minValid;
+    const personOk = () => {
+      const min = PLATE_PERSON_CFG.poseRepsMin || 1, has = (pose.reps || 0) >= min;
+      if (PLATE_PERSON_CFG.mode !== 'off' && seen >= PLATE_MODE.minSamples && pc.validShare >= pc.cfg.minValid && !has) {
+        const e = { ex: id, mode: PLATE_PERSON_CFG.mode, pose: pose.reps, plate: pc.reps, ok: has, min };
+        if (PLATE_PERSON_CFG.log.length < 20) PLATE_PERSON_CFG.log.push(e);
+      }
+      if (PLATE_PERSON_CFG.mode === 'off' || PLATE_PERSON_CFG.mode === 'shadow') return true;
+      return has;
+    };
+    const auth = () => mode() === 'on' && seen >= PLATE_MODE.minSamples && pc.validShare >= pc.cfg.minValid && personOk();
     function consume(t) { if (at == null) { let i = 0; while (i < feed.s.length && feed.s[i][0] < start) i++; at = feed.base + i; }
       while (at - feed.base < feed.s.length) { const r = feed.s[Math.max(0, at - feed.base)]; if (r[0] > t) break; if (r[0] >= start) { pc.push(r[0], r[1]); seen++; } at++; } }
     const W = Object.create(null);
@@ -110,5 +124,5 @@
     });
     return W;
   }
-  return { PLATE_CFG, PLATE_MODE, createPlateTracker, createPlateCounter, createFeed, wrapCounter, toGray };
+  return { PLATE_CFG, PLATE_MODE, PLATE_PERSON_CFG, createPlateTracker, createPlateCounter, createFeed, wrapCounter, toGray };
 });
