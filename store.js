@@ -146,7 +146,9 @@
         s[i] = { ...s[i], ...p }; api.save(SETS, s); return s[i];
       },
       // Last weight used for an exercise (default for the next set); null if never logged.
-      lastKg(ex) { const s = api.sets(); for (let i = s.length - 1; i >= 0; i--) if ((s[i].exercise || 'knebøy') === ex) return +s[i].kg || 0; return null; },
+      // Optional `before` (ISO date or Date): last kg of this exercise strictly earlier than that time (previous session).
+      lastKg(ex, before) { const s = api.sets(), cut = before != null ? +new Date(before) : Infinity;
+        for (let i = s.length - 1; i >= 0; i--) if ((s[i].exercise || 'knebøy') === ex && +new Date(s[i].timestamp) < cut) return +s[i].kg || 0; return null; },
       sessions: () => sessions(api.sets(), api.meta()),
       exportJSON: () => JSON.stringify({ app: 'Newrun Lift', exported: new Date().toISOString(), sets: api.sets(), sessions: api.meta() }, null, 2)
     };

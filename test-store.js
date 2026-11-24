@@ -38,7 +38,10 @@ assert.deepEqual(S.EX.map(e=>e.id),['knebøy','bulgarsk','pullups','dips','benkp
 assert.equal(S.exInfo('benkpress').name,'Benkpress');assert(S.exInfo('benkpress').active);
 // bench press: last-weight memory is per exercise (bench vs incline kept apart)
 {const w=S.createStore(mem());w.addSet({exercise:'benkpress',reps:5,kg:80},new Date('2026-10-23T18:00:00Z'));w.addSet({exercise:'skråbenk',reps:8,kg:60},new Date('2026-10-23T18:10:00Z'));
-assert.equal(w.lastKg('benkpress'),80);assert.equal(w.lastKg('skråbenk'),60);}
+assert.equal(w.lastKg('benkpress'),80);assert.equal(w.lastKg('skråbenk'),60);
+ w.addSet({exercise:'benkpress',reps:5,kg:90},new Date('2026-11-24T18:00:00Z'));
+ assert.equal(w.lastKg('benkpress'),90);
+ assert.equal(w.lastKg('benkpress','2026-11-24T17:00:00Z'),80);}
 // i18n
 const I=require('./i18n.js');
 assert.equal(I.detect(['nb-NO']),'nb');assert.equal(I.detect(['no']),'nb');assert.equal(I.detect(['nn']),'nb');assert.equal(I.detect(['de-AT','en']),'de');assert.equal(I.detect(['ja-JP']),'en');assert.equal(I.detect(['sv-SE']),'sv');assert.equal(I.detect(['da']),'da');

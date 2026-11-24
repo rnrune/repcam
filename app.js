@@ -55,6 +55,8 @@ if (localStorage.getItem('repcam.vsitIdle') === 'off' && Reps.EX.vsitup) Reps.EX
 { const m = localStorage.getItem('repcam.shortJunk'); if (Reps.SHORT_JUNK_CFG && (m === 'off' || m === 'shadow' || m === 'on')) Reps.SHORT_JUNK_CFG.mode = m; }
 /* v8.52c: relabel squat/Bulgarian→curl and dips→row at save when the motion is clear — repcam.exFix = off | shadow | on */
 { const m = localStorage.getItem('repcam.exFix'); if (Reps.EX_FIX_CFG && (m === 'off' || m === 'shadow' || m === 'on')) Reps.EX_FIX_CFG.mode = m; }
+/* v8.52d: previous-session kg is a suggestion that needs confirmation — repcam.kgSuggest = off | shadow | on */
+{ const m = localStorage.getItem('repcam.kgSuggest'); if (m === 'off' || m === 'shadow' || m === 'on') window.__kgSuggestMode = m; }
 /* v8.44: RDL bar set down — a big, late last halvmark 'rep' is dropped — repcam.rdlTail = off | shadow (shadow = baseline + Reps.RDL_TAIL_CFG.shadowLog) */
 { const m = localStorage.getItem('repcam.rdlTail'); if (m === 'off' || m === 'shadow') Reps.RDL_TAIL_CFG.mode = m; }
 /* v8.43: squat walk-out — a candidate rep slower than AMP_DUR_CFG.maxDur no longer sets the adaptive amplitude — repcam.sqAmpDur = off | shadow */
@@ -612,8 +614,13 @@ const motion = { state: 'off', gyro: 0, acc: 0, last: 0,
   read() { if (motion.state !== 'on' || performance.now() - motion.last > 1000) { motion.gyro = motion.acc = 0; return null; } const r = { gyro: motion.gyro, acc: motion.acc }; motion.gyro = motion.acc = 0; return r; } };
 let lastRepWall = 0, lastActivity = Date.now(), shownReps = -1, toastT = 0, lastFrameT = null;
 const DEFAULT_KG = { knebøy: 20, bulgarsk: 0, pullups: 0, dips: 0, benkpress: 20, skråbenk: 20, halvmark: 40, roing: 30, armhevinger: 0, situps: 0, vsitup: 15, curl: 20 };
-function kgFor(ex) { const x = LS.getItem('repcam.kg.' + ex); if (x != null) return +x; const l = store.lastKg(ex); return l != null ? l : (DEFAULT_KG[ex] ?? 0); }
-function setKgFor(ex, x) { LS.setItem('repcam.kg.' + ex, Math.max(0, Math.round(x * 100) / 100)); }
+const KG_SUGGEST_CFG = { mode: (typeof window !== 'undefined' && window.__kgSuggestMode) || 'on' };
+// sessionKg = a set already saved this session, or a kg the user confirmed / typed this session (kgOk).
+function sessionKg(ex) { const a = store.active(); if (!a || !ex) return null; if (a.kgOk && a.kgOk[ex] != null) return +a.kgOk[ex]; const mine = store.sets().filter(s => s.sessionId === a.id && (s.exercise || 'knebøy') === ex); return mine.length ? +mine[mine.length - 1].kg || 0 : null; }
+function kgDecision(st) { if (st.sessionKg != null) return { kg: st.sessionKg, suggest: null }; if (st.mode !== 'on') { if (st.lsKg != null) return { kg: st.lsKg, suggest: null }; if (st.prevKg != null) return { kg: st.prevKg, suggest: null }; return { kg: st.defaultKg, suggest: null }; } const sug = st.lsKg != null ? st.lsKg : st.prevKg; return { kg: st.defaultKg, suggest: (sug != null && sug !== st.defaultKg) ? sug : null }; }
+function kgState(ex) { const a = store.active(); return { mode: KG_SUGGEST_CFG.mode, sessionKg: sessionKg(ex), lsKg: LS.getItem('repcam.kg.' + ex) != null ? +LS.getItem('repcam.kg.' + ex) : null, prevKg: store.lastKg(ex, a && a.start), defaultKg: DEFAULT_KG[ex] ?? 0 }; }
+function kgFor(ex) { return kgDecision(kgState(ex)).kg; }
+function setKgFor(ex, x) { const v = Math.max(0, Math.round(x * 100) / 100); LS.setItem('repcam.kg.' + ex, v); const a = store.active(); if (a) store.touchActive({ kgOk: { ...(a.kgOk || {}), [ex]: v } }); }
 const curEx = () => manualEx || lockEx || autoEx;
 /* v8.34: shadow/diagnostic log of the v8.31-32 end-of-set rules (dips dismount tailTop, row lead-in leadGap) -> console + clip meta ruleLog.
    Kill switch: localStorage repcam.ruleLog = off. Logging only, never changes a count. */
@@ -637,6 +644,7 @@ function renderWorkout() {
   $('log').innerHTML = mine.slice(-3).reverse().map(x => `<button class="logrow" data-ts="${esc(x.timestamp)}">${L.hm(x.timestamp)} · ${esc(exName(x.exercise))} · ${L.t('reps', { n: x.reps })} × ${L.kgf(x.kg)}${x.unsure ? ' · ' + L.t('w.unsureTag') : ''} ✎</button>`).join('');
   $('log').querySelectorAll('.logrow').forEach(b => b.onclick = () => openEdit(b.dataset.ts, renderWorkout));
   $('reps').textContent = currentReps();
+  if (ex) maybeAskKg(ex);
 }
 function bumpKg(d) { const ex = curEx() || 'knebøy'; finishPending(); setKgFor(ex, kgFor(ex) + d); renderWorkout(); }
 $('minus').onclick = () => bumpKg(-2.5); $('plus').onclick = () => bumpKg(2.5);
@@ -748,22 +756,56 @@ let tempoPend = null;
 function tempoLog(ex, reps, outcome) { try { const a = JSON.parse(LS.getItem('repcam.tempo.log') || '[]'); a.push({ at: new Date().toISOString(), ex, reps, outcome }); LS.setItem('repcam.tempo.log', JSON.stringify(a.slice(-200))); } catch {} console.info('[tempo]', outcome, ex, reps); }
 $('confirm').onclick = () => { saveSet(); };
 $('camBtn').onclick = () => openCamPicker(renderWorkout);
-// v8.37 (Rune: the camera choice never came up naturally): once per session, when the camera starts and no position is set,
-// a small one-tap card under the top bar — last position (pre-selected) or the common ones, «Annet …» opens the full picker,
-// ✕ = not now. Counting goes on underneath; it goes away by itself after CAM_ASK_MS. Kill switch: localStorage repcam.camAsk=off.
-const CAM_ASK_MS = 25e3; let camAskT = 0;
-function hideCamAsk() { clearTimeout(camAskT); $('camAsk').style.display = 'none'; }
+// v8.37 / v8.52d: when the camera starts and no position is set, a small one-tap card under the top bar.
+// Last position is pre-selected; «Annet …» opens the full picker; ✕ or timeout dismisses it.
+// v8.52d: after a dismiss/timeout, ask again (the old camAsked=true flag never retried, so 24.11 had no camera/plate).
+// Kill switch: localStorage repcam.camAsk = off | shadow | on. Default on. Shadow = ask once (v8.37).
+const CAM_ASK_CFG = { mode: (LS.getItem('repcam.camAsk') === 'off' || LS.getItem('repcam.camAsk') === 'shadow' || LS.getItem('repcam.camAsk') === 'on') ? LS.getItem('repcam.camAsk') : 'on', timeoutMs: 25e3, retryMs: 45e3, maxAsks: 3 };
+const CAM_ASK_MS = CAM_ASK_CFG.timeoutMs; let camAskT = 0, camRetryT = 0;
+function camAskReady(a, now, cfg) {
+  cfg = cfg || CAM_ASK_CFG; now = now || Date.now();
+  if (!a || a.camera || cfg.mode === 'off') return false;
+  if (cfg.mode === 'shadow') return !a.camAsked;
+  if ((a.camAskCount || 0) >= (cfg.maxAsks || 3)) return false;
+  if (a.camAskHiddenAt && now - a.camAskHiddenAt < (cfg.retryMs || 45e3)) return false;
+  return true;
+}
+function hideCamAsk(reason) {
+  clearTimeout(camAskT); clearTimeout(camRetryT); const el = $('camAsk'); if (el) el.style.display = 'none';
+  if ((reason === 'dismiss' || reason === 'timeout') && CAM_ASK_CFG.mode === 'on') {
+    const a = store.active(); if (a && !a.camera) { store.touchActive({ camAskHiddenAt: Date.now() }); camRetryT = setTimeout(maybeAskCam, CAM_ASK_CFG.retryMs); }
+  }
+}
 function maybeAskCam() {
-  const a = store.active(); if (!a || a.camera || a.camAsked || LS.getItem('repcam.camAsk') === 'off' || cur !== 'okt') return;
-  store.touchActive({ camAsked: true });
+  const a = store.active(); if (!a || cur !== 'okt' || !camAskReady(a)) return;
+  if (CAM_ASK_CFG.mode === 'shadow') store.touchActive({ camAsked: true });
+  else store.touchActive({ camAskCount: (a.camAskCount || 0) + 1, camAskHiddenAt: 0 });
   const last = JSON.parse(LS.getItem('repcam.cam.last') || 'null'), opts = last ? [last] : [{ dir: 'rear', deg: 45, side: null }, { dir: 'front', deg: 45, side: null }, { dir: 'side', deg: 90, side: null }];
   const el = $('camAsk');
   el.innerHTML = `<b>📷 ${L.t('cam.ask')}</b><div class="camaskb">${opts.map((p, i) => `<button class="${i === 0 && last ? 'on' : ''}" data-i="${i}">${last ? '✓ ' : ''}${esc(camPosLabel(p))}</button>`).join('')}<button data-o="1">${L.t('cam.other')}</button><button data-x="1" aria-label="✕">✕</button></div>`;
   el.style.display = '';
-  el.querySelectorAll('button').forEach(b => b.onclick = () => { hideCamAsk();
-    if (b.dataset.o) return openCamPicker(renderWorkout); if (b.dataset.x) return;
-    const p = opts[+b.dataset.i]; store.touchActive({ camera: p }); LS.setItem('repcam.cam.last', JSON.stringify(p)); renderWorkout(); });
-  camAskT = setTimeout(hideCamAsk, CAM_ASK_MS);
+  el.querySelectorAll('button').forEach(b => b.onclick = () => {
+    if (b.dataset.x) return hideCamAsk('dismiss');
+    hideCamAsk();
+    if (b.dataset.o) return openCamPicker(renderWorkout);
+    const p = opts[+b.dataset.i]; store.touchActive({ camera: p, camAsked: true }); LS.setItem('repcam.cam.last', JSON.stringify(p)); renderWorkout();
+  });
+  camAskT = setTimeout(() => hideCamAsk('timeout'), CAM_ASK_CFG.timeoutMs);
+}
+function hideKgAsk() { const el = $('kgAsk'); if (el) el.style.display = 'none'; }
+function maybeAskKg(ex) {
+  if (!ex || KG_SUGGEST_CFG.mode === 'off' || cur !== 'okt') return;
+  const a = store.active(); if (!a) return;
+  if ($('camAsk') && $('camAsk').style.display !== 'none') return;
+  const d = kgDecision(kgState(ex)); if (d.suggest == null) return;
+  if (a.kgAsked && a.kgAsked[ex]) return;
+  if (KG_SUGGEST_CFG.mode === 'shadow') { console.info('[kgSuggest]', { ex, suggest: d.suggest, mode: 'shadow' }); store.touchActive({ kgAsked: { ...(a.kgAsked || {}), [ex]: 'shadow' } }); return; }
+  const el = $('kgAsk'); if (!el) return;
+  store.touchActive({ kgAsked: { ...(a.kgAsked || {}), [ex]: 'shown' } });
+  el.innerHTML = `<b>⚖️ ${esc(L.t('kg.ask', { kg: L.nf(d.suggest, 2), ex: exName(ex) }))}</b><div class="camaskb"><button data-y="1" class="on">${L.t('kg.yes')}</button><button data-n="1">${L.t('kg.no')}</button></div>`;
+  el.style.display = '';
+  el.querySelectorAll('button').forEach(b => b.onclick = () => { hideKgAsk(); if (b.dataset.y) setKgFor(ex, d.suggest); else setKgFor(ex, DEFAULT_KG[ex] ?? 0); renderWorkout(); });
+  console.info('[kgSuggest]', { ex, suggest: d.suggest, mode: 'on' });
 }
 function enterWorkout() {
   const resumed = !!store.active();
@@ -1073,4 +1115,4 @@ function recWarn(stalled, now) {
   el.textContent = k; el.style.display = k ? 'block' : 'none';
 }
 setInterval(camWatch, 1000);
-window.__repcam = { APP_VERSION, power: POWER_CFG, barOn: () => !!barTr, storeChk: { STORE_CFG, check: storeCheck, state: () => ({ storeLowAt, storeLowMB, storage: fb.storage || null }) }, camHeal: { CAM_HEAL, camWatch, log: () => fb.camLog, state: () => ({ vidAdv, vidFrameAt, stallSince, healTries, recBadSince, skipWhy }) }, plate: { feed: plateFeed, tr: plateTr, on: () => plateOn(), mode: () => window.Plate && Plate.PLATE_MODE.mode, log: () => window.Plate && Plate.PLATE_MODE.log, resetCounters: () => resetCounters() }, fitDiag, video: () => v, maybeAskCam, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
+window.__repcam = { APP_VERSION, power: POWER_CFG, barOn: () => !!barTr, storeChk: { STORE_CFG, check: storeCheck, state: () => ({ storeLowAt, storeLowMB, storage: fb.storage || null }) }, camHeal: { CAM_HEAL, camWatch, log: () => fb.camLog, state: () => ({ vidAdv, vidFrameAt, stallSince, healTries, recBadSince, skipWhy }) }, plate: { feed: plateFeed, tr: plateTr, on: () => plateOn(), mode: () => window.Plate && Plate.PLATE_MODE.mode, log: () => window.Plate && Plate.PLATE_MODE.log, resetCounters: () => resetCounters() }, fitDiag, video: () => v, maybeAskCam, camAskReady, CAM_ASK_CFG, maybeAskKg, kgDecision, kgFor, KG_SUGGEST_CFG, fitLog, fitPending: () => fitRebind, showToast, hideToast, tempoPendSet: p => { tempoPend = p; }, fbPending, fitStage, FIT_CFG, barTr, fb, fbQueue, fbUpload, store, strava, wake, AWAY_END_MS, counters: () => counters, curEx, saveSet, processFrame, motion, camPaused: () => camPaused, currentReps, stopLoop: () => { cancelAnimationFrame(raf); raf = 0; landmarker = null; }, I18n, lang: () => L.lang };
