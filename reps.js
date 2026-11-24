@@ -737,6 +737,27 @@
       return { ex: alt || ex, why: alt ? 'veto→' + alt : 'veto-noalt', st }; }
     return { update, stats, fits, check, reset: () => { buf.length = 0; } };
   }
-  const api = { SAVE_KEEP_CFG, RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, CUT_SAVE_CFG, readySets, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  // v8.52a: end the CURRENT locked set after a long pause (station change), so a later exercise
+  // is not absorbed into the same count (mwv461fe: dips 8 then curl 10 was saved as dips 19).
+  // splitSets (8.51) only harvests a *background* counter; this rule applies to the current set.
+  // Kill switch in the app: localStorage repcam.pauseEnd = off | shadow | on. Thresholds here.
+  const PAUSE_END_CFG = { mode: 'shadow', gapMs: 8000, gapFactor: 3, requireLock: true };
+  function medianGap(times) {
+    if (!times || times.length < 2) return 0;
+    const g = []; for (let i = 1; i < times.length; i++) g.push(times[i] - times[i - 1]);
+    g.sort((a, b) => a - b); return g[(g.length - 1) >> 1];
+  }
+  function pauseReady(c, tSec, exId) {
+    if (!c || c.reps < minSet(exId)) return false;
+    if (PAUSE_END_CFG.requireLock && !c.heldLock && !c.plateEnded) return false;
+    if (c.lastRepT == null || tSec == null || tSec - c.lastRepT < 0) return false;
+    const pause = tSec - c.lastRepT, gap = (PAUSE_END_CFG.gapMs || 8000) / 1000;
+    if (pause < gap) return false;
+    const med = medianGap(c.repTimes);
+    if (med > 0 && PAUSE_END_CFG.gapFactor && pause < PAUSE_END_CFG.gapFactor * med) return false;
+    if (!plausibleSet(c.repTimes)) return false;
+    return true;
+  }
+  const api = { SAVE_KEEP_CFG, RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, CUT_SAVE_CFG, readySets, PAUSE_END_CFG, pauseReady, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

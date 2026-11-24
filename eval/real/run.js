@@ -19,6 +19,7 @@ const P = require(path.join(__dirname, '..', '..', 'plate.js')); if (arg('--plat
 if (arg('--platePerson', null) && P.PLATE_PERSON_CFG) P.PLATE_PERSON_CFG.mode = arg('--platePerson'); // v8.51b: off|shadow|on
 if (arg('--autoReset', null) && R.AUTO_RESET_CFG) R.AUTO_RESET_CFG.mode = arg('--autoReset'); // v8.46: on|shadow|off
 if (arg('--splitSets', null) && R.CUT_SAVE_CFG) R.CUT_SAVE_CFG.mode = arg('--splitSets'); // v8.51: off|shadow|on
+if (arg('--pauseEnd', null) && R.PAUSE_END_CFG) R.PAUSE_END_CFG.mode = arg('--pauseEnd'); // v8.52a: off|shadow|on
 if (arg('--tempo', null)) R.TEMPO_CFG.mode = arg('--tempo'); // v8.20: --tempo on|shadow
 const plaus = (ex, t) => (!R.plausibleSet || R.plausibleSet(t)) && !(R.TEMPO_CFG && R.TEMPO_CFG.mode === 'on' && R.tempoSlow(ex, t));
 const JIT = +((process.argv.includes('--jitter') && process.argv[process.argv.indexOf('--jitter') + 1]) || 0); // v8.26: ±frame jitter (fraction of a frame period)
@@ -39,7 +40,17 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     if (R.SIG_CFG.mode !== 'on' || !v.why) return keep(res(ex)); if (v.drop) { sigDropped = true; return; } /* v8.47: no veto→alt relabel — app.js finishPending only drops (sig veto relabel was eval-only since e80e47a) */ return keep(res(ex)); };
   reset(); let i0 = 0; if (G) G.rest(F[0][0] * 1000 - 1e9);
   for (const a of F) { i0 = F.indexOf(a, i0); const lm = []; for (let i = 0; i < 33; i++) lm.push({ x: a[1 + 3 * i], y: a[2 + 3 * i], visibility: a[3 + 3 * i] });
-    const ms = a[0] * 1000; if (feed) feed.now = a[0]; let cam = !gate.update(lm, ms, asp).ok; if (sig) sig.update(lm, ms, asp); if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
+    const ms = a[0] * 1000;
+    // v8.52a (app.js processFrame): end the current locked set after a long pause, before this frame can add a post-gap rep.
+    const pauseMode = R.PAUSE_END_CFG ? R.PAUSE_END_CFG.mode : 'off';
+    const pEx = lock || auto, pN = pEx ? cs[pEx].reps : 0;
+    if (pauseMode !== 'off' && pEx && R.pauseReady(cs[pEx], a[0], pEx)) {
+      if (pauseMode === 'on') {
+        if (pN >= (R.minSet ? R.minSet(pEx) : 2) && plaus(pEx, cs[pEx].repTimes)) { sigKeep(pEx); resetSaved(pEx); if (R.AUTO_RESET_CFG && R.AUTO_RESET_CFG.mode === 'on') { pick.reset(); auto = null; } }
+        else { cs[pEx] = mk(pEx); shown = 0; }
+      } else SIGLOG.push({ pauseShadow: true, ex: pEx, reps: pN, t: +a[0].toFixed(2) });
+    }
+    if (feed) feed.now = a[0]; let cam = !gate.update(lm, ms, asp).ok; if (sig) sig.update(lm, ms, asp); if (G) { const armed = G.update(lm, ms, asp); if (opt.rest.active && !armed) { cam = true; pick.reset(); auto = null; } } for (const id of R.IDS) cs[id].update(lm, ms, asp, cam);
     const rc = rec.update(lm, ms, asp, cam), p = pick.update(rc, ms); if (!lock && p) auto = p;
     if (auto && !lock && cs[auto].reps >= 2) lock = auto; else if (lock && R.relock) lock = R.relock(cs, lock, p, a[0], rc.scores);
     if (lock && cs[lock]) cs[lock].heldLock = true;

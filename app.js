@@ -17,7 +17,7 @@ const IDLE_END_MS = +(LS.getItem('repcam.idleEndMs') || 10 * 60e3); // on screen
 // for AWAY_END_MS (default 30 min), measured from the last rep, and the app was away (background or closed).
 const AWAY_END_MS = +(LS.getItem('repcam.awayEndMs') || 30 * 60e3);
 const wake = Wake.createWake();
-const APP_VERSION = '8.51';
+const APP_VERSION = '8.52';
 let lastVW = 0, lastVH = 0; // v8.34: last non-zero camera size (aspect + clip meta)
 /* v8.31 dips kill switch: localStorage repcam.dipsFix = off (both off) | shadow (dismount check logs only) */
 { const m = localStorage.getItem('repcam.dipsFix'); if (m === 'off') { Reps.EX.dips.ampIdle = null; Reps.EX.dips.tailTop = null; } else if (m === 'shadow') Reps.EX.dips.tailTop.mode = 'shadow'; }
@@ -49,6 +49,8 @@ if (localStorage.getItem('repcam.vsitIdle') === 'off' && Reps.EX.vsitup) Reps.EX
 { const m = localStorage.getItem('repcam.plateBench'); if (window.Plate && (m === 'off' || m === 'shadow' || m === 'on')) Plate.PLATE_MODE.mode = m; }
 /* v8.51b: plate is not authoritative unless the pose counter also has a press — repcam.platePerson = off | shadow | on */
 { const m = localStorage.getItem('repcam.platePerson'); if (window.Plate && Plate.PLATE_PERSON_CFG && (m === 'off' || m === 'shadow' || m === 'on')) Plate.PLATE_PERSON_CFG.mode = m; }
+/* v8.52a: end the current set after a long pause / station change — repcam.pauseEnd = off | shadow | on */
+{ const m = localStorage.getItem('repcam.pauseEnd'); if (Reps.PAUSE_END_CFG && (m === 'off' || m === 'shadow' || m === 'on')) Reps.PAUSE_END_CFG.mode = m; }
 /* v8.44: RDL bar set down — a big, late last halvmark 'rep' is dropped — repcam.rdlTail = off | shadow (shadow = baseline + Reps.RDL_TAIL_CFG.shadowLog) */
 { const m = localStorage.getItem('repcam.rdlTail'); if (m === 'off' || m === 'shadow') Reps.RDL_TAIL_CFG.mode = m; }
 /* v8.43: squat walk-out — a candidate rep slower than AMP_DUR_CFG.maxDur no longer sets the adaptive amplitude — repcam.sqAmpDur = off | shadow */
@@ -298,7 +300,7 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) { fbSkip('noRecorder', { pred: pred && pred.exercise + '×' + pred.reps }); return; }
-  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const splitLog = fb.splitLog || null; fb.splitLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null; const plAll = fb.plate || [], plWH = fb.plateWH; fb.plate = []; const plateLog = window.Plate && Plate.PLATE_MODE.log.length ? Plate.PLATE_MODE.log.splice(0).slice(-5) : null;
+  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const splitLog = fb.splitLog || null; fb.splitLog = null; const pauseLog = fb.pauseLog || null; fb.pauseLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null; const plAll = fb.plate || [], plWH = fb.plateWH; fb.plate = []; const plateLog = window.Plate && Plate.PLATE_MODE.log.length ? Plate.PLATE_MODE.log.splice(0).slice(-5) : null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) { fbSkip(!seg ? 'recorderStopped' : !seg.blob.size ? 'empty' : 'tooBig', { mb: seg ? +(seg.blob.size / 1e6).toFixed(1) : null, pred: pred && pred.exercise + '×' + pred.reps }); return; }
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
@@ -307,7 +309,7 @@ async function fbCut1(pred, setTs, label) {
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
     power: { ...POWER_CFG.log, bar: POWER_CFG.bar, draw: POWER_CFG.draw.mode, dom: POWER_CFG.dom, idle: POWER_CFG.idle.mode, dupMode: POWER_CFG.dup.mode }, /* v8.48; v8.49: dupMode (was `dup`, which overwrote the duplicate count) */ storage: fb.storage || null, /* v8.49 */
     camLog: (fb.camLog || []).slice(-40), skips: (() => { try { const a = JSON.parse(LS.getItem('repcam.fb.skips') || '[]'); LS.removeItem('repcam.fb.skips'); return a.length ? a : null; } catch { return null; } })(), /* v8.46 */
-    camera, ruleLog, sigLog, splitLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    camera, ruleLog, sigLog, splitLog, pauseLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -943,6 +945,15 @@ function loop() {
 }
 // One video frame through gate → counters → recognizer → picker → UI (exposed for tests as __repcam.processFrame).
 function processFrame(lm, ts, asp, sensor) {
+  // v8.52a: end the CURRENT locked set after a long pause (station change) *before* this frame's
+  // counter update can add a post-gap rep (mwv461fe: dips 8 + curl 10 became dips 19).
+  // Kill switch: localStorage repcam.pauseEnd = off | shadow | on. Thresholds in Reps.PAUSE_END_CFG.
+  const tSec = ts / 1000, pauseMode = Reps.PAUSE_END_CFG ? Reps.PAUSE_END_CFG.mode : 'off', pEx = curEx();
+  if (pauseMode !== 'off' && pEx && counters[pEx] && Reps.pauseReady(counters[pEx], tSec, pEx)) {
+    const e = { ex: pEx, reps: counters[pEx].reps, pause: +(tSec - counters[pEx].lastRepT).toFixed(2), t: +tSec.toFixed(2), mode: pauseMode };
+    (fb.pauseLog ||= []).push(e); if (fb.pauseLog.length > 10) fb.pauseLog.shift(); console.info('[pauseEnd]', e);
+    if (pauseMode === 'on') finishPending();
+  }
   // v8.7: while the phone itself moves a lot (and briefly after), frames are ignored — no rep, no set start, no exercise switch
   const cg = camGate.update(lm, ts, asp, sensor), cam = !cg.ok;
   restGate.update(lm, ts, asp); // v8.15 shadow only: does not affect counting
