@@ -181,3 +181,69 @@ body.confirming #ringwrap{opacity:.25;transition:opacity .2s}body.confirming #fl
    now both use contain (same intrinsic aspect → the skeleton stays on the body), letterboxed in black. Kill switch repcam.fullFrame=off. */
 html.fullFrame #stage{background:#000}
 html.fullFrame #stage video,html.fullFrame #stage canvas{object-fit:contain}
+
+/* v8.52 calm recording screen (Rune 24 Nov: «sammenpresset under filmingen», «mye som skjer på en gang»).
+   One large rep count + exercise + kg while filming; set log, long camera text and extras fold away.
+   Skeleton overlay is off unless html.skelOn (button + localStorage repcam.skel=on).
+   Kill switch: localStorage repcam.calmUI=off (or Profil → Klassisk) restores the old layout.
+   --ringTop is the top edge of the ring (no vertical translate), so exercise and kg sit below it. */
+#skelBtn,#panelBtn{display:none}
+html.calmUI{--ringTop:calc(env(safe-area-inset-top) + 58px);--ringSize:min(220px,56vw)}
+html.calmUI #skelBtn{display:grid;place-items:center;top:calc(env(safe-area-inset-top) + 62px);right:14px;z-index:5}
+html.calmUI #skelBtn.on,html.skelOn #skelBtn{background:rgba(255,255,255,.28)}
+html.calmUI:not(.skelOn) #stage canvas{opacity:0;pointer-events:none}
+html.calmUI #ringwrap{top:var(--ringTop);width:var(--ringSize);height:var(--ringSize)}
+html.calmUI #reps{font-size:min(120px,30vw);line-height:1}
+html.calmUI #exChip{top:calc(var(--ringTop) + var(--ringSize) + 4px);left:0;right:0;width:100%;transform:none;background:transparent;border:0;backdrop-filter:none;-webkit-backdrop-filter:none;padding:4px 10px;max-width:none;white-space:normal;text-align:center;z-index:5;text-shadow:0 2px 14px rgba(0,0,0,.85)}
+html.calmUI #exChip b{font-size:clamp(22px,6vw,30px);font-weight:800}
+html.calmUI #exIc{font-size:22px}
+html.calmUI #exChip .exTime{font-size:0;letter-spacing:0}
+html.calmUI #exChip #elapsed{position:fixed;top:calc(env(safe-area-inset-top) + 18px);left:50%;transform:translateX(-50%);font-size:15px;font-weight:700;opacity:.9;text-shadow:0 1px 8px #000}
+html.calmUI .wcard{padding:10px 12px;border-radius:22px;overflow:visible;max-width:560px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(16,16,20,.88)}
+html.calmUI body.panelOpen .wcard,html.calmUI body.afterSet .wcard{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+html.calmUI .wcard>.row{display:block;flex:0 0 100%;order:0;height:0;margin:0;padding:0;overflow:visible}
+html.calmUI .wcard>.row>div:first-child{display:none}
+html.calmUI .wcard .kg{position:fixed;left:50%;top:calc(var(--ringTop) + var(--ringSize) + 52px);transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:10px}
+html.calmUI .wcard .kg button{width:56px;height:56px;min-width:56px;min-height:56px;flex:none;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.4)}
+html.calmUI .wcard .kg span{font-size:clamp(28px,8vw,36px);font-weight:800;min-width:130px;text-shadow:0 2px 14px rgba(0,0,0,.85)}
+html.calmUI #hint{top:calc(var(--ringTop) + var(--ringSize) + 120px);z-index:5}
+html.calmUI #camBtn{order:1;margin:0;min-height:52px;min-width:52px;padding:8px 10px;border-style:solid;border-color:rgba(255,255,255,.25);border-radius:16px;font-size:20px;flex:0 0 auto}
+html.calmUI #camBtn .camLong{display:none}
+html.calmUI #panelBtn{display:flex;align-items:center;justify-content:center;gap:4px;flex:0 0 auto!important;width:auto;max-width:max-content;min-width:64px;min-height:52px;padding:8px 10px}
+html.calmUI .wcard .btns{order:2;flex:1 1 auto;margin-top:0;align-items:stretch;min-width:0}
+html.calmUI .wcard .btns .ghost{min-height:52px;margin-top:0;padding:8px 8px}
+html.calmUI .wcard .btns .panel{flex:0 0 auto}
+html.calmUI #log{order:3;flex:1 0 100%;display:none}
+html.calmUI .tight{display:none}
+html.calmUI body.panelOpen .wcard>.row,html.calmUI body.afterSet .wcard>.row{display:flex;flex:0 0 auto;width:100%;height:auto;overflow:visible}
+html.calmUI body.panelOpen .wcard>.row>div:first-child,html.calmUI body.afterSet .wcard>.row>div:first-child{display:block}
+html.calmUI body.panelOpen #log,html.calmUI body.afterSet #log{display:block;max-height:min(32vh,200px);padding-bottom:8px}
+html.calmUI body.panelOpen #log .logrow,html.calmUI body.afterSet #log .logrow{min-height:44px;padding:8px 0;font-size:15px}
+html.calmUI body.panelOpen #camBtn .camLong,html.calmUI body.afterSet #camBtn .camLong{display:inline}
+html.calmUI body.panelOpen #camBtn,html.calmUI body.afterSet #camBtn{flex:1 1 auto;font-size:14px;order:0;flex-basis:100%}
+html.calmUI body.panelOpen #panelBtn .chev{transform:rotate(180deg);display:inline-block}
+html.calmUI .toast{bottom:calc(env(safe-area-inset-bottom) + 86px)}
+html.calmUI body.panelOpen .toast,html.calmUI body.afterSet .toast{bottom:calc(env(safe-area-inset-bottom) + 200px)}
+html.calmUI body.confirming .wcard .kg,html.calmUI body.confirming #exChip{opacity:.25;pointer-events:none}
+@media (orientation: landscape) and (max-height: 500px) {
+  html.calmUI{--ringTop:calc(env(safe-area-inset-top) + 44px);--ringSize:min(140px,34vh)}
+  html.calmUI.landUI .wcard{left:12px;right:calc(env(safe-area-inset-right) + 12px);top:auto;bottom:calc(env(safe-area-inset-bottom) + 8px);width:auto;max-width:none;margin:0;padding:8px 10px;overflow:visible;display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-start;border-radius:20px}
+  html.calmUI.landUI .wcard .kg{top:calc(var(--ringTop) + var(--ringSize) + 42px)}
+  html.calmUI.landUI .wcard .kg button{width:52px;height:52px}
+  html.calmUI.landUI .wcard .kg span{font-size:clamp(24px,6vh,32px)}
+  html.calmUI.landUI #ringwrap{top:var(--ringTop);left:50%;transform:translateX(-50%);width:var(--ringSize);height:var(--ringSize)}
+  html.calmUI.landUI #reps{font-size:min(80px,22vh)}
+  html.calmUI.landUI #exChip{top:calc(var(--ringTop) + var(--ringSize) + 2px);left:0;right:0;width:100%;transform:none;max-width:none}
+  html.calmUI.landUI #exChip b{font-size:clamp(18px,5vh,24px)}
+  html.calmUI.landUI #hint{top:auto;bottom:calc(env(safe-area-inset-bottom) + 88px);left:50%}
+  html.calmUI.landUI .toast{left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 72px);max-width:640px;margin:0 auto}
+  html.calmUI.landUI body.panelOpen .toast,html.calmUI.landUI body.afterSet .toast{bottom:calc(env(safe-area-inset-bottom) + 150px)}
+  html.calmUI.landUI .camask{left:12px;right:12px;top:calc(env(safe-area-inset-top) + 56px);max-width:640px}
+  html.calmUI.landUI #recWarn{right:auto;max-width:70vw}
+  html.calmUI.landUI body.panelOpen .wcard,html.calmUI.landUI body.afterSet .wcard{
+    left:auto;right:calc(env(safe-area-inset-right) + 8px);top:calc(env(safe-area-inset-top) + 54px);bottom:calc(env(safe-area-inset-bottom) + 8px);
+    width:min(280px,34vw);max-height:none;flex-direction:column;flex-wrap:nowrap;overflow:auto;align-items:stretch;gap:8px}
+  html.calmUI.landUI body.panelOpen #camBtn,html.calmUI.landUI body.afterSet #camBtn{flex-basis:auto;order:1;width:100%}
+  html.calmUI.landUI body.panelOpen .wcard .btns,html.calmUI.landUI body.afterSet .wcard .btns{order:2;width:100%}
+  html.calmUI.landUI body.panelOpen #log,html.calmUI.landUI body.afterSet #log{order:3;max-height:none;flex:1 1 auto}
+}
