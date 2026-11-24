@@ -85,6 +85,9 @@ const restGate = Rest.createRestGate(); // v8.15 (rest.js, REST_CFG)
 if (LS.getItem('repcam.landUI') !== 'off') document.documentElement.classList.add('landUI');
 /* v8.49 full camera frame (style.css html.fullFrame: object-fit contain for video + pose canvas): kill switch localStorage repcam.fullFrame=off */
 if (LS.getItem('repcam.fullFrame') !== 'off') document.documentElement.classList.add('fullFrame');
+/* v8.52 calm recording screen (style.css html.calmUI): kill switch localStorage repcam.calmUI=off. Skeleton: repcam.skel=on */
+if (LS.getItem('repcam.calmUI') !== 'off') document.documentElement.classList.add('calmUI');
+if (LS.getItem('repcam.skel') === 'on') document.documentElement.classList.add('skelOn');
 const kv = (k, d) => { const x = LS.getItem(k); return x === 'off' || x === 'shadow' || x === 'on' ? x : d; };
 const POWER_CFG = {
   bar: kv('repcam.barShadow', 'off'),                                    // v8.16 bar shadow tracker: off by default (on = v8.47)
@@ -153,6 +156,19 @@ function applyTheme() {
 }
 mq.addEventListener?.('change', applyTheme);
 document.querySelectorAll('#themeSeg button').forEach(b => b.onclick = () => { LS.setItem('repcam.theme', b.dataset.t); applyTheme(); });
+/* v8.52 calm recording layout: default on in this branch; Profil or localStorage repcam.calmUI=off = classic */
+function applyCalm() {
+  const on = LS.getItem('repcam.calmUI') !== 'off';
+  document.documentElement.classList.toggle('calmUI', on);
+  const skel = LS.getItem('repcam.skel') === 'on';
+  document.documentElement.classList.toggle('skelOn', skel);
+  if ($('skelBtn')) { $('skelBtn').setAttribute('aria-pressed', String(on && skel)); $('skelBtn').classList.toggle('on', on && skel); }
+  document.querySelectorAll('#calmSeg button').forEach(b => { b.classList.toggle('on', (b.dataset.c === 'on') === on); b.setAttribute('aria-checked', String((b.dataset.c === 'on') === on)); });
+}
+document.querySelectorAll('#calmSeg button').forEach(b => b.onclick = () => { LS.setItem('repcam.calmUI', b.dataset.c); applyCalm(); });
+$('skelBtn').onclick = () => { LS.setItem('repcam.skel', LS.getItem('repcam.skel') === 'on' ? 'off' : 'on'); applyCalm(); };
+$('panelBtn').onclick = () => document.body.classList.toggle('panelOpen');
+applyCalm();
 
 /* ---------- sheet ---------- */
 let sheetClose = null;
@@ -639,7 +655,7 @@ function renderWorkout() {
   $('exIc').textContent = ex ? icon(ex) : '✨';
   $('exName').textContent = ex ? (manualEx ? '' : L.t('w.auto') + ': ') + exName(ex) : L.t('w.detecting');
   $('kg').textContent = L.kgf(kgFor(ex || 'knebøy'));
-  { const p = camPos(), a = p && ex ? Camera.derive(p, ex) : null; $('camBtn').textContent = '📷 ' + L.t('cam.btn', { p: camPosLabel(p) }) + (a && a !== Camera.base(p) ? ' → ' + exName(ex) + ': ' + camName(a) : ''); }
+  { const p = camPos(), a = p && ex ? Camera.derive(p, ex) : null; const camTx = L.t('cam.btn', { p: camPosLabel(p) }) + (a && a !== Camera.base(p) ? ' → ' + exName(ex) + ': ' + camName(a) : ''); $('camBtn').innerHTML = '<span class="camIc" aria-hidden="true">📷</span> <span class="camLong">' + esc(camTx) + '</span>'; }
   // v8.9: every set of this session stays editable — tap a line in the log (newest first)
   $('log').innerHTML = mine.slice(-3).reverse().map(x => `<button class="logrow" data-ts="${esc(x.timestamp)}">${L.hm(x.timestamp)} · ${esc(exName(x.exercise))} · ${L.t('reps', { n: x.reps })} × ${L.kgf(x.kg)}${x.unsure ? ' · ' + L.t('w.unsureTag') : ''} ✎</button>`).join('');
   $('log').querySelectorAll('.logrow').forEach(b => b.onclick = () => openEdit(b.dataset.ts, renderWorkout));
@@ -730,7 +746,7 @@ function showToast(text, ts, ask) {
   // hint, camera chip and big counter are hidden/dimmed meanwhile (body.confirming). Kill switch: repcam.declutter=off.
   const focus = !!(ask && ts) && LS.getItem('repcam.declutter') !== 'off', cut = text.lastIndexOf(' · ');
   $('toastTx').innerHTML = focus && cut > 0 ? `<b class="tq-h">${esc(text.slice(cut + 3))}</b><span class="tq-s">${esc(text.slice(0, cut).replace(/^[^:]+:\s*/, ''))}</span>` : esc(text);
-  $('toast').classList.add('on'); $('toast').classList.toggle('ask', focus); document.body.classList.toggle('confirming', focus);
+  $('toast').classList.add('on'); $('toast').classList.toggle('ask', focus); document.body.classList.toggle('confirming', focus); if (ts) document.body.classList.add('afterSet');
   $('tYes').textContent = focus ? L.t('w.yesKeep') : '✓'; $('tNo').textContent = focus ? L.t('w.noDel') : '✗';
   $('tYes').style.display = $('tNo').style.display = ask && ts ? '' : 'none';
   $('tYes').onclick = () => { if (tempoPend && tempoPend.ts === ts) { tempoLog(tempoPend.ex, tempoPend.reps, 'kept'); tempoPend = null; } store.updateSet(ts, { unsure: false }); const r = store.sets().find(x => x.timestamp === ts); fbLabel(ts, 'edit', r ? { reps: r.reps, kg: r.kg, exercise: r.exercise } : undefined); hideToast(); showToast(L.t('w.kept')); };
@@ -746,9 +762,9 @@ function showToast(text, ts, ask) {
 const SET_TOAST_MIN_MS = 60e3, SET_TOAST_MAX_MS = 15 * 60e3;
 let setToast = null;
 // called every frame: hide the set toast once the next set is under way (a rep counted) and the minimum time has passed
-function setToastTick() { if (setToast && currentReps() > 0 && Date.now() - setToast.at >= SET_TOAST_MIN_MS) hideToast(); }
+function setToastTick() { if (setToast && currentReps() > 0) document.body.classList.remove('afterSet'); if (setToast && currentReps() > 0 && Date.now() - setToast.at >= SET_TOAST_MIN_MS) hideToast(); }
 $('fbMiss').onclick = () => { fb.camera = Camera.forSet(camPos(), curEx()) || (camPos() ? { sessionPos: camPos(), derivedAngle: null, angle: null, overridden: false } : null); /* v8.34 */ fbCut({ exercise: curEx(), reps: currentReps(), kg: kgFor(curEx() || 'knebøy') }, null, Feedback.labelFrom({}, 'missed')); showToast(L.t('fb.missedOk')); };
-function hideToast() { $('toast').classList.remove('on', 'ask'); document.body.classList.remove('confirming'); setToast = null;
+function hideToast() { $('toast').classList.remove('on', 'ask'); document.body.classList.remove('confirming'); document.body.classList.remove('afterSet'); setToast = null;
   // v8.25 (Rune): no answer KEEPS the set, marked 'usikker' in the log/history to fix later; no label is sent (not ground truth), Strava keeps it
   if (tempoPend) { const p = tempoPend; tempoPend = null; if (store.sets().some(x => x.timestamp === p.ts)) { store.updateSet(p.ts, { unsure: true }); tempoLog(p.ex, p.reps, 'kept-noanswer'); renderWorkout(); } } }
 // v8.24 tempo decisions, kept locally for measuring the rule after a session (also in each clip's feedback meta)

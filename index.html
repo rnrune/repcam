@@ -29,6 +29,8 @@
   <div class="sec"><h2 data-i="prof.look"></h2></div>
   <div class="card"><div class="seg" id="themeSeg" role="radiogroup"><button data-t="light" data-i="prof.light"></button><button data-t="dark" data-i="prof.dark"></button><button data-t="auto" data-i="prof.auto"></button></div>
   <div class="muted small" data-i="prof.autoNote"></div></div>
+  <div class="card" id="calmCard"><b data-i="prof.calmUI"></b><div class="muted small" data-i="prof.calmNote"></div>
+    <div class="seg" id="calmSeg" role="radiogroup"><button data-c="on" data-i="prof.calmOn"></button><button data-c="off" data-i="prof.calmOff"></button></div></div>
   <div class="sec"><h2>Strava</h2></div>
   <div class="card" id="stravaCard"></div>
   <div class="sec"><h2 data-i="fb.sec"></h2></div>
@@ -39,8 +41,9 @@
 <section class="view" id="view-okt">
   <div id="stage"><video id="v" playsinline muted autoplay></video><canvas id="c"></canvas></div>
   <button id="close" class="glass circ" data-ia="a.close">✕</button>
-  <button class="chip glass" id="exChip"><span id="exIc">✨</span> <b id="exName"></b> · <span id="elapsed">0:00</span> ▾</button><span class="fbPend" id="fbPendOkt" style="display:none"></span>
+  <button class="chip glass" id="exChip"><span id="exIc">✨</span> <b id="exName"></b><span class="exTime"> · <span id="elapsed">0:00</span> ▾</span></button><span class="fbPend" id="fbPendOkt" style="display:none"></span>
   <button id="flip" class="glass circ" data-ia="a.flip">⟲</button>
+  <button id="skelBtn" class="glass circ" data-ia="w.skel" aria-pressed="false">◉</button>
   <div id="ringwrap"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="7"/><circle id="ring" cx="50" cy="50" r="44" fill="none" stroke="url(#gr)" stroke-width="7" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"/><defs><linearGradient id="gr"><stop offset="0" stop-color="#ff8a00"/><stop offset="1" stop-color="#ff2d87"/></linearGradient></defs></svg><div id="reps">0</div></div>
   <div id="hint" data-i="w.hint"></div>
   <div id="recWarn" class="recwarn" role="status"></div>
@@ -49,7 +52,7 @@
   <div id="toast" class="toast" role="status"><span id="toastTx"></span><button id="tYes" class="tq" aria-label="✓" style="display:none">✓</button><button id="tNo" class="tq" aria-label="✗" style="display:none">✗</button><button id="tUndo" data-i="w.undo"></button><button id="tEdit" data-i="w.edit"></button></div>
   <div class="wcard glass"><div class="row"><div><div id="setno" class="b22">Sett 1</div><div class="muted small tight" data-i="w.autosave"></div></div>
     <div class="kg"><button id="minus" data-ia="a.less">−</button><span id="kg" role="button" tabindex="0">20 kg</span><button id="plus" data-ia="a.more">+</button></div></div>
-    <button class="camchip" id="camBtn"></button><div class="btns"><button class="ghost" id="confirm" data-i="w.saveNow"></button><button class="ghost" id="finish" data-i="w.finish"></button><button class="ghost fbmiss" id="fbMiss" data-ia="fb.missed" style="display:none">⚑</button></div><div id="log"></div></div>
+    <button class="camchip" id="camBtn"></button><div class="btns"><button class="ghost" id="confirm" data-i="w.saveNow"></button><button class="ghost" id="finish" data-i="w.finish"></button><button class="ghost fbmiss" id="fbMiss" data-ia="fb.missed" style="display:none">⚑</button><button class="ghost panel" id="panelBtn" data-ia="w.setsPanel"><span data-i="w.setsPanel"></span> <span class="chev">▾</span></button></div><div id="log"></div></div>
   <div id="start"><div class="b28" id="startT" data-i="start.title"></div><div id="startTx" data-i="start.text"></div>
     <button class="grad" id="go" data-i="start.go"></button><div id="status"></div>
     <div id="help"><div id="helptext"></div><button id="copy" data-i="start.copy"></button></div>
