@@ -53,6 +53,8 @@ if (localStorage.getItem('repcam.vsitIdle') === 'off' && Reps.EX.vsitup) Reps.EX
 { const m = localStorage.getItem('repcam.pauseEnd'); if (Reps.PAUSE_END_CFG && (m === 'off' || m === 'shadow' || m === 'on')) Reps.PAUSE_END_CFG.mode = m; }
 /* v8.52b: drop auto 2-rep knebøy/halvmark (walk/setup) — repcam.shortJunk = off | shadow | on */
 { const m = localStorage.getItem('repcam.shortJunk'); if (Reps.SHORT_JUNK_CFG && (m === 'off' || m === 'shadow' || m === 'on')) Reps.SHORT_JUNK_CFG.mode = m; }
+/* v8.52c: relabel squat/Bulgarian→curl and dips→row at save when the motion is clear — repcam.exFix = off | shadow | on */
+{ const m = localStorage.getItem('repcam.exFix'); if (Reps.EX_FIX_CFG && (m === 'off' || m === 'shadow' || m === 'on')) Reps.EX_FIX_CFG.mode = m; }
 /* v8.44: RDL bar set down — a big, late last halvmark 'rep' is dropped — repcam.rdlTail = off | shadow (shadow = baseline + Reps.RDL_TAIL_CFG.shadowLog) */
 { const m = localStorage.getItem('repcam.rdlTail'); if (m === 'off' || m === 'shadow') Reps.RDL_TAIL_CFG.mode = m; }
 /* v8.43: squat walk-out — a candidate rep slower than AMP_DUR_CFG.maxDur no longer sets the adaptive amplitude — repcam.sqAmpDur = off | shadow */
@@ -302,7 +304,7 @@ function fbViewHint(lm) { // rough camera angle: shoulder width relative to tors
 function fbCut(pred, setTs, label) { const p = fbCut1(pred, setTs, label); if (setTs) fb.cutting[setTs] = p; p.finally(() => { if (fb.cutting[setTs] === p) delete fb.cutting[setTs]; }); return p; }
 async function fbCut1(pred, setTs, label) {
   const r = fb.rec; if (!r) { fbSkip('noRecorder', { pred: pred && pred.exercise + '×' + pred.reps }); return; }
-  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const splitLog = fb.splitLog || null; fb.splitLog = null; const pauseLog = fb.pauseLog || null; fb.pauseLog = null; const shortLog = fb.shortLog || null; fb.shortLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null; const plAll = fb.plate || [], plWH = fb.plateWH; fb.plate = []; const plateLog = window.Plate && Plate.PLATE_MODE.log.length ? Plate.PLATE_MODE.log.splice(0).slice(-5) : null;
+  const camera = fb.camera || null; fb.camera = null; const ruleLog = fb.ruleLog || null; fb.ruleLog = null; const sigLog = fb.sigLog || null; fb.sigLog = null; const splitLog = fb.splitLog || null; fb.splitLog = null; const pauseLog = fb.pauseLog || null; fb.pauseLog = null; const shortLog = fb.shortLog || null; fb.shortLog = null; const exFixLog = fb.exFixLog || null; fb.exFixLog = null; const repT = fb.repT, lmAll = fb.lm, restShadow = fb.restShadow, barShadow = fb.barShadow, tempoShadow = fb.tempoShadow || null; fb.tempoShadow = null; const detA = (fb.det || []).filter(x => x < 1000).sort((x, y) => x - y); fb.det = []; const detQ = p => detA.length ? +detA[Math.floor(p * (detA.length - 1))].toFixed(1) : null; const poseRateSeg = detA.length ? { n: detA.length, medMs: detQ(0.5), p10Ms: detQ(0.1), p90Ms: detQ(0.9), hz: +(1000 / detQ(0.5)).toFixed(1) } : null; fb.repT = []; fb.lm = []; fb.restShadow = null; fb.barShadow = null; const plAll = fb.plate || [], plWH = fb.plateWH; fb.plate = []; const plateLog = window.Plate && Plate.PLATE_MODE.log.length ? Plate.PLATE_MODE.log.splice(0).slice(-5) : null;
   const seg = await r.cut(); if (!seg || !seg.blob.size || seg.blob.size > Feedback.MAX_BYTES) { fbSkip(!seg ? 'recorderStopped' : !seg.blob.size ? 'empty' : 'tooBig', { mb: seg ? +(seg.blob.size / 1e6).toFixed(1) : null, pred: pred && pred.exercise + '×' + pred.reps }); return; }
   const t0 = seg.t0, rel = t => +((t - t0) / 1000).toFixed(2);
   const lm = lmAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), ...a.slice(1)]);
@@ -311,7 +313,7 @@ async function fbCut1(pred, setTs, label) {
   const meta = { id, app: APP_VERSION, created: new Date().toISOString(), setTs, pred, manualEx: !!manualEx,
     power: { ...POWER_CFG.log, bar: POWER_CFG.bar, draw: POWER_CFG.draw.mode, dom: POWER_CFG.dom, idle: POWER_CFG.idle.mode, dupMode: POWER_CFG.dup.mode }, /* v8.48; v8.49: dupMode (was `dup`, which overwrote the duplicate count) */ storage: fb.storage || null, /* v8.49 */
     camLog: (fb.camLog || []).slice(-40), skips: (() => { try { const a = JSON.parse(LS.getItem('repcam.fb.skips') || '[]'); LS.removeItem('repcam.fb.skips'); return a.length ? a : null; } catch { return null; } })(), /* v8.46 */
-    camera, ruleLog, sigLog, splitLog, pauseLog, shortLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
+    camera, ruleLog, sigLog, splitLog, pauseLog, shortLog, exFixLog, fitDiag: fb.fitDiag || null, restShadow, barShadow, tempoShadow, plateLog, plateTrack: plAll.length ? { v: APP_VERSION, hz: plateTr.cfg.hz, w: plWH && plWH[0], h: plWH && plWH[1], mode: Plate.PLATE_MODE.mode, track: plAll.filter(a => a[0] >= t0).map(a => [rel(a[0]), a[1], a[2]]) } : null, poseRate, poseRateSeg, repTimes: repT.map(rel), durationS: rel(seg.t1), facing, viewHint: fbViewHint(lm),
     video: { mime: seg.blob.type, bytes: seg.blob.size, w: v.videoWidth || lastVW, h: v.videoHeight || lastVH, dimSrc: v.videoWidth ? 'live' : (lastVW ? 'last' : 'none'), bps: 1e6 },
     landmarks: fbLmPack(lm, poseRate),
     device: { ua: navigator.userAgent, w: screen.width, h: screen.height, dpr: devicePixelRatio, standalone, lang: L.lang } };
@@ -673,8 +675,17 @@ function finishPending() {
   if (junk) { const e = { ex: ce, reps: r, mode: junkMode, t: lastFrameT }; (fb.shortLog ||= []).push(e); if (fb.shortLog.length > 10) fb.shortLog.shift(); console.info('[shortJunk]', e); }
   if (!sigDrop && !((junk && junkMode === 'on')) && r >= (manualEx || !ce ? MIN_AUTO_REPS : Math.max(MIN_AUTO_REPS, Reps.minSet(ce))) && (manualEx || !ce || Reps.plausibleSet(counters[ce].repTimes))) return saveSet(); /* v8.24: a tempo-rejected set is saved and ASKED (✓ keeps, ✗ or no answer removes), see saveSet */ /* v8.13: sparse rigging 'reps' are not a set */ fb.tempoShadow = null; if (r > 0) { const e = ce; counters[e] = mkCounter(e); shownReps = -1; lastRepWall = 0; } return null; }
 function saveSet(which) {
-  const ex = which || curEx(); if (!ex) return null;
-  const reps = counters[ex].flush(); if (!reps) return null;
+  const rawEx = which || curEx(); if (!rawEx) return null;
+  // v8.52c: keep the counted reps, relabel the exercise when the set motion is clearly curl or row.
+  const fixMode = Reps.EX_FIX_CFG ? Reps.EX_FIX_CFG.mode : 'off';
+  let ex = rawEx;
+  if (fixMode !== 'off' && !manualEx && Reps.fixExercise && sigT && sigT.stats) {
+    const st = sigT.stats(counters[rawEx].repTimes, Reps.fixWin && Reps.fixWin()), fx = Reps.fixExercise(rawEx, st);
+    const e = { from: rawEx, to: fx, mode: fixMode, wrRatio: st && +(+st.wrRatio).toFixed(2), tilt: st && Math.round(st.tilt), knee: st && Math.round(st.knee) };
+    (fb.exFixLog ||= []).push(e); if (fb.exFixLog.length > 10) fb.exFixLog.shift(); console.info('[exFix]', e);
+    if (fixMode === 'on') ex = fx;
+  }
+  const reps = counters[rawEx].flush(); if (!reps) return null;
   const tsh = fb.tempoShadow, slowNow = !!(tsh && tsh.slow && tsh.ex === ex);
   const cam = Camera.forSet(camPos(), ex); /* v8.33 */
   const rec = store.addSet({ exercise: ex, reps, kg: kgFor(ex), ...(cam ? { camera: cam } : {}) }); fb.camera = cam;

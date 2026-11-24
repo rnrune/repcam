@@ -719,10 +719,17 @@
     const buf = []; const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
     function update(lm, ms, asp) { if (!lm || !lm[24]) return; const t = ms / 1000, sh = mid(lm[11], lm[12]), hp = mid(lm[23], lm[24]), wr = mid(lm[15], lm[16]);
       const tx = (sh.x - hp.x) * asp, ty = sh.y - hp.y, L = Math.hypot(tx, ty); if (!(L > 1e-4)) return;
-      buf.push([t, Math.abs(Math.atan2(tx, -ty) * 180 / Math.PI), (sh.y - wr.y) / L, hp.x * asp, L, hp.y]); while (buf.length && buf[0][0] < t - 180) buf.shift(); }
+      const kn = Math.max(angle(lm[23], lm[25], lm[27]) || 0, angle(lm[24], lm[26], lm[28]) || 0);
+      buf.push([t, Math.abs(Math.atan2(tx, -ty) * 180 / Math.PI), (sh.y - wr.y) / L, hp.x * asp, L, hp.y, wr.y, sh.y, kn]); while (buf.length && buf[0][0] < t - 180) buf.shift(); }
     const med = a => { const b = [...a].sort((x, y) => x - y); return b[b.length >> 1]; }, q = (a, f) => { const b = [...a].sort((x, y) => x - y); return b[Math.floor(f * (b.length - 1))]; };
-    function stats(times) { if (!times || !times.length) return null; const t0 = times[0] - SIG_CFG.pre, t1 = times[times.length - 1] + SIG_CFG.post, F = buf.filter(f => f[0] >= t0 && f[0] <= t1); if (F.length < 8) return null;
-      const L = med(F.map(f => f[4])), hx = F.map(f => f[3]); return { tilt: med(F.map(f => f[1])), wrAb: med(F.map(f => f[2])), travel: (q(hx, 0.95) - q(hx, 0.05)) / L, iqr: (q(hx, 0.75) - q(hx, 0.25)) / L, hy: (q(F.map(f => f[5]), 0.95) - q(F.map(f => f[5]), 0.05)) / L, n: F.length }; }
+    function stats(times, opt) { if (!times || !times.length) return null; const pre = opt && opt.pre != null ? opt.pre : SIG_CFG.pre, post = opt && opt.post != null ? opt.post : SIG_CFG.post;
+      const qLo = opt && opt.qLo != null ? opt.qLo : 0.1, qHi = opt && opt.qHi != null ? opt.qHi : 0.9;
+      const t0 = times[0] - pre, t1 = times[times.length - 1] + post, F = buf.filter(f => f[0] >= t0 && f[0] <= t1); if (F.length < 8) return null;
+      const L = med(F.map(f => f[4])), hx = F.map(f => f[3]), rng = i => (q(F.map(f => f[i] / L), qHi) - q(F.map(f => f[i] / L), qLo));
+      const wrMove = rng(6), shMove = rng(7), wrRel = (q(F.map(f => (f[6] - f[7]) / L), qHi) - q(F.map(f => (f[6] - f[7]) / L), qLo));
+      const hinge = (q(F.map(f => (f[5] - f[7]) / L), qHi) - q(F.map(f => (f[5] - f[7]) / L), qLo));
+      return { tilt: med(F.map(f => f[1])), wrAb: med(F.map(f => f[2])), travel: (q(hx, 0.95) - q(hx, 0.05)) / L, iqr: (q(hx, 0.75) - q(hx, 0.25)) / L, hy: (q(F.map(f => f[5]), 0.95) - q(F.map(f => f[5]), 0.05)) / L, n: F.length,
+        wrMove, shMove, wrRatio: wrMove / Math.max(0.05, shMove), wrRel, knee: med(F.map(f => f[8])), hinge }; }
     const fits = (ex, st) => { const r = SIG_CFG.ex[ex]; if (!r || !st) return true; return (!r.tilt || (st.tilt >= r.tilt[0] && st.tilt <= r.tilt[1])) && (!r.wrAb || (st.wrAb >= r.wrAb[0] && st.wrAb <= r.wrAb[1])) && (!r.hy || (st.hy >= r.hy[0] && st.hy <= r.hy[1])); };
     // verdict for a set the app is about to save: {drop, ex (possibly replaced), why, st}
     function check(ex, times, cs, minOf) { const st = stats(times); if (!st) return { ex, why: null, st };
@@ -766,6 +773,24 @@
     if (!ex || !SHORT_JUNK_CFG.exercises.includes(ex)) return false;
     return reps >= 2 && reps <= (SHORT_JUNK_CFG.maxReps || 2);
   }
-  const api = { SAVE_KEEP_CFG, RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, CUT_SAVE_CFG, readySets, PAUSE_END_CFG, pauseReady, SHORT_JUNK_CFG, isShortJunk, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  // v8.52c: at save time, relabel a set whose body motion is clearly curl or row.
+  // Front/oblique EZ-curl often looks like squat/Bulgarian (2D hip-knee and uneven knees) while the
+  // wrists swing far and the torso stays upright. A standing row can be locked as dips (hands move, shoulders don't).
+  // Kill switch: localStorage repcam.exFix = off | shadow | on. Default on.
+  const EX_FIX_CFG = { mode: 'on', pre: 0, post: 0, qLo: 0.2, qHi: 0.8,
+    curl: { wrRatio: 2.2, maxTilt: 18, minKnee: 160, minWrRel: 0.4, maxHinge: 0.22, from: ['knebøy', 'bulgarsk', 'halvmark', 'roing'] },
+    row: { wrRatio: 1.5, maxShMove: 0.35, minKnee: 150, from: ['dips'] } };
+  function fixWin() { return { pre: EX_FIX_CFG.pre, post: EX_FIX_CFG.post, qLo: EX_FIX_CFG.qLo, qHi: EX_FIX_CFG.qHi }; }
+  function fixExercise(ex, st) {
+    if (!ex || !st) return ex;
+    const C = EX_FIX_CFG.curl, R0 = EX_FIX_CFG.row;
+    const wr = st.wrRatio, tilt = st.tilt, kn = st.knee, rel = st.wrRel, hg = st.hinge, sh = st.shMove;
+    const curlLike = wr >= C.wrRatio && tilt <= C.maxTilt && kn >= C.minKnee && rel >= C.minWrRel && (hg == null || hg <= C.maxHinge);
+    if (curlLike && C.from.includes(ex)) return 'curl';
+    const rowLike = wr >= R0.wrRatio && sh <= R0.maxShMove && kn >= R0.minKnee;
+    if (rowLike && R0.from.includes(ex)) return 'roing';
+    return ex;
+  }
+  const api = { SAVE_KEEP_CFG, RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, CUT_SAVE_CFG, readySets, PAUSE_END_CFG, pauseReady, SHORT_JUNK_CFG, isShortJunk, EX_FIX_CFG, fixWin, fixExercise, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);

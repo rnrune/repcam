@@ -21,6 +21,7 @@ if (arg('--autoReset', null) && R.AUTO_RESET_CFG) R.AUTO_RESET_CFG.mode = arg('-
 if (arg('--splitSets', null) && R.CUT_SAVE_CFG) R.CUT_SAVE_CFG.mode = arg('--splitSets'); // v8.51: off|shadow|on
 if (arg('--pauseEnd', null) && R.PAUSE_END_CFG) R.PAUSE_END_CFG.mode = arg('--pauseEnd'); // v8.52a: off|shadow|on
 if (arg('--shortJunk', null) && R.SHORT_JUNK_CFG) R.SHORT_JUNK_CFG.mode = arg('--shortJunk'); // v8.52b: off|shadow|on
+if (arg('--exFix', null) && R.EX_FIX_CFG) R.EX_FIX_CFG.mode = arg('--exFix'); // v8.52c: off|shadow|on
 if (arg('--tempo', null)) R.TEMPO_CFG.mode = arg('--tempo'); // v8.20: --tempo on|shadow
 const plaus = (ex, t) => (!R.plausibleSet || R.plausibleSet(t)) && !(R.TEMPO_CFG && R.TEMPO_CFG.mode === 'on' && R.tempoSlow(ex, t));
 const junkDrop = (ex, n) => !!(R.SHORT_JUNK_CFG && R.SHORT_JUNK_CFG.mode === 'on' && R.isShortJunk && R.isShortJunk(ex, n));
@@ -37,9 +38,13 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
   const reset = () => { cs = {}; for (const id of R.IDS) cs[id] = mk(id); lock = null; shown = 0; };
   const resetSaved = ex => { if (!R.SAVE_KEEP_CFG || R.SAVE_KEEP_CFG.mode !== 'on') return reset(); /* v8.47 app saveSet → resetCounters(ex) */ for (const id of R.IDS) { if (id === ex || !cs[id].forget) cs[id] = mk(id); else cs[id].forget(true); } lock = null; shown = 0; };
   const res = ex => { const reps = cs[ex].flush(); return { ex, reps, kg: DEFAULT_KG[ex] ?? 0, times: cs[ex].repTimes.map(t => +t.toFixed(1)) }; };
-  const sigKeep = ex => { if (!sig || R.SIG_CFG.mode === 'off') return keep(res(ex)); const v = sig.check(ex, cs[ex].repTimes, cs, R.minSet);
+  const applyFix = (raw, times, r) => { if (!R.fixExercise || !R.EX_FIX_CFG || R.EX_FIX_CFG.mode === 'off' || !sig) return r; const st = sig.stats(times, R.fixWin && R.fixWin()), fx = R.fixExercise(raw, st); if (fx !== raw) SIGLOG.push({ exFix: true, from: raw, to: fx, mode: R.EX_FIX_CFG.mode, wrRatio: st && +(+st.wrRatio).toFixed(2) }); if (R.EX_FIX_CFG.mode === 'on' && fx !== raw) { r.ex = fx; r.kg = DEFAULT_KG[fx] ?? r.kg; } return r; };
+  const sigKeep = ex => { const times = (cs[ex].repTimes || []).slice();
+    if (!sig || R.SIG_CFG.mode === 'off') { const r = res(ex); return keep(applyFix(ex, r.times, r)); }
+    const v = sig.check(ex, times, cs, R.minSet);
     SIGLOG.push({ cnt: Object.fromEntries(R.IDS.map(i => [i, cs[i].reps]).filter(x => x[1])), ex, reps: cs[ex].reps, why: v.why, to: v.ex, st: v.st && { tilt: +v.st.tilt.toFixed(0), wrAb: +v.st.wrAb.toFixed(2), travel: +v.st.travel.toFixed(2), iqr: +v.st.iqr.toFixed(2), hy: +v.st.hy.toFixed(2) } });
-    if (R.SIG_CFG.mode !== 'on' || !v.why) return keep(res(ex)); if (v.drop) { sigDropped = true; return; } /* v8.47: no veto→alt relabel — app.js finishPending only drops (sig veto relabel was eval-only since e80e47a) */ return keep(res(ex)); };
+    if (v.drop && R.SIG_CFG.mode === 'on') { sigDropped = true; return; }
+    const r = res(ex); return keep(applyFix(ex, r.times, r)); };
   reset(); let i0 = 0; if (G) G.rest(F[0][0] * 1000 - 1e9);
   for (const a of F) { i0 = F.indexOf(a, i0); const lm = []; for (let i = 0; i < 33; i++) lm.push({ x: a[1 + 3 * i], y: a[2 + 3 * i], visibility: a[3 + 3 * i] });
     const ms = a[0] * 1000;
