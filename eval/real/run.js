@@ -20,8 +20,10 @@ if (arg('--platePerson', null) && P.PLATE_PERSON_CFG) P.PLATE_PERSON_CFG.mode = 
 if (arg('--autoReset', null) && R.AUTO_RESET_CFG) R.AUTO_RESET_CFG.mode = arg('--autoReset'); // v8.46: on|shadow|off
 if (arg('--splitSets', null) && R.CUT_SAVE_CFG) R.CUT_SAVE_CFG.mode = arg('--splitSets'); // v8.51: off|shadow|on
 if (arg('--pauseEnd', null) && R.PAUSE_END_CFG) R.PAUSE_END_CFG.mode = arg('--pauseEnd'); // v8.52a: off|shadow|on
+if (arg('--shortJunk', null) && R.SHORT_JUNK_CFG) R.SHORT_JUNK_CFG.mode = arg('--shortJunk'); // v8.52b: off|shadow|on
 if (arg('--tempo', null)) R.TEMPO_CFG.mode = arg('--tempo'); // v8.20: --tempo on|shadow
 const plaus = (ex, t) => (!R.plausibleSet || R.plausibleSet(t)) && !(R.TEMPO_CFG && R.TEMPO_CFG.mode === 'on' && R.tempoSlow(ex, t));
+const junkDrop = (ex, n) => !!(R.SHORT_JUNK_CFG && R.SHORT_JUNK_CFG.mode === 'on' && R.isShortJunk && R.isShortJunk(ex, n));
 const JIT = +((process.argv.includes('--jitter') && process.argv[process.argv.indexOf('--jitter') + 1]) || 0); // v8.26: ±frame jitter (fraction of a frame period)
 const JUMP = +arg('--jump', 0.06); // v8.26: a landmark that jumps more than this (image fraction) between logged frames is a tracking glitch, not motion: step, don't ramp
 const HOLD = process.argv.includes('--hold'); // v8.26 diagnostic: repeat each logged pose (new timestamps only) instead of interpolating
@@ -46,7 +48,7 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     const pEx = lock || auto, pN = pEx ? cs[pEx].reps : 0;
     if (pauseMode !== 'off' && pEx && R.pauseReady(cs[pEx], a[0], pEx)) {
       if (pauseMode === 'on') {
-        if (pN >= (R.minSet ? R.minSet(pEx) : 2) && plaus(pEx, cs[pEx].repTimes)) { sigKeep(pEx); resetSaved(pEx); if (R.AUTO_RESET_CFG && R.AUTO_RESET_CFG.mode === 'on') { pick.reset(); auto = null; } }
+        if (pN >= (R.minSet ? R.minSet(pEx) : 2) && plaus(pEx, cs[pEx].repTimes) && !junkDrop(pEx, pN)) { sigKeep(pEx); resetSaved(pEx); if (R.AUTO_RESET_CFG && R.AUTO_RESET_CFG.mode === 'on') { pick.reset(); auto = null; } }
         else { cs[pEx] = mk(pEx); shown = 0; }
       } else SIGLOG.push({ pauseShadow: true, ex: pEx, reps: pN, t: +a[0].toFixed(2) });
     }
@@ -59,6 +61,7 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     const splitMode = R.CUT_SAVE_CFG ? R.CUT_SAVE_CFG.mode : 'off';
     if (splitMode !== 'off' && R.readySets) {
       for (const id of R.readySets(cs, a[0], ex)) {
+        if (junkDrop(id, cs[id].reps)) { if (splitMode === 'on') cs[id] = mk(id); continue; }
         if (splitMode === 'on') { sigKeep(id); cs[id] = mk(id); }
         else SIGLOG.push({ splitShadow: true, ex: id, reps: cs[id].reps, t: +a[0].toFixed(2) });
       }
@@ -68,11 +71,11 @@ function replay(d, hz, opt = {}) { // opt.rest: {cfg, active} → v8.15 rest gat
     for (const id of R.IDS) if (id !== ex && cs[id].reps > 0 && a[0] - cs[id].lastRepT > AUTOSAVE_S && cs[id].forget) cs[id].forget();
     if (n !== shown) { shown = n; shownT = a[0]; }
     if (n > 0 && a[0] - shownT > AUTOSAVE_S && lock && R.relock && R.relock(cs, lock, p, a[0], rc.scores, true) !== lock) { lock = R.relock(cs, lock, p, a[0], rc.scores, true); shown = cs[lock].reps; shownT = a[0]; }
-    else if (n > 0 && (a[0] - shownT > AUTOSAVE_S || cs[ex].plateEnded)) {  if (n >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) { sigKeep(ex); resetSaved(ex); if (R.AUTO_RESET_CFG && R.AUTO_RESET_CFG.mode === 'on') { pick.reset(); auto = null; } /* v8.46 app saveSet */ } else { cs[ex] = mk(ex); shown = 0; } } }
+    else if (n > 0 && (a[0] - shownT > AUTOSAVE_S || cs[ex].plateEnded)) {  if (n >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes) && !junkDrop(ex, n)) { sigKeep(ex); resetSaved(ex); if (R.AUTO_RESET_CFG && R.AUTO_RESET_CFG.mode === 'on') { pick.reset(); auto = null; } /* v8.46 app saveSet */ } else { cs[ex] = mk(ex); shown = 0; } } }
   // the clip ends where the app saved the set: same last-chance re-lock as at an autosave
   if (lock && R.relock) lock = R.relock(cs, lock, null, F[F.length - 1][0] + AUTOSAVE_S, null, true);
   const ex = lock || auto;
-  sigDropped = false; if (ex && cs[ex].reps >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes)) sigKeep(ex);
+  sigDropped = false; if (ex && cs[ex].reps >= (R.minSet ? R.minSet(ex) : 2) && plaus(ex, cs[ex].repTimes) && !junkDrop(ex, cs[ex].reps)) sigKeep(ex);
   if (G) { const ret = saved || { ex: null, reps: 0, kg: 0, times: [] }; ret.restVerdicts = verdicts; if (opt.rest.active) return ret; }
   if (saved) return saved;
   if (ex && !sigDropped) { const r = res(ex); if (plaus(ex, r.times)) return r; return { ...r, reps: 0, times: [] }; }

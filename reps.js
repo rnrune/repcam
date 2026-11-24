@@ -758,6 +758,14 @@
     if (!plausibleSet(c.repTimes)) return false;
     return true;
   }
-  const api = { SAVE_KEEP_CFG, RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, CUT_SAVE_CFG, readySets, PAUSE_END_CFG, pauseReady, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
+  // v8.52b: do not auto-save a 2-rep knebøy/halvmark set (typical walk/setup, not a real set).
+  // Does not raise the global min (bench, dips, pull-ups, rows can still be 2). Manual ✓ still saves.
+  // Kill switch: localStorage repcam.shortJunk = off | shadow | on. Default shadow.
+  const SHORT_JUNK_CFG = { mode: 'shadow', maxReps: 2, exercises: ['knebøy', 'halvmark'] };
+  function isShortJunk(ex, reps) {
+    if (!ex || !SHORT_JUNK_CFG.exercises.includes(ex)) return false;
+    return reps >= 2 && reps <= (SHORT_JUNK_CFG.maxReps || 2);
+  }
+  const api = { SAVE_KEEP_CFG, RELOCK_TIE_CFG, LEG_TRAVEL_CFG, HIP_FOLLOW_CFG, AUTO_RESET_CFG, SIG_CFG, createSigTracker, RELOCK_CFG, SPLIT_CFG, BULG_COUNT_CFG, AMP_DUR_CFG, RDL_TAIL_CFG, MIN_SET, minSet, CUT_SAVE_CFG, readySets, PAUSE_END_CFG, pauseReady, SHORT_JUNK_CFG, isShortJunk, FILTER_CFG, TEMPO_CFG, tempoSlow, angle, geom, EX, IDS, relock, plausibleSet, createCounter, createCameraGate, createRecognizer, createPicker, createAngleCounter };
   if (typeof module !== 'undefined') module.exports = api; else root.Reps = api;
 })(this);
