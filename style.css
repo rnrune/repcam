@@ -145,6 +145,10 @@ details.sess[open] .chev{transform:rotate(90deg)}
 .toast.ask #tYes,.toast.ask #tNo{flex:1 1 40%;min-height:64px;font-size:19px;border-radius:16px}
 .toast.ask #tYes{background:#1f9d55}.toast.ask #tNo{background:rgba(255,255,255,.16)}
 .toast.ask #tEdit{flex:1 0 100%;background:none;min-height:40px;font-weight:650;opacity:.85;text-decoration:underline}
+/* v8.52: for a low/uncertain auto set, Endre reps is the first (green) action; delete is the small link */
+.toast.ask.editFirst #tEdit{order:-2;flex:1 1 40%;min-height:64px;font-size:19px;border-radius:16px;background:#1f9d55;font-weight:800;text-decoration:none;opacity:1}
+.toast.ask.editFirst #tYes{order:-1;background:rgba(255,255,255,.16)}
+.toast.ask.editFirst #tNo{flex:1 0 100%;background:none;min-height:40px;font-weight:650;opacity:.85;text-decoration:underline}
 body.confirming .wcard,body.confirming #hint,body.confirming #camBtn,body.confirming #fbMiss{opacity:0;pointer-events:none;transition:opacity .2s}
 body.confirming #ringwrap{opacity:.25;transition:opacity .2s}body.confirming #flip,body.confirming .fbPend{opacity:0;pointer-events:none}
 
@@ -172,6 +176,7 @@ body.confirming #ringwrap{opacity:.25;transition:opacity .2s}body.confirming #fl
   html.landUI .toast{right:calc(var(--landW) + 24px);left:calc(env(safe-area-inset-left) + 12px);bottom:calc(env(safe-area-inset-bottom) + 12px);max-width:none;margin:0}
   html.landUI .toast.ask{padding:10px 12px;gap:8px}
   html.landUI .toast.ask #tYes,html.landUI .toast.ask #tNo{min-height:52px}
+  html.landUI .toast.ask.editFirst #tEdit{min-height:52px}
   html.landUI .camask{right:calc(var(--landW) + 24px);left:calc(env(safe-area-inset-left) + 12px);top:calc(env(safe-area-inset-top) + 62px);max-width:none;margin:0}
   html.landUI #exChip{left:calc((100% - var(--landW) - 20px) / 2);transform:translateX(-50%);max-width:calc(100% - var(--landW) - 120px)}
   html.landUI #recWarn{right:calc(var(--landW) + 24px);max-width:none}

@@ -731,8 +731,9 @@ function saveSet(which) {
     resetCounters(ex); if (Reps.AUTO_RESET_CFG && Reps.AUTO_RESET_CFG.mode === 'on' && !manualEx) { picker.reset(); autoEx = null; } /* v8.46: the next set starts with a fresh exercise guess (mwi8db6r: stale 'roing' locked a pull-up set) */
   }
   navigator.vibrate?.([40, 60, 40]);
-  // v8.20 «Bekreft usikkert sett»: an auto set the tempo gate calls slow (or with few reps) asks ✓/✗ in the toast.
-  // ✓ = confirmed label, ✗ = removed + 'notASet' label, no answer = kept. Kill switch localStorage repcam.confirmOff=1.
+  // v8.20 «Bekreft usikkert sett»: an auto set the tempo gate calls slow (or with few reps) asks in the toast.
+  // v8.52: Endre reps is the first action (so a 3→5 correction is an edit, not a notASet delete). Keep and delete remain.
+  // No answer = kept. Kill switch localStorage repcam.confirmOff=1.
   const tOn = slowNow && (tsh.mode === 'on'); // v8.24 tempo rule ON: the set must be confirmed, otherwise it is removed
   const unsure = !manualEx && (tOn || (LS.getItem('repcam.confirmOff') !== '1' && (slowNow || reps <= CONFIRM_MAX_REPS)));
   tempoPend = tOn && !manualEx ? { ts: rec.timestamp, ex, reps } : null; if (tOn) tempoLog(ex, reps, 'asked');
@@ -746,8 +747,8 @@ function showToast(text, ts, ask) {
   // hint, camera chip and big counter are hidden/dimmed meanwhile (body.confirming). Kill switch: repcam.declutter=off.
   const focus = !!(ask && ts) && LS.getItem('repcam.declutter') !== 'off', cut = text.lastIndexOf(' · ');
   $('toastTx').innerHTML = focus && cut > 0 ? `<b class="tq-h">${esc(text.slice(cut + 3))}</b><span class="tq-s">${esc(text.slice(0, cut).replace(/^[^:]+:\s*/, ''))}</span>` : esc(text);
-  $('toast').classList.add('on'); $('toast').classList.toggle('ask', focus); document.body.classList.toggle('confirming', focus); if (ts) document.body.classList.add('afterSet');
-  $('tYes').textContent = focus ? L.t('w.yesKeep') : '✓'; $('tNo').textContent = focus ? L.t('w.noDel') : '✗';
+  $('toast').classList.add('on'); $('toast').classList.toggle('ask', focus); $('toast').classList.toggle('editFirst', focus); document.body.classList.toggle('confirming', focus); if (ts) document.body.classList.add('afterSet');
+  $('tYes').textContent = focus ? L.t('w.yesKeep') : '✓'; $('tNo').textContent = focus ? L.t('w.noDel') : '✗'; $('tEdit').textContent = focus ? L.t('w.editReps') : L.t('w.edit');
   $('tYes').style.display = $('tNo').style.display = ask && ts ? '' : 'none';
   $('tYes').onclick = () => { if (tempoPend && tempoPend.ts === ts) { tempoLog(tempoPend.ex, tempoPend.reps, 'kept'); tempoPend = null; } store.updateSet(ts, { unsure: false }); const r = store.sets().find(x => x.timestamp === ts); fbLabel(ts, 'edit', r ? { reps: r.reps, kg: r.kg, exercise: r.exercise } : undefined); hideToast(); showToast(L.t('w.kept')); };
   $('tNo').onclick = () => $('tUndo').onclick();
@@ -764,7 +765,7 @@ let setToast = null;
 // called every frame: hide the set toast once the next set is under way (a rep counted) and the minimum time has passed
 function setToastTick() { if (setToast && currentReps() > 0) document.body.classList.remove('afterSet'); if (setToast && currentReps() > 0 && Date.now() - setToast.at >= SET_TOAST_MIN_MS) hideToast(); }
 $('fbMiss').onclick = () => { fb.camera = Camera.forSet(camPos(), curEx()) || (camPos() ? { sessionPos: camPos(), derivedAngle: null, angle: null, overridden: false } : null); /* v8.34 */ fbCut({ exercise: curEx(), reps: currentReps(), kg: kgFor(curEx() || 'knebøy') }, null, Feedback.labelFrom({}, 'missed')); showToast(L.t('fb.missedOk')); };
-function hideToast() { $('toast').classList.remove('on', 'ask'); document.body.classList.remove('confirming'); document.body.classList.remove('afterSet'); setToast = null;
+function hideToast() { $('toast').classList.remove('on', 'ask', 'editFirst'); document.body.classList.remove('confirming'); document.body.classList.remove('afterSet'); setToast = null;
   // v8.25 (Rune): no answer KEEPS the set, marked 'usikker' in the log/history to fix later; no label is sent (not ground truth), Strava keeps it
   if (tempoPend) { const p = tempoPend; tempoPend = null; if (store.sets().some(x => x.timestamp === p.ts)) { store.updateSet(p.ts, { unsure: true }); tempoLog(p.ex, p.reps, 'kept-noanswer'); renderWorkout(); } } }
 // v8.24 tempo decisions, kept locally for measuring the rule after a session (also in each clip's feedback meta)
